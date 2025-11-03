@@ -56,17 +56,17 @@ export default function Education() {
                     balance on the <strong>Besu EduNet</strong> network.
                 </p>
 
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
                     <Link
                         to="/education/network-check"
-                        className="w-full bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold py-3 px-4 rounded-lg transition border border-indigo-300 text-center"
+                        className="w-full lg:w-auto lg:flex-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold py-3 px-4 rounded-lg transition border border-indigo-300 text-center"
                     >
                         🔗 Open Besu Network Verifier
                     </Link>
 
                     <Link
                         to="/education/nft-verifier"
-                        className="w-full bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-3 px-4 rounded-lg transition border border-green-300 text-center"
+                        className="w-full lg:w-auto lg:flex-1 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-3 px-4 rounded-lg transition border border-green-300 text-center"
                     >
                         🪪 Open NFT Verifier (coming soon)
                     </Link>
