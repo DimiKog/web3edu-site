@@ -25,9 +25,12 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Links */
@@ -47,4 +50,20 @@ button:hover {
 /* Headings */
 h1, h2, h3, h4 {
   @apply font-bold;
+}
+
+/* Normalize Chrome/macOS overlay scrollbar so it doesn't show a ghost line at the bottom */
+::-webkit-scrollbar {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(120, 120, 120, 0.35);
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }

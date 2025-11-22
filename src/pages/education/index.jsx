@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
+import PageShell from "../../components/PageShell.jsx";
+import { ACCENT_SECONDARY } from "../../design/theme.js";
 
 export default function Education() {
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center py-12 px-4">
-            <div className="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 sm:p-12">
+        <PageShell innerClassName="items-center">
+            <div className="relative w-full max-w-3xl rounded-2xl bg-white/90 p-8 shadow-lg backdrop-blur-sm transition dark:bg-slate-900/80 sm:p-12">
 
                 {/* 🌐 Language Toggle */}
                 <div className="absolute top-5 right-5 flex items-center gap-2 text-sm">
@@ -44,7 +46,10 @@ export default function Education() {
                 </ul>
 
                 {/* Section Divider */}
-                <div className="border-t border-gray-200 dark:border-gray-700 my-8"></div>
+                <div
+                    className="my-8 h-px w-full"
+                    style={{ backgroundColor: ACCENT_SECONDARY }}
+                ></div>
 
                 {/* Tools & Verifiers Section */}
                 <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
@@ -56,24 +61,27 @@ export default function Education() {
                     balance on the <strong>Besu EduNet</strong> network.
                 </p>
 
-                <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+                <div className="flex flex-col gap-4 md:flex-row md:gap-6">
                     <Link
                         to="/education/network-check"
-                        className="w-full lg:w-auto lg:flex-1 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-semibold py-3 px-4 rounded-lg transition border border-indigo-300 text-center"
+                        className="w-full md:flex-1 rounded-2xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm font-semibold text-indigo-700 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:bg-indigo-100 dark:border-indigo-500/40 dark:bg-indigo-500/15 dark:text-indigo-100 dark:hover:border-indigo-400 dark:hover:bg-indigo-500/25"
                     >
                         🔗 Open Besu Network Verifier
                     </Link>
 
                     <Link
                         to="/education/nft-verifier"
-                        className="w-full lg:w-auto lg:flex-1 bg-green-100 hover:bg-green-200 text-green-700 font-semibold py-3 px-4 rounded-lg transition border border-green-300 text-center"
+                        className="w-full md:flex-1 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-100 dark:hover:border-emerald-400 dark:hover:bg-emerald-500/25"
                     >
                         🪪 Open NFT Verifier (coming soon)
                     </Link>
                 </div>
 
                 {/* Section Divider */}
-                <div className="border-t border-gray-200 dark:border-gray-700 my-10"></div>
+                <div
+                    className="my-10 h-px w-full"
+                    style={{ backgroundColor: ACCENT_SECONDARY }}
+                ></div>
 
                 {/* Home Button */}
                 <div className="text-center">
@@ -85,6 +93,6 @@ export default function Education() {
                     </a>
                 </div>
             </div>
-        </div>
+        </PageShell>
     );
 }

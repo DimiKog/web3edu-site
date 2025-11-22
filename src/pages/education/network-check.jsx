@@ -10,7 +10,7 @@ export default function NetworkCheck() {
     const [connected, setConnected] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
 
-    const BESU_RPC_URL = "https://rpc.dimikog.org/rpc";
+    const BESU_RPC_URL = "https://rpc.dimikog.org/rpc/";
     const CHAIN_NAME = "Besu EduNet";
     const CHAIN_ID_DEC = 424242;
     const CHAIN_ID_HEX = "0x67932";
@@ -131,8 +131,14 @@ export default function NetworkCheck() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4">
-            <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 relative overflow-hidden">
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 text-white
+bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] relative overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1/4 left-1/3 w-[480px] h-[480px] bg-[#33D6FF]/20 blur-[140px] rounded-full"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-[380px] h-[380px] bg-[#7F3DF1]/25 blur-[130px] rounded-full"></div>
+            </div>
+            <div className="w-full max-w-md backdrop-blur-xl bg-[#0E0F1A]/40 border border-white/20
+rounded-3xl shadow-[0_0_30px_rgba(0,0,0,0.25)] p-8 relative z-10 text-white">
                 {/* 🌐 Language Toggle */}
                 <div className="absolute top-3 right-3 flex items-center gap-2 text-sm">
                     <a
@@ -144,12 +150,12 @@ export default function NetworkCheck() {
                     </a>
                 </div>
 
-                <h1 className="text-2xl font-bold text-center mb-4">
+                <h1 className="text-2xl font-bold text-center mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)] text-white">
                     🧠 Besu EduNet Connectivity Check
                 </h1>
 
                 {/* Info Box */}
-                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6 text-sm text-blue-800 dark:text-blue-200">
+                <div className="bg-white/10 border border-white/20 rounded-xl p-4 mb-6 text-sm text-white/90">
                     Use this tool to confirm you’re connected to <strong>Besu EduNet</strong>
                     and to check your balance in <strong>{NATIVE_SYMBOL}</strong>.
                     <br />
@@ -158,7 +164,9 @@ export default function NetworkCheck() {
 
                 <button
                     onClick={connectWallet}
-                    className="w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition"
+                    className="w-full py-2 px-4 
+bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF] 
+hover:opacity-90 text-white font-semibold rounded-xl shadow-lg shadow-[#7F3DF1]/30 transition"
                 >
                     Connect Wallet
                 </button>
@@ -166,7 +174,7 @@ export default function NetworkCheck() {
                 {error && <p className="mt-4 text-red-500 text-center text-sm">{error}</p>}
 
                 {besuChainId && (
-                    <p className="mt-4 text-center text-sm text-gray-500">
+                    <p className="mt-4 text-center text-sm text-white/70">
                         Detected Chain ID: {parseInt(besuChainId, 16)} ({besuChainId})
                     </p>
                 )}
@@ -184,28 +192,40 @@ export default function NetworkCheck() {
                                 disabled={refreshing}
                                 className={`ml-2 px-3 py-1 text-sm rounded-md font-medium ${refreshing
                                     ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-green-600 hover:bg-green-700"
+                                    : "bg-gradient-to-r from-[#33D6FF] to-[#7F3DF1] hover:opacity-90"
                                     } text-white transition`}
                             >
                                 {refreshing ? "Refreshing..." : "↻ Refresh"}
                             </button>
                         </div>
 
-                        <p className="text-xs text-gray-500 italic">
+                        <p className="text-xs text-white/70 italic">
                             If MetaMask shows 0 {NATIVE_SYMBOL}, treat this value as the correct network balance.
                         </p>
 
                         <p><strong>Status:</strong> {networkStatus}</p>
+                        {connected && Number(besuChainId) === CHAIN_ID_DEC && (
+                            <button
+                                onClick={() => {
+                                    window.location.hash = "#/join";
+                                }}
+                                className="mt-6 w-full py-2 px-4 rounded-xl 
+bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF] 
+text-white font-semibold shadow-lg shadow-[#7F3DF1]/30 hover:opacity-90 transition"
+                            >
+                                Continue
+                            </button>
+                        )}
                     </div>
                 )}
 
-                <p className="mt-6 text-sm text-center text-gray-500">
+                <p className="mt-6 text-sm text-center text-white/70">
                     Connected via {BESU_RPC_URL}
                 </p>
 
                 {connected && (
                     <div className="absolute inset-x-0 top-0 flex justify-center mt-2 animate-fadeIn">
-                        <div className="bg-green-500 text-white text-sm font-medium px-4 py-2 rounded-full shadow-md">
+                        <div className="bg-green-500/90 text-white text-sm font-medium px-4 py-2 rounded-full shadow-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
                             ✅ Connected to Besu EduNet! Balance updates directly from RPC.
                         </div>
                     </div>
@@ -216,7 +236,10 @@ export default function NetworkCheck() {
             <div className="mt-10">
                 <a
                     href="#/education"
-                    className="inline-flex items-center gap-2 px-5 py-3 bg-gray-900 hover:bg-gray-700 text-white font-medium rounded-lg shadow-md transition"
+                    className="inline-flex items-center gap-2 px-5 py-3 
+bg-gradient-to-r from-[#33D6FF]/25 to-[#7F3DF1]/25 
+hover:from-[#33D6FF]/35 hover:to-[#7F3DF1]/35
+text-white/90 font-medium rounded-xl shadow-md border border-white/20 backdrop-blur-sm transition"
                 >
                     <span>🏠</span> Back to Education Portal
                 </a>
