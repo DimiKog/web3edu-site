@@ -24,6 +24,14 @@ import Join from './pages/Join.jsx';
 import JoinGR from './pages/JoinGR.jsx';
 import MintIdentity from './pages/MintIdentity.jsx';
 import MintIdentityGR from './pages/MintIdentityGR.jsx';
+import WelcomeIdentity from './pages/WelcomeIdentity.jsx';
+import WelcomeIdentityGR from './pages/WelcomeIdentityGR.jsx';
+import Dashboard from './pages/Dashboard.jsx';
+import DashboardGR from './pages/DashboardGR.jsx';
+import SbtView from "./pages/SbtView.jsx";
+import SbtViewGR from "./pages/SbtViewGR.jsx";
+import VerifyIdentity from "./pages/VerifyIdentity.jsx";
+import VerifyIdentityGR from "./pages/VerifyIdentityGR.jsx";
 
 // Besu Edu-Net chain config
 const web3EduChain = {
@@ -78,6 +86,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/join-gr" element={<JoinGR />} />
               <Route path="/mint-identity" element={<MintIdentity />} />
               <Route path="/mint-identity-gr" element={<MintIdentityGR />} />
+              <Route path="/welcome" element={<WelcomeIdentity />} />
+              <Route path="/welcome-gr" element={<WelcomeIdentityGR />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard-gr" element={<DashboardGR />} />
+              <Route path="/sbt-view" element={<SbtView />} />
+              <Route path="/sbt-view-gr" element={<SbtViewGR />} />
+              <Route path="/verify/:address" element={<VerifyIdentity />} />
+              <Route path="/verify-gr/:address" element={<VerifyIdentityGR />} />
             </Routes>
           </HashRouter>
         </RainbowKitProvider>

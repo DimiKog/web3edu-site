@@ -3,7 +3,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import PageShell from "../components/PageShell.jsx";
-import { ethers } from "ethers";
 import identityIcon from "../assets/icons/identity-icon.png";
 
 export default function MintIdentity() {
@@ -12,43 +11,32 @@ export default function MintIdentity() {
     const [isMinting, setIsMinting] = useState(false);
     const [error, setError] = useState(null);
 
-    // TODO: Replace with the final deployed contract address
-    const SBT_ADDRESS = "0xYourSBTContractAddressHere";
-    // TODO: Replace with the ABI of your Identity SBT contract
-    const SBT_ABI = [
-        "function mint() public",
-        "function balanceOf(address owner) view returns (uint256)",
-    ];
-
     const handleMint = async () => {
         try {
             setError(null);
             setIsMinting(true);
 
-            if (!window.ethereum) {
-                setError("MetaMask not detected.");
+            if (!address) {
+                setError("Wallet address not found.");
                 setIsMinting(false);
                 return;
             }
 
-            const provider = new ethers.BrowserProvider(window.ethereum);
+            const response = await fetch("https://web3edu-api.dimikog.org/mint-sbt", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ address })
+            });
 
-            // Get the current network object
-            const net = await provider.getNetwork();
+            const data = await response.json();
 
-            // Override the internal network object to fully disable ENS
-            provider._network = {
-                ...net,
-                ensAddress: undefined
-            };
-
-            const signer = await provider.getSigner();
-            const contract = new ethers.Contract(SBT_ADDRESS, SBT_ABI, signer);
-
-            const tx = await contract.mint();
-            await tx.wait();
-
-            window.location.hash = "#/welcome";
+            if (data.ok) {
+                navigate("/welcome");
+            } else {
+                setError(data.error || "Minting failed.");
+            }
         } catch (err) {
             console.error(err);
             setError(err.message || "Minting failed.");
@@ -71,6 +59,33 @@ relative overflow-hidden text-white backdrop-brightness-125 rounded-3xl py-20">
                 <div className="absolute top-[30%] left-[18%] w-3 h-3 bg-white/40 rounded-full animate-ping"></div>
                 <div className="absolute bottom-[22%] right-[15%] w-2 h-2 bg-[#33D6FF]/50 rounded-full animate-ping"></div>
                 <div className="absolute top-[55%] right-[28%] w-2 h-2 bg-[#7F3DF1]/50 rounded-full animate-ping"></div>
+
+                {/* Progress Header */}
+                <div className="relative z-20 max-w-xl w-full mb-10 flex justify-between items-center text-sm font-semibold text-slate-300 dark:text-gray-400 select-none">
+                    <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full
+                                        bg-purple-500 text-white font-bold">
+                            ✓
+                        </div>
+                        <span className="text-purple-400 dark:text-purple-300 font-semibold">Connect Wallet</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full 
+                                        bg-purple-500 dark:bg-purple-600 text-white font-bold">
+                            2
+                        </div>
+                        <span className="text-white font-semibold">Mint SBT</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2 opacity-40">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full 
+                                        bg-indigo-500/40 text-white font-bold">
+                            3
+                        </div>
+                        <span>Welcome</span>
+                    </div>
+                </div>
 
                 <p className="text-sm text-white/70 mb-6 mt-4 relative z-10">
                     Step 2 of 3 — Mint Your Identity SBT

@@ -3,7 +3,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import PageShell from "../components/PageShell.jsx";
-import { ethers } from "ethers";
 import identityIcon from "../assets/icons/identity-icon.png";
 
 export default function MintIdentity() {
@@ -12,42 +11,19 @@ export default function MintIdentity() {
     const [isMinting, setIsMinting] = useState(false);
     const [error, setError] = useState(null);
 
-    // TODO: Replace with the final deployed contract address
-    const SBT_ADDRESS = "0xYourSBTContractAddressHere";
-    // TODO: Replace with the ABI of your Identity SBT contract
-    const SBT_ABI = [
-        "function mint() public",
-        "function balanceOf(address owner) view returns (uint256)",
-    ];
-
     const handleMint = async () => {
+        setError(null);
+        setIsMinting(true);
         try {
-            setError(null);
-            setIsMinting(true);
-
-            if (!window.ethereum) {
-                setError("MetaMask not detected.");
-                setIsMinting(false);
-                return;
+            const response = await fetch("https://web3edu-api.dimikog.org/mint-sbt", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ address })
+            });
+            const data = await response.json();
+            if (!data.ok) {
+                throw new Error(data.error || "Minting failed");
             }
-
-            const provider = new ethers.BrowserProvider(window.ethereum);
-
-            // Get the current network object
-            const net = await provider.getNetwork();
-
-            // Override the internal network object to fully disable ENS
-            provider._network = {
-                ...net,
-                ensAddress: undefined
-            };
-
-            const signer = await provider.getSigner();
-            const contract = new ethers.Contract(SBT_ADDRESS, SBT_ABI, signer);
-
-            const tx = await contract.mint();
-            await tx.wait();
-
             navigate("/welcome-gr");
         } catch (err) {
             console.error(err);
@@ -72,9 +48,31 @@ relative overflow-hidden text-white backdrop-brightness-125 rounded-3xl py-20">
                 <div className="absolute bottom-[22%] right-[15%] w-2 h-2 bg-[#33D6FF]/50 rounded-full animate-ping"></div>
                 <div className="absolute top-[55%] right-[28%] w-2 h-2 bg-[#7F3DF1]/50 rounded-full animate-ping"></div>
 
-                <p className="text-sm text-white/70 mb-6 mt-4 relative z-10">
-                    Βήμα 2 από 3 — Κόψε το Identity SBT σου
-                </p>
+                <div className="flex items-center gap-10 mb-10 relative z-10">
+                    {/* Step 1 — Completed */}
+                    <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-[#7F3DF1] flex items-center justify-center text-white font-bold shadow-md">
+                            ✓
+                        </div>
+                        <span className="text-[#D3B6FF] font-medium">Σύνδεση Wallet</span>
+                    </div>
+
+                    {/* Step 2 — Current (Mint SBT) */}
+                    <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-[#A855F7] flex items-center justify-center text-white font-bold shadow-md">
+                            2
+                        </div>
+                        <span className="text-white font-semibold">Έκδοση SBT</span>
+                    </div>
+
+                    {/* Step 3 — Upcoming */}
+                    <div className="flex items-center gap-2 opacity-60">
+                        <div className="w-7 h-7 rounded-full bg-slate-500/60 flex items-center justify-center text-white font-bold shadow-md">
+                            3
+                        </div>
+                        <span className="text-slate-200/80 font-medium">Καλωσόρισες στο Web3Edu</span>
+                    </div>
+                </div>
 
                 <div className="relative z-10 bg-white/10 backdrop-blur-2xl rounded-3xl px-10 py-12 shadow-[0_0_40px_rgba(0,0,0,0.25)] max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] border border-white/10 shadow-[0_0_25px_rgba(255,255,255,0.12)]">
 

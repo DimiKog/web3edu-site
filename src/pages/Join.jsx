@@ -11,6 +11,7 @@ export default function Join() {
     const navigate = useNavigate();
     const [networkOK, setNetworkOK] = useState(true);
     const [loadingNetwork, setLoadingNetwork] = useState(false);
+    const [checkingSBT, setCheckingSBT] = useState(false);
 
     // Check if user is connected to Web3Edu Besu Edu-Net (chainId 2025)
     const checkNetwork = async () => {
@@ -20,9 +21,9 @@ export default function Join() {
         try {
             const chainId = await window.ethereum.request({ method: "eth_chainId" });
 
-            if (chainId !== "0x67932") { // Hex of 424242
+            if (chainId.toLowerCase() !== "0x67932") {
                 setNetworkOK(false);
-                window.location.hash = "#/education/network-check";
+                navigate("/education/network-check");
                 return;
             } else {
                 setNetworkOK(true);
@@ -34,21 +35,32 @@ export default function Join() {
     };
 
     useEffect(() => {
-        if (!isConnected) return;
-        checkNetwork();
+        if (isConnected) {
+            checkNetwork();
+        }
     }, [isConnected]);
 
     const handleContinue = async () => {
-        const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://mybackend.dimikog.org";
+        const BACKEND = "https://web3edu-api.dimikog.org";
+
+        setCheckingSBT(true);
+
         try {
-            const res = await axios.get(`${BACKEND}/check-sbt/${address}`);
-            if (res.data.hasSBT) {
-                window.location.hash = "#/dashboard";
+            const res = await axios.get(`${BACKEND}/check-sbt/${address}`, {
+                timeout: 8000
+            });
+
+            if (res.data.hasSBT === true) {
+                setCheckingSBT(false);
+                navigate("/dashboard");
             } else {
-                window.location.hash = "#/mint-identity";
+                setCheckingSBT(false);
+                navigate("/mint-identity");
             }
         } catch (e) {
+            setCheckingSBT(false);
             console.error("SBT check failed:", e);
+            alert("Could not check your Identity SBT. Please try again.");
         }
     };
 
@@ -68,9 +80,30 @@ bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] rel
 
                 <div className="absolute top-[40%] right-[10%] w-[180px] h-[180px] bg-white/[0.05] blur-[100px] rounded-full"></div>
 
-                <p className="text-sm text-white/70 mb-6 mt-4 relative z-10">
-                    Step 1 of 3 — Connect Your Wallet
-                </p>
+                <div className="relative z-20 max-w-xl w-full mb-10 flex justify-between items-center text-sm font-semibold text-slate-300 dark:text-gray-400 select-none">
+
+                    <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-500 text-white font-bold">
+                            1
+                        </div>
+                        <span className="text-white font-semibold">Connect Wallet</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 dark:bg-white/10 text-white">
+                            2
+                        </div>
+                        <span className="opacity-50">Mint SBT</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 dark:bg-white/10 text-white">
+                            3
+                        </div>
+                        <span className="opacity-50">Welcome</span>
+                    </div>
+
+                </div>
 
                 <div className="relative z-10 bg-white/5 backdrop-blur-xl rounded-3xl px-10 py-12 shadow-[0_0_40px_rgba(0,0,0,0.25)] max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out]">
                     <h1 className="text-4xl font-extrabold drop-shadow-[0_3px_6px_rgba(0,0,0,0.45)] text-white relative z-10">
@@ -81,12 +114,6 @@ bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] rel
                         Connect your wallet to access Web3-native learning, earn points,
                         and unlock your dynamic Identity Soulbound Token (SBT).
                     </p>
-
-                    <div className="flex items-center gap-2 mt-6 relative z-10">
-                        <div className="w-3 h-3 rounded-full bg-white/90"></div>
-                        <div className="w-3 h-3 rounded-full bg-white/25"></div>
-                        <div className="w-3 h-3 rounded-full bg-white/25"></div>
-                    </div>
 
                     <div className="relative mt-10">
                         <div className="absolute inset-0 blur-[90px] bg-[#7F3DF1]/40 rounded-full"></div>
@@ -104,13 +131,20 @@ bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] rel
                     {isConnected && networkOK && !loadingNetwork && (
                         <button
                             onClick={handleContinue}
-                            className="mt-10 relative z-10 py-3 px-6 rounded-xl 
+                            disabled={checkingSBT}
+                            className={`mt-10 relative z-10 py-3 px-6 rounded-xl 
                             bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF] 
                             text-white font-semibold shadow-lg shadow-[#7F3DF1]/30 
-                            hover:opacity-90 transition"
+                            transition ${checkingSBT ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"}`}
                         >
-                            Continue
+                            {checkingSBT ? "Checking identity…" : "Continue"}
                         </button>
+                    )}
+
+                    {checkingSBT && (
+                        <p className="mt-4 text-md text-white/70 relative z-10 animate-pulse">
+                            Verifying your Identity SBT…
+                        </p>
                     )}
 
                     {isConnected && loadingNetwork && (

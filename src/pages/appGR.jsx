@@ -38,7 +38,7 @@ const featureCardsGR = [
 const AppGR = () => (
     <HomePageLayout
         heroContent={gr.hero}
-        heroCtaHref="/#/join"
+        heroCtaHref="/#/join-gr"
         heroCtaLabel="Ξεκίνα την Μάθηση"
         motivationContent={gr.motivation}
         motivationHeading="Γιατί Web3Edu"

@@ -12,6 +12,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@rainbow-me/rainbowkit": "^2.2.9",
     "dom": "^0.0.3",
     "ethers": "^6.15.0",

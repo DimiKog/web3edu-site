@@ -11,6 +11,7 @@ export default function JoinGR() {
     const navigate = useNavigate();
     const [networkOK, setNetworkOK] = useState(true);
     const [loadingNetwork, setLoadingNetwork] = useState(false);
+    const [loadingSBT, setLoadingSBT] = useState(false);
 
     // Έλεγχος δικτύου (Besu Edu-Net, chainId 424242)
     const checkNetwork = async () => {
@@ -20,9 +21,9 @@ export default function JoinGR() {
         try {
             const chainId = await window.ethereum.request({ method: "eth_chainId" });
 
-            if (chainId !== "0x67932") {
+            if (chainId.toLowerCase() !== "0x67932") {
                 setNetworkOK(false);
-                window.location.hash = "#/education/network-check-gr";
+                navigate("/education/network-check-gr");
                 return;
             } else {
                 setNetworkOK(true);
@@ -39,16 +40,23 @@ export default function JoinGR() {
     }, [isConnected]);
 
     const handleContinue = async () => {
-        const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://mybackend.dimikog.org";
+        const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+        setLoadingSBT(true);
         try {
-            const res = await axios.get(`${BACKEND}/check-sbt/${address}`);
-            if (res.data.hasSBT) {
-                window.location.hash = "#/dashboard-gr";
+            const res = await axios.get(
+                `${BACKEND}/check-sbt/${address}`,
+                { timeout: 8000 }
+            );
+            if (res.data?.hasSBT) {
+                navigate("/dashboard-gr");
             } else {
-                window.location.hash = "#/mint-identity-gr";
+                navigate("/mint-identity-gr");
             }
         } catch (e) {
             console.error("SBT check failed:", e);
+            navigate("/mint-identity-gr");
+        } finally {
+            setLoadingSBT(false);
         }
     };
 
@@ -56,6 +64,32 @@ export default function JoinGR() {
         <PageShell>
             <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6
 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] relative overflow-hidden text-white rounded-3xl py-20">
+
+                {/* Progress Header */}
+                <div className="relative z-20 max-w-xl w-full mb-10 flex justify-between items-center text-sm font-semibold text-white/80 select-none">
+
+                    <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 text-white">
+                            1
+                        </div>
+                        <span className="text-white">Σύνδεση Πορτοφολιού</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 text-white">
+                            2
+                        </div>
+                        <span className="text-white/50">Κόμισμα SBT</span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 text-white">
+                            3
+                        </div>
+                        <span className="text-white/50">Καλωσορίσατε</span>
+                    </div>
+
+                </div>
 
                 {/* Background Glow */}
                 <div className="absolute inset-0 pointer-events-none">
@@ -71,11 +105,6 @@ bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] rel
                 {/* Wide-Screen Halo */}
                 <div className="absolute top-[40%] right-[10%] w-[180px] h-[180px] bg-white/[0.05] blur-[100px] rounded-full"></div>
 
-                {/* STEP Indicator */}
-                <p className="text-sm text-white/70 mb-6 mt-4 relative z-10">
-                    Βήμα 1 από 3 — Σύνδεση Πορτοφολιού
-                </p>
-
                 {/* Main Card */}
                 <div className="relative z-10 bg-white/5 backdrop-blur-xl rounded-3xl px-10 py-12 shadow-[0_0_40px_rgba(0,0,0,0.25)] max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out]">
 
@@ -89,13 +118,6 @@ bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] rel
                         Σύνδεσε το πορτοφόλι σου για να αποκτήσεις πρόσβαση στο εκαπιδευτικό υλικό για το Web3,
                         να κερδίσεις βαθμούς και να ξεκλειδώσεις το δυναμικό σου Identity Soulbound Token (SBT).
                     </p>
-
-                    {/* Progress Dots */}
-                    <div className="flex items-center gap-2 mt-6 relative z-10">
-                        <div className="w-3 h-3 rounded-full bg-white/90"></div>
-                        <div className="w-3 h-3 rounded-full bg-white/25"></div>
-                        <div className="w-3 h-3 rounded-full bg-white/25"></div>
-                    </div>
 
                     {/* Hero Image */}
                     <div className="relative mt-10">
@@ -113,15 +135,19 @@ bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] rel
                     </div>
 
                     {/* Continue Button */}
-                    {isConnected && networkOK && !loadingNetwork && (
+                    {isConnected && networkOK && (
                         <button
-                            onClick={handleContinue}
-                            className="mt-10 relative z-10 py-3 px-6 rounded-xl 
+                            onClick={loadingSBT ? undefined : handleContinue}
+                            disabled={loadingSBT}
+                            className={`mt-10 relative z-10 py-3 px-6 rounded-xl 
                             bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF] 
                             text-white font-semibold shadow-lg shadow-[#7F3DF1]/30 
-                            hover:opacity-90 transition"
+                            transition ${loadingSBT
+                                    ? "opacity-60 cursor-not-allowed"
+                                    : "hover:opacity-90"
+                                }`}
                         >
-                            Συνέχεια
+                            {loadingSBT ? "Έλεγχος..." : "Συνέχεια"}
                         </button>
                     )}
 

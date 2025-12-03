@@ -3,6 +3,8 @@
 import React from "react";
 import web3EduLogo from "../assets/web3edu_logo.svg";
 import { ACCENT_PRIMARY } from "../design/theme.js";
+import { useAccount } from "wagmi";
+import { AddressIdenticon, generateAvatarStyle, shortAddress } from "./identity-ui.jsx";
 
 export default function PageShell({
   accentColor = ACCENT_PRIMARY,
@@ -12,6 +14,12 @@ export default function PageShell({
   const [isShrunk, setIsShrunk] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [showJoin, setShowJoin] = React.useState(false);
+
+  const { address, isConnected } = useAccount();
+
+  const [currentHash, setCurrentHash] = React.useState(
+    typeof window !== "undefined" ? window.location.hash || "#/" : "#/"
+  );
 
   // THE ONLY source of truth for language
   const [lang, setLang] = React.useState(
@@ -46,6 +54,14 @@ export default function PageShell({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash || "#/");
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   // Handle language toggle
   const toggleLanguage = () => {
     const newLang = lang === "gr" ? "en" : "gr";
@@ -75,6 +91,15 @@ export default function PageShell({
       }
     }
   };
+
+  const inDashboard = currentHash.startsWith("#/dashboard");
+  const inSbtView = currentHash.startsWith("#/sbt-view");
+  const inVerify = currentHash.startsWith("#/verify");
+  const inWelcomeIdentity = currentHash.startsWith("#/welcome-identity");
+
+  const showIdentityAvatar = Boolean(isConnected && address);
+  const shortAddr = address ? shortAddress(address) : "";
+  const savedTier = localStorage.getItem("web3edu-tier") || "Explorer";
 
   const baseClasses =
     "w-full flex flex-col px-4 sm:px-8 text-slate-900 dark:text-slate-100 transition-colors duration-300";
@@ -212,15 +237,50 @@ export default function PageShell({
           {/* Action buttons */}
           <div className="hidden md:flex items-center gap-4">
 
-            {/* Join button */}
-            <button
-              onClick={() => (window.location.hash = "#/join-gr")}
-              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/40 to-blue-500/40
-             hover:from-pink-500/60 hover:to-blue-500/60
-             text-white shadow-lg shadow-indigo-500/20 border border-white/10"
-            >
-              {isGR ? "Σύνδεση" : "Join"}
-            </button>
+            {/* Identity avatar OR Join button */}
+            {showIdentityAvatar ? (
+              <button
+                onClick={() => {
+                  window.location.hash = isGR ? "#/dashboard-gr" : "#/dashboard";
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full
+                  bg-slate-900/80 dark:bg-slate-900/80
+                  text-slate-100 border border-white/20 shadow-lg
+                  hover:bg-slate-800/90 transition-colors"
+              >
+                <div
+                  className={
+                    "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
+                    (
+                      savedTier === "Architect"
+                        ? "ring-2 ring-yellow-400/80"
+                        : savedTier === "Builder"
+                          ? "ring-2 ring-blue-400/80"
+                          : "ring-2 ring-purple-400/80"
+                    )
+                  }
+                  style={generateAvatarStyle(address, savedTier)}
+                >
+                  <AddressIdenticon address={address} />
+                </div>
+                <span className="text-[11px] font-mono tracking-wide hidden sm:inline">
+                  {shortAddr}
+                </span>
+              </button>
+            ) : (
+              !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
+                <button
+                  onClick={() => {
+                    window.location.hash = isGR ? "#/join-gr" : "#/join";
+                  }}
+                  className="px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/40 to-blue-500/40
+                 hover:from-pink-500/60 hover:to-blue-500/60
+                 text-white shadow-lg shadow-indigo-500/20 border border-white/10"
+                >
+                  {isGR ? "Σύνδεση" : "Join"}
+                </button>
+              )
+            )}
 
             {/* Theme toggle (moved outside language toggle group) */}
             <button
@@ -263,16 +323,48 @@ hover:text-blue-500 dark:hover:text-white">Αρχική</a>
                 <a href="/#/team-gr" className="block py-1 font-medium 
 text-slate-700 dark:text-blue-200
 hover:text-blue-500 dark:hover:text-white">Ομάδα</a>
-                <a
-                  href="/#/join-gr"
-                  className="block mt-2 py-2 px-4 rounded-full 
-                  bg-gradient-to-r from-pink-500/40 to-blue-500/40
-                  text-white font-semibold text-center
-                  shadow-lg shadow-indigo-500/20 border border-white/10
-                  hover:from-pink-500/60 hover:to-blue-500/60 transition"
-                >
-                  Σύνδεση
-                </a>
+                {showIdentityAvatar ? (
+                  <button
+                    onClick={() => {
+                      window.location.hash = "#/dashboard-gr";
+                      setMobileOpen(false);
+                    }}
+                    className="mt-2 w-full py-2 px-4 rounded-full 
+                      bg-slate-900/90 text-white font-semibold text-center
+                      shadow-lg shadow-indigo-500/30 border border-white/10
+                      flex items-center justify-center gap-2"
+                  >
+                    <div
+                      className={
+                        "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
+                        (
+                          savedTier === "Architect"
+                            ? "ring-2 ring-yellow-400/80"
+                            : savedTier === "Builder"
+                              ? "ring-2 ring-blue-400/80"
+                              : "ring-2 ring-purple-400/80"
+                        )
+                      }
+                      style={generateAvatarStyle(address, savedTier)}
+                    >
+                      <AddressIdenticon address={address} />
+                    </div>
+                    <span className="text-xs font-mono">{shortAddr || "Ταυτότητα"}</span>
+                  </button>
+                ) : (
+                  !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
+                    <a
+                      href="/#/join-gr"
+                      className="block mt-2 py-2 px-4 rounded-full 
+                      bg-gradient-to-r from-pink-500/40 to-blue-500/40
+                      text-white font-semibold text-center
+                      shadow-lg shadow-indigo-500/20 border border-white/10
+                      hover:from-pink-500/60 hover:to-blue-500/60 transition"
+                    >
+                      Σύνδεση
+                    </a>
+                  )
+                )}
               </>
             ) : (
               <>
@@ -282,16 +374,48 @@ hover:text-blue-500 dark:hover:text-white">Home</a>
                 <a href="/#/team" className="block py-1 font-medium 
 text-slate-700 dark:text-blue-200
 hover:text-blue-500 dark:hover:text-white">Team</a>
-                <a
-                  href="/#/join"
-                  className="block mt-2 py-2 px-4 rounded-full 
-                  bg-gradient-to-r from-pink-500/40 to-blue-500/40
-                  text-white font-semibold text-center
-                  shadow-lg shadow-indigo-500/20 border border-white/10
-                  hover:from-pink-500/60 hover:to-blue-500/60 transition"
-                >
-                  Join
-                </a>
+                {showIdentityAvatar ? (
+                  <button
+                    onClick={() => {
+                      window.location.hash = "#/dashboard";
+                      setMobileOpen(false);
+                    }}
+                    className="block mt-2 w-full py-2 px-4 rounded-full 
+                      bg-slate-900/90 text-white font-semibold text-center
+                      shadow-lg shadow-indigo-500/30 border border-white/10
+                      flex items-center justify-center gap-2"
+                  >
+                    <div
+                      className={
+                        "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
+                        (
+                          savedTier === "Architect"
+                            ? "ring-2 ring-yellow-400/80"
+                            : savedTier === "Builder"
+                              ? "ring-2 ring-blue-400/80"
+                              : "ring-2 ring-purple-400/80"
+                        )
+                      }
+                      style={generateAvatarStyle(address, savedTier)}
+                    >
+                      <AddressIdenticon address={address} />
+                    </div>
+                    <span className="text-xs font-mono">{shortAddr || "Identity"}</span>
+                  </button>
+                ) : (
+                  !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
+                    <a
+                      href="/#/join"
+                      className="block mt-2 py-2 px-4 rounded-full 
+                      bg-gradient-to-r from-pink-500/40 to-blue-500/40
+                      text-white font-semibold text-center
+                      shadow-lg shadow-indigo-500/20 border border-white/10
+                      hover:from-pink-500/60 hover:to-blue-500/60 transition"
+                    >
+                      Join
+                    </a>
+                  )
+                )}
               </>
             )}
 

@@ -1,57 +1,83 @@
-import web3EduLogo from "../assets/web3edu_logo.svg";
-import { ACCENT_PRIMARY } from "../design/theme.js";
+import { useEffect } from "react";
+import web3EduLogo from "../assets/web3edu_logo.png";
+import { useNavigate } from "react-router-dom";
 
-const Hero = ({ content }) => (
-    <header
-        className="relative overflow-hidden mt-10 rounded-3xl px-6 py-12 sm:py-16 text-center shadow-xl sm:mt-16 sm:px-10
-                   bg-gradient-to-br from-[#1b2337] via-[#1f2a44] to-[#1b2337]
-                   border border-white/10 backdrop-blur-xl space-y-6"
-    >
-        <div className="absolute inset-0 pointer-events-none opacity-60 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_60%)]"></div>
-        <div className="flex flex-col items-center text-center gap-4 sm:flex-row sm:items-center sm:justify-center sm:text-center sm:gap-6">
-            <div className="relative inline-flex items-center justify-center rounded-2xl bg-white/10 p-4 ring-1 ring-white/20 shadow-lg backdrop-blur-md transition-transform duration-300 group-hover:scale-[1.03]">
-                <div className="absolute inset-0 -z-10 blur-[60px] bg-[#33D6FF]/30 rounded-2xl"></div>
-                <img src={web3EduLogo} alt="Web3Edu logo" className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl object-contain drop-shadow-[0_0_20px_rgba(0,200,255,0.45)]" />
+const HeroGR = ({ content }) => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const h = () => {
+            document.documentElement.style.setProperty("--scrollPos", window.scrollY);
+        };
+        window.addEventListener("scroll", h);
+        return () => window.removeEventListener("scroll", h);
+    }, []);
+
+    return (
+        <header className="w-full py-32 sm:py-28 px-6 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#081018] overflow-hidden rounded-b-[80px] lg:rounded-b-[120px] relative z-10">
+
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1/3 left-1/3 w-[520px] h-[520px] bg-[#33D6FF]/18 blur-[120px] rounded-full"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-[420px] h-[420px] bg-[#E05BFF]/20 blur-[160px] rounded-full"></div>
             </div>
-            <div className="space-y-4">
-                <div className="mx-auto inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold
-           bg-white/10 text-white border border-white/25 shadow-sm backdrop-blur-md tracking-wide">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="text-indigo-300"
-                    >
-                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" />
-                        <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" />
-                        <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                    {content.tagline}
+
+            <div className="pointer-events-none absolute inset-0 opacity-55 [transform:translateY(calc(var(--scrollPos)*0.15))] transition-transform duration-75">
+                <div className="absolute w-96 h-96 rounded-full bg-[#D84FD1]/10 blur-3xl animate-pulse-slow top-10 left-10"></div>
+                <div className="absolute w-80 h-80 rounded-full bg-[#38C7FF]/20 blur-2xl animate-pulse-slow2 bottom-10 right-20"></div>
+            </div>
+
+            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-between gap-16">
+
+                <div className="flex flex-col items-center text-center gap-4">
+                    <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10 hover:shadow-cyan-500/30 transition duration-300 [perspective:1000px] relative">
+                        <div className="transition-transform duration-500 hover:[transform:rotateX(6deg)_rotateY(-6deg)_scale(1.05)]">
+                            <img src={web3EduLogo} alt="Web3Edu logo" className="h-48 w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(0,200,255,0.55)]" />
+                        </div>
+                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#E05BFF]/22 via-[#7F3DF1]/26 to-[#33D6FF]/22 blur-2xl opacity-40 pointer-events-none"></div>
+                    </div>
+
+                    <div className="inline-flex items-center gap-2 rounded-full px-6 py-2 text-sm font-semibold bg-gradient-to-r from-[#D84FD1]/20 via-[#7F3DF1]/20 to-[#38C7FF]/20 text-white border border-white/20 shadow-md tracking-wide backdrop-blur-md">
+                        {content.tagline}
+                    </div>
                 </div>
-                <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white drop-shadow-md">
-                    👋 {content.welcome}
-                </h1>
+
+                <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-xl relative">
+                    <div className="absolute -z-10 -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-gradient-to-br from-cyan-400/10 to-indigo-500/10 rounded-full blur-3xl opacity-40 animate-pulse-slow"></div>
+
+                    <h1 className="text-6xl sm:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-[#E05BFF] via-[#9A5CFF] to-[#33D6FF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(0,255,255,.35)] animate-fade-up">
+                        👋 {content.welcome}
+                    </h1>
+
+                    <p className="text-lg sm:text-xl text-slate-100/95 leading-relaxed max-w-lg animate-fade-up delay-150">
+                        {content.desc}
+                    </p>
+
+                    <button
+                        onClick={() => navigate("/join-gr")}
+                        className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-gradient-to-r from-[#E05BFF] via-[#7F3DF1] to-[#33D6FF] hover:from-[#D849F2] hover:via-[#8A4BFF] hover:to-[#28C7F3] text-white font-semibold shadow-xl shadow-cyan-500/20 transition duration-300 animate-fade-up delay-300"
+                    >
+                        🚀 Ξεκίνα τη Μάθηση
+                    </button>
+                </div>
+
             </div>
-        </div>
+        </header>
+    );
+};
 
-        <p className="relative mx-auto max-w-2xl text-xl font-medium leading-relaxed text-slate-200/90 drop-shadow-sm tracking-wide">
-            {content.desc}
-        </p>
-        <div className="mt-6">
-            <a
-                href="#/join"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-lg font-semibold
-                           bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg shadow-indigo-900/30
-                           transition-all duration-300 hover:scale-[1.03]"
-            >
-                Ξεκίνα τη Μάθηση →
-            </a>
-        </div>
-        <div className="absolute top-[20%] left-[15%] w-3 h-3 bg-white/40 rounded-full animate-ping"></div>
-        <div className="absolute bottom-[18%] right-[20%] w-2 h-2 bg-[#33D6FF]/50 rounded-full animate-ping"></div>
-        <div className="absolute top-[55%] right-[28%] w-2 h-2 bg-[#7F3DF1]/50 rounded-full animate-ping"></div>
-    </header>
-);
+export default HeroGR;
 
-export default Hero;
+<style jsx>{`
+    @keyframes pulse-slow { 0%, 100% { opacity: .3; } 50% { opacity: .6; } }
+    @keyframes pulse-slow2 { 0%, 100% { opacity: .25; } 50% { opacity: .55; } }
+    .animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite; }
+    .animate-pulse-slow2 { animation: pulse-slow2 9s ease-in-out infinite; }
+
+    @keyframes fade-up {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up { animation: fade-up .8s ease-out forwards; }
+    .delay-150 { animation-delay: .15s; }
+    .delay-300 { animation-delay: .3s; }
+`}</style>

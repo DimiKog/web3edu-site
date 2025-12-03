@@ -1,4 +1,5 @@
 import Hero from "./Hero.jsx";
+import HeroGR from "./HeroGR.jsx";
 import PageShell from "./PageShell.jsx";
 import Motivation from "./Motivation.jsx";
 import LearningPath from "./LearningPath.jsx";
@@ -57,7 +58,7 @@ const HomePageLayout = ({
 }) => {
     return (
         <>
-            <Hero content={heroContent} />
+            {heroContent?.lang === "gr" ? <HeroGR content={heroContent} /> : <Hero content={heroContent} />}
             <PageShell accentColor={ACCENT_PRIMARY}>
                 <style>{`html { scroll-behavior: smooth; }
 
