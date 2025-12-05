@@ -62,90 +62,127 @@ export default function JoinGR() {
 
     return (
         <PageShell>
-            <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6
-bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] relative overflow-hidden text-white rounded-3xl py-20">
+            <div className="min-h-[70vh] flex flex-col items-center justify-center text-center
+px-6 sm:px-8 md:px-10 py-14
+bg-gradient-to-br from-white via-slate-100 to-white
+dark:from-[#0A0F1A] dark:via-[#120A1E]/90 dark:to-[#0A0F1A]
+relative overflow-hidden rounded-3xl transition-colors duration-500">
+                <div className="absolute inset-0 bg-gradient-to-br 
+from-[#8A57FF]/10 via-[#4ACBFF]/8 to-[#FF67D2]/10 
+rounded-3xl dark:hidden"></div>
 
-                {/* Progress Header */}
-                <div className="relative z-20 max-w-xl w-full mb-10 flex justify-between items-center text-sm font-semibold text-white/80 select-none">
+                {/* Step Header */}
+                <div className="relative z-20 max-w-xl w-full mb-12 flex flex-col items-center select-none">
 
-                    <div className="flex items-center space-x-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500 text-white">
-                            1
+                    {/* Section Title Above Steps */}
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4 tracking-tight">
+                        Ρύθμιση Ταυτότητας
+                    </h2>
+
+                    <div className="w-24 h-1 mb-6 rounded-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/30 to-[#FF67D2]/40"></div>
+
+                    {/* Steps Row */}
+                    <div className="flex justify-between items-center w-full text-sm font-semibold text-slate-700 dark:text-gray-400">
+
+                        {/* Step 1 — ACTIVE */}
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-br from-[#8A57FF]/15 via-[#4ACBFF]/10 to-[#FF67D2]/15 border border-[#8A57FF]/20 shadow-sm">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] text-white font-bold shadow-md">
+                                1
+                            </div>
+                            <span className="text-slate-900 dark:text-white tracking-wide">
+                                Σύνδεση Πορτοφολιού
+                            </span>
                         </div>
-                        <span className="text-white">Σύνδεση Πορτοφολιού</span>
+
+                        {/* Step 2 */}
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-600 dark:text-gray-400">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-200 dark:bg-white/15 text-slate-800 dark:text-white">
+                                2
+                            </div>
+                            <span className="tracking-wide">
+                                Απόκτηση SBT
+                            </span>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-600 dark:text-gray-400">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-200 dark:bg-white/15 text-slate-800 dark:text-white">
+                                3
+                            </div>
+                            <span className="tracking-wide">
+                                Καλωσόρισμα
+                            </span>
+                        </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 text-white">
-                            2
-                        </div>
-                        <span className="text-white/50">Κόμισμα SBT</span>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 text-white">
-                            3
-                        </div>
-                        <span className="text-white/50">Καλωσορίσατε</span>
-                    </div>
-
+                    {/* Divider */}
+                    <div className="w-full h-px mt-6 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-70"></div>
                 </div>
 
                 {/* Background Glow */}
                 <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-1/4 left-1/3 w-[380px] h-[380px] bg-[#33D6FF]/25 blur-[140px] rounded-full"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-[320px] h-[320px] bg-[#7F3DF1]/30 blur-[120px] rounded-full"></div>
+                    {/* Light mode glow */}
+                    <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px]
+                  bg-gradient-to-br from-[#C7B6FF]/40 via-[#AEE6FF]/30 to-[#FFC3EB]/40
+                  blur-[120px] rounded-full dark:hidden"></div>
+
+                    <div className="absolute bottom-1/4 right-1/4 w-[260px] h-[260px]
+                  bg-gradient-to-br from-[#AEE6FF]/30 via-[#FFC3EB]/40 to-[#C7B6FF]/30
+                  blur-[110px] rounded-full dark:hidden"></div>
+
+                    {/* Dark mode glow */}
+                    <div className="absolute top-1/3 left-1/4 w-[260px] h-[260px] bg-[#4ACBFF]/20 blur-[110px] rounded-full hidden dark:block"></div>
+                    <div className="absolute bottom-1/3 right-1/4 w-[240px] h-[240px] bg-[#8A57FF]/18 blur-[100px] rounded-full hidden dark:block"></div>
                 </div>
 
-                {/* Floating Particle Effects */}
-                <div className="absolute top-[30%] left-[18%] w-3 h-3 bg-white/40 rounded-full animate-ping"></div>
-                <div className="absolute bottom-[22%] right-[15%] w-2 h-2 bg-[#33D6FF]/50 rounded-full animate-ping"></div>
-                <div className="absolute top-[55%] right-[28%] w-2 h-2 bg-[#7F3DF1]/50 rounded-full animate-ping"></div>
-
-                {/* Wide-Screen Halo */}
-                <div className="absolute top-[40%] right-[10%] w-[180px] h-[180px] bg-white/[0.05] blur-[100px] rounded-full"></div>
-
                 {/* Main Card */}
-                <div className="relative z-10 bg-white/5 backdrop-blur-xl rounded-3xl px-10 py-12 shadow-[0_0_40px_rgba(0,0,0,0.25)] max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out]">
+                <div className="relative z-10 max-sm:px-6
+                bg-white/80 dark:bg-white/5
+                border border-slate-200/70 dark:border-white/15
+                shadow-[0_8px_24px_rgba(15,23,42,0.18)]
+                backdrop-blur-md rounded-3xl px-10 py-12
+                max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] transition-colors duration-500">
 
-                    {/* Title */}
-                    <h1 className="text-4xl font-extrabold drop-shadow-[0_3px_6px_rgba(0,0,0,0.45)] text-white relative z-10">
+                    <h1 className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight mb-4 mt-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.40)] relative z-10">
                         Ξεκίνησε το Ταξίδι σου στο Web3Edu
                     </h1>
 
-                    {/* Subtitle */}
-                    <p className="mt-4 text-lg text-white/80 max-w-xl leading-relaxed drop-shadow-[0_2px_3px_rgba(0,0,0,0.35)] relative z-10">
-                        Σύνδεσε το πορτοφόλι σου για να αποκτήσεις πρόσβαση στο εκαπιδευτικό υλικό για το Web3,
+                    <p className="mt-5 text-lg text-slate-700 dark:text-white/85 max-w-md leading-relaxed tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.35)] relative z-10">
+                        Σύνδεσε το πορτοφόλι σου για να αποκτήσεις πρόσβαση στο εκπαιδευτικό υλικό για το Web3,
                         να κερδίσεις βαθμούς και να ξεκλειδώσεις το δυναμικό σου Identity Soulbound Token (SBT).
                     </p>
 
                     {/* Hero Image */}
-                    <div className="relative mt-10">
-                        <div className="absolute inset-0 blur-[90px] bg-[#7F3DF1]/40 rounded-full"></div>
+                    <div className="relative mt-10 p-3 rounded-2xl bg-white/70 dark:bg-white/5 backdrop-blur-md shadow-inner shadow-black/10">
+                        <div className="absolute inset-0 blur-[55px]
+                      bg-gradient-to-br from-sky-300/20 via-purple-300/20 to-pink-300/20
+                      dark:from-[#8A57FF]/25 dark:via-[#4ACBFF]/20 dark:to-[#FF67D2]/20
+                      rounded-2xl"></div>
                         <img
                             src={joinHero}
                             alt="Web3Edu Identity Illustration"
-                            className="relative w-full max-w-xl rounded-2xl shadow-lg shadow-black/40 opacity-95 animate-fadeIn"
+                            className="relative w-full max-w-lg sm:max-w-xl rounded-2xl shadow-lg shadow-black/30 opacity-95 animate-fadeIn mx-auto"
                         />
                     </div>
 
                     {/* Connect Button */}
-                    <div className="mt-8 relative z-10">
+                    <div className="mt-10 relative z-10 p-3 rounded-xl bg-white/70 dark:bg-white/5 backdrop-blur-lg shadow-[0_4px_18px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_18px_rgba(15,23,42,0.18)]">
                         <ConnectButton />
                     </div>
+                    <p className="mt-3 text-sm text-slate-600 dark:text-gray-400 tracking-wide">
+                        Χωρίς έξοδα gas. Το πορτοφόλι παραμένει πάντα δικό σας.
+                    </p>
 
                     {/* Continue Button */}
                     {isConnected && networkOK && (
                         <button
                             onClick={loadingSBT ? undefined : handleContinue}
                             disabled={loadingSBT}
-                            className={`mt-10 relative z-10 py-3 px-6 rounded-xl 
-                            bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF] 
-                            text-white font-semibold shadow-lg shadow-[#7F3DF1]/30 
-                            transition ${loadingSBT
-                                    ? "opacity-60 cursor-not-allowed"
-                                    : "hover:opacity-90"
-                                }`}
+                            className={`mt-10 relative z-10 py-3 px-8 rounded-xl
+                            bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
+                            text-white font-semibold shadow-lg shadow-[#8A57FF]/30 tracking-wide
+                            transition-all duration-300
+                            ${loadingSBT ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:scale-[1.02]"}`}
                         >
                             {loadingSBT ? "Έλεγχος..." : "Συνέχεια"}
                         </button>
@@ -153,7 +190,9 @@ bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] rel
 
                     {/* Network loading */}
                     {isConnected && loadingNetwork && (
-                        <p className="mt-6 text-md text-white/70 relative z-10">Έλεγχος δικτύου…</p>
+                        <p className="mt-6 text-md text-slate-700 dark:text-white/75 relative z-10 animate-pulse">
+                            Έλεγχος δικτύου…
+                        </p>
                     )}
                 </div>
 

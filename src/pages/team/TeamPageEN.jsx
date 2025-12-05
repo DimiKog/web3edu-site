@@ -11,9 +11,9 @@ import michael from "../../assets/team/michael.jpg";
 export default function TeamPageEN() {
     return (
         <PageShell>
-            <div className="min-h-screen bg-gradient-to-b from-slate-100 via-slate-50 to-slate-200 dark:from-slate-950 dark:via-black dark:to-slate-950 py-28 px-6 relative overflow-hidden">
-                <div className="absolute top-0 left-1/3 w-72 h-72 bg-indigo-400/30 dark:bg-indigo-700/20 blur-3xl rounded-full animate-pulse-slow"></div>
-                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-400/20 dark:bg-violet-800/20 blur-[120px] rounded-full animate-pulse-slower"></div>
+            <div className="min-h-screen bg-gradient-to-b from-[#F6F1FF] via-white to-[#EAF8FF] dark:from-[#0A0F1A] dark:via-[#111626] dark:to-[#131B2D] py-20 px-4 sm:py-28 sm:px-6 relative overflow-hidden">
+                <div className="absolute top-0 left-1/3 w-56 h-56 sm:w-72 sm:h-72 bg-[#8A57FF]/25 dark:bg-[#8A57FF]/15 blur-3xl rounded-full animate-pulse-slow"></div>
+                <div className="absolute bottom-0 right-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-[#4ACBFF]/20 dark:bg-[#4ACBFF]/15 blur-[120px] rounded-full animate-pulse-slower"></div>
                 <div className="max-w-7xl mx-auto">
                     {/* <div className="absolute left-1/2 top-0 h-full w-[6px] -translate-x-1/2 pointer-events-none z-0">
                         <div className="w-full h-full bg-gradient-to-b from-indigo-400/0 via-indigo-400/40 to-indigo-400/0 
@@ -25,13 +25,13 @@ export default function TeamPageEN() {
                     </div> */}
                     <div>
                         <div className="w-full mx-auto max-w-5xl mb-12">
-                            <div className="h-[3px] w-full bg-gradient-to-r from-[#7C3AED] via-[#4F46E5] to-[#0EA5E9] opacity-60 rounded-full"></div>
+                            <div className="h-[3px] w-full bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] opacity-60 rounded-full"></div>
                         </div>
                         <div className="text-center mb-16 animate-fadeInUp">
 
                             <div className="mb-10 flex justify-center">
                                 <div className="inline-flex items-center gap-3 px-7 py-3 rounded-full
-                                                bg-gradient-to-r from-[#7C3AED]/20 via-[#4F46E5]/20 to-[#0EA5E9]/20
+                                                bg-gradient-to-r from-[#8A57FF]/20 via-[#4ACBFF]/20 to-[#FF67D2]/20
                                                 border border-white/20 backdrop-blur-xl
                                                 text-white text-xl font-bold tracking-wide shadow-lg
                                                 animate-pulse-slow">
@@ -40,152 +40,149 @@ export default function TeamPageEN() {
                                 </div>
                             </div>
 
-                            <h1 className="text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white drop-shadow-xl">
+                            <h1 className="text-4xl font-extrabold tracking-tight text-slate-800 dark:text-white drop-shadow-xl">
                                 Meet the Web3Edu Team
                             </h1>
                             <div className="mt-6 h-[4px] w-40 mx-auto bg-gradient-to-r
-                                            from-[#7C3AED] via-[#4F46E5] to-[#0EA5E9]
+                                            from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
                                             blur-[1px] opacity-80 rounded-full animate-flow"></div>
-                            <p className="mt-4 text-slate-600 dark:text-slate-300 max-w-2xl mx-auto text-2xl leading-relaxed">
-                                A multidisciplinary team advancing blockchain education through research, decentralization,
-                                gamification and hands-on learning — powered by the Besu EduNet ecosystem.
+                            <p className="mt-4 text-slate-700 dark:text-slate-300 max-w-3xl mx-auto text-lg sm:text-xl leading-loose">
+                                A multidisciplinary team advancing blockchain education through research, decentralization, gamification and hands-on learning — powered by the Besu EduNet ecosystem.
                             </p>
                             <div className="relative mt-10 mb-6">
-                                <div className="absolute inset-0 mx-auto w-64 h-64 rounded-full
-                                                bg-gradient-to-br from-[#7C3AED]/10 via-[#4F46E5]/10 to-[#0EA5E9]/10
+                                <div className="absolute inset-0 mx-auto w-48 h-48 sm:w-64 sm:h-64 rounded-full
+                                                bg-gradient-to-br from-[#8A57FF]/10 via-[#4ACBFF]/10 to-[#FF67D2]/10
                                                 blur-3xl animate-pulse-slower"></div>
                             </div>
                         </div>
 
-                        <div className="my-14 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent"></div>
-
-                        <h2 className="text-3xl font-bold text-center mt-24 mb-12 text-slate-800 dark:text-slate-200">
+                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
+                        <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Vision & Research Directions
                         </h2>
-                        <div className="flex flex-col md:flex-row items-center gap-14 mb-32 text-lg w-full max-w-6xl mx-auto relative z-10">
+                        <div className="flex flex-col md:flex-row items-center gap-10 sm:gap-14 mb-20 sm:mb-32 text-lg w-full max-w-6xl mx-auto relative z-10 space-y-4 md:space-y-0">
                             <TeamMemberCard
                                 mode="horizontal-right"
                                 className="animate-fadeInUp h-full"
                                 style={{ animationDelay: "0.5s" }}
                                 name="Dimitrios G. Kogias"
-                                role={`Founder
-Lead Blockchain Researcher
-Web3 Education Architect`}
+                                role={`Lead Blockchain Researcher
+Web3 Education Architect
+Founder`}
                                 avatar={dimi}
                                 premium={true}
-                                badges={["Founder", "Vision", "Lead Researcher", "Architect"]}
+                                badges={["Vision & Strategy", "Network Architecture", "ZKP & Advanced Web3 Systems"]}
                                 socials={{
                                     github: "https://github.com/DimiKog",
                                     linkedin: "https://www.linkedin.com/in/dimitris-kogias-b376222a",
                                     discord: "https://discordapp.com/users/758370279919058986"
                                 }}
-                                bio={`— Leading the strategic vision and research direction of Web3Edu.
-— Architecting the platform’s educational journey from learning → certification → DAO participation.
+                                bio={`— Leading the vision and research direction of Web3Edu.
+— Architecting the full learning → certification → DAO participation pathway.
 
-Dimitris is a blockchain researcher specializing in Web3 educational ecosystems, Besu-based networks, Zero-Knowledge Proofs, and secure decentralized architectures. As the founder and lead architect of Web3Edu, he leads the strategic direction of the platform and designs hands-on learning frameworks and advanced instructional tools that connect academic research with real-world blockchain applications.`}
+Dimitris is a blockchain researcher specializing in Web3 educational ecosystems, Besu-based networks, zero-knowledge proofs, and secure decentralized architectures. As the founder and lead architect of Web3Edu, he defines the platform’s strategic direction and designs hands-on learning frameworks that connect academic research with real-world decentralized applications.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-indigo-400/60 to-transparent animate-pulse-slow rounded-full"></div>
+                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
 
-                        <div className="w-full h-px my-16 bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent animate-pulse"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
 
-                        <h2 className="text-3xl font-bold text-center mt-24 mb-12 text-slate-800 dark:text-slate-200">
+                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
+                        <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Academic & Outreach
                         </h2>
-                        <div className="flex flex-col md:flex-row items-center gap-10 mb-28 text-lg w-full max-w-6xl mx-auto">
+                        <div className="flex flex-col md:flex-row items-center gap-10 sm:gap-14 mb-28 text-lg w-full max-w-6xl mx-auto space-y-4 md:space-y-0">
                             <TeamMemberCard
                                 mode="horizontal-left"
                                 className="animate-fadeInUp h-full"
                                 style={{ animationDelay: "0.2s" }}
                                 name="Nelly Leligkou"
-                                role={`Founder 
-                                    Academic Advisor
-Outreach & Engagement (Lead)
-Research & Strategy`}
+                                role={`Academic Advisor
+Outreach & Engagement Lead
+Founder`}
                                 avatar={nelly}
                                 premium={true}
-                                badges={["Founder", "Academic Advisor", "Engagement", "Strategy"]}
-                                socials={{ github: "#", linkedin: "https://www.linkedin.com/in/nelly-leligou-635a4510/", discord: "#" }}
-                                bio={`— Guiding the academic and pedagogical direction of Web3Edu.
-— Strengthens institutional partnerships and aligns our learning frameworks with academic standards.
+                                badges={["Academic Strategy", "Institutional Partnerships", "Educational Frameworks"]}
+                                socials={{ github: "", linkedin: "https://www.linkedin.com/in/nelly-leligou-635a4510/", discord: "" }}
+                                bio={`— Guiding the academic and pedagogical foundations of Web3Edu.
+— Strengthening partnerships and aligning learning pathways with academic standards.
 
-Nelly brings extensive academic and research experience in networking, digital ecosystems, and emerging technologies. As the lead for Academic Strategy and Outreach at Web3Edu, she guides the platform’s research direction, strengthens institutional partnerships, and supports the development of high‑impact educational initiatives.`}
+Nelly brings extensive academic and research experience in networking, digital ecosystems, and emerging technologies. As Web3Edu’s lead in Academic Strategy and Outreach, she shapes the platform’s pedagogical direction, builds institutional collaborations, and supports the development of robust, high-impact educational experiences.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-indigo-400/60 to-transparent animate-pulse-slow rounded-full"></div>
+                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
 
-                        <div className="w-full h-px my-16 bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent animate-pulse"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
 
-                        <h2 className="text-3xl font-bold text-center mt-24 mb-12 text-slate-800 dark:text-slate-200">
+                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
+                        <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Governance & Community
                         </h2>
-                        <div className="flex flex-col md:flex-row-reverse items-center gap-10 mb-28 text-lg w-full max-w-6xl mx-auto">
+                        <div className="flex flex-col md:flex-row-reverse items-center gap-10 sm:gap-14 mb-28 text-lg w-full max-w-6xl mx-auto space-y-4 md:space-y-0">
                             <TeamMemberCard
                                 mode="horizontal-right"
                                 className="animate-fadeInUp h-full"
                                 style={{ animationDelay: "0.3s" }}
                                 name="Tonia Damvakeraki"
-                                role={`Founder
-                                    DAO Researcher
-Governance & Community Manager (Operations Lead)`}
+                                role={`DAO Researcher
+Governance & Community Operations Lead
+Founder`}
                                 avatar={tonia}
                                 premium={true}
-                                badges={["Founder", "DAO Research", "Governance", "Community"]}
-                                socials={{ github: "#", linkedin: "https://www.linkedin.com/in/tonia-damvakeraki-1a028a/", discord: "#" }}
-                                bio={`— Designing decentralized governance and participation models for Web3Edu.
-— Connects governance research with real community operations inside the Web3Edu DAO.
+                                badges={["Decentralized Governance", "Participation Models", "Community Operations"]}
+                                socials={{ github: "", linkedin: "https://www.linkedin.com/in/tonia-damvakeraki-1a028a/", discord: "" }}
+                                bio={`— Designing responsible governance and participation models for Web3Edu.
+— Bridging governance research with real operational practices inside the DAO.
 
-Tonia specializes in decentralized governance and DAO participation models. She leads the Governance and DAO Research sector at Web3Edu, contributing to the design of responsible governance mechanisms, sustainable participation models, and the operational coordination of the Web3Edu community.`}
+Tonia specializes in decentralized governance and DAO participation systems. She leads Web3Edu’s Governance and DAO Research sector, contributing to the design of sustainable governance mechanisms, community engagement models, and the operational coordination that enables a healthy decentralized ecosystem.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-indigo-400/60 to-transparent animate-pulse-slow rounded-full"></div>
+                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
 
-                        <div className="w-full h-px my-16 bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent animate-pulse"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
 
-                        <h2 className="text-3xl font-bold text-center mt-24 mb-12 text-slate-800 dark:text-slate-200">
+                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
+                        <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Infrastructure & Operations
                         </h2>
-                        <div className="flex flex-col md:flex-row items-center gap-10 mb-28 text-lg w-full max-w-6xl mx-auto">
+                        <div className="flex flex-col md:flex-row items-center gap-10 sm:gap-14 mb-28 text-lg w-full max-w-6xl mx-auto space-y-4 md:space-y-0">
                             <TeamMemberCard
                                 mode="horizontal-left"
                                 className="animate-fadeInUp h-full"
                                 style={{ animationDelay: "0.4s" }}
                                 name="Michael Xevgenis"
-                                role={`Founder
-                                    Blockchain Researcher
-Technical Infrastructure
-Community Manager (Lead)`}
+                                role={`Blockchain Researcher
+Network Infrastructure Lead
+Founder`}
                                 avatar={michael}
                                 premium={true}
-                                badges={["Founder", "Infrastructure", "Research", "Community Lead"]}
-                                socials={{ github: "#", linkedin: "https://www.linkedin.com/in/michael-xevgenis-4b85659a/", discord: "#" }}
-                                bio={`— Ensuring the reliability and operational continuity of the Besu EduNet.
-— Supports the research backbone enabling all Web3Edu decentralized applications.
+                                badges={["Infrastructure Engineering", "Decentralized Systems", "Community Support"]}
+                                socials={{ github: "", linkedin: "https://www.linkedin.com/in/michael-xevgenis-4b85659a/", discord: "" }}
+                                bio={`— Ensuring the reliability and continuity of the Besu EduNet infrastructure.
+— Supporting the research backbone powering all Web3Edu applications.
 
-Michael leads the Network Infrastructure and Community Operations sector at Web3Edu. He supports the technical backbone of the Besu EduNet, contributes to research and development of decentralized systems, and ensures the reliability, security, and operational continuity of the network and community systems.`}
+Michael leads Web3Edu’s Infrastructure and Community Operations sector. He supports the technical backbone of the Besu EduNet, contributes to research and development in decentralized systems, and ensures that the platform’s infrastructure, tools, and community layers operate securely and reliably.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-indigo-400/60 to-transparent animate-pulse-slow rounded-full"></div>
+                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
 
-                        <div className="w-full h-px my-16 bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent animate-pulse"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
 
-                        <div className="w-full h-px my-16 bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent animate-pulse"></div>
-
-                        <div className="text-center max-w-3xl mx-auto mt-24 mb-16 text-xl text-slate-700 dark:text-slate-300 leading-relaxed">
+                        <div className="text-center max-w-3xl mx-auto mt-32 mb-16 text-xl text-slate-700 dark:text-slate-300 leading-relaxed">
                             <h3 className="text-3xl font-bold mb-6">How the Web3Edu Team Works</h3>
                             <p>Academic excellence meets decentralized technology.</p>
                             <p>Each sector collaborates through shared infrastructure powered by the Besu EduNet.</p>
                             <p>Our mission is to bridge education, research, and real-world blockchain applications.</p>
                         </div>
 
-                        <p className="text-center text-slate-500 dark:text-slate-400 text-lg mt-8 mb-8">
+                        <p className="text-center text-slate-600 dark:text-slate-400 text-lg mt-8 mb-8">
                             More team members and collaborators will appear as Web3Edu expands its research and DAO initiatives.
                         </p>
 
-                        <div className="text-center mt-24 mb-20 opacity-0 animate-fadeInSlow">
+                        <div className="text-center mt-16 mb-16 sm:mt-24 sm:mb-20 opacity-0 animate-fadeInSlow">
                             <a
                                 href="/#/join"
-                                className="px-7 py-3 rounded-full bg-indigo-600 dark:bg-indigo-500 text-white font-semibold shadow-lg hover:shadow-indigo-500/30 transition-all duration-300"
+                                className="px-6 py-3 rounded-full bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] text-white font-bold shadow-[0_0_25px_rgba(74,203,255,0.22)] hover:opacity-95 transition-all duration-300 flex items-center justify-center gap-2 text-center w-fit mx-auto"
                             >
                                 Join the Web3Edu Community →
                             </a>

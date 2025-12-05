@@ -1,102 +1,183 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
-import web3eduLogo from "../assets/web3edu_logo.png";
+import web3eduLogoDark from "../assets/web3edu_logo.png";
+import web3eduLogoLight from "../assets/web3edu_logo_light.png";
 
 const WelcomeIdentityGR = () => {
     const navigate = useNavigate();
 
+    const [isDark, setIsDark] = useState(false);
+    const [txHash] = useState("0xYOUR_TRANSACTION_HASH_HERE"); // replace dynamically later
+
+    useEffect(() => {
+        const mq = window.matchMedia("(prefers-color-scheme: dark)");
+        setIsDark(mq.matches);
+        const handler = (e) => setIsDark(e.matches);
+        mq.addEventListener("change", handler);
+        return () => mq.removeEventListener("change", handler);
+    }, []);
+
     useEffect(() => {
         window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
+        const canvas = document.getElementById("confetti-canvas-gr");
+        if (canvas) {
+            const ctx = canvas.getContext("2d");
+            const pieces = Array.from({ length: 120 }, () => ({
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight - window.innerHeight,
+                r: Math.random() * 6 + 4,
+                c: `hsl(${Math.random() * 360}, 90%, 65%)`,
+                s: Math.random() * 2 + 1,
+                a: Math.random() * (Math.PI * 2),
+            }));
+
+            const fall = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.y += p.s;
+                    p.a += 0.02;
+                    p.x += Math.sin(p.a) * 0.5;
+                    if (p.y > window.innerHeight) p.y = -20;
+                    ctx.fillStyle = p.c;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(fall);
+            };
+            fall();
+        }
     }, []);
 
     return (
         <PageShell>
             <div
                 className="min-h-screen w-full flex flex-col items-center justify-center
-            bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/20 to-[#020617]
-            text-slate-100 px-6 py-20 relative overflow-hidden"
+            bg-gradient-to-br from-white via-slate-100 to-white
+            dark:from-[#090C14] dark:via-[#120A1E] dark:to-[#020617]
+            text-slate-900 dark:text-slate-100 px-6 py-20 relative overflow-hidden"
             >
                 {/* Glow / Highlight */}
                 <div className="absolute top-32 left-1/2 -translate-x-1/2 pointer-events-none">
                     <div className="w-[400px] h-[400px] bg-purple-600/20 blur-[120px] rounded-full"></div>
                 </div>
 
+                <canvas
+                    id="confetti-canvas-gr"
+                    className="absolute inset-0 z-40 pointer-events-none"
+                ></canvas>
+
                 {/* Progress Header */}
-                <div className="relative z-20 max-w-xl w-full mb-10 flex justify-between items-center text-sm font-semibold select-none">
+                <div className="relative z-20 max-w-xl w-full mb-12 flex flex-col items-center select-none">
 
-                    {/* Step 1 — Completed */}
-                    <div className="flex items-center space-x-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-600 text-white font-bold">
-                            ✓
+                    <h2 className="text-lg font-bold text-slate-700 dark:text-gray-300 mb-4 tracking-tight">
+                        Ρύθμιση Ταυτότητας
+                    </h2>
+
+                    <div className="w-24 h-1 mb-6 rounded-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/30 to-[#FF67D2]/40"></div>
+
+                    <div className="flex justify-between items-center w-full text-sm font-semibold text-slate-700 dark:text-gray-400">
+
+                        {/* Step 1 — Completed */}
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300/60 dark:border-emerald-400/60 shadow-sm">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white font-bold shadow-md">
+                                ✓
+                            </div>
+                            <span className="text-slate-900 dark:text-white tracking-wide">
+                                Σύνδεση Wallet
+                            </span>
                         </div>
-                        <span className="text-white/90">
-                            Σύνδεση Wallet
-                        </span>
+
+                        {/* Step 2 — Completed */}
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300/60 dark:border-emerald-400/60 shadow-sm">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white font-bold shadow-md">
+                                ✓
+                            </div>
+                            <span className="text-slate-900 dark:text-white tracking-wide">
+                                Έκδοση SBT
+                            </span>
+                        </div>
+
+                        {/* Step 3 — Active */}
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-br from-[#8A57FF]/15 via-[#4ACBFF]/10 to-[#FF67D2]/15 border border-[#8A57FF]/20 shadow-sm">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] text-white font-bold shadow-md">
+                                3
+                            </div>
+                            <span className="text-slate-900 dark:text-white tracking-wide">
+                                Καλωσόρισμα
+                            </span>
+                        </div>
+
                     </div>
 
-                    {/* Step 2 — Completed */}
-                    <div className="flex items-center space-x-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-600 text-white font-bold">
-                            ✓
-                        </div>
-                        <span className="text-white/90">
-                            Έκδοση SBT
-                        </span>
-                    </div>
-
-                    {/* Step 3 — Active */}
-                    <div className="flex items-center space-x-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-600 text-white font-bold">
-                            3
-                        </div>
-                        <span className="text-indigo-700 dark:text-indigo-300 font-semibold">
-                            Καλωσόρισες στο Web3Edu
-                        </span>
-                    </div>
+                    <div className="w-full h-px mt-6 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-70"></div>
                 </div>
 
                 {/* Card */}
-                <div className="relative z-10 max-w-xl w-full bg-gradient-to-br from-white via-indigo-50/30 to-slate-100 dark:from-gray-900 dark:via-indigo-900/40 dark:to-gray-900 border border-white/20 dark:border-white/10 rounded-3xl backdrop-blur-xl p-10 shadow-2xl flex flex-col items-center text-center">
+                <div className="relative z-10 max-w-xl w-full bg-white/80 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 rounded-3xl backdrop-blur-md p-10 shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex flex-col items-center text-center">
                     {/* Top: Title and description */}
                     <h1 className="text-4xl font-extrabold mb-4 tracking-tight text-slate-900 dark:text-white">
                         🎉 Η Web3Edu Ταυτότητά σου είναι έτοιμη!
                     </h1>
-                    <p className="text-md text-slate-600 dark:text-gray-300 leading-snug max-w-md mb-8">
-                        Ολοκλήρωσες με επιτυχία την έκδοση του{" "}
-                        <span className="font-semibold text-indigo-600 dark:text-indigo-300">
-                            Web3Edu Identity SBT
-                        </span>
-                        . Το token αυτό ξεκλειδώνει την πρόσβαση στο προφίλ μάθησής σου, τα επιτεύγματα
-                        και τις μελλοντικές DAO λειτουργίες.
+                    <p className="animate-[fadeIn_0.9s_ease-out] text-md text-slate-600 dark:text-gray-300 leading-relaxed dark:leading-loose max-w-md mb-8">
+                        Ολοκλήρωσες με επιτυχία την έκδοση του <strong>Web3Edu Identity SBT</strong>.
+                        Πρόκειται για την μόνιμη <strong>on-chain μαθησιακή ταυτότητά σου</strong>, η οποία ξεκλειδώνει πρόσβαση στο
+                        <strong>προφίλ προόδου</strong>, τα <strong>επιτεύγματά</strong> σου και τις μελλοντικές λειτουργίες <strong>συμμετοχής στη DAO</strong>.
                     </p>
 
                     {/* Middle: Completed steps summary */}
                     <div className="bg-purple-200/40 dark:bg-purple-900/40 rounded-xl py-4 px-6 mb-8 w-full max-w-md text-left text-purple-800 dark:text-purple-200">
                         <ul className="list-disc list-inside space-y-2">
-                            <li>Το wallet σου συνδέθηκε</li>
-                            <li>Το Identity SBT εκδόθηκε</li>
-                            <li>Το Dashboard ξεκλειδώθηκε</li>
+                            <li><strong>Το wallet συνδέθηκε με επιτυχία</strong></li>
+                            <li><strong>Το Identity SBT εκδόθηκε</strong></li>
+                            <li><strong>Το Dashboard ξεκλειδώθηκε</strong></li>
                         </ul>
                     </div>
 
                     {/* Image */}
                     <img
-                        src={web3eduLogo}
+                        src={isDark ? web3eduLogoDark : web3eduLogoLight}
                         alt="Web3Edu Identity Badge"
-                        className="w-32 h-32 sm:w-40 sm:h-40 mb-8 rounded-full drop-shadow-xl mx-auto"
+                        className="w-32 h-32 sm:w-40 sm:h-40 mb-8 rounded-full drop-shadow-xl mx-auto transition-all duration-300"
                     />
 
-                    <p className="text-sm text-slate-700 dark:text-slate-300 mb-6 max-w-md">
+                    <p className="animate-[fadeIn_1.1s_ease-out] text-sm text-slate-700 dark:text-slate-300 mb-6 max-w-md leading-relaxed dark:leading-loose">
                         Επόμενο βήμα: Μπες στο Dashboard για να δεις τα XP σου, να παρακολουθήσεις τα
                         μαθήματα, να ξεκλειδώσεις badges και να ακολουθήσεις την προσωπική σου διαδρομή
                         μάθησης στο Web3Edu.
                     </p>
 
+                    {txHash && (
+                        <div className="animate-[fadeIn_1.15s_ease-out] mb-6 w-full max-w-md mx-auto p-4 
+        rounded-xl border border-slate-300/60 dark:border-white/10 
+        bg-white/60 dark:bg-white/5 backdrop-blur-md 
+        shadow-[0_4px_18px_rgba(0,0,0,0.08)]">
+
+                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                                <strong>Hash Συναλλαγής</strong>
+                            </p>
+
+                            <a
+                                href={`https://blockexplorer.dimikog.org/tx/${txHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-semibold text-[#8A57FF] dark:text-purple-300 underline hover:opacity-80"
+                            >
+                                Δείτε στο Blockscout ↗
+                            </a>
+                        </div>
+                    )}
+
                     {/* Bottom: Primary button */}
                     <button
                         onClick={() => navigate("/dashboard")}
-                        className="mt-2 px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 transition rounded-xl text-lg font-semibold shadow-lg"
+                        className="mt-2 px-8 py-3 bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] hover:opacity-90 hover:scale-[1.02] transition-all rounded-xl text-lg font-semibold shadow-lg animate-[fadeIn_1.2s_ease-out]"
                     >
                         Μετάβαση στο Dashboard
                     </button>

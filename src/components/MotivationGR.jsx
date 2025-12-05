@@ -19,9 +19,9 @@ const Motivation = ({ content }) => {
     return (
         <section
             className="
-                mt-10 rounded-2xl px-8 py-7
-                bg-gradient-to-br from-white/70 via-white/60 to-white/70
-                dark:from-slate-900/50 dark:via-slate-900/40 dark:to-slate-900/50
+                mt-10 rounded-2xl px-6 py-7 sm:px-8
+                bg-gradient-to-br from-[#F6F1FF] via-white to-[#EAF8FF]
+                dark:from-[#0A0F1A] dark:via-[#111626] dark:to-[#131B2D]
                 border border-slate-200/40 dark:border-white/10
                 shadow-lg backdrop-blur-xl
             "
@@ -32,7 +32,7 @@ const Motivation = ({ content }) => {
                     height="26"
                     viewBox="0 0 24 24"
                     fill="none"
-                    className="text-indigo-600 dark:text-indigo-400 drop-shadow-sm"
+                    className="text-[#8A57FF] dark:text-[#C9B3FF] drop-shadow-sm"
                 >
                     <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" />
                     <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" />
@@ -40,19 +40,22 @@ const Motivation = ({ content }) => {
                 </svg>
 
                 <h2 className="text-2xl font-bold tracking-tight bg-clip-text text-transparent 
-    bg-gradient-to-r from-[#ff77e9] to-[#7bc4ff]">
+    bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
+    dark:from-[#C9B3FF] dark:via-[#8EE8FF] dark:to-[#FF9EE6]">
                     {content.heading}
                 </h2>
             </div>
             <div className="w-full h-[3px] mb-4 rounded-full 
-      bg-gradient-to-r from-[#ff77e9]/60 via-[#7bc4ff]/60 to-[#ff77e9]/60 
+      bg-gradient-to-r from-[#8A57FF]/60 via-[#4ACBFF]/60 to-[#FF67D2]/60 
       animate-pulse"></div>
 
             <p
                 className="
-                    text-[17px] leading-[1.75] md:leading-relaxed
+                    text-lg sm:text-xl leading-[1.75] md:leading-relaxed
                     text-slate-700 dark:text-slate-300
                     max-w-3xl
+                    opacity-0 translate-y-4 transition-all duration-700 ease-out
+                    animate-fadeInSlow
                 "
                 dangerouslySetInnerHTML={{ __html: formattedBody }}
             />

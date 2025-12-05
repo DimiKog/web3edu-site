@@ -4,11 +4,14 @@ export default function DashboardCard({ title, icon, children, className = "" })
             className={`
             rounded-3xl p-6
             border border-indigo-300/40 dark:border-indigo-700/30
-            shadow-[0_12px_40px_rgba(0,0,0,0.35)]
-            bg-gradient-to-br from-white via-indigo-50/40 to-slate-100/60
-            dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-950/20 dark:to-slate-900/40
-            backdrop-blur-2xl
-            transition duration-300
+            bg-gradient-to-br from-white/90 via-indigo-50/75 to-slate-100/85
+            dark:from-[#0E1426]/85 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
+            dark:border-white/10
+            backdrop-blur-xl
+            shadow-xl
+            transition-all duration-500 ease-out
+            hover:scale-[1.01] hover:shadow-2xl
+            opacity-0 animate-fadeInSlow
             break-words whitespace-normal
             ${className}
         `}
@@ -17,18 +20,18 @@ export default function DashboardCard({ title, icon, children, className = "" })
             <div className="flex items-center gap-3 mb-4 text-slate-900 dark:text-slate-100">
                 {icon && (
                     <div className="w-7 h-7 flex items-center justify-center rounded-lg 
-                                    bg-gradient-to-br from-[#7F3DF1] to-[#33D6FF] shadow-lg">
+                                    bg-gradient-to-br from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] shadow-md">
                         {icon}
                     </div>
                 )}
 
-                <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-slate-100 tracking-wide break-words whitespace-normal">
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-slate-100 tracking-wide tracking-tight break-words whitespace-normal">
                     {title}
                 </h2>
             </div>
 
             {/* Main content */}
-            <div className="text-slate-800 dark:text-slate-200 break-words whitespace-normal">
+            <div className="text-slate-800 dark:text-slate-100 break-words whitespace-normal">
                 {children}
             </div>
         </div>

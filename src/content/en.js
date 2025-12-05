@@ -4,7 +4,7 @@ const en = {
     // -------------------------
     hero: {
         welcome: "Welcome to Web3Edu",
-        tagline: "Web3 learning hub",
+        tagline: "The Web3 learning hub",
         desc: "A portal for exploring blockchain learning tools and experiments — powered by Besu EduNet and built for students, researchers, and educators.",
         cta: "Start Learning",
     },
@@ -15,7 +15,7 @@ const en = {
     motivation: {
         heading: "Why Web3Edu?",
         detailHeading: "Our Mission",
-        badgeText: "Because learning Web3 should feel empowering.",
+        badgeText: "Because learning Web3 should be empowering.",
         body: `Web3Edu brings together courses, practical tools, and experiment-driven learning into one unified digital 
 ecosystem. Learners explore blockchain technologies and beyond through hands-on labs, gamified challenges, 
 and real interactions with decentralized systems. With verifiable credentials and DAO participation, every 
@@ -27,12 +27,12 @@ member contributes to shaping the next evolution of the platform.`,
     // -------------------------
     learnPath: {
         title: "How Web3Edu Works",
-        subtitle: "Follow a simple rhythm: understand the concepts, experiment with them, then co-create what comes next.",
+        subtitle: "Follow a clear rhythm: understand the concepts, experiment with them, then co-create what comes next.",
         steps: [
             {
                 emoji: "🪪",
-                title: "Join DAO",
-                desc: "Get your Web3 identity and unlock access to the learner-driven DAO.",
+                title: "Access the DAO",
+                desc: "Get your Web3 identity and gain access to the learner-driven DAO.",
             },
             {
                 emoji: "📘",
@@ -62,7 +62,7 @@ member contributes to shaping the next evolution of the platform.`,
         imageCaption: "A living governance layer where students, mentors and partners vote on the evolution of the Web3Edu ecosystem.",
         buttons: {
             learn: "Learn About the DAO",
-            enter: "Enter DAO Playground",
+            enter: "Enter the DAO",
         },
     },
 
@@ -99,7 +99,7 @@ member contributes to shaping the next evolution of the platform.`,
     // -------------------------
     news: {
         title: "News & Events",
-        badge: "Timeline - Agenda",
+        badge: "Timeline / Agenda",
         subtitle: "Stay updated with the latest workshops, talks, and project releases from the Web3Edu ecosystem.",
         viewArchive: "View Archive",
         items: [

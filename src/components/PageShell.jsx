@@ -1,10 +1,22 @@
 // PAGE SHELL — LANGUAGE STATE AS SOURCE OF TRUTH (OPTION A)
 
 import React from "react";
-import web3EduLogo from "../assets/web3edu_logo.svg";
+import web3EduLogoLight from "../assets/web3edu_logo_light.webp";
+import web3EduLogoDark from "../assets/web3edu_logo.webp";
+import web3EduLogoLightPng from "../assets/web3edu_logo_light.png";
+import web3EduLogoDarkPng from "../assets/web3edu_logo.png";
+import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
+import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
 import { ACCENT_PRIMARY } from "../design/theme.js";
 import { useAccount } from "wagmi";
+import { useDisconnect } from "wagmi";
 import { AddressIdenticon, generateAvatarStyle, shortAddress } from "./identity-ui.jsx";
+
+const getLangFromHash = (hash) => {
+  if (!hash) return null;
+  if (hash.includes("-gr") || hash.startsWith("#/gr")) return "gr";
+  return null;
+};
 
 export default function PageShell({
   accentColor = ACCENT_PRIMARY,
@@ -16,15 +28,22 @@ export default function PageShell({
   const [showJoin, setShowJoin] = React.useState(false);
 
   const { address, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
 
   const [currentHash, setCurrentHash] = React.useState(
     typeof window !== "undefined" ? window.location.hash || "#/" : "#/"
   );
 
-  // THE ONLY source of truth for language
-  const [lang, setLang] = React.useState(
-    localStorage.getItem("lang") || "en"
-  );
+  // THE ONLY source of truth for language — prefer URL hint, then stored value
+  const [lang, setLang] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      const langFromHash = getLangFromHash(window.location.hash || "");
+      if (langFromHash) return langFromHash;
+      const stored = localStorage.getItem("lang");
+      if (stored) return stored;
+    }
+    return "en";
+  });
 
   const isGR = lang === "gr";
 
@@ -56,7 +75,10 @@ export default function PageShell({
 
   React.useEffect(() => {
     const handleHashChange = () => {
-      setCurrentHash(window.location.hash || "#/");
+      const hash = window.location.hash || "#/";
+      setCurrentHash(hash);
+      const langFromHash = getLangFromHash(hash);
+      setLang(langFromHash ? "gr" : "en");
     };
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
@@ -130,13 +152,17 @@ export default function PageShell({
         >
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <img
-              src={web3EduLogo}
-              alt="Web3Edu"
-              className="h-10 w-auto drop-shadow-[0_0_12px_rgba(120,60,255,0.45)]
-               transition-transform duration-300
-               group-hover:scale-110 group-hover:rotate-1"
-            />
+            <picture>
+              <source srcSet={isDark ? web3EduLogoDark : web3EduLogoLight} type="image/webp" />
+              <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
+              <img
+                src={isDark ? web3EduLogoDarkPng : web3EduLogoLightPng}
+                alt="Web3Edu"
+                className="h-10 w-auto drop-shadow-[0_0_12px_rgba(120,60,255,0.45)]
+                  transition-opacity duration-500
+                  group-hover:scale-110 group-hover:rotate-1"
+              />
+            </picture>
           </div>
 
           {/* Main nav */}
@@ -239,34 +265,46 @@ export default function PageShell({
 
             {/* Identity avatar OR Join button */}
             {showIdentityAvatar ? (
-              <button
-                onClick={() => {
-                  window.location.hash = isGR ? "#/dashboard-gr" : "#/dashboard";
-                }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full
-                  bg-slate-900/80 dark:bg-slate-900/80
-                  text-slate-100 border border-white/20 shadow-lg
-                  hover:bg-slate-800/90 transition-colors"
-              >
-                <div
-                  className={
-                    "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
-                    (
-                      savedTier === "Architect"
-                        ? "ring-2 ring-yellow-400/80"
-                        : savedTier === "Builder"
-                          ? "ring-2 ring-blue-400/80"
-                          : "ring-2 ring-purple-400/80"
-                    )
-                  }
-                  style={generateAvatarStyle(address, savedTier)}
+              <>
+                <button
+                  onClick={() => {
+                    window.location.hash = isGR ? "#/dashboard-gr" : "#/dashboard";
+                  }}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full
+                    bg-slate-900/80 dark:bg-slate-900/80
+                    text-slate-100 border border-white/20 shadow-lg
+                    hover:bg-slate-800/90 transition-colors"
                 >
-                  <AddressIdenticon address={address} />
-                </div>
-                <span className="text-[11px] font-mono tracking-wide hidden sm:inline">
-                  {shortAddr}
-                </span>
-              </button>
+                  <div
+                    className={
+                      "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
+                      (
+                        savedTier === "Architect"
+                          ? "ring-2 ring-yellow-400/80"
+                          : savedTier === "Builder"
+                            ? "ring-2 ring-blue-400/80"
+                            : "ring-2 ring-purple-400/80"
+                      )
+                    }
+                    style={generateAvatarStyle(address, savedTier)}
+                  >
+                    <AddressIdenticon address={address} />
+                  </div>
+                  <span className="text-[11px] font-mono tracking-wide hidden sm:inline">
+                    {shortAddr}
+                  </span>
+                </button>
+                <button
+                  onClick={() => disconnect()}
+                  className="px-3 py-1.5 rounded-full text-[11px] font-semibold
+                    bg-gradient-to-r from-red-500/25 via-rose-500/25 to-pink-500/25
+                    text-white border border-white/20 shadow-lg shadow-pink-500/15
+                    hover:from-red-500/35 hover:to-pink-500/35 hover:shadow-pink-500/25
+                    transition-colors transition-shadow"
+                >
+                  {isGR ? "Αποσύνδεση" : "Disconnect"}
+                </button>
+              </>
             ) : (
               !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
                 <button
@@ -324,33 +362,49 @@ hover:text-blue-500 dark:hover:text-white">Αρχική</a>
 text-slate-700 dark:text-blue-200
 hover:text-blue-500 dark:hover:text-white">Ομάδα</a>
                 {showIdentityAvatar ? (
-                  <button
-                    onClick={() => {
-                      window.location.hash = "#/dashboard-gr";
-                      setMobileOpen(false);
-                    }}
-                    className="mt-2 w-full py-2 px-4 rounded-full 
-                      bg-slate-900/90 text-white font-semibold text-center
-                      shadow-lg shadow-indigo-500/30 border border-white/10
-                      flex items-center justify-center gap-2"
-                  >
-                    <div
-                      className={
-                        "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
-                        (
-                          savedTier === "Architect"
-                            ? "ring-2 ring-yellow-400/80"
-                            : savedTier === "Builder"
-                              ? "ring-2 ring-blue-400/80"
-                              : "ring-2 ring-purple-400/80"
-                        )
-                      }
-                      style={generateAvatarStyle(address, savedTier)}
+                  <>
+                    <button
+                      onClick={() => {
+                        window.location.hash = "#/dashboard-gr";
+                        setMobileOpen(false);
+                      }}
+                      className="mt-2 w-full py-2 px-4 rounded-full 
+        bg-slate-900/90 text-white font-semibold text-center
+        shadow-lg shadow-indigo-500/30 border border-white/10
+        flex items-center justify-center gap-2"
                     >
-                      <AddressIdenticon address={address} />
-                    </div>
-                    <span className="text-xs font-mono">{shortAddr || "Ταυτότητα"}</span>
-                  </button>
+                      <div
+                        className={
+                          "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
+                          (
+                            savedTier === "Architect"
+                              ? "ring-2 ring-yellow-400/80"
+                              : savedTier === "Builder"
+                                ? "ring-2 ring-blue-400/80"
+                                : "ring-2 ring-purple-400/80"
+                          )
+                        }
+                        style={generateAvatarStyle(address, savedTier)}
+                      >
+                        <AddressIdenticon address={address} />
+                      </div>
+                      <span className="text-xs font-mono">{shortAddr || "Ταυτότητα"}</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        disconnect();
+                        setMobileOpen(false);
+                      }}
+                      className="block mt-2 w-full py-2 px-4 rounded-full 
+                 bg-gradient-to-r from-red-500/25 via-rose-500/25 to-pink-500/25
+                 text-white text-center font-semibold
+                 shadow-lg shadow-pink-500/15 border border-white/15
+                 hover:from-red-500/35 hover:to-pink-500/35 hover:shadow-pink-500/25 transition"
+                    >
+                      {isGR ? "Αποσύνδεση" : "Disconnect"}
+                    </button>
+                  </>
                 ) : (
                   !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
                     <a
@@ -375,33 +429,48 @@ hover:text-blue-500 dark:hover:text-white">Home</a>
 text-slate-700 dark:text-blue-200
 hover:text-blue-500 dark:hover:text-white">Team</a>
                 {showIdentityAvatar ? (
-                  <button
-                    onClick={() => {
-                      window.location.hash = "#/dashboard";
-                      setMobileOpen(false);
-                    }}
-                    className="block mt-2 w-full py-2 px-4 rounded-full 
-                      bg-slate-900/90 text-white font-semibold text-center
-                      shadow-lg shadow-indigo-500/30 border border-white/10
-                      flex items-center justify-center gap-2"
-                  >
-                    <div
-                      className={
-                        "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
-                        (
-                          savedTier === "Architect"
-                            ? "ring-2 ring-yellow-400/80"
-                            : savedTier === "Builder"
-                              ? "ring-2 ring-blue-400/80"
-                              : "ring-2 ring-purple-400/80"
-                        )
-                      }
-                      style={generateAvatarStyle(address, savedTier)}
+                  <>
+                    <button
+                      onClick={() => {
+                        window.location.hash = "#/dashboard";
+                        setMobileOpen(false);
+                      }}
+                      className="block mt-2 w-full py-2 px-4 rounded-full 
+        bg-slate-900/90 text-white font-semibold text-center
+        shadow-lg shadow-indigo-500/30 border border-white/10
+        flex items-center justify-center gap-2"
                     >
-                      <AddressIdenticon address={address} />
-                    </div>
-                    <span className="text-xs font-mono">{shortAddr || "Identity"}</span>
-                  </button>
+                      <div
+                        className={
+                          "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
+                          (
+                            savedTier === "Architect"
+                              ? "ring-2 ring-yellow-400/80"
+                              : savedTier === "Builder"
+                                ? "ring-2 ring-blue-400/80"
+                                : "ring-2 ring-purple-400/80"
+                          )
+                        }
+                        style={generateAvatarStyle(address, savedTier)}
+                      >
+                        <AddressIdenticon address={address} />
+                      </div>
+                      <span className="text-xs font-mono">{shortAddr || "Identity"}</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        disconnect();
+                        setMobileOpen(false);
+                      }}
+                      className="block mt-2 w-full py-2 px-4 rounded-full 
+                 bg-red-500/20 text-red-300 text-center font-semibold
+                 shadow border border-red-400/20 
+                 hover:bg-red-500/40 transition"
+                    >
+                      {isGR ? "Αποσύνδεση" : "Disconnect"}
+                    </button>
+                  </>
                 ) : (
                   !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
                     <a

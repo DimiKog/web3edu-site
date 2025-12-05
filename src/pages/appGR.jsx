@@ -5,13 +5,6 @@ import gr from "../content/gr.js";
 import motivationCubes from "../assets/motivation-cubes.png";
 import { teamCardsGr } from "../content/teamCards.js";
 
-const featureLabelsGR = [
-    "Εργαστήρια Hands-on",
-    "Blockchain & Πέρα",
-    "Παιχνιδοποιημένες Προκλήσεις",
-    "Διαπιστευτήρια DAO",
-];
-
 const featureCardsGR = [
     {
         icon: "🔧",

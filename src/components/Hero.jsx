@@ -1,7 +1,25 @@
-import { useEffect } from "react";
-import web3EduLogo from "../assets/web3edu_logo.png";
+import { useEffect, useState } from "react";
+import web3EduLogoLightWebp from "../assets/web3edu_logo_light.webp";
+import web3EduLogoDarkWebp from "../assets/web3edu_logo.webp";
+import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
+import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
+import web3EduLogoLightPng from "../assets/web3edu_logo_light.png";
+import web3EduLogoDarkPng from "../assets/web3edu_logo.png";
 
 const Hero = ({ content }) => {
+    const [isDark, setIsDark] = useState(
+        typeof document !== "undefined" &&
+        document.documentElement.classList.contains("dark")
+    );
+
+    useEffect(() => {
+        const observer = new MutationObserver(() => {
+            setIsDark(document.documentElement.classList.contains("dark"));
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+        return () => observer.disconnect();
+    }, []);
+
     useEffect(() => {
         const h = () => {
             document.documentElement.style.setProperty("--scrollPos", window.scrollY);
@@ -13,17 +31,17 @@ const Hero = ({ content }) => {
     const ctaLabel = content.cta ?? "Start Learning";
 
     return (
-        <header className="w-full py-32 sm:py-28 px-6 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#081018] overflow-hidden rounded-b-[80px] lg:rounded-b-[120px] relative z-10">
+        <header className="w-full py-20 sm:py-28 px-4 sm:px-6 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#081018] overflow-hidden rounded-b-[80px] lg:rounded-b-[120px] relative z-10">
 
             <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1/3 left-1/3 w-[520px] h-[520px] bg-[#33D6FF]/18 blur-[120px] rounded-full"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-[420px] h-[420px] bg-[#E05BFF]/20 blur-[160px] rounded-full"></div>
+                <div className="absolute top-1/3 left-1/3 w-[360px] h-[360px] sm:w-[520px] sm:h-[520px] bg-[#4ACBFF]/18 blur-[120px] rounded-full"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] sm:w-[420px] sm:h-[420px] bg-[#FF67D2]/20 blur-[160px] rounded-full"></div>
             </div>
 
             {/* FLOATING PARTICLES */}
             <div className="pointer-events-none absolute inset-0 opacity-55 [transform:translateY(calc(var(--scrollPos)*0.15))] transition-transform duration-75">
-                <div className="absolute w-96 h-96 rounded-full bg-[#D84FD1]/10 blur-3xl animate-pulse-slow top-10 left-10"></div>
-                <div className="absolute w-80 h-80 rounded-full bg-[#38C7FF]/20 blur-2xl animate-pulse-slow2 bottom-10 right-20"></div>
+                <div className="absolute w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-[#FF67D2]/10 blur-3xl animate-pulse-slow top-10 left-10"></div>
+                <div className="absolute w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-[#4ACBFF]/20 blur-2xl animate-pulse-slow2 bottom-10 right-20"></div>
             </div>
 
             {/* HOLOGRAM SHIMMER LINE */}
@@ -32,32 +50,41 @@ const Hero = ({ content }) => {
 
                 {/* LEFT SIDE — Logo + Tagline */}
                 <div className="flex flex-col items-center lg:items-center text-center lg:text-center gap-4">
-                    <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10 hover:shadow-cyan-500/30 transition duration-300 [perspective:1000px] relative">
-                        <div className="transition-transform duration-500 hover:[transform:rotateX(6deg)_rotateY(-6deg)_scale(1.05)]">
-                            <img src={web3EduLogo} alt="Web3Edu" className="h-48 w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(0,200,255,0.55)]" />
+                    <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10 hover:shadow-[0_0_28px_rgba(74,203,255,0.28)] transition duration-300 [perspective:1000px] relative">
+                        <div className="transition-transform duration-500 sm:hover:[transform:rotateX(6deg)_rotateY(-6deg)_scale(1.05)]">
+                            <picture>
+                                <source srcSet={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp} type="image/webp" />
+                                <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
+                                <img
+                                    src={isDark ? web3EduLogoDarkPng : web3EduLogoLightPng}
+                                    alt="Web3Edu"
+                                    className="h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(74,203,255,0.55)]
+                                        transition-opacity duration-500"
+                                />
+                            </picture>
                         </div>
-                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#E05BFF]/22 via-[#7F3DF1]/26 to-[#33D6FF]/22 blur-2xl opacity-40 pointer-events-none"></div>
+                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#FF67D2]/22 via-[#8A57FF]/26 to-[#4ACBFF]/22 blur-2xl opacity-40 pointer-events-none"></div>
                     </div>
 
-                    <div className="inline-flex items-center gap-2 rounded-full px-6 py-2 text-sm font-semibold bg-gradient-to-r from-[#D84FD1]/20 via-[#7F3DF1]/20 to-[#38C7FF]/20 text-white border border-white/20 shadow-md tracking-wide backdrop-blur-md">
+                    <div className="inline-flex items-center gap-2 rounded-full px-6 py-2 text-sm font-semibold bg-gradient-to-r from-[#FF67D2]/20 via-[#8A57FF]/20 to-[#4ACBFF]/20 text-white border border-white/20 shadow-md tracking-wide backdrop-blur-md">
                         {content.tagline}
                     </div>
                 </div>
 
                 {/* RIGHT SIDE — Text + CTA */}
                 <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-xl relative">
-                    <div className="absolute -z-10 -top-10 left-1/2 -translate-x-1/2 w-64 h-64 bg-gradient-to-br from-cyan-400/10 to-indigo-500/10 rounded-full blur-3xl opacity-40 animate-pulse-slow"></div>
-                    <h1 className="text-6xl sm:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-[#E05BFF] via-[#9A5CFF] to-[#33D6FF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(0,255,255,.35)] animate-fade-up">
+                    <div className="absolute -z-10 -top-10 left-1/2 -translate-x-1/2 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-[#4ACBFF]/10 to-[#8A57FF]/10 rounded-full blur-3xl opacity-40 animate-pulse-slow"></div>
+                    <h1 className="text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(74,203,255,.28)] animate-fade-up">
                         👋 {content.welcome}
                     </h1>
 
-                    <p className="text-lg sm:text-xl text-slate-100/95 leading-relaxed max-w-lg animate-fade-up delay-150">
+                    <p className="text-base sm:text-lg text-slate-100/95 leading-relaxed max-w-lg animate-fade-up delay-150">
                         {content.desc}
                     </p>
 
                     <a
                         href="/#/join"
-                        className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-gradient-to-r from-[#E05BFF] via-[#7F3DF1] to-[#33D6FF] hover:from-[#D849F2] hover:via-[#8A4BFF] hover:to-[#28C7F3] text-white font-semibold shadow-xl shadow-cyan-500/20 transition duration-300 animate-fade-up delay-300"
+                        className="inline-flex items-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300 animate-fade-up delay-300"
                     >
                         🚀 {ctaLabel}
                     </a>

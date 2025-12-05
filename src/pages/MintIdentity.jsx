@@ -47,51 +47,78 @@ export default function MintIdentity() {
 
     return (
         <PageShell>
-            <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6
-bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a]
-relative overflow-hidden text-white backdrop-brightness-125 rounded-3xl py-20">
+            <div className="min-h-[70vh] flex flex-col items-center justify-center text-center
+px-6 sm:px-8 md:px-10 py-14
+bg-gradient-to-br from-white via-slate-100 to-white
+dark:from-[#0A0F1A] dark:via-[#120A1E]/90 dark:to-[#0A0F1A]
+relative overflow-hidden rounded-3xl transition-colors duration-500">
+                <div className="absolute inset-0 bg-gradient-to-br 
+from-[#8A57FF]/10 via-[#4ACBFF]/8 to-[#FF67D2]/10 
+rounded-3xl dark:hidden"></div>
 
                 <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-1/4 left-1/3 w-[380px] h-[380px] bg-[#33D6FF]/25 blur-[140px] rounded-full"></div>
-                    <div className="absolute bottom-1/4 right-1/4 w-[320px] h-[320px] bg-[#7F3DF1]/30 blur-[120px] rounded-full"></div>
+                    {/* Light mode glow */}
+                    <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px]
+                bg-gradient-to-br from-[#C7B6FF]/40 via-[#AEE6FF]/30 to-[#FFC3EB]/40
+                blur-[120px] rounded-full dark:hidden"></div>
+
+                    <div className="absolute bottom-1/4 right-1/4 w-[260px] h-[260px]
+                bg-gradient-to-br from-[#AEE6FF]/30 via-[#FFC3EB]/40 to-[#C7B6FF]/30
+                blur-[110px] rounded-full dark:hidden"></div>
+
+                    {/* Dark mode glow */}
+                    <div className="absolute top-1/3 left-1/4 w-[260px] h-[260px] bg-[#4ACBFF]/20 blur-[110px] rounded-full hidden dark:block"></div>
+                    <div className="absolute bottom-1/3 right-1/4 w-[240px] h-[240px] bg-[#8A57FF]/18 blur-[100px] rounded-full hidden dark:block"></div>
                 </div>
 
-                <div className="absolute top-[30%] left-[18%] w-3 h-3 bg-white/40 rounded-full animate-ping"></div>
-                <div className="absolute bottom-[22%] right-[15%] w-2 h-2 bg-[#33D6FF]/50 rounded-full animate-ping"></div>
-                <div className="absolute top-[55%] right-[28%] w-2 h-2 bg-[#7F3DF1]/50 rounded-full animate-ping"></div>
+                {/* Step Header */}
+                <div className="relative z-20 max-w-xl w-full mb-12 flex flex-col items-center select-none">
 
-                {/* Progress Header */}
-                <div className="relative z-20 max-w-xl w-full mb-10 flex justify-between items-center text-sm font-semibold text-slate-300 dark:text-gray-400 select-none">
-                    <div className="flex items-center space-x-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full
-                                        bg-purple-500 text-white font-bold">
-                            ✓
+                    {/* Section Title Above Steps */}
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4 tracking-tight">
+                        Identity Setup
+                    </h2>
+
+                    <div className="w-24 h-1 mb-6 rounded-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/30 to-[#FF67D2]/40"></div>
+
+                    {/* Steps Row */}
+                    <div className="flex justify-between items-center w-full text-sm font-semibold text-slate-700 dark:text-gray-400">
+
+                        {/* Step 1 — COMPLETED */}
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300/60 dark:border-emerald-400/60 shadow-sm">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white font-bold shadow-md">
+                                ✓
+                            </div>
+                            <span className="text-slate-900 dark:text-white tracking-wide">Connect Wallet</span>
                         </div>
-                        <span className="text-purple-400 dark:text-purple-300 font-semibold">Connect Wallet</span>
+
+                        {/* Step 2 — ACTIVE */}
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-br from-[#8A57FF]/15 via-[#4ACBFF]/10 to-[#FF67D2]/15 border border-[#8A57FF]/20 shadow-sm">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] text-white font-bold shadow-md">
+                                2
+                            </div>
+                            <span className="text-slate-900 dark:text-white tracking-wide">Mint SBT</span>
+                        </div>
+
+                        {/* Step 3 — PENDING */}
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-600 dark:text-gray-400">
+                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-200 dark:bg-white/15 text-slate-800 dark:text-white">
+                                3
+                            </div>
+                            <span className="tracking-wide">Welcome</span>
+                        </div>
                     </div>
 
-                    <div className="flex items-center space-x-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full 
-                                        bg-purple-500 dark:bg-purple-600 text-white font-bold">
-                            2
-                        </div>
-                        <span className="text-white font-semibold">Mint SBT</span>
-                    </div>
-
-                    <div className="flex items-center space-x-2 opacity-40">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full 
-                                        bg-indigo-500/40 text-white font-bold">
-                            3
-                        </div>
-                        <span>Welcome</span>
-                    </div>
+                    {/* Divider */}
+                    <div className="w-full h-px mt-6 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-70"></div>
                 </div>
 
-                <p className="text-sm text-white/70 mb-6 mt-4 relative z-10">
-                    Step 2 of 3 — Mint Your Identity SBT
-                </p>
-
-                <div className="relative z-10 bg-white/10 backdrop-blur-2xl rounded-3xl px-10 py-12 shadow-[0_0_40px_rgba(0,0,0,0.25)] max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] border border-white/10 shadow-[0_0_25px_rgba(255,255,255,0.12)]">
+                <div className="relative z-10 max-sm:px-6
+bg-white/80 dark:bg-white/5
+border border-slate-200/70 dark:border-white/15
+shadow-[0_8px_24px_rgba(15,23,42,0.18)]
+backdrop-blur-md rounded-3xl px-10 py-12
+max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] transition-colors duration-500">
 
                     <div className="mb-6 relative flex items-center justify-center">
                         {/* Glowing ring */}
@@ -110,27 +137,34 @@ relative overflow-hidden text-white backdrop-brightness-125 rounded-3xl py-20">
                         />
                     </div>
 
-                    <h1 className="text-4xl font-extrabold drop-shadow-[0_3px_6px_rgba(0,0,0,0.45)] text-white relative z-10 stroke-white/20 [text-shadow:0_0_4px_rgba(255,255,255,0.4)]">
+                    <h1 className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight mt-4 mb-5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.40)] relative z-10">
                         Mint Your Web3Edu Identity
                     </h1>
 
-                    <p className="mt-4 text-lg text-white/90 max-w-xl leading-relaxed drop-shadow-[0_3px_6px_rgba(0,0,0,0.55)] relative z-10">
-                        Your Identity Soulbound Token (SBT) is your permanent Web3Edu on-chain profile. It stores
-                        your level, your points, achievements, and your learning progression.
-                        This is a Soulbound Token — it cannot be transferred and uniquely
-                        represents your identity across the Web3Edu ecosystem.
+                    <p className="animate-[fadeIn_0.8s_ease-out] mt-3 text-lg text-slate-700 dark:text-white/90 max-w-md leading-relaxed dark:leading-loose tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)] relative z-10">
+                        Your <strong>Identity Soulbound Token (SBT)</strong> is your permanent <strong>on-chain profile</strong> in Web3Edu.
+                        It stores your level, accumulated points, achievements, and your overall learning progression.
+                    </p>
+
+                    <p className="animate-[fadeIn_0.8s_ease-out] mt-4 text-lg text-slate-700 dark:text-white/90 max-w-md leading-relaxed dark:leading-loose tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)] relative z-10">
+                        As a <strong>Soulbound Token</strong>, it cannot be transferred and it uniquely represents your
+                        <strong> identity</strong> across the <strong>Web3Edu ecosystem</strong>.
                     </p>
 
                     <div className="flex items-center gap-2 mt-6 relative z-10">
-                        <div className="w-3 h-3 rounded-full bg-white/25"></div>
-                        <div className="w-3 h-3 rounded-full bg-white/90"></div>
-                        <div className="w-3 h-3 rounded-full bg-white/25"></div>
+                        <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-white/25"></div>
+                        <div className="w-3 h-3 rounded-full bg-slate-900 dark:bg-white/90"></div>
+                        <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-white/25"></div>
                     </div>
 
                     {!isConnected && (
-                        <div className="mt-10">
-                            <ConnectButton />
-                            <p className="mt-4 text-sm text-white/70">Please connect your wallet to continue.</p>
+                        <div className="mt-10 flex flex-col items-center">
+                            <div className="relative z-10 p-3 rounded-xl bg-white/70 dark:bg-white/5 backdrop-blur-lg shadow-[0_4px_18px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_18px_rgba(15,23,42,0.18)]">
+                                <ConnectButton />
+                            </div>
+                            <p className="mt-3 text-sm text-slate-600 dark:text-gray-400 tracking-wide">
+                                Please connect your wallet to continue.
+                            </p>
                         </div>
                     )}
 
@@ -139,9 +173,11 @@ relative overflow-hidden text-white backdrop-brightness-125 rounded-3xl py-20">
                             <button
                                 onClick={handleMint}
                                 disabled={isMinting}
-                                className={`px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition
-                            bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF] hover:opacity-90 ${isMinting ? "opacity-60 cursor-not-allowed" : ""
-                                    }`}
+                                className={`px-6 py-3 rounded-xl
+bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
+text-white font-semibold shadow-lg shadow-[#8A57FF]/30 tracking-wide
+transition-all duration-300
+${isMinting ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:scale-[1.02]"}`}
                             >
                                 {isMinting ? "Minting..." : "Mint Identity SBT"}
                             </button>
@@ -157,6 +193,22 @@ relative overflow-hidden text-white backdrop-brightness-125 rounded-3xl py-20">
                 </div>
 
             </div>
+            {isMinting && (
+                <div className="fixed inset-0 z-50 flex flex-col items-center justify-center
+  backdrop-blur-lg bg-black/40 animate-fadeIn">
+
+                    <div className="relative flex items-center justify-center mb-6">
+                        <div className="absolute w-40 h-40 rounded-full border-4 border-[#8A57FF]/40 animate-ping"></div>
+                        <div className="absolute w-48 h-48 rounded-full bg-gradient-to-br from-[#8A57FF]/30 via-[#4ACBFF]/25 to-[#FF67D2]/30 blur-2xl"></div>
+                        <img src={identityIcon} className="w-28 h-28 relative z-10 animate-pulse" />
+                    </div>
+
+                    <p className="text-white text-xl font-semibold tracking-wide animate-pulse">
+                        Minting your SBT…
+                    </p>
+
+                </div>
+            )}
         </PageShell>
     );
 }

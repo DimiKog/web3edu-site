@@ -10,10 +10,16 @@
 @keyframes fadeIn {from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .animate-slideUp {animation: slideUp .7s ease-out;}
 @keyframes slideUp {from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.motivation-highlight {display:inline-flex;align-items:center;padding:0.12em 0.5em;margin:0 0.12em;border-radius:999px;background:linear-gradient(120deg,rgba(99,102,241,0.18),rgba(147,197,253,0.24),rgba(56,189,248,0.25));border:1px solid rgba(99,102,241,0.35);color:#0f172a;font-weight:600;box-shadow:0 8px 24px rgba(79,70,229,0.15);transition:transform .2s ease,box-shadow .2s ease;white-space:nowrap;}
-.motivation-highlight::after {content:"";width:6px;height:6px;border-radius:999px;margin-left:6px;background:radial-gradient(circle,rgba(236,72,153,0.8),rgba(14,165,233,0.2));box-shadow:0 0 12px rgba(236,72,153,0.5);}
+.motivation-highlight {display:inline-flex;align-items:center;padding:0.12em 0.5em;margin:0 0.12em;border-radius:999px;background: linear-gradient(120deg,
+rgba(138,87,255,0.22),
+rgba(74,203,255,0.22),
+rgba(255,103,210,0.22));border:1px solid rgba(138,87,255,0.40);color:#0f172a;font-weight:600;box-shadow:0 8px 24px rgba(79,70,229,0.15);transition:transform .2s ease,box-shadow .2s ease;white-space:nowrap;}
+.motivation-highlight::after {content:"";width:6px;height:6px;border-radius:999px;margin-left:6px;background: radial-gradient(circle, rgba(255,103,210,0.8), rgba(74,203,255,0.2));box-shadow:0 0 12px rgba(236,72,153,0.5);}
 .motivation-highlight:hover {transform:translateY(-1px) scale(1.01);box-shadow:0 12px 26px rgba(59,130,246,0.22);}
-.dark .motivation-highlight {color:#f8fafc;border-color:rgba(165,180,252,0.5);background:linear-gradient(120deg,rgba(59,130,246,0.27),rgba(147,51,234,0.18),rgba(14,165,233,0.25));box-shadow:0 10px 28px rgba(15,23,42,0.8);}
+.dark .motivation-highlight {color:#f8fafc;border-color: rgba(138,87,255,0.35);background: linear-gradient(120deg,
+rgba(138,87,255,0.25),
+rgba(74,203,255,0.18),
+rgba(255,103,210,0.22));box-shadow:0 10px 28px rgba(15,23,42,0.8);}
 `}
 </style>
 
@@ -63,21 +69,21 @@ const Motivation = ({ content }) => {
         <section
             className="
             mt-4 relative overflow-hidden  
-            rounded-2xl px-10 py-10
-            bg-gradient-to-br from-white/80 via-indigo-50/40 to-white/80
-            dark:from-slate-900/70 dark:via-indigo-900/30 dark:to-slate-900/70
+            rounded-2xl px-6 py-8 sm:px-10 sm:py-10
+            bg-gradient-to-br from-[#F6F1FF] via-white to-[#EAF8FF]
+            dark:from-[#0A0F1A] dark:via-[#111626] dark:to-[#131B2D]
             border border-slate-200/40 dark:border-white/10
             shadow-xl backdrop-blur-2xl
             "
         >
             <div className="absolute inset-0 pointer-events-none z-0">
-                <div className="absolute -top-24 -right-16 w-72 h-72 bg-[radial-gradient(circle,rgba(99,102,241,0.22),transparent_65%)] blur-3xl" />
-                <div className="absolute -bottom-24 -left-20 w-80 h-80 bg-[radial-gradient(circle,rgba(14,165,233,0.18),transparent_70%)] blur-[90px]" />
-                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[420px] h-[420px] rounded-full bg-gradient-to-r from-indigo-500/10 via-transparent to-purple-500/10 opacity-70 blur-3xl" />
+                <div className="hidden sm:block absolute -top-24 -right-16 w-72 h-72 bg-[radial-gradient(circle,rgba(138,87,255,0.22),transparent_65%)] blur-3xl" />
+                <div className="hidden sm:block absolute -bottom-24 -left-20 w-80 h-80 bg-[radial-gradient(circle,rgba(74,203,255,0.18),transparent_70%)] blur-[90px]" />
+                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[420px] h-[420px] rounded-full bg-gradient-to-r from-[#8A57FF]/15 via-transparent to-[#4ACBFF]/15 opacity-70 blur-3xl" />
             </div>
 
             <div className="absolute left-0 top-0 h-full w-[3px]
-            bg-gradient-to-b from-[#8A3FFC] via-[#00D1FF] to-[#4B3CFF]
+            bg-gradient-to-b from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
             animate-pulse opacity-70 z-10"></div>
 
             <div className="relative z-20">
@@ -98,14 +104,14 @@ const Motivation = ({ content }) => {
 
                 <div className="absolute left-0 right-0 top-[78px] h-[3px] bg-gradient-to-r from-transparent via-[#8A3FFC]/50 to-transparent animate-pulse"></div>
                 <h3 className="text-3xl font-bold text-transparent bg-clip-text 
-                bg-gradient-to-r from-[#8A3FFC] via-[#00D1FF] to-[#4B3CFF]
-                dark:from-[#B598FF] dark:via-[#7EE0FF] dark:to-[#9F8CFF]
+                bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
+                dark:from-[#C9B3FF] dark:via-[#8EE8FF] dark:to-[#FF9EE6]
                 mt-2 mb-4 tracking-tight drop-shadow-[0_0_18px_rgba(90,40,255,0.35)]">
                     {content.detailHeading || content.heading || "Our Mission"}
                 </h3>
 
                 <p
-                    className="text-[20px] leading-relaxed text-slate-800 dark:text-slate-100 max-w-4xl animate-slideUp tracking-wide space-y-3"
+                    className="text-lg sm:text-xl leading-relaxed text-slate-800 dark:text-slate-100 max-w-3xl animate-slideUp tracking-wide space-y-3"
                     dangerouslySetInnerHTML={{
                         __html: formattedBody,
                     }}
@@ -113,11 +119,11 @@ const Motivation = ({ content }) => {
             </div>
 
             <div className="pointer-events-none absolute inset-0 opacity-30 z-10">
-                <div className="absolute w-3 h-3 bg-indigo-400/50 rounded-full top-12 left-24 animate-float" />
-                <div className="absolute w-2 h-2 bg-fuchsia-400/50 rounded-full top-1/3 left-1/4 animate-float-delayed" />
-                <div className="absolute w-3 h-3 bg-cyan-400/50 rounded-full bottom-12 right-20 animate-float-slow" />
-                <div className="absolute w-2 h-2 bg-purple-400/40 rounded-full bottom-1/3 right-1/4 animate-float" />
-                <div className="absolute w-1.5 h-1.5 bg-indigo-300/40 rounded-full top-1/4 right-1/3 animate-float-delayed" />
+                <div className="absolute w-3 h-3 bg-[#8A57FF]/40 rounded-full top-12 left-24 animate-float" />
+                <div className="absolute w-2 h-2 bg-[#FF67D2]/40 rounded-full top-1/3 left-1/4 animate-float-delayed" />
+                <div className="absolute w-3 h-3 bg-[#4ACBFF]/40 rounded-full bottom-12 right-20 animate-float-slow" />
+                <div className="absolute w-2 h-2 bg-[#8A57FF]/35 rounded-full bottom-1/3 right-1/4 animate-float" />
+                <div className="absolute w-1.5 h-1.5 bg-[#8A57FF]/30 rounded-full top-1/4 right-1/3 animate-float-delayed" />
             </div>
         </section>
     );

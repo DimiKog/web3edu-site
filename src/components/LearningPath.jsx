@@ -84,13 +84,13 @@ const LearningPath = ({ content, badgeLabel = "Learning Journey" }) => {
     }, [content, isMobile, recomputePositions]);
 
     const cardContainerClasses = isMobile
-        ? "flex flex-col w-full gap-4 mt-4"
-        : "flex-1 w-full max-w-[820px] space-y-10 mt-6 md:mt-0 px-2 md:px-0";
+        ? "flex flex-col w-full gap-6 mt-4"
+        : "flex-1 w-full max-w-[820px] space-y-12 mt-6 md:mt-0 px-2 md:px-0";
 
     return (
         <section
             ref={containerRef}
-            className="relative mt-12 mx-auto max-w-[1700px] rounded-2xl border border-slate-200/70 bg-white/80 p-6 md:p-8 shadow-sm backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/50 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900"
+            className="relative mt-12 mx-auto max-w-[1700px] rounded-2xl border border-slate-200/70 bg-white/80 p-6 md:p-8 shadow-sm backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/50 bg-gradient-to-br from-[#F6F1FF] via-white to-[#EAF8FF] dark:from-[#0A0F1A] dark:via-[#111626] dark:to-[#131B2D]"
         >
             <div className="mb-8 flex flex-col gap-4 header-block">
                 <div>
@@ -100,7 +100,7 @@ const LearningPath = ({ content, badgeLabel = "Learning Journey" }) => {
                         {content.title}
                     </h2>
 
-                    <p className="mt-2 max-w-none whitespace-normal text-base md:text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+                    <p className="mt-2 max-w-none whitespace-normal text-lg sm:text-xl leading-relaxed text-slate-600 dark:text-slate-400">
                         {content.subtitle}
                     </p>
                 </div>
@@ -119,21 +119,21 @@ const LearningPath = ({ content, badgeLabel = "Learning Journey" }) => {
                     ))}
                 </div>
                 <div className="mt-3 h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
-                    <div className="h-full w-full bg-gradient-to-r from-indigo-500 via-sky-500 to-fuchsia-500 animate-pulse" />
+                    <div className="h-full w-full bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] animate-pulse" />
                 </div>
             </div>
 
             <div className="relative w-full flex flex-col md:flex-row gap-6 md:gap-14 items-start justify-center">
                 <div className="relative flex items-center justify-center md:justify-end md:pt-40 pt-6 pl-2 pr-0 w-full md:w-auto select-none">
                     <div
-                        className="relative w-[200px] h-[200px] md:w-[340px] md:h-[340px] flex items-center justify-center animate-float-slow before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:bg-cyan-400/20 before:blur-2xl before:animate-pulse"
+                        className="relative w-[160px] h-[160px] sm:w-[220px] sm:h-[220px] md:w-[340px] md:h-[340px] flex items-center justify-center animate-float-slow before:content-[''] before:absolute before:inset-0 before:rounded-2xl before:bg-[#4ACBFF]/20 before:blur-2xl before:animate-pulse"
                         style={{ pointerEvents: "none" }}
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent animate-holoShimmer rounded-2xl pointer-events-none"></div>
                         <img
                             src={holoImg}
                             alt="Hologram Projector"
-                            className="object-contain opacity-90 drop-shadow-[0_0_20px_rgba(0,200,255,0.5)]"
+                            className="object-contain opacity-90 drop-shadow-[0_0_20px_rgba(74,203,255,0.55)]"
                             draggable="false"
                         />
                     </div>
@@ -263,20 +263,20 @@ const LearningPath = ({ content, badgeLabel = "Learning Journey" }) => {
                             <div className="flex items-center gap-3 mb-3" data-node-anchor>
                                 <div
                                     className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-white text-sm font-medium shadow-sm
-                                      ${i === 0 ? "bg-gradient-to-r from-indigo-500 to-sky-500" : ""}
-                                      ${i === 1 ? "bg-gradient-to-r from-purple-500 to-pink-500" : ""}
-                                      ${i === 2 ? "bg-gradient-to-r from-blue-500 to-cyan-500" : ""}
-                                      ${i === 3 ? "bg-gradient-to-r from-fuchsia-500 to-violet-500" : ""}`}
+                                      ${i === 0 ? "bg-gradient-to-r from-[#8A57FF]/90 to-[#4ACBFF]/90" : ""}
+                                      ${i === 1 ? "bg-gradient-to-r from-[#4ACBFF]/90 to-[#FF67D2]/90" : ""}
+                                      ${i === 2 ? "bg-gradient-to-r from-[#FF67D2]/90 to-[#8A57FF]/90" : ""}
+                                      ${i === 3 ? "bg-gradient-to-r from-[#4ACBFF]/90 to-[#8A57FF]/90" : ""}`}
                                 >
                                     <span>STEP {i + 1}</span>
                                 </div>
 
                                 <span
                                     className={`inline-flex items-center justify-center w-9 h-9 rounded-xl text-white text-lg shadow-md
-                                      ${i === 0 ? "bg-indigo-500" : ""}
-                                      ${i === 1 ? "bg-purple-500" : ""}
-                                      ${i === 2 ? "bg-blue-500" : ""}
-                                      ${i === 3 ? "bg-fuchsia-500" : ""}`}
+                                      ${i === 0 ? "bg-[#8A57FF]" : ""}
+                                      ${i === 1 ? "bg-[#4ACBFF]" : ""}
+                                      ${i === 2 ? "bg-[#FF67D2]" : ""}
+                                      ${i === 3 ? "bg-[#8A57FF]" : ""}`}
                                 >
                                     {step.emoji}
                                 </span>
@@ -286,7 +286,7 @@ const LearningPath = ({ content, badgeLabel = "Learning Journey" }) => {
                                 </h3>
                             </div>
 
-                            <p className="text-base text-slate-600 dark:text-slate-400 card-text">
+                            <p className="text-lg sm:text-base text-slate-600 dark:text-slate-400 card-text">
                                 {step.desc}
                             </p>
                         </div>

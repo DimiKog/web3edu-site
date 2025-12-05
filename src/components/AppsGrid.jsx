@@ -20,7 +20,7 @@ const COLOR_THEME = {
 
 const AppsGrid = ({ content, badgeLabel = "Developer’s Corner" }) => (
     <section className="mt-16">
-        <div className="absolute left-0 top-0 h-full w-[3px] bg-gradient-to-b from-indigo-400 via-fuchsia-400 to-sky-400 opacity-70 blur-[2px] pointer-events-none"></div>
+        <div className="absolute left-0 top-0 h-full w-[3px] bg-gradient-to-b from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] opacity-70 blur-[2px] pointer-events-none"></div>
         <div className="px-4 mb-10 text-left animate-[slideFade_0.6s_ease-out]">
             <SectionBadge label={badgeLabel} className="mb-4" />
 
@@ -28,13 +28,13 @@ const AppsGrid = ({ content, badgeLabel = "Developer’s Corner" }) => (
                 <div className="absolute inset-0 overflow-hidden rounded-md pointer-events-none">
                     <div className="absolute top-0 left-0 h-full w-[120%] bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shine_2s_ease-in-out_infinite]"></div>
                 </div>
-                <h2 className="text-4xl font-extrabold tracking-tight text-slate-800 dark:text-white drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                <h2 className="text-4xl font-extrabold tracking-tight text-slate-800 dark:text-white drop-shadow-[0_0_20px_rgba(138,87,255,0.35)]">
                     {content.heading || "Web3 Applications & Tools"}
                 </h2>
             </div>
         </div>
         {/* Top animated divider */}
-        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent mb-10" />
+        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent mb-10" />
 
         <div className="flex flex-col gap-6 px-2 py-6 w-full perspective-[2000px]
       md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:px-0 md:py-10 md:overflow-visible">
@@ -48,7 +48,7 @@ const AppsGrid = ({ content, badgeLabel = "Developer’s Corner" }) => (
                         key={key}
                         href={`/#/${key}`}
                         className="group relative rounded-3xl p-[2px] shadow-xl transition-all
-           hover:-translate-y-2 hover:shadow-3xl
+           hover:-translate-y-2 hover:scale-[1.02] hover:shadow-[0_16px_40px_rgba(138,87,255,0.25)]
            hover:[transform:perspective(900px)_rotateX(4deg)_rotateY(-4deg)]
            bg-gradient-to-br from-white/40 to-white/10 
            dark:from-slate-800/30 dark:to-slate-900/40 
@@ -88,8 +88,8 @@ const AppsGrid = ({ content, badgeLabel = "Developer’s Corner" }) => (
                                 </div>
 
                                 {/* Title */}
-                                <h2 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white mb-3 tracking-tight 
-            group-hover:text-indigo-200 transition">
+                                <h2 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-white mb-3 tracking-tight 
+            group-hover:text-[#CBB2FF] transition">
                                     {app.title}
                                 </h2>
 
@@ -113,7 +113,7 @@ const AppsGrid = ({ content, badgeLabel = "Developer’s Corner" }) => (
         </div>
 
         {/* Bottom animated divider */}
-        <div className="mt-10 h-[1px] w-full bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent" />
+        <div className="mt-10 h-[1px] w-full bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent" />
 
         <style>{`
 @keyframes float {

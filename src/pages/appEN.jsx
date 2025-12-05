@@ -5,13 +5,6 @@ import en from "../content/en.js";
 import motivationCubes from "../assets/motivation-cubes.png";
 import { teamCardsEn } from "../content/teamCards.js";
 
-const featureLabelsEN = [
-    "Hands-on Labs",
-    "Blockchain & Beyond",
-    "Gamified Challenges",
-    "DAO Credentials",
-];
-
 const featureCardsEN = [
     {
         icon: "🔧",
