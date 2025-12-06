@@ -62,8 +62,94 @@ export default function DashboardGR() {
                 return res.json();
             })
             .then(data => {
-                setMetadata(data.metadata);
-                setProfile(data.profile || null);
+                const apiMetadata =
+                    data?.metadata?.metadata && typeof data.metadata.metadata === "object"
+                        ? data.metadata.metadata
+                        : data?.metadata && typeof data.metadata === "object"
+                            ? data.metadata
+                            : {};
+                const apiProfile =
+                    data?.profile?.metadata && typeof data.profile.metadata === "object"
+                        ? data.profile.metadata
+                        : data?.profile && typeof data.profile === "object"
+                            ? data.profile
+                            : {};
+
+                setMetadata(apiMetadata);
+
+                const parseMaybeJson = value => {
+                    if (typeof value === "string") {
+                        try {
+                            return JSON.parse(value);
+                        } catch {
+                            return null;
+                        }
+                    }
+                    return value;
+                };
+
+                const normalizeAttributes = source => {
+                    const candidates = [
+                        source?.attributes,
+                        source?.attribute,
+                        source?.attrs,
+                        source?.traits,
+                        source?.traits_array,
+                        source?.traitsArray,
+                        source?.attributes_json,
+                        source?.attributesJson
+                    ];
+                    for (const cand of candidates) {
+                        const parsed = parseMaybeJson(cand);
+                        if (Array.isArray(parsed)) return parsed;
+                        if (parsed && typeof parsed === "object") {
+                            return Object.entries(parsed).map(([key, value]) => ({
+                                trait_type: key,
+                                value
+                            }));
+                        }
+                    }
+                    return [];
+                };
+
+                const metadataAttributes = normalizeAttributes(apiMetadata);
+                const profileAttributes = normalizeAttributes(apiProfile);
+                const mergedAttributes = [...metadataAttributes, ...profileAttributes];
+
+                const roleValue = apiProfile.role || apiMetadata.role;
+                const specializationValue =
+                    apiProfile.specialization ||
+                    apiProfile.speciality ||
+                    apiMetadata.specialization ||
+                    apiMetadata.speciality;
+
+                const hasRoleAttr = mergedAttributes.some(a => (a.trait_type || "").toLowerCase() === "role");
+                const hasSpecAttr = mergedAttributes.some(a =>
+                    ["specialization", "speciality"].includes((a.trait_type || "").toLowerCase())
+                );
+
+                if (!hasRoleAttr && roleValue) {
+                    mergedAttributes.push({ trait_type: "Role", value: roleValue });
+                }
+                if (!hasSpecAttr && specializationValue) {
+                    mergedAttributes.push({ trait_type: "Specialization", value: specializationValue });
+                }
+
+                const mergedProfile = {
+                    ...apiMetadata,
+                    ...apiProfile,
+                    name: apiProfile.name || apiMetadata.name || formattedAddress || "Web3Edu Identity",
+                    image:
+                        apiProfile.image ||
+                        apiMetadata.image ||
+                        apiProfile.avatar ||
+                        apiMetadata.avatar ||
+                        apiProfile.pfp ||
+                        apiMetadata.pfp,
+                    attributes: mergedAttributes
+                };
+
+                setProfile(mergedProfile);
             })
             .catch(err => {
                 console.error("Failed to fetch metadata:", err);
@@ -254,7 +340,7 @@ export default function DashboardGR() {
                             icon={<UserIcon className='w-5 h-5 text-white' />}
                         >
                             <div className="flex flex-col items-start">
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-1">Τρέχον Tier</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-1">Τρέχον Επίπεδο</p>
                                 <p className="text-xl font-bold text-purple-600 dark:text-purple-300 animate-pulse">
                                     {metadata?.tier ?? "Explorer"}
                                 </p>

@@ -1,17 +1,33 @@
 import { LockClosedIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
+import identityFallback from "../assets/icons/identity-icon.png";
 
 export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" }) {
     const {
         name,
         image,
-        attributes = []
+        attributes = [],
+        role: metaRole,
+        specialization: metaSpec,
+        speciality: metaSpeciality,
+        avatar,
+        pfp
     } = metadata || {};
 
-    const role = attributes.find(a => a.trait_type === "Role")?.value;
-    const specialization = attributes.find(a => a.trait_type === "Specialization")?.value;
-    const isFounder = attributes.find(a => a.trait_type === "Founder")?.value === true;
+    const role =
+        attributes.find(a => (a.trait_type || "").toLowerCase() === "role")?.value ||
+        metaRole;
+    const specialization =
+        attributes.find(a => ["specialization", "speciality"].includes((a.trait_type || "").toLowerCase()))?.value ||
+        metaSpec ||
+        metaSpeciality;
+    const isFounder =
+        attributes.find(a => (a.trait_type || "").toLowerCase() === "founder")?.value === true;
+    const resolvedImage =
+        image ||
+        avatar ||
+        pfp;
 
     const shortWallet = wallet
         ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}`
@@ -58,18 +74,18 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                 {/* Avatar */}
                 <div className="flex flex-col items-center mt-2">
                     {(() => {
-                        let normalized = "https://web3edu.dimikog.org/icons/web3edu-identity.png";
+                        let normalized = identityFallback;
 
-                        if (image) {
-                            if (typeof image === "string" && image.startsWith("ipfs://")) {
-                                const cid = image.replace("ipfs://", "");
+                        if (resolvedImage) {
+                            if (typeof resolvedImage === "string" && resolvedImage.startsWith("ipfs://")) {
+                                const cid = resolvedImage.replace("ipfs://", "");
                                 normalized = `https://gateway.pinata.cloud/ipfs/${cid}`;
-                            } else if (typeof image === "string" && image.includes("/ipfs/")) {
-                                const parts = image.split("/ipfs/");
+                            } else if (typeof resolvedImage === "string" && resolvedImage.includes("/ipfs/")) {
+                                const parts = resolvedImage.split("/ipfs/");
                                 const cid = parts[1];
                                 normalized = `https://gateway.pinata.cloud/ipfs/${cid}`;
                             } else {
-                                normalized = image;
+                                normalized = resolvedImage;
                             }
                         }
 
@@ -84,7 +100,7 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                                     hover:scale-105
                                 "
                                 onError={(e) => {
-                                    e.target.src = "https://web3edu.dimikog.org/icons/web3edu-identity.png";
+                                    e.target.src = identityFallback;
                                 }}
                             />
                         );
@@ -113,7 +129,7 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                             tracking-wide
                         "
                     >
-                        {name}
+                        {name || metadata?.name || metadata?.displayName || wallet || "Web3Edu Identity"}
                     </h2>
                 </div>
 
