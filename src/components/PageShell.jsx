@@ -1,6 +1,8 @@
 // PAGE SHELL — LANGUAGE STATE AS SOURCE OF TRUTH (OPTION A)
 
 import React from "react";
+import Footer from "./Footer.jsx";
+import FooterGr from "./FooterGr.jsx";
 import web3EduLogoLight from "../assets/web3edu_logo_light.webp";
 import web3EduLogoDark from "../assets/web3edu_logo.webp";
 import web3EduLogoLightPng from "../assets/web3edu_logo_light.png";
@@ -50,6 +52,17 @@ export default function PageShell({
   React.useEffect(() => {
     localStorage.setItem("lang", lang);
   }, [lang]);
+
+  React.useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
 
   // Stable theme toggle
   const [isDark, setIsDark] = React.useState(
@@ -123,6 +136,11 @@ export default function PageShell({
   const shortAddr = address ? shortAddress(address) : "";
   const savedTier = localStorage.getItem("web3edu-tier") || "Explorer";
 
+  const navigateTo = (hash) => {
+    window.location.hash = hash;
+    setMobileOpen(false);
+  };
+
   const baseClasses =
     "w-full flex flex-col px-4 sm:px-8 text-slate-900 dark:text-slate-100 transition-colors duration-300";
 
@@ -176,6 +194,30 @@ export default function PageShell({
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
   after:transition-transform hover:after:scale-x-100">Αρχική</a>
+                <a
+                  href="/#/start-here-gr"
+                  className="relative font-medium 
+    text-white dark:text-blue-200
+    hover:text-blue-300 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  Ξεκίνα εδώ
+                </a>
+                <a
+                  href="/#/labs-gr"
+                  className="relative font-medium 
+    text-white dark:text-blue-200
+    hover:text-blue-300 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  Εργαστήρια
+                </a>
                 <a href="/#/team-gr" className="relative font-medium 
   text-white dark:text-blue-200
   hover:text-blue-300 dark:hover:text-white
@@ -183,6 +225,7 @@ export default function PageShell({
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
   after:transition-transform hover:after:scale-x-100">Ομάδα</a>
+
 
                 <span className="text-[10px] px-2 py-0.5 rounded-full 
     border border-indigo-300/30 dark:border-indigo-300/40
@@ -221,6 +264,30 @@ export default function PageShell({
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
   after:transition-transform hover:after:scale-x-100">Home</a>
+                <a
+                  href="/#/start-here"
+                  className="relative font-medium 
+    text-white dark:text-blue-200
+    hover:text-blue-300 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  Start Here
+                </a>
+                <a
+                  href="/#/labs"
+                  className="relative font-medium 
+    text-white dark:text-blue-200
+    hover:text-blue-300 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  Labs
+                </a>
                 <a href="/#/team" className="relative font-medium 
   text-white dark:text-blue-200
   hover:text-blue-300 dark:hover:text-white
@@ -352,160 +419,149 @@ export default function PageShell({
 
         {/* MOBILE MENU */}
         {mobileOpen && (
-          <div className="md:hidden p-4 bg-white/30 dark:bg-slate-800/60 rounded-xl mt-1">
-            {isGR ? (
-              <>
-                <a href="/#/gr" className="block py-1 font-medium 
-text-slate-700 dark:text-blue-200
-hover:text-blue-500 dark:hover:text-white">Αρχική</a>
-                <a href="/#/team-gr" className="block py-1 font-medium 
-text-slate-700 dark:text-blue-200
-hover:text-blue-500 dark:hover:text-white">Ομάδα</a>
-                {showIdentityAvatar ? (
+          <div className="fixed inset-0 md:hidden z-40 px-4 pt-24 pb-8 bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-xl">
+            <div className="h-full w-full overflow-y-auto rounded-2xl border border-white/10 bg-white/80 dark:bg-slate-900/85 shadow-2xl shadow-indigo-500/10 p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                {isGR ? (
                   <>
                     <button
-                      onClick={() => {
-                        window.location.hash = "#/dashboard-gr";
-                        setMobileOpen(false);
-                      }}
-                      className="mt-2 w-full py-2 px-4 rounded-full 
-        bg-slate-900/90 text-white font-semibold text-center
-        shadow-lg shadow-indigo-500/30 border border-white/10
-        flex items-center justify-center gap-2"
+                      onClick={() => navigateTo("#/gr")}
+                      className="w-full rounded-xl bg-slate-900 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/20"
                     >
-                      <div
-                        className={
-                          "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
-                          (
-                            savedTier === "Architect"
-                              ? "ring-2 ring-yellow-400/80"
-                              : savedTier === "Builder"
-                                ? "ring-2 ring-blue-400/80"
-                                : "ring-2 ring-purple-400/80"
-                          )
-                        }
-                        style={generateAvatarStyle(address, savedTier)}
-                      >
-                        <AddressIdenticon address={address} />
-                      </div>
-                      <span className="text-xs font-mono">{shortAddr || "Ταυτότητα"}</span>
+                      Αρχική
                     </button>
-
                     <button
-                      onClick={() => {
-                        disconnect();
-                        setMobileOpen(false);
-                      }}
-                      className="block mt-2 w-full py-2 px-4 rounded-full 
-                 bg-gradient-to-r from-red-500/25 via-rose-500/25 to-pink-500/25
-                 text-white text-center font-semibold
-                 shadow-lg shadow-pink-500/15 border border-white/15
-                 hover:from-red-500/35 hover:to-pink-500/35 hover:shadow-pink-500/25 transition"
+                      onClick={() => navigateTo("#/start-here-gr")}
+                      className="w-full rounded-xl border border-slate-300/40 
+    dark:border-slate-700/60 bg-white/70 
+    dark:bg-slate-800/80 py-3 text-sm font-semibold 
+    text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
                     >
-                      {isGR ? "Αποσύνδεση" : "Disconnect"}
+                      Ξεκίνα εδώ
+                    </button>
+                    <button
+                      onClick={() => navigateTo("#/labs-gr")}
+                      className="w-full rounded-xl border border-slate-300/40 
+    dark:border-slate-700/60 bg-white/70 
+    dark:bg-slate-800/80 py-3 text-sm font-semibold 
+    text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
+                    >
+                      Εργαστήρια
+                    </button>
+                    <button
+                      onClick={() => navigateTo("#/team-gr")}
+                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
+                    >
+                      Ομάδα
                     </button>
                   </>
                 ) : (
-                  !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
-                    <a
-                      href="/#/join-gr"
-                      className="block mt-2 py-2 px-4 rounded-full 
-                      bg-gradient-to-r from-pink-500/40 to-blue-500/40
-                      text-white font-semibold text-center
-                      shadow-lg shadow-indigo-500/20 border border-white/10
-                      hover:from-pink-500/60 hover:to-blue-500/60 transition"
-                    >
-                      Σύνδεση
-                    </a>
-                  )
-                )}
-              </>
-            ) : (
-              <>
-                <a href="/#/" className="block py-1 font-medium 
-text-slate-700 dark:text-blue-200
-hover:text-blue-500 dark:hover:text-white">Home</a>
-                <a href="/#/team" className="block py-1 font-medium 
-text-slate-700 dark:text-blue-200
-hover:text-blue-500 dark:hover:text-white">Team</a>
-                {showIdentityAvatar ? (
                   <>
                     <button
-                      onClick={() => {
-                        window.location.hash = "#/dashboard";
-                        setMobileOpen(false);
-                      }}
-                      className="block mt-2 w-full py-2 px-4 rounded-full 
-        bg-slate-900/90 text-white font-semibold text-center
-        shadow-lg shadow-indigo-500/30 border border-white/10
-        flex items-center justify-center gap-2"
+                      onClick={() => navigateTo("#/")}
+                      className="w-full rounded-xl bg-slate-900 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/20"
                     >
-                      <div
-                        className={
-                          "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
-                          (
-                            savedTier === "Architect"
-                              ? "ring-2 ring-yellow-400/80"
-                              : savedTier === "Builder"
-                                ? "ring-2 ring-blue-400/80"
-                                : "ring-2 ring-purple-400/80"
-                          )
-                        }
-                        style={generateAvatarStyle(address, savedTier)}
-                      >
-                        <AddressIdenticon address={address} />
-                      </div>
-                      <span className="text-xs font-mono">{shortAddr || "Identity"}</span>
+                      Home
                     </button>
-
                     <button
-                      onClick={() => {
-                        disconnect();
-                        setMobileOpen(false);
-                      }}
-                      className="block mt-2 w-full py-2 px-4 rounded-full 
-                 bg-red-500/20 text-red-300 text-center font-semibold
-                 shadow border border-red-400/20 
-                 hover:bg-red-500/40 transition"
+                      onClick={() => navigateTo("#/start-here")}
+                      className="w-full rounded-xl border border-slate-300/40 
+    dark:border-slate-700/60 bg-white/70 
+    dark:bg-slate-800/80 py-3 text-sm font-semibold 
+    text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
                     >
-                      {isGR ? "Αποσύνδεση" : "Disconnect"}
+                      Start Here
+                    </button>
+                    <button
+                      onClick={() => navigateTo("#/labs")}
+                      className="w-full rounded-xl border border-slate-300/40 
+    dark:border-slate-700/60 bg-white/70 
+    dark:bg-slate-800/80 py-3 text-sm font-semibold 
+    text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
+                    >
+                      Labs
+                    </button>
+                    <button
+                      onClick={() => navigateTo("#/team")}
+                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
+                    >
+                      Team
                     </button>
                   </>
-                ) : (
-                  !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
-                    <a
-                      href="/#/join"
-                      className="block mt-2 py-2 px-4 rounded-full 
-                      bg-gradient-to-r from-pink-500/40 to-blue-500/40
-                      text-white font-semibold text-center
-                      shadow-lg shadow-indigo-500/20 border border-white/10
-                      hover:from-pink-500/60 hover:to-blue-500/60 transition"
-                    >
-                      Join
-                    </a>
-                  )
                 )}
-              </>
-            )}
+              </div>
 
-            <button
-              className="mt-2 block"
-              onClick={() => {
-                toggleLanguage();
-              }}
-            >
-              {isGR ? "EN" : "GR"}
-            </button>
+              {showIdentityAvatar ? (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => navigateTo(isGR ? "#/dashboard-gr" : "#/dashboard")}
+                    className="w-full flex items-center justify-between gap-3 rounded-xl bg-slate-900 text-white py-3 px-4 text-sm font-semibold shadow-lg shadow-indigo-500/20"
+                  >
+                    <div
+                      className={
+                        "w-10 h-10 rounded-full flex items-center justify-center shadow-md " +
+                        (
+                          savedTier === "Architect"
+                            ? "ring-2 ring-yellow-400/80"
+                            : savedTier === "Builder"
+                              ? "ring-2 ring-blue-400/80"
+                              : "ring-2 ring-purple-400/80"
+                        )
+                      }
+                      style={generateAvatarStyle(address, savedTier)}
+                    >
+                      <AddressIdenticon address={address} />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="text-xs text-white/70">{isGR ? "Ταυτότητα" : "Identity"}</p>
+                      <p className="font-mono text-sm">{shortAddr}</p>
+                    </div>
+                    <span className="text-[10px] rounded-full bg-white/15 px-3 py-1">
+                      {savedTier}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      disconnect();
+                      setMobileOpen(false);
+                    }}
+                    className="w-full rounded-xl border border-red-400/40 bg-red-500/15 py-3 text-sm font-semibold text-red-100 hover:bg-red-500/25 transition"
+                  >
+                    {isGR ? "Αποσύνδεση" : "Disconnect"}
+                  </button>
+                </div>
+              ) : (
+                !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
+                  <button
+                    onClick={() => navigateTo(isGR ? "#/join-gr" : "#/join")}
+                    className="w-full rounded-xl bg-gradient-to-r from-pink-500/60 to-blue-500/60 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:from-pink-500/70 hover:to-blue-500/70 transition"
+                  >
+                    {isGR ? "Σύνδεση" : "Join"}
+                  </button>
+                )
+              )}
 
-            <button
-              className="mt-2 block"
-              onClick={() => {
-                setIsDark((prev) => !prev);
-                setMobileOpen(false);
-              }}
-            >
-              {isDark ? "🌞" : "🌙"}
-            </button>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <button
+                  onClick={() => {
+                    toggleLanguage();
+                    setMobileOpen(false);
+                  }}
+                  className="w-full rounded-xl border border-white/20 bg-white/80 dark:bg-slate-800/80 py-2.5 text-sm font-semibold text-slate-800 dark:text-white"
+                >
+                  {isGR ? "EN" : "GR"}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsDark((prev) => !prev);
+                    setMobileOpen(false);
+                  }}
+                  className="w-full rounded-xl border border-white/20 bg-slate-900 text-white py-2.5 text-sm font-semibold"
+                >
+                  {isDark ? "🌞" : "🌙"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -521,6 +577,11 @@ hover:text-blue-500 dark:hover:text-white">Team</a>
           {children.slice(1)}
         </div>
       ) : null}
+
+      {/* GLOBAL FOOTER */}
+      <div className="w-full">
+        {isGR ? <FooterGr /> : <Footer />}
+      </div>
     </main>
   );
 }

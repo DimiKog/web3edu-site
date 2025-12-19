@@ -79,7 +79,7 @@ const HeroGR = ({ content }) => {
                     </p>
 
                     <button
-                        onClick={() => navigate("/join-gr")}
+                        onClick={() => navigate("/start-here-gr")}
                         className="inline-flex items-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300 animate-fade-up delay-300"
                     >
                         🚀 Ξεκίνα τη Μάθηση

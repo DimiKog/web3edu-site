@@ -6,10 +6,9 @@ import {
     ExplorerIcon,
     BuilderIcon,
     ArchitectIcon,
-    AddressIdenticon,
-    generateAvatarStyle,
     shortAddress
 } from "../components/identity-ui.jsx";
+import { QRCodeSVG } from "qrcode.react";
 
 export default function SbtViewGR() {
     const { address, isConnected } = useAccount();
@@ -21,7 +20,7 @@ export default function SbtViewGR() {
 
     useEffect(() => {
         if (!isConnected) {
-            navigate("/join-gr");
+            navigate("/join");
             return;
         }
         window.scrollTo(0, 0);
@@ -33,14 +32,17 @@ export default function SbtViewGR() {
 
         setLoading(true);
         setError("");
-        fetch(`${BACKEND}/sbt/profile/${address}`)
+        fetch(`${BACKEND}/web3sbt/resolve/${address}`)
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 return res.json();
             })
             .then(data => {
                 setProfile(data);
-                if (data?.profile?.tier) localStorage.setItem("web3edu_tier", data.profile.tier);
+                // Store tier for navbar avatar
+                if (data?.metadata?.tier) {
+                    localStorage.setItem("web3edu_tier", data.metadata.tier);
+                }
                 setLoading(false);
             })
             .catch(err => {
@@ -53,24 +55,37 @@ export default function SbtViewGR() {
     const shortAddr = shortAddress(address);
 
     const handleCopy = () => {
-        if (!profile?.verifyUrl) return;
+        if (!verifyUrl) return;
         navigator.clipboard
-            .writeText(profile.verifyUrl)
+            .writeText(verifyUrl)
             .catch(err => console.error("Clipboard error:", err));
     };
 
-    const tier = profile?.profile?.tier;
-    const xpPercent = profile?.profile?.xpPercent ?? 0;
-    const remainingXp = profile?.profile?.remainingXp ?? 0;
-    const lessonsCompleted = profile?.profile?.lessonsCompleted ?? 0;
-    const badges = profile?.profile?.badges ?? [];
-    const lessons = profile?.lessons ?? {};
-    const verifyUrl = profile?.verifyUrl ?? "";
+    const tier = profile?.metadata?.tier;
+    const xpPercent = profile?.metadata?.xpPercent ?? 0;
+    const remainingXp = profile?.metadata?.remainingXp ?? 0;
+    const lessonsCompleted = profile?.metadata?.lessonsCompleted ?? 0;
+    const badges = profile?.metadata?.badges ?? [];
+    const lessons = profile?.metadata?.lessons ?? {};
+
+    const PUBLIC_SITE = import.meta.env.VITE_PUBLIC_SITE_URL
+        ?? "https://web3edu.dimikog.org";
+
+    // Detect local development → Vite uses hash routing (#/verify)
+    const isLocalhost = typeof window !== "undefined" &&
+        (window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1");
+
+    const verifyUrl = address
+        ? isLocalhost
+            ? `${window.location.origin}/#/verify/${address}`   // LOCAL FIX
+            : `${PUBLIC_SITE}/verify/${address}`                // PROD
+        : "";
 
     return (
         <PageShell>
             <div className="min-h-screen flex flex-col items-center px-2 sm:px-6 py-16
-                bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/20 to-[#020617] text-white">
+                bg-gradient-to-br from-[#F5F2FF] via-[#EDE7FF] to-[#F8F6FF] dark:from-[#090C14] dark:via-[#120A1E] dark:to-[#020617] text-white">
 
                 {/* Background glow */}
                 <div className="absolute inset-0 pointer-events-none">
@@ -79,11 +94,18 @@ export default function SbtViewGR() {
                 </div>
 
                 <div className="relative z-10 mb-8 text-center max-w-2xl">
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3">
+                    <h1
+                        className="text-center text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white drop-shadow-sm"
+                    >
                         Web3Edu Ψηφιακό Διαβατήριο Ταυτότητας
                     </h1>
-                    <p className="text-white/70 text-xs sm:text-sm md:text-base">
-                        Η μη-μεταβιβάσιμη Soulbound ταυτότητά σας στο Web3Edu Edu-Net.
+                    <p className="mt-1 text-xs sm:text-sm text-indigo-700 dark:text-indigo-300 font-medium">
+                        Εκδίδεται σε: {profile?.profile?.name ?? "Web3Edu Learner"}
+                    </p>
+                    <p
+                        className="mt-2 text-center text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto"
+                    >
+                        Η μη μεταβιβάσιμη Soulbound ταυτότητά σας στο Web3Edu Edu-Net.
                     </p>
                 </div>
 
@@ -97,157 +119,275 @@ export default function SbtViewGR() {
                 {!loading && !error && profile && (
                     <div
                         className="
-                            relative z-10 max-w-3xl w-full mx-auto
-                            rounded-3xl border border-indigo-400/30 dark:border-indigo-300/20
-                            shadow-[0_8px_40px_rgba(36,0,80,0.25)]
-                            bg-gradient-to-br from-indigo-50 via-white to-indigo-100
-                            dark:from-[#232144] dark:via-[#181531] dark:to-[#232144]
-                            p-2 sm:p-3 md:p-4
-                            overflow-hidden
-                            backdrop-blur-xl
+                            relative z-10 max-w-3xl w-full 
+                            rounded-3xl border border-indigo-300/40 dark:border-indigo-700/30
+                            shadow-[0_12px_40px_rgba(0,0,0,0.35)]
+                            bg-gradient-to-br from-white via-indigo-50/40 to-slate-100/60
+                            dark:bg-gradient-to-br dark:from-slate-900 dark:via-indigo-950/20 dark:to-slate-900/40
+                            backdrop-blur-2xl p-6 sm:p-8
+                            text-slate-800 dark:text-slate-200
                         "
                     >
-                        <div className="rounded-[22px] bg-white dark:bg-[#181531] p-8 sm:p-10 md:p-12">
-                            {/* Header */}
-                            <div className="flex items-center gap-6 mb-8">
+
+                        {/* Paper Texture */}
+                        <div className="pointer-events-none absolute inset-0 rounded-3xl opacity-[0.06] mix-blend-overlay 
+    bg-[url('https://grainy-gradients.vercel.app/noise.svg')] bg-repeat">
+                        </div>
+
+                        {/* Founder Ribbon */}
+                        {profile?.profile?.founder && (
+                            <div className="absolute -top-4 -right-4 z-30 scale-110">
                                 <div
-                                    className={
-                                        "relative w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-300" +
-                                        (tier === "Architect"
-                                            ? " animate-pulse"
-                                            : tier === "Builder"
-                                                ? " ring-2 ring-[#33D6FF]/70"
-                                                : tier === "Explorer"
-                                                    ? " ring-2 ring-[#7F3DF1]/60"
-                                                    : "")
-                                    }
-                                    style={generateAvatarStyle(address, tier)}
+                                    className="
+                                        relative px-4 py-1.5 rounded-lg border border-white/20 shadow-xl
+                                        text-white text-[11px] font-bold tracking-wide
+                                        bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500
+                                        animate-founder-shimmer
+                                    "
                                 >
-                                    <AddressIdenticon address={address} />
-                                    <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-black/60 border border-white/40 flex items-center justify-center">
-                                        {tier === "Explorer" && <ExplorerIcon />}
-                                        {tier === "Builder" && <BuilderIcon />}
-                                        {tier === "Architect" && <ArchitectIcon />}
-                                    </span>
+                                    ⭐ ΙΔΡΥΤΗΣ ⭐
                                 </div>
-                                <div>
-                                    <p className="text-xs uppercase tracking-widest text-indigo-400 dark:text-indigo-200 font-semibold">
-                                        Ψηφιακή Ταυτότητα Soulbound
-                                    </p>
-                                    <p className="text-2xl font-bold mt-1 text-slate-900 dark:text-white">
-                                        {profile.sbt?.name ?? "Web3Edu Identity SBT"}
-                                    </p>
-                                    <p className="text-xs text-slate-500 dark:text-white/50 mt-1">
-                                        Πορτοφόλι: <span className="font-mono">{shortAddr}</span>
-                                    </p>
+                            </div>
+                        )}
+
+                        {/* Header (Upgraded) */}
+                        <div className="relative flex items-center gap-6 mb-8">
+
+                            {/* Avatar with soft glow */}
+                            <div className="relative">
+                                <div className="absolute -inset-2 bg-indigo-500/20 blur-xl rounded-full"></div>
+
+                                <div className="relative w-24 h-24 rounded-full overflow-hidden shadow-xl 
+            ring-2 ring-indigo-300/60 dark:ring-indigo-700/60 bg-black/10">
+                                    <img
+                                        src={
+                                            profile?.profile?.avatar && profile.profile.avatar.trim() !== ""
+                                                ? profile.profile.avatar
+                                                : profile?.profile?.image && profile.profile.image.trim() !== ""
+                                                    ? profile.profile.image
+                                                    : profile?.metadata?.image
+                                        }
+                                        alt="Avatar ταυτότητας"
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
                             </div>
 
-                            {/* Identity Details Card */}
-                            <div className="mb-8">
-                                <div className="rounded-2xl border border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/60 dark:bg-[#232144]/60 px-5 py-6 shadow-inner">
-                                    <p className="font-semibold tracking-wide text-xs text-indigo-900 dark:text-indigo-100 uppercase mb-4">
-                                        Στοιχεία Ταυτότητας
-                                    </p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
-                                        <div>
-                                            <p className="text-[11px] text-indigo-800 dark:text-indigo-200 uppercase">Τύπος Token</p>
-                                            <p className="text-sm font-medium text-slate-900 dark:text-white">Soulbound (μη μεταβιβάσιμο)</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[11px] text-indigo-800 dark:text-indigo-200 uppercase">Πρότυπο</p>
-                                            <p className="text-sm font-medium text-slate-900 dark:text-white">ERC-721 (SBT)</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[11px] text-indigo-800 dark:text-indigo-200 uppercase">Διεύθυνση Πορτοφολιού</p>
-                                            <p className="font-mono text-xs break-all text-slate-900 dark:text-indigo-100">
-                                                {address}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[11px] text-indigo-800 dark:text-indigo-200 uppercase">Token ID</p>
-                                            <p className="font-mono text-xs text-slate-900 dark:text-indigo-100">
-                                                {profile.sbt?.tokenId ?? "—"}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
-                                        <div>
-                                            <p className="text-[11px] text-indigo-800 dark:text-indigo-200 uppercase">Επίπεδο</p>
-                                            <p className="font-medium text-sm text-slate-900 dark:text-white">{tier ?? "Explorer"}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[11px] text-indigo-800 dark:text-indigo-200 uppercase">XP</p>
-                                            <p className="font-medium text-sm text-slate-900 dark:text-white">{profile.profile?.xp ?? 0}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[11px] text-indigo-800 dark:text-indigo-200 uppercase">Μαθήματα</p>
-                                            <p className="font-medium text-sm text-slate-900 dark:text-white">{lessonsCompleted}</p>
-                                        </div>
-                                    </div>
-                                    {/* Badges full-width row */}
-                                    <div className="col-span-1 sm:col-span-2 mt-2">
-                                        <p className="text-[11px] text-indigo-800 dark:text-indigo-200 uppercase">Badges</p>
-                                        {badges.length > 0 ? (
-                                            <ul className="mt-2 flex flex-wrap gap-2">
-                                                {badges.map((b, i) => (
-                                                    <li key={i} className="px-2 py-1 rounded-full text-[11px] bg-indigo-200/60 dark:bg-indigo-900/30 text-indigo-900 dark:text-indigo-100 border border-indigo-300/40 dark:border-indigo-700/40">
-                                                        {b}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <p className="text-[11px] text-indigo-400 dark:text-indigo-200 mt-1">Δεν υπάρχουν badges.</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
+                            {/* Name + Tier */}
+                            <div className="flex-1">
+                                <p className="text-[11px] uppercase tracking-wide text-indigo-600 dark:text-indigo-300">
+                                    ΤΑΥΤΟΤΗΤΑ Soulbound
+                                </p>
 
-                            {/* Verification Card */}
-                            <div className="mb-8">
-                                <div className="rounded-2xl border border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/60 dark:bg-[#232144]/60 px-5 py-6 shadow-inner shadow-lg flex flex-col md:flex-row items-center gap-6">
-                                    {verifyUrl && (
-                                        <img
-                                            src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(verifyUrl)}&size=120x120`}
-                                            alt="QR Επαλήθευσης SBT"
-                                            className="rounded-xl border border-indigo-200 dark:border-indigo-800 bg-white/60 dark:bg-indigo-900/30 p-1 w-24 h-24 sm:w-28 sm:h-28"
-                                        />
+                                <div className="flex items-center gap-3 flex-wrap mt-1">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
+                                        {profile?.profile?.name ?? "Web3Edu Identity SBT"}
+                                    </h1>
+
+                                    {/* Tier Badge */}
+                                    {tier && (
+                                        <span className="
+                                            px-3 py-0.5 rounded-full text-[11px] font-bold
+                                            bg-gradient-to-r from-indigo-300/50 to-indigo-500/40
+                                            dark:bg-gradient-to-r dark:from-indigo-700/50 dark:to-indigo-900/40
+                                            border border-indigo-400/40 dark:border-indigo-800/50
+                                            text-indigo-800 dark:text-indigo-200
+                                        ">
+                                            {tier}
+                                        </span>
                                     )}
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100 mb-1">
-                                            Επαλήθευση
-                                        </p>
-                                        <p className="text-xs text-indigo-700 dark:text-indigo-200 mb-2">
-                                            Σύνδεσμος Επαλήθευσης
-                                        </p>
-                                        <p className="text-xs text-slate-600 dark:text-indigo-200 mb-2">
-                                            Σαρώστε το QR ή αντιγράψτε το URL για επαλήθευση.
-                                        </p>
-                                        <div className="flex items-center gap-2">
-                                            <div className="px-3 py-1 rounded-lg bg-indigo-100/60 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700 text-xs font-mono max-w-[260px] overflow-hidden text-ellipsis text-indigo-900 dark:text-indigo-100">
-                                                {verifyUrl || "Δεν υπάρχει διαθέσιμο URL"}
-                                            </div>
-                                            <button
-                                                onClick={handleCopy}
-                                                disabled={!verifyUrl}
-                                                className="px-3 py-1 rounded-lg bg-indigo-200/70 hover:bg-indigo-300/80 dark:bg-indigo-800/60 dark:hover:bg-indigo-700 text-xs font-semibold text-indigo-900 dark:text-indigo-100 disabled:opacity-50"
+                                </div>
+
+                                <p className="text-xs font-mono text-slate-700 dark:text-slate-300 mt-1">
+                                    ΠΟΡΤΟΦΟΛΙ: {shortAddr}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Info Card */}
+                        <div className="rounded-2xl border border-indigo-200/40 dark:border-indigo-800/40
+                            bg-gradient-to-br from-white/90 to-indigo-100/40
+                            dark:bg-gradient-to-br dark:from-slate-900/70 dark:via-indigo-900/30 dark:to-slate-900/60
+                            shadow-md backdrop-blur-xl p-5 mb-6
+                            text-slate-700 dark:text-slate-200
+                        ">
+                            <h2 className="text-xs font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-300 mb-4">
+                                ΣΤΟΙΧΕΙΑ ΤΑΥΤΟΤΗΤΑΣ
+                            </h2>
+
+                            <div className="space-y-3 text-sm">
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-wide text-indigo-700 dark:text-indigo-300">ΤΥΠΟΣ Token</p>
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">Soulbound (μη μεταβιβάσιμο)</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-wide text-indigo-700 dark:text-indigo-300">ΠΡΟΤΥΠΟ</p>
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">ERC‑721 (SBT)</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-wide text-indigo-700 dark:text-indigo-300">ΔΙΕΥΘΥΝΣΗ ΠΟΡΤΟΦΟΛΙΟΥ</p>
+                                    <p className="font-mono text-xs text-slate-900 dark:text-slate-100 break-all">{address}</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-wide text-indigo-700 dark:text-indigo-300">Token ID</p>
+                                    <p className="font-mono text-xs text-slate-900 dark:text-slate-100">
+                                        {profile.tokenId ?? "Δεν έχει εκχωρηθεί"}
+                                        {profile?.profile?.edition && (
+                                            <span
+                                                className="
+            inline-block ml-2 px-2 py-0.5 rounded-full text-[10px] font-medium
+            bg-gradient-to-r from-fuchsia-100 to-fuchsia-200
+            dark:from-fuchsia-900/40 dark:to-fuchsia-800/40
+            border border-fuchsia-300/40 dark:border-fuchsia-700/40
+            text-slate-700 dark:text-slate-200
+        "
                                             >
-                                                Αντιγραφή
-                                            </button>
+                                                {profile.profile.edition}
+                                            </span>
+                                        )}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
+                                        ΜΠΛΟΚ ΚΟΠΗΣ
+                                    </p>
+                                    <p className="font-mono text-xs text-slate-900 dark:text-slate-100">
+                                        {profile?.mintBlock ?? "Άγνωστο"}
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-wide text-indigo-700 dark:text-indigo-300">ΕΠΙΠΕΔΟ</p>
+                                    <p className="font-medium text-slate-900 dark:text-slate-100">{tier ?? "Explorer"}</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-[11px] uppercase tracking-wide text-indigo-700 dark:text-indigo-300">Badges</p>
+                                    {badges.length > 0 ? (
+                                        <ul className="mt-1 flex flex-wrap gap-1">
+                                            {badges.map((b, i) => (
+                                                <li
+                                                    key={i}
+                                                    className="px-2 py-0.5 rounded-full text-[11px] bg-indigo-200/40 dark:bg-indigo-900/40 border border-indigo-300/40 dark:border-indigo-700/40 text-slate-900 dark:text-slate-100"
+                                                >
+                                                    {b}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p className="text-xs text-slate-400">Δεν υπάρχουν badges.</p>
+                                    )}
+                                </div>
+                                {/* Soft Web3 Identity Chips */}
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    {/* Tier Chip */}
+                                    {tier && (
+                                        <span
+                                            className="
+                px-3 py-1 rounded-full text-xs font-medium
+                bg-gradient-to-r from-blue-100 to-blue-200
+                dark:from-blue-900/40 dark:to-blue-800/40
+                border border-blue-300/40 dark:border-blue-700/40
+                text-blue-900 dark:text-blue-200
+            "
+                                        >
+                                            ΕΠΙΠΕΔΟ: {tier}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Verification */}
+                        <div className="rounded-2xl border border-indigo-200/40 dark:border-indigo-800/40
+                            bg-gradient-to-br from-white/90 via-indigo-50/40 to-slate-100/40
+                            dark:bg-gradient-to-br dark:from-slate-900/70 dark:via-indigo-900/30 dark:to-slate-900/60
+                            shadow-md backdrop-blur-xl p-5 mb-4
+                            text-slate-700 dark:text-slate-200
+                        ">
+                            <h2 className="text-xs font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-300 mb-4">
+                                ΕΠΑΛΗΘΕΥΣΗ
+                            </h2>
+
+                            <div className="flex flex-col sm:flex-row items-center gap-6">
+
+                                {/* QR Code Card */}
+                                {verifyUrl && (
+                                    <div className="
+                                        relative p-4 rounded-2xl shadow-lg
+                                        bg-gradient-to-br from-white via-indigo-50 to-slate-100
+                                        dark:bg-gradient-to-br dark:from-[#111827] dark:via-[#1f2758]/40 dark:to-[#111827]/70
+                                        border border-indigo-200/50 dark:border-indigo-700/40
+                                        backdrop-blur-xl
+                                    ">
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <span className="text-indigo-400/40 dark:text-indigo-300/30 text-sm font-semibold tracking-widest rotate-[-20deg]">
+                                                WEB3EDU ΕΠΑΛΗΘΥΜΕΝΟ
+                                            </span>
                                         </div>
+                                        <div className="relative">
+                                            <QRCodeSVG
+                                                value={verifyUrl}
+                                                size={160}
+                                                bgColor={window.matchMedia("(prefers-color-scheme: dark)").matches ? "#ffffff" : "transparent"}
+                                                fgColor={window.matchMedia("(prefers-color-scheme: dark)").matches ? "#000000" : "#1e1b4b"}
+                                                level="M"
+                                                includeMargin={false}
+                                                className="rounded-xl shadow-md w-40 h-40 p-2 
+               bg-white dark:bg-white"   // important for dark mode readability
+                                            />
+                                        </div>
+
+                                        <p className="text-[10px] text-center text-slate-500 dark:text-slate-400 mt-2">
+                                            Σάρωση για επαλήθευση ταυτότητας
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="flex-1">
+                                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">
+                                        Σύνδεσμος Επαλήθευσης
+                                    </p>
+                                    <p className="text-xs text-slate-600 dark:text-slate-300 mb-2">
+                                        Σαρώστε το QR ή αντιγράψτε το URL για να επαληθεύσετε την ταυτότητά σας.
+                                    </p>
+
+                                    <div className="flex items-center gap-2">
+                                        <div className="px-3 py-1 rounded-lg bg-indigo-100/60 dark:bg-indigo-900/40 border border-indigo-300/40 dark:border-indigo-700/40 text-xs font-mono max-w-[260px] overflow-hidden text-ellipsis text-slate-900 dark:text-slate-100">
+                                            {verifyUrl}
+                                        </div>
+                                        <button
+                                            onClick={handleCopy}
+                                            disabled={!verifyUrl}
+                                            className="px-3 py-1 rounded-lg bg-indigo-200/60 dark:bg-indigo-800/40 hover:bg-indigo-300/70 dark:hover:bg-indigo-700/60 text-xs font-semibold transition-colors disabled:opacity-50"
+                                        >
+                                            Αντιγραφή
+                                        </button>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Footer */}
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4 text-xs text-indigo-600 dark:text-indigo-200 mt-4">
-                                <div>
-                                    <span>Εκδόθηκε στο Web3Edu Edu‑Net</span>
-                                </div>
-                                <div className="italic">
-                                    Μη‑μεταβιβάσιμο Soulbound Token
-                                </div>
+                        {/* Verification Seal */}
+                        <div className="mt-6 mb-3 flex justify-center">
+                            <div className="
+                            px-4 py-2 rounded-xl
+                            bg-indigo-100/60 dark:bg-indigo-900/30 
+                            border border-indigo-300/40 dark:border-indigo-700/40
+                            shadow-sm backdrop-blur-md
+                            text-[11px] font-semibold text-indigo-700 dark:text-indigo-300
+                        ">
+                                ✓ Επαληθεύτηκε στο Web3Edu Edu-Net (QBFT • chainId 424242)
                             </div>
+                        </div>
+                        {/* Footer */}
+                        <div className="text-center text-xs text-indigo-700/70 dark:text-indigo-300/70 mt-2">
+                            <p>Εκδόθηκε στο Web3Edu Edu‑Net</p>
+                            <p className="italic">Μη‑μεταβιβάσιμο Soulbound Token</p>
                         </div>
                     </div>
                 )}

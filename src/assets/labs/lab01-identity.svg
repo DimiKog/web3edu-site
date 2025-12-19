@@ -1,0 +1,116 @@
+<svg width="900" height="900" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Web3 identity node illustration">
+  <defs>
+    <linearGradient id="bgGlow" x1="70" y1="60" x2="460" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7B3DF8" stop-opacity="0.55"/>
+      <stop offset="0.55" stop-color="#9C4DFF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#00D4FF" stop-opacity="0.28"/>
+    </linearGradient>
+
+    <linearGradient id="strokeGrad" x1="90" y1="120" x2="420" y2="380" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7B3DF8"/>
+      <stop offset="0.55" stop-color="#9C4DFF"/>
+      <stop offset="1" stop-color="#00D4FF"/>
+    </linearGradient>
+
+    <linearGradient id="pillGrad" x1="120" y1="330" x2="420" y2="330" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7B3DF8" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#00D4FF" stop-opacity="0.18"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 0.22 0" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="tinyShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background glow blob -->
+  <path
+    d="M118 122C160 70 242 64 302 88C364 112 424 162 434 230C444 300 406 368 344 408C280 450 196 452 140 404C86 358 64 272 82 206C92 170 98 148 118 122Z"
+    fill="url(#bgGlow)"
+    filter="url(#softGlow)"
+  />
+
+  <!-- Subtle network dots -->
+  <g opacity="0.6">
+    <circle cx="94" cy="256" r="3" fill="#A9B7FF"/>
+    <circle cx="128" cy="188" r="3" fill="#C7B6FF"/>
+    <circle cx="158" cy="332" r="3" fill="#8BE7FF"/>
+    <circle cx="214" cy="132" r="3" fill="#C7B6FF"/>
+    <circle cx="372" cy="150" r="3" fill="#A9B7FF"/>
+    <circle cx="418" cy="246" r="3" fill="#8BE7FF"/>
+    <circle cx="392" cy="344" r="3" fill="#A9B7FF"/>
+    <circle cx="302" cy="416" r="3" fill="#8BE7FF"/>
+  </g>
+
+  <!-- Connection lines -->
+  <g stroke="url(#strokeGrad)" stroke-width="2" opacity="0.65">
+    <path d="M120 192L204 168" />
+    <path d="M120 320L204 296" />
+    <path d="M308 170L392 188" />
+    <path d="M308 296L392 320" />
+    <path d="M256 140L256 372" opacity="0.35"/>
+  </g>
+
+  <!-- Central identity node (person + ring) -->
+  <g filter="url(#tinyShadow)">
+    <circle cx="256" cy="232" r="62" fill="#0B1020" fill-opacity="0.75" stroke="url(#strokeGrad)" stroke-width="3"/>
+    <circle cx="256" cy="232" r="86" fill="none" stroke="url(#strokeGrad)" stroke-opacity="0.35" stroke-width="3"/>
+
+    <!-- head -->
+    <circle cx="256" cy="214" r="16" fill="#EAF0FF" fill-opacity="0.95"/>
+    <!-- shoulders -->
+    <path
+      d="M224 266C232 246 248 238 256 238C264 238 280 246 288 266C292 276 282 284 256 284C230 284 220 276 224 266Z"
+      fill="#EAF0FF"
+      fill-opacity="0.95"
+    />
+  </g>
+
+  <!-- Address / identity anchor pill -->
+  <g filter="url(#tinyShadow)">
+    <rect x="128" y="330" width="256" height="54" rx="27" fill="url(#pillGrad)" stroke="url(#strokeGrad)" stroke-opacity="0.55" stroke-width="2"/>
+    <!-- 0x badge -->
+    <rect x="148" y="343" width="46" height="28" rx="14" fill="#0B1020" fill-opacity="0.85" stroke="url(#strokeGrad)" stroke-opacity="0.55" stroke-width="1.5"/>
+    <path d="M163 357C163 352 167 348 172 348C177 348 181 352 181 357C181 362 177 366 172 366C167 366 163 362 163 357Z" fill="#EAF0FF" fill-opacity="0.92"/>
+    <path d="M184.5 366V348" stroke="#EAF0FF" stroke-opacity="0.92" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M189.5 366V348" stroke="#EAF0FF" stroke-opacity="0.92" stroke-width="2.2" stroke-linecap="round"/>
+
+    <!-- address segments -->
+    <g opacity="0.9">
+      <rect x="206" y="350" width="44" height="10" rx="5" fill="#EAF0FF" fill-opacity="0.75"/>
+      <rect x="256" y="350" width="54" height="10" rx="5" fill="#EAF0FF" fill-opacity="0.55"/>
+      <rect x="316" y="350" width="46" height="10" rx="5" fill="#EAF0FF" fill-opacity="0.35"/>
+
+      <rect x="206" y="366" width="64" height="8" rx="4" fill="#EAF0FF" fill-opacity="0.35"/>
+      <rect x="274" y="366" width="42" height="8" rx="4" fill="#EAF0FF" fill-opacity="0.55"/>
+      <rect x="320" y="366" width="42" height="8" rx="4" fill="#EAF0FF" fill-opacity="0.75"/>
+    </g>
+  </g>
+
+  <!-- Hex "network context" badge -->
+  <g filter="url(#tinyShadow)">
+    <path
+      d="M420 240L444 254V282L420 296L396 282V254L420 240Z"
+      fill="#0B1020"
+      fill-opacity="0.75"
+      stroke="url(#strokeGrad)"
+      stroke-opacity="0.7"
+      stroke-width="2"
+    />
+    <circle cx="420" cy="268" r="6" fill="#8BE7FF" fill-opacity="0.9"/>
+    <path d="M412 268H428" stroke="#EAF0FF" stroke-opacity="0.7" stroke-width="2" stroke-linecap="round"/>
+    <path d="M420 260V276" stroke="#EAF0FF" stroke-opacity="0.35" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

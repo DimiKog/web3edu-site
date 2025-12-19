@@ -1,7 +1,6 @@
 // src/pages/team/TeamPageEN.jsx
 import PageShell from "../../components/PageShell.jsx";
 import TeamMemberCard from "../../components/TeamMemberCard.jsx";
-import Footer from "../../components/Footer.jsx";
 import dimi from "../../assets/team/dimi.webp";
 import nelly from "../../assets/team/nelly.jpg";
 import tonia from "../../assets/team/tonia.jpg";
@@ -190,7 +189,6 @@ Michael leads Web3Edu’s Infrastructure and Community Operations sector. He sup
                     </div>
                 </div>
             </div>
-            <Footer />
             <style>
                 {`
             @keyframes flow {

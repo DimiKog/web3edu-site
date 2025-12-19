@@ -1,7 +1,7 @@
 // src/pages/team/TeamPageGR.jsx
 import PageShell from "../../components/PageShell.jsx";
 import TeamMemberCard from "../../components/TeamMemberCard.jsx";
-import FooterGr from "../../components/FooterGR.jsx";
+
 
 import dimi from "../../assets/team/dimi.webp";
 import nelly from "../../assets/team/nelly.jpg";
@@ -202,7 +202,7 @@ export default function TeamPageGR() {
                     </div>
                 </div>
             </div>
-            <FooterGr content={{ nav: { home: "Αρχική", team: "Ομάδα" } }} />
+
             <style>
                 {`
             @keyframes flow {

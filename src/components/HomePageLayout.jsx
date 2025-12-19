@@ -6,8 +6,6 @@ import LearningPath from "./LearningPath.jsx";
 import DaoSection from "./DaoSection.jsx";
 import AppsGrid from "./AppsGrid.jsx";
 import NewsSection from "./NewsSection.jsx";
-import Footer from "./Footer.jsx";
-import FooterGR from "./FooterGR.jsx";
 import SectionBadge from "./SectionBadge.jsx";
 import { ACCENT_PRIMARY } from "../design/theme.js";
 
@@ -181,11 +179,6 @@ const HomePageLayout = ({
                     <NewsSection content={newsContent} />
                 </div>
 
-                {heroContent?.lang === "gr" ? (
-                    <FooterGR content={footerContent} />
-                ) : (
-                    <Footer content={footerContent} />
-                )}
             </PageShell>
         </>
     );

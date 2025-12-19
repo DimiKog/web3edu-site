@@ -3,6 +3,13 @@ import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import identityFallback from "../assets/icons/identity-icon.png";
 
+<style jsx>{`
+@keyframes slideDownFade {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+`}</style>
+
 export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" }) {
     const {
         name,
@@ -38,17 +45,25 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
     const [showQR, setShowQR] = useState(false);
     useEffect(() => setMounted(true), []);
 
+    const tier = metadata?.tier || "Explorer";
+    const tierGlow =
+        tier === "Architect"
+            ? "shadow-[0_0_25px_rgba(255,215,0,0.35)]"
+            : tier === "Builder"
+                ? "shadow-[0_0_22px_rgba(0,200,255,0.25)]"
+                : "shadow-[0_0_18px_rgba(168,85,247,0.20)]";
+
     return (
         <div
             className={`
-                relative mx-auto max-w-md
-                rounded-3xl p-[2px]
-                bg-gradient-to-r from-purple-700 via-purple-500 to-purple-700
-                shadow-[0_0_25px_rgba(168,85,247,0.4)]
-                transition-all duration-500
-                ${mounted ? "opacity-100 scale-100" : "opacity-0 scale-95"}
-                my-10
-            `}
+            relative mx-auto max-w-md
+            rounded-3xl p-[2px]
+            bg-gradient-to-r from-purple-700 via-purple-500 to-purple-700
+            shadow-[0_0_12px_rgba(88,28,135,0.22)]
+            transition-all duration-500 ${tierGlow}
+            ${mounted ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"}
+            my-10
+        `}
         >
             <div
                 className="
@@ -94,10 +109,11 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                                 src={normalized}
                                 alt={lang === "gr" ? "Avatar Ιδρυτή" : "Founder Avatar"}
                                 className="
-                                    w-28 h-28 rounded-full object-cover shadow-lg
-                                    ring-[3px] ring-purple-500
-                                    hover:ring-purple-300 transition-all duration-300
-                                    hover:scale-105
+                                    w-32 h-32 rounded-full object-cover
+                                    ring-[2.5px] ring-purple-500/40
+                                    shadow-[0_0_4px_rgba(168,85,247,0.18)]
+                                    transition-all duration-500
+                                    hover:shadow-[0_0_8px_rgba(168,85,247,0.28)]
                                 "
                                 onError={(e) => {
                                     e.target.src = identityFallback;
@@ -106,35 +122,58 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                         );
                     })()}
 
-                    {/* Founder Badge */}
                     {isFounder && (
-                        <span
+                        <div
                             className="
-                                mt-3 px-4 py-1 rounded-full
-                                text-sm font-semibold text-white
-                                bg-gradient-to-r from-purple-600 to-fuchsia-500
-                                shadow-[0_0_12px_rgba(217,70,239,0.7)]
-                                animate-pulse
+                                mt-4 relative inline-flex items-center
+                                px-6 py-2 rounded-lg
+                                bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600
+                                border border-fuchsia-300/60
+                                shadow-[0_3px_10px_rgba(236,72,153,0.25)]
+                                before:content-[''] before:absolute before:-left-3 before:top-1/2 before:-translate-y-1/2
+                                before:w-3 before:h-3 before:bg-gradient-to-br before:from-fuchsia-500 before:to-purple-500
+                                before:rotate-45 before:rounded-sm
+                                after:content-[''] after:absolute after:-right-3 after:top-1/2 after:-translate-y-1/2
+                                after:w-3 after:h-3 after:bg-gradient-to-br after:from-indigo-500 after:to-purple-500
+                                after:rotate-45 after:rounded-sm
                             "
                         >
-                            {lang === "gr" ? "★ Έκδοση Ιδρυτή" : "★ Founder Edition"}
-                        </span>
+                            <span className="text-white font-bold tracking-wide flex items-center gap-2">
+                                ✨ {lang === "gr" ? "Έκδοση Ιδρυτή" : "Founder Edition"} ✨
+                            </span>
+                        </div>
                     )}
 
                     {/* Name */}
                     <h2
                         className="
-                            mt-4 text-2xl font-extrabold
+                            mt-3 text-[1.9rem] font-bold tracking-wide
                             text-gray-900 dark:text-white
-                            tracking-wide
                         "
                     >
                         {name || metadata?.name || metadata?.displayName || wallet || "Web3Edu Identity"}
                     </h2>
+                    <div className="mt-3 flex flex-wrap justify-center gap-2">
+                        {metadata?.xp !== undefined && (
+                            <span className="px-3 py-1 text-xs rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-semibold">
+                                XP: {metadata.xp}
+                            </span>
+                        )}
+                        {metadata?.tier && (
+                            <span className="px-3 py-1 text-xs rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-semibold">
+                                {lang === "gr" ? `Επίπεδο: ${metadata.tier}` : `Tier: ${metadata.tier}`}
+                            </span>
+                        )}
+                        {metadata?.edition && (
+                            <span className="px-3 py-1 text-xs rounded-full bg-fuchsia-100 dark:bg-fuchsia-900/40 text-fuchsia-700 dark:text-fuchsia-300 font-semibold">
+                                {metadata.edition}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 {/* Metadata Section */}
-                <div className="mt-6 space-y-3 text-center">
+                <div className="mt-7 space-y-3 text-center">
 
                     <div className="text-gray-700 dark:text-gray-300 text-sm">
                         <strong className="text-purple-500">{lang === "gr" ? "Ρόλος:" : "Role:"}</strong> {role || "—"}
@@ -169,10 +208,10 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                         <button
                             onClick={() => setShowQR(!showQR)}
                             className="
-                                px-4 py-1 rounded-full text-sm font-semibold
+                                px-5 py-1.5 rounded-full text-sm font-semibold
                                 bg-gradient-to-r from-purple-700 to-fuchsia-600
                                 text-white shadow-md hover:shadow-lg
-                                transition-all hover:scale-105
+                                transition-all duration-300 hover:scale-105
                             "
                         >
                             {showQR
@@ -184,9 +223,12 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                     {showQR && (
                         <div
                             className="
-                                mt-4 p-4 rounded-2xl bg-gray-100 dark:bg-gray-800
-                                shadow-inner border border-purple-400/40
+                                mt-4 p-4 rounded-2xl 
+                                bg-gray-100 dark:bg-gray-800
+                                shadow-inner border border-purple-400/25
                                 flex justify-center
+                                transition-all duration-500
+                                animate-[slideDownFade_0.45s_ease-out]
                             "
                         >
                             <QRCode

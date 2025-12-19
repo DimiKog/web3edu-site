@@ -32,6 +32,13 @@ import SbtView from "./pages/SbtView.jsx";
 import SbtViewGR from "./pages/SbtViewGR.jsx";
 import VerifyIdentity from "./pages/VerifyIdentity.jsx";
 import VerifyIdentityGR from "./pages/VerifyIdentityGR.jsx";
+import StartHere from './pages/StartHere.jsx';
+import StartHereGR from './pages/StartHereGR.jsx';
+import Labs from "./pages/Labs.jsx";
+import LabsGR from './pages/LabsGR.jsx';
+import Lab01 from "./pages/labs/Lab01";
+import Lab01GR from "./pages/labs/Lab01GR";
+
 
 // Besu Edu-Net chain config
 const web3EduChain = {
@@ -94,6 +101,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/sbt-view-gr" element={<SbtViewGR />} />
               <Route path="/verify/:address" element={<VerifyIdentity />} />
               <Route path="/verify-gr/:address" element={<VerifyIdentityGR />} />
+              <Route path="/start-here" element={<StartHere />} />
+              <Route path="/start-here-gr" element={<StartHereGR />} />
+              <Route path="/labs" element={<Labs />} />
+              <Route path="/labs-gr" element={<LabsGR />} />
+              <Route path="/labs/wallets-keys" element={<Lab01 />} />
+              <Route path="/labs-gr/wallets-keys" element={<Lab01GR />} />
             </Routes>
           </HashRouter>
         </RainbowKitProvider>
