@@ -2,7 +2,7 @@
 
 import React from "react";
 import Footer from "./Footer.jsx";
-import FooterGr from "./FooterGr.jsx";
+import FooterGr from "./FooterGR.jsx";
 import web3EduLogoLight from "../assets/web3edu_logo_light.webp";
 import web3EduLogoDark from "../assets/web3edu_logo.webp";
 import web3EduLogoLightPng from "../assets/web3edu_logo_light.png";
