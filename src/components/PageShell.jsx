@@ -20,6 +20,40 @@ const getLangFromHash = (hash) => {
   return null;
 };
 
+const buildHash = (firstSegment, rest) => {
+  const suffix = rest ? `/${rest}` : "";
+  return `#/${firstSegment}${suffix}`;
+};
+
+const translateHashForLang = (hash, targetLang) => {
+  const cleaned = (hash || "#/").replace(/^#\//, "");
+  const [rawRoot, ...restParts] = cleaned.split("/");
+  const root = rawRoot || "";
+  const rest = restParts.join("/");
+
+  if (targetLang === "gr") {
+    if (!root || root === "gr") return "#/gr";
+    if (root === "education" && rest === "network-check")
+      return "#/education/network-check-gr";
+    if (root === "education") return "#/education-gr";
+    if (root === "labs") return buildHash("labs-gr", rest);
+    if (root === "verify") return buildHash("verify-gr", rest);
+    if (root.endsWith("-gr"))
+      return `#/${[root, rest].filter(Boolean).join("/")}`;
+    return buildHash(`${root}-gr`, rest);
+  }
+
+  // targetLang === "en"
+  if (!root || root === "gr") return "#/";
+  if (root === "education" && rest === "network-check-gr")
+    return "#/education/network-check";
+  if (root === "education-gr" && !rest) return "#/education";
+  if (root === "labs-gr") return buildHash("labs", rest);
+  if (root === "verify-gr") return buildHash("verify", rest);
+  if (root.endsWith("-gr")) return buildHash(root.replace(/-gr$/, ""), rest);
+  return `#/${[root, rest].filter(Boolean).join("/")}`;
+};
+
 export default function PageShell({
   accentColor = ACCENT_PRIMARY,
   innerClassName = "",
@@ -100,31 +134,9 @@ export default function PageShell({
   // Handle language toggle
   const toggleLanguage = () => {
     const newLang = lang === "gr" ? "en" : "gr";
+    const nextHash = translateHashForLang(window.location.hash, newLang);
     setLang(newLang);
-
-    const current = window.location.hash;
-
-    if (newLang === "gr") {
-      if (current.startsWith("#/team")) {
-        window.location.hash = "#/team-gr";
-      } else if (current.startsWith("#/join")) {
-        window.location.hash = "#/join-gr";
-      } else if (current.startsWith("#/mint-identity")) {
-        window.location.hash = "#/mint-identity-gr";
-      } else {
-        window.location.hash = "#/gr";
-      }
-    } else {
-      if (current.startsWith("#/team-gr")) {
-        window.location.hash = "#/team";
-      } else if (current.startsWith("#/join-gr")) {
-        window.location.hash = "#/join";
-      } else if (current.startsWith("#/mint-identity-gr")) {
-        window.location.hash = "#/mint-identity";
-      } else {
-        window.location.hash = "#/";
-      }
-    }
+    window.location.hash = nextHash;
   };
 
   const inDashboard = currentHash.startsWith("#/dashboard");

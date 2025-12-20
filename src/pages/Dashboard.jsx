@@ -7,6 +7,8 @@ import XPProgressCard from "../components/XPProgressCard.jsx";
 
 import { UserIcon, AcademicCapIcon, StarIcon, ShieldCheckIcon } from "@heroicons/react/24/solid";
 import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
+import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
+import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
 import {
     ExplorerIcon,
@@ -254,22 +256,11 @@ export default function Dashboard() {
         }
     }, [metadata?.tier]);
 
-    const cleanNextLesson = (() => {
-        if (!displayedMetadata?.nextLesson) return "";
-        const trimmed = displayedMetadata.nextLesson
-            .trim()
-            .replace(/^Start\s+/i, "")
-            .replace(/^with\s+/i, "")
-            .trim();
-        if (!trimmed) return "";
-        const normalized = trimmed.toLowerCase();
-        const looksLikePlaceholderLesson1 =
-            /^lesson\s*1$/.test(normalized) ||
-            normalized.includes("with lesson 1") ||
-            (normalized.includes("lesson 1") && normalized.length <= 20);
-        if (looksLikePlaceholderLesson1) return "";
-        return trimmed;
-    })();
+    const recommended =
+        metadata && typeof metadata.recommendedNext === "object"
+            ? metadata.recommendedNext
+            : null;
+
 
     return (
         <PageShell>
@@ -620,14 +611,21 @@ export default function Dashboard() {
                                 <div className="flex flex-wrap gap-2">
                                     {metadata.badges.map((b, i) => {
                                         let Icon = StarIcon;
-                                        const lower = b.toLowerCase();
+                                        // Defensive: handle b possibly not being a string
+                                        const lower =
+                                            typeof b === "string"
+                                                ? b.toLowerCase()
+                                                : (b?.label?.toLowerCase?.() ||
+                                                    b?.en?.toLowerCase?.() ||
+                                                    b?.gr?.toLowerCase?.() ||
+                                                    "");
                                         if (lower.includes("wallet")) Icon = KeyIcon;
                                         if (lower.includes("lesson")) Icon = BookOpenIcon;
                                         if (lower.includes("quiz")) Icon = TrophyIcon;
 
                                         return (
                                             <span
-                                                key={i}
+                                                key={`${i}-${typeof b === "string" ? b : b?.id || "badge"}`}
                                                 className="
                                                     inline-flex items-center gap-2 
                                                     px-3 py-1 rounded-full 
@@ -638,7 +636,9 @@ export default function Dashboard() {
                                                 "
                                             >
                                                 <Icon className="w-4 h-4 text-white/90" />
-                                                {b}
+                                                {typeof b === "string"
+                                                    ? b
+                                                    : b?.en || b?.gr || b?.label || JSON.stringify(b)}
                                             </span>
                                         );
                                     })}
@@ -649,6 +649,7 @@ export default function Dashboard() {
                                 </p>
                             )}
                         </DashboardCard>
+
 
                         {/* DAO Access */}
                         <DashboardCard
@@ -685,22 +686,54 @@ export default function Dashboard() {
                         "
                             icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
                         >
-                            {cleanNextLesson ? (
-                                <div className="space-y-1">
-                                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                                        Next lesson
+                            {recommended ? (
+                                <div
+                                    className="space-y-2 cursor-pointer"
+                                    onClick={() => {
+                                        if (recommended.type === "lab" && recommended.slug) {
+                                            navigate(`/labs/${recommended.slug}`);
+                                            return;
+                                        }
+                                        if (recommended.type === "lesson" && recommended.slug) {
+                                            navigate(`/lessons/${recommended.slug}`);
+                                            return;
+                                        }
+                                        navigate("/education");
+                                    }}
+                                >
+                                    <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
+                                        Your next step
                                     </p>
-                                    <p className="text-base font-semibold text-slate-900 dark:text-white">
-                                        {cleanNextLesson}
+                                    <p className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                                        {typeof recommended.title === "object"
+                                            ? recommended.title.en || recommended.title.gr
+                                            : recommended.title}
                                     </p>
+                                    {recommended.why && (
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                            {typeof recommended.why === "object"
+                                                ? recommended.why.en || recommended.why.gr
+                                                : recommended.why}
+                                        </p>
+                                    )}
+                                    <div className="pt-1">
+                                        <span className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                                            Continue →
+                                        </span>
+                                    </div>
                                 </div>
                             ) : (
-                                <p className="text-slate-700 dark:text-slate-300">
-                                    New recommendations coming soon…
+                                <p className="text-sm text-slate-700 dark:text-slate-300">
+                                    No recommendation available yet. Complete more activities to unlock the next step.
                                 </p>
                             )}
                         </DashboardCard>
                     </div>
+                </div>
+
+                {/* Full-width Learning Timeline */}
+                <div className="relative z-10 w-full max-w-6xl mx-auto mt-12 px-2 md:px-0">
+                    <LearningTimeline timeline={metadata?.timeline || []} />
                 </div>
 
                 {/* Side Gradient Glow */}

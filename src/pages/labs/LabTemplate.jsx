@@ -1,7 +1,34 @@
 import React from "react";
 import PageShell from "../../components/PageShell";
+import { useAccount, useSignMessage } from "wagmi";
+import { useEffect, useState } from "react";
+
+const DEFAULT_LABELS = {
+    breadcrumbLabs: "Labs",
+    overview: "",
+    level: "Level",
+    estimatedTime: "Estimated time",
+    tools: "Tools used",
+    prerequisites: "Prerequisites",
+    startLab: "Start Lab →",
+    startLabHint: "Opens full step-by-step guide",
+    conceptualFocus: "Conceptual focus",
+    heroCaption: "Web3 identity emerges from cryptographic wallets and network context",
+
+    // Completion / Claim section
+    completionTitle: "Lab completion",
+    completionDescription:
+        "After completing the lab, sign a message to record your progress on Web3Edu.",
+    claimButton: "✅ Claim completion",
+    claimingButton: "Signing…",
+    successMessage: "✔ Completion recorded successfully",
+    walletNotConnectedError: "Wallet not connected",
+    labIdMissingError: "Lab ID missing",
+    backendError: "Failed to record completion",
+};
 
 const LabTemplate = ({
+    labId,
     title = "Lab 01 — Wallets & Web3 Identity",
     subtitle = "Understand wallets, addresses, and identity before transactions",
     heroImage = null,
@@ -21,19 +48,108 @@ const LabTemplate = ({
     ],
     readmeUrl = "https://github.com/dimikog/web3edu-labs/blob/main/lab-01-wallets-identity/README.md",
     conceptualFocusText = "",
-    labels = {
-        breadcrumbLabs: "Labs",
-        overview: "",
-        level: "Level",
-        estimatedTime: "Estimated time",
-        tools: "Tools used",
-        prerequisites: "Prerequisites",
-        startLab: "Start Lab →",
-        conceptualFocus: "Conceptual focus",
-        startLabHint: "Opens full step-by-step guide",
-        heroCaption: "Web3 identity emerges from cryptographic wallets and network context",
-    },
+    labels = {},
 }) => {
+
+    const mergedLabels = { ...DEFAULT_LABELS, ...labels };
+
+    const { address, isConnected } = useAccount();
+    const { signMessageAsync } = useSignMessage();
+
+    const [claiming, setClaiming] = useState(false);
+    const [claimed, setClaimed] = useState(false);
+    const [error, setError] = useState(null);
+    const [checkingStatus, setCheckingStatus] = useState(true);
+    const [completedAt, setCompletedAt] = useState(null);
+
+    useEffect(() => {
+        if (!isConnected || !address || !labId) {
+            setCheckingStatus(false);
+            return;
+        }
+
+        const checkCompletion = async () => {
+            try {
+                const res = await fetch(
+                    `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=${labId}`
+                );
+
+                if (!res.ok) {
+                    setCheckingStatus(false);
+                    return;
+                }
+
+                const data = await res.json();
+                if (data.completed === true) {
+                    setClaimed(true);
+                    setCompletedAt(data.completedAt || null);
+                }
+            } catch (err) {
+                console.warn("Failed to restore lab completion state", err);
+            } finally {
+                setCheckingStatus(false);
+            }
+        };
+
+        checkCompletion();
+    }, [isConnected, address, labId]);
+
+    const handleClaimCompletion = async () => {
+        if (claimed) return;
+        if (!isConnected || !address) {
+            setError(mergedLabels.walletNotConnectedError);
+            return;
+        }
+
+        if (!labId) {
+            setError(mergedLabels.labIdMissingError);
+            return;
+        }
+
+        setClaiming(true);
+        setError(null);
+
+        try {
+            const timestamp = new Date().toISOString();
+
+            const message = `I confirm completion of Web3Edu Lab
+Lab ID: ${labId}
+Address: ${address}
+Timestamp: ${timestamp}`;
+
+            const signature = await signMessageAsync({ message });
+
+            const res = await fetch(
+                "https://web3edu-api.dimikog.org/labs/complete",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        address,
+                        labId,
+                        message,
+                        signature,
+                    }),
+                }
+            );
+
+            if (!res.ok) {
+                throw new Error("Backend rejected completion");
+            }
+
+            setClaimed(true);
+            setTimeout(() => {
+                document
+                    .getElementById("lab-completion")
+                    ?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 200);
+        } catch (err) {
+            console.error(err);
+            setError(mergedLabels.backendError);
+        } finally {
+            setClaiming(false);
+        }
+    };
 
     return (
         <PageShell>
@@ -41,7 +157,7 @@ const LabTemplate = ({
                 {/* Breadcrumb */}
                 <nav className="mb-6 text-sm text-slate-500 dark:text-slate-400">
                     <span className="hover:underline cursor-default">
-                        {labels.breadcrumbLabs}
+                        {mergedLabels.breadcrumbLabs}
                     </span>
                     <span className="mx-2">→</span>
                     <span className="text-slate-700 dark:text-slate-300">
@@ -51,14 +167,28 @@ const LabTemplate = ({
 
                 {/* Header */}
                 <header className="mb-10">
-                    <span
-                        className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full
-                        bg-indigo-100/70 dark:bg-indigo-900/40
-                        text-sm font-semibold tracking-wide
-                        text-indigo-700 dark:text-indigo-300"
-                    >
-                        🧪 Web3Edu · Foundational Lab
-                    </span>
+                    <div className="flex items-center gap-3 mb-4">
+                        <span
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full
+                            bg-indigo-100/70 dark:bg-indigo-900/40
+                            text-sm font-semibold tracking-wide
+                            text-indigo-700 dark:text-indigo-300"
+                        >
+                            🧪 Web3Edu · Foundational Lab
+                        </span>
+
+                        {claimed && (
+                            <span
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full
+                                bg-green-100 dark:bg-green-900/40
+                                text-sm font-semibold
+                                text-green-700 dark:text-green-300
+                                animate-in fade-in zoom-in-95 duration-300"
+                            >
+                                ✓ Completed
+                            </span>
+                        )}
+                    </div>
 
                     <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
                         {title}
@@ -86,7 +216,7 @@ const LabTemplate = ({
                                    drop-shadow-[0_20px_40px_rgba(80,60,200,0.35)]"
                             />
                             <p className="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">
-                                {labels.heroCaption}
+                                {mergedLabels.heroCaption}
                             </p>
                         </div>
                     </div>
@@ -98,7 +228,7 @@ const LabTemplate = ({
                     bg-slate-50/60 dark:bg-slate-900/40 p-6"
                 >
                     <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                        🧠 <span className="font-semibold">{labels.conceptualFocus}:</span>{" "}
+                        🧠 <span className="font-semibold">{mergedLabels.conceptualFocus}:</span>{" "}
                         {conceptualFocusText}
                     </p>
                 </section>
@@ -110,7 +240,7 @@ const LabTemplate = ({
                         bg-white/80 dark:bg-slate-900/60 p-5"
                     >
                         <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                            {labels.level}
+                            {mergedLabels.level}
                         </div>
                         <div className="font-semibold text-slate-800 dark:text-slate-100">
                             🧭 {level}
@@ -121,7 +251,7 @@ const LabTemplate = ({
                         bg-white/80 dark:bg-slate-900/60 p-5"
                     >
                         <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                            {labels.estimatedTime}
+                            {mergedLabels.estimatedTime}
                         </div>
                         <div className="font-semibold text-slate-800 dark:text-slate-100">
                             ⏱️ {estimatedTime}
@@ -162,7 +292,7 @@ const LabTemplate = ({
                     bg-white/80 dark:bg-slate-900/60 p-6"
                 >
                     <h3 className="text-lg font-semibold mb-4">
-                        {labels.tools}
+                        {mergedLabels.tools}
                     </h3>
                     <ul className="space-y-2 text-slate-700 dark:text-slate-300">
                         {tools.map((tool, idx) => (
@@ -179,7 +309,7 @@ const LabTemplate = ({
                     bg-white/80 dark:bg-slate-900/60 p-6"
                 >
                     <h3 className="text-lg font-semibold mb-4">
-                        {labels.prerequisites}
+                        {mergedLabels.prerequisites}
                     </h3>
                     <ul className="space-y-2 text-slate-700 dark:text-slate-300">
                         {prerequisites.map((item, idx) => (
@@ -203,10 +333,76 @@ const LabTemplate = ({
                         hover:scale-[1.02]
                         transition-all duration-200 shadow-xl"
                     >
-                        <span>{labels.startLab}</span>
-                        <span className="text-xs opacity-90">{labels.startLabHint}</span>
+                        <span>{mergedLabels.startLab}</span>
+                        <span className="text-xs opacity-90">{mergedLabels.startLabHint}</span>
                     </a>
                 </div>
+
+                <section
+                    className="mt-14 rounded-2xl border border-indigo-200/50 dark:border-indigo-700/40
+                    bg-indigo-50/60 dark:bg-indigo-900/20 p-6"
+                >
+                    <h3 className="text-lg font-semibold mb-2">
+                        {mergedLabels.completionTitle}
+                    </h3>
+
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                        {mergedLabels.completionDescription}
+                    </p>
+
+                    {checkingStatus && (
+                        <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
+                            Checking completion status…
+                        </p>
+                    )}
+                    {!claimed && !checkingStatus ? (
+                        <div className="flex justify-center">
+                            <button
+                                onClick={handleClaimCompletion}
+                                disabled={claiming}
+                                className={`px-6 py-3 rounded-xl font-semibold text-white
+                                ${claiming
+                                        ? "bg-slate-400 cursor-not-allowed"
+                                        : "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500"
+                                    }`}
+                            >
+                                {claiming ? mergedLabels.claimingButton : mergedLabels.claimButton}
+                            </button>
+                        </div>
+                    ) : claimed ? (
+                        <div
+                            id="lab-completion"
+                            className="rounded-xl border border-green-300/60 dark:border-green-700/40
+                            bg-green-50 dark:bg-green-900/20 p-4
+                            animate-in fade-in zoom-in-95 duration-300
+                            text-center"
+                        >
+                            <div className="flex flex-col items-center gap-2 text-green-700 dark:text-green-400 font-semibold">
+                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-500 text-white animate-bounce">
+                                    ✓
+                                </span>
+                                <span>{mergedLabels.successMessage}</span>
+                            </div>
+
+                            {(xp || badge) && (
+                                <div className="text-sm mt-1 text-green-700 dark:text-green-300">
+                                    {xp && <>⭐ +{xp} XP</>} {badge && <> · 🏅 {badge}</>}
+                                </div>
+                            )}
+                            {completedAt && (
+                                <div className="text-xs mt-1 text-green-600 dark:text-green-400">
+                                    Completed on: {new Date(completedAt).toLocaleString()}
+                                </div>
+                            )}
+                        </div>
+                    ) : null}
+
+                    {error && (
+                        <p className="mt-3 text-sm text-red-600 dark:text-red-400">
+                            {error}
+                        </p>
+                    )}
+                </section>
             </div>
         </PageShell>
     );

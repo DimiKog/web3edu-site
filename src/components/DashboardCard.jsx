@@ -1,8 +1,8 @@
-export default function DashboardCard({ title, icon, children, className = "" }) {
+export default function DashboardCard({ title, icon, status, statusLabel, children, className = "" }) {
     return (
         <div
             className={`
-            rounded-3xl p-6
+            relative rounded-3xl p-6
             border border-indigo-300/40 dark:border-indigo-700/30
             bg-gradient-to-br from-white/90 via-indigo-50/75 to-slate-100/85
             dark:from-[#0E1426]/85 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
@@ -16,6 +16,16 @@ export default function DashboardCard({ title, icon, children, className = "" })
             ${className}
         `}
         >
+            {status === "completed" && (
+                <div className="absolute top-4 right-4 z-20">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full
+                        bg-green-500/90 text-white text-xs font-semibold
+                        shadow-lg backdrop-blur">
+                        ✓ {statusLabel || "Completed"}
+                    </span>
+                </div>
+            )}
+
             {/* Title + optional icon */}
             <div className="flex items-center gap-3 mb-4 text-slate-900 dark:text-slate-100">
                 {icon && (

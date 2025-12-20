@@ -5,6 +5,7 @@ import lab01HeroImg from "../../assets/labs/lab01-identity-diagram.png";
 const Lab01 = () => {
     return (
         <LabTemplate
+            labId="lab01"
             title="Lab 01 — Wallets & Web3 Identity"
             subtitle="Understand wallets, addresses, and identity before transactions"
             conceptualFocusText="This lab introduces the foundations of Web3 identity. You will explore how wallets and addresses establish identity on a permissioned Ethereum network, before any transactions or smart contracts are involved."
@@ -22,8 +23,9 @@ const Lab01 = () => {
                 "Besu Edu-Net RPC details",
             ]}
             readmeUrl="https://github.com/DimiKog/web3edu-labs/blob/main/lab-01-wallets-identity/README.md"
-            xp="+100 XP"
-            badge="Identity Explorer 🏅"
+            xp={100}
+            badge="Identity Explorer"
+            completionMessage="Completed Lab 01 — Wallets & Web3 Identity"
         />
     );
 };

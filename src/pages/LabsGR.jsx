@@ -1,8 +1,29 @@
 import PageShell from "../components/PageShell.jsx";
 import { Link } from "react-router-dom";
 import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.png";
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
 
 const LabsGR = () => {
+    const { address } = useAccount();
+    const [metadata, setMetadata] = useState(null);
+
+    useEffect(() => {
+        if (!address) return;
+
+        fetch(`https://web3edu-api.dimikog.org/web3sbt/resolve/${address}`)
+            .then(res => res.json())
+            .then(data => {
+                setMetadata(data.metadata || null);
+            })
+            .catch(err => {
+                console.error("Αποτυχία φόρτωσης μεταδεδομένων χρήστη", err);
+            });
+    }, [address]);
+
+    const lab01Completed =
+        Boolean(metadata?.labsCompleted && metadata?.labsCompleted >= 1);
+
     return (
         <PageShell title="Εργαστήρια Web3Edu">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
@@ -52,6 +73,15 @@ const LabsGR = () => {
                             border border-white/20 dark:border-white/10
                             shadow-xl hover:shadow-2xl transition-all z-10"
                                 >
+                                    {lab01Completed && (
+                                        <div className="absolute top-4 right-4 z-20">
+                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full
+                                                bg-green-500/90 text-white text-xs font-semibold
+                                                shadow-lg backdrop-blur">
+                                                ✓ Ολοκληρώθηκε
+                                            </span>
+                                        </div>
+                                    )}
                                     <div className="grid grid-cols-1 lg:grid-cols-[520px_1fr] min-h-[420px]">
                                         {/* Visual */}
                                         <div className="relative flex items-center justify-center
