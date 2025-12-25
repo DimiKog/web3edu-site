@@ -11,7 +11,7 @@ const Lab01 = () => {
             conceptualFocusText="This lab introduces the foundations of Web3 identity. You will explore how wallets and addresses establish identity on a permissioned Ethereum network, before any transactions or smart contracts are involved."
             heroImage={lab01HeroImg}
             level="Beginner"
-            estimatedTime="30–40 minutes"
+            estimatedTime="15–20 minutes"
             tools={[
                 "Network Identifier",
                 "Address Anatomy",

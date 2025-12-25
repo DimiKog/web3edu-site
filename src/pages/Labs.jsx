@@ -107,7 +107,7 @@ const Labs = () => {
                                                 </p>
                                                 <div className="grid grid-cols-2 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
                                                     <span>🧭 <strong className="font-semibold text-slate-700 dark:text-slate-200">Level:</strong> Beginner</span>
-                                                    <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Time:</strong> 30–40 minutes</span>
+                                                    <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Time:</strong> 15–20 minutes</span>
                                                     <span>🌐 <strong className="font-semibold text-slate-700 dark:text-slate-200">Network:</strong> Besu Edu‑Net</span>
                                                     <span>🚫 <strong className="font-semibold text-slate-700 dark:text-slate-200">Transactions:</strong> None</span>
                                                     <span>🛠️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Tools:</strong> 3 interactive tools</span>
@@ -147,14 +147,20 @@ const Labs = () => {
                                     </span>
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Learn public‑key encryption, key exchange, and secure message delivery using
-                                    Ethereum accounts and IPFS.
+                                    Learn how encrypted communication works in Web3 using public‑key cryptography,
+                                    cryptographic identities, and off‑chain message encryption — without relying on
+                                    blockchain transactions or Smart Contracts.
                                 </p>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                         Beginner → Intermediate
                                     </span>
-                                    <span className="text-sm text-slate-500">Open Lab</span>
+                                    <Link
+                                        to="/labs/lab02"
+                                        className="text-sm font-semibold text-indigo-600 hover:underline"
+                                    >
+                                        Open Lab →
+                                    </Link>
                                 </div>
                             </div>
                             {/* ⚙️ Consensus & Finality */}

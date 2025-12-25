@@ -38,6 +38,8 @@ import Labs from "./pages/Labs.jsx";
 import LabsGR from './pages/LabsGR.jsx';
 import Lab01 from "./pages/labs/Lab01";
 import Lab01GR from "./pages/labs/Lab01GR";
+import Lab02 from "./pages/labs/Lab02.jsx";
+import Lab02GR from "./pages/labs/Lab02GR.jsx";
 
 
 // Besu Edu-Net chain config
@@ -107,6 +109,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs-gr" element={<LabsGR />} />
               <Route path="/labs/wallets-keys" element={<Lab01 />} />
               <Route path="/labs-gr/wallets-keys" element={<Lab01GR />} />
+              <Route path="/labs/lab02" element={<Lab02 />} />
+              <Route path="/labs-gr/lab02" element={<Lab02GR />} />
             </Routes>
           </HashRouter>
         </RainbowKitProvider>

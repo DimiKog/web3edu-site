@@ -108,7 +108,7 @@ const LabsGR = () => {
 
                                                 <div className="grid grid-cols-2 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
                                                     <span>🧭 <strong className="font-semibold text-slate-700 dark:text-slate-200">Επίπεδο:</strong> Αρχάριο</span>
-                                                    <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Διάρκεια:</strong> 30–40 λεπτά</span>
+                                                    <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Διάρκεια:</strong> 15–20 λεπτά</span>
                                                     <span>🌐 <strong className="font-semibold text-slate-700 dark:text-slate-200">Δίκτυο:</strong> Besu Edu‑Net</span>
                                                     <span>🚫 <strong className="font-semibold text-slate-700 dark:text-slate-200">Συναλλαγές:</strong> Καμία</span>
                                                     <span>🛠️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Εργαλεία:</strong> 3 διαδραστικά εργαλεία</span>
@@ -150,14 +150,42 @@ const LabsGR = () => {
                                     </span>
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Μάθετε κρυπτογράφηση δημόσιου κλειδιού, ανταλλαγή κλειδιών και
-                                    ασφαλή αποστολή μηνυμάτων χρησιμοποιώντας Ethereum λογαριασμούς και IPFS.
+                                    Μάθετε πώς λειτουργεί η κρυπτογραφημένη επικοινωνία στο Web3 χρησιμοποιώντας
+                                    δημόσια και ιδιωτικά κλειδιά. Θα εξερευνήσετε πώς δημιουργούνται ταυτότητες από
+                                    κρυπτογραφικά κλειδιά και πώς τα μηνύματα κρυπτογραφούνται εκτός blockchain,
+                                    χωρίς συναλλαγές ή smart contracts.
                                 </p>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                         Αρχάριο → Μεσαίο
                                     </span>
-                                    <span className="text-sm text-slate-500">Άνοιγμα Εργαστηρίου</span>
+                                    <Link
+                                        to="/labs/lab02"
+                                        className="text-sm font-semibold text-indigo-600 hover:underline"
+                                    >
+                                        Άνοιγμα Εργαστηρίου →
+                                    </Link>
+                                </div>
+                            </div>
+
+                            {/* ⚙️ Consensus & Finality */}
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
+                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-lg font-semibold">⚙️ Συναίνεση & Οριστικότητα</h3>
+                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
+                                        Σύντομα
+                                    </span>
+                                </div>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                                    Κατανοήστε πώς τα blockchain δίκτυα καταλήγουν σε συμφωνία και
+                                    οριστικοποίηση μέσω μηχανισμών ανοχής βυζαντινών σφαλμάτων.
+                                </p>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
+                                        Μεσαίο
+                                    </span>
+                                    <span className="text-sm text-slate-400">Προεπισκόπηση</span>
                                 </div>
                             </div>
 
@@ -215,27 +243,6 @@ const LabsGR = () => {
                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                                     Αναπτύξτε και αλληλεπιδράστε με το πρώτο σας έξυπνο συμβόλαιο
                                     για να κατανοήσετε την κατάσταση και την εκτέλεση on-chain.
-                                </p>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Μεσαίο
-                                    </span>
-                                    <span className="text-sm text-slate-400">Προεπισκόπηση</span>
-                                </div>
-                            </div>
-
-                            {/* ⚙️ Consensus & Finality */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">⚙️ Συναίνεση & Οριστικότητα</h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
-                                        Σύντομα
-                                    </span>
-                                </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Κατανοήστε πώς τα blockchain δίκτυα καταλήγουν σε συμφωνία και
-                                    οριστικοποίηση μέσω μηχανισμών ανοχής βυζαντινών σφαλμάτων.
                                 </p>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">

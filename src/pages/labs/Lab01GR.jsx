@@ -10,7 +10,7 @@ const Lab01GR = () => {
             subtitle="Κατανόηση πορτοφολιών, διευθύνσεων και ταυτότητας πριν τις συναλλαγές"
             heroImage={lab01HeroImg}
             level="Αρχάριο"
-            estimatedTime="30–40 λεπτά"
+            estimatedTime="15–20 λεπτά"
             xp={100}
             badge="Εξερευνητής Ταυτότητας"
             completionMessage="Ολοκλήρωση Lab 01 — Πορτοφόλια & Web3 Ταυτότητες"

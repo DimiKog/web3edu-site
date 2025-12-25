@@ -674,62 +674,76 @@ export default function Dashboard() {
                             )}
                         </DashboardCard>
 
-                        {/* Recommended Next Lesson */}
+                    </div>
+                </div>
+
+                {/* Recommended Next Lesson — Full Width */}
+                {recommended && (
+                    <div className="relative z-10 w-full max-w-6xl mx-auto mt-6 mb-8 px-2 md:px-0">
                         <DashboardCard
                             title="Recommended Next Lesson"
                             className="
-                            rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                            bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
-                            dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
-                            dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                            hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                        "
+                rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
+                bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
+                dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
+                dark:border-white/10 backdrop-blur-xl shadow-xl
+                hover:scale-[1.002] hover:shadow-2xl transition-all duration-500
+            "
                             icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
                         >
-                            {recommended ? (
-                                <div
-                                    className="space-y-2 cursor-pointer"
-                                    onClick={() => {
-                                        if (recommended.type === "lab" && recommended.slug) {
-                                            navigate(`/labs/${recommended.slug}`);
-                                            return;
-                                        }
-                                        if (recommended.type === "lesson" && recommended.slug) {
-                                            navigate(`/lessons/${recommended.slug}`);
-                                            return;
-                                        }
-                                        navigate("/education");
-                                    }}
-                                >
-                                    <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
-                                        Your next step
-                                    </p>
-                                    <p className="text-base font-bold text-slate-900 dark:text-white leading-snug">
-                                        {typeof recommended.title === "object"
-                                            ? recommended.title.en || recommended.title.gr
-                                            : recommended.title}
-                                    </p>
-                                    {recommended.why && (
-                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            <div
+                                className="space-y-3 cursor-pointer"
+                                onClick={() => {
+                                    if (recommended.type === "lab" && recommended.slug) {
+                                        navigate(`/labs/${recommended.slug}`);
+                                        return;
+                                    }
+                                    if (recommended.type === "lesson" && recommended.slug) {
+                                        navigate(`/lessons/${recommended.slug}`);
+                                        return;
+                                    }
+                                    navigate("/education");
+                                }}
+                            >
+                                <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
+                                    Recommended for you
+                                </p>
+
+                                <p className="text-xl font-bold text-slate-900 dark:text-white leading-snug">
+                                    {typeof recommended.title === "object"
+                                        ? recommended.title.en || recommended.title.gr
+                                        : recommended.title}
+                                </p>
+
+                                {recommended.why && (
+                                    <div className="mt-1">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500 mb-1">
+                                            Why this is recommended
+                                        </p>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
                                             {typeof recommended.why === "object"
                                                 ? recommended.why.en || recommended.why.gr
                                                 : recommended.why}
                                         </p>
-                                    )}
-                                    <div className="pt-1">
-                                        <span className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-                                            Continue →
-                                        </span>
                                     </div>
+                                )}
+
+                                <div className="flex flex-wrap items-center gap-6 pt-1 text-sm text-slate-600 dark:text-slate-400">
+                                    {recommended.estimatedTime && (
+                                        <span>⏱ {recommended.estimatedTime} min</span>
+                                    )}
+                                    {recommended.xp && <span>🏅 +{recommended.xp} XP</span>}
                                 </div>
-                            ) : (
-                                <p className="text-sm text-slate-700 dark:text-slate-300">
-                                    No recommendation available yet. Complete more activities to unlock the next step.
-                                </p>
-                            )}
+
+                                <div className="pt-2">
+                                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                                        Continue →
+                                    </span>
+                                </div>
+                            </div>
                         </DashboardCard>
                     </div>
-                </div>
+                )}
 
                 {/* Full-width Learning Timeline */}
                 <div className="relative z-10 w-full max-w-6xl mx-auto mt-12 px-2 md:px-0">

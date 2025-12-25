@@ -4,9 +4,17 @@ import { useNavigate } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
 import DashboardCard from "../components/DashboardCard.jsx";
 import XPProgressCard from "../components/XPProgressCard.jsx";
+import LearningTimeline from "../components/LearningTimeline.jsx";
 
 import { UserIcon, AcademicCapIcon, StarIcon, ShieldCheckIcon } from "@heroicons/react/24/solid";
-import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
+import { KeyIcon } from "@heroicons/react/24/solid";
+import {
+    BookOpenIcon as BookOpenIcon2,
+    AcademicCapIcon as AcademicCapIcon2,
+    TrophyIcon as TrophyIcon2,
+} from "@heroicons/react/24/outline";
+import BookOpenIcon from "@heroicons/react/24/solid/BookOpenIcon";
+import TrophyIcon from "@heroicons/react/24/solid/TrophyIcon";
 import IdentityCard from "../components/IdentityCard.jsx";
 import {
     ExplorerIcon,
@@ -270,6 +278,11 @@ export default function Dashboard() {
         if (looksLikePlaceholderLesson1) return "";
         return trimmed;
     })();
+
+    const recommended =
+        metadata && typeof metadata.recommendedNext === "object"
+            ? metadata.recommendedNext
+            : null;
 
     return (
         <PageShell>
@@ -671,35 +684,94 @@ export default function Dashboard() {
                                 </p>
                             )}
                         </DashboardCard>
+                    </div>
+                </div>
 
-                        {/* Recommended Next Lesson */}
-                        <DashboardCard
-                            title="Προτεινόμενο επόμενο μάθημα"
-                            className="
+                {/* Recommended Next Lesson — full width, after dashboard grid */}
+                <div className="w-full max-w-5xl mx-auto mt-12 mb-6">
+                    <DashboardCard
+                        title="Προτεινόμενο επόμενο μάθημα"
+                        className="
                             rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
                             bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
                             dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
                             dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
                             hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
                         "
-                            icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
-                        >
-                            {cleanNextLesson ? (
-                                <div className="space-y-1">
-                                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                                        Επόμενο μάθημα
-                                    </p>
-                                    <p className="text-base font-semibold text-slate-900 dark:text-white">
-                                        {cleanNextLesson}
-                                    </p>
+                        icon={<AcademicCapIcon2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
+                    >
+                        {recommended ? (
+                            <div>
+                                <div className="mb-3 flex flex-col md:flex-row md:items-center md:justify-between">
+                                    <div>
+                                        <div className="text-xs text-indigo-500 font-semibold mb-1">
+                                            Πρόταση για εσένα
+                                        </div>
+                                        <div className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+                                            {typeof recommended.title === "object"
+                                                ? recommended.title.gr || recommended.title.en
+                                                : recommended.title}
+                                        </div>
+                                        {recommended.description && (
+                                            <div className="text-sm text-slate-600 dark:text-slate-300">
+                                                {typeof recommended.description === "object"
+                                                    ? recommended.description.gr || recommended.description.en
+                                                    : recommended.description}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="mt-4 md:mt-0 flex flex-row items-center gap-2">
+                                        {recommended.type === "lesson" && (
+                                            <BookOpenIcon2 className="w-8 h-8 text-indigo-500" />
+                                        )}
+                                        {recommended.type === "quiz" && (
+                                            <TrophyIcon2 className="w-8 h-8 text-indigo-500" />
+                                        )}
+                                    </div>
                                 </div>
-                            ) : (
-                                <p className="text-slate-700 dark:text-slate-300">
+                                {recommended.why && (
+                                    <div className="mt-2">
+                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500 mb-1">
+                                            Γιατί προτείνεται
+                                        </p>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                            {typeof recommended.why === "object"
+                                                ? recommended.why.gr || recommended.why.en
+                                                : recommended.why}
+                                        </p>
+                                    </div>
+                                )}
+                                <button
+                                    className="mt-3 py-2 px-5 rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#4ACBFF]
+        text-white hover:scale-[1.04] hover:opacity-90 transition font-semibold shadow-md"
+                                    onClick={() => {
+                                        if (recommended.type === "lab" && recommended.slug) {
+                                            navigate(`/labs/${recommended.slug}`);
+                                            return;
+                                        }
+                                        if (recommended.type === "lesson" && recommended.slug) {
+                                            navigate(`/lessons/${recommended.slug}`);
+                                            return;
+                                        }
+                                        navigate("/education");
+                                    }}
+                                >
+                                    Συνέχισε →
+                                </button>
+                            </div>
+                        ) : (
+                            <div>
+                                <div className="text-slate-700 dark:text-slate-300">
                                     Νέες προτάσεις σύντομα…
-                                </p>
-                            )}
-                        </DashboardCard>
-                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </DashboardCard>
+                </div>
+
+                {/* Learning Timeline — full width, after recommendation */}
+                <div className="w-full max-w-5xl mx-auto mb-10">
+                    <LearningTimeline timeline={metadata?.timeline || []} />
                 </div>
 
                 {/* Side Gradient Glow */}
