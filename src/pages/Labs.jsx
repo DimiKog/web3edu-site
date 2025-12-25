@@ -27,6 +27,9 @@ const Labs = () => {
     const lab01Completed =
         Boolean(metadata?.labsCompleted && metadata?.labsCompleted >= 1);
 
+    const showLab02Next =
+        Boolean(metadata?.labsCompleted === 1);
+
     return (
         <PageShell title="Web3Edu Labs">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
@@ -142,19 +145,42 @@ const Labs = () => {
                           bg-white/80 dark:bg-slate-900/60 p-6 shadow-sm
                           hover:shadow-lg hover:-translate-y-1 transition-all
                           overflow-visible">
-                                <div className="flex items-center justify-between mb-3 relative overflow-visible">
-                                    <h3 className="text-lg font-semibold">🔐 Encrypted Messages Lab</h3>
-                                    <BadgeWithTooltip
-                                        label="Available"
-                                        variant="success"
-                                        tooltip={
-                                            <>
-                                                Off‑chain cryptography<br />
-                                                • No transactions<br />
-                                                • No smart contracts
-                                            </>
-                                        }
-                                    />
+                                <div className="flex items-center justify-between mb-3 gap-2">
+                                    <h3 className="text-lg font-semibold">
+                                        🔐 Encrypted Messages Lab
+                                    </h3>
+
+                                    <div className="flex items-center gap-2 flex-nowrap">
+                                        <BadgeWithTooltip
+                                            label="Available"
+                                            variant="success"
+                                            tooltip={
+                                                <>
+                                                    Off-chain cryptography<br />
+                                                    • No transactions<br />
+                                                    • No smart contracts
+                                                </>
+                                            }
+                                        />
+
+                                        {showLab02Next && (
+                                            <span
+                                                title="Recommended next lab after completing Lab 01"
+                                                className="
+                                                    inline-flex items-center gap-1
+                                                    px-2 py-0.5
+                                                    text-xs font-semibold uppercase tracking-wide
+                                                    rounded-full
+                                                    bg-indigo-100 text-indigo-700
+                                                    dark:bg-indigo-500/20 dark:text-indigo-300
+                                                    ring-1 ring-indigo-400/30
+                                                    whitespace-nowrap
+                                                "
+                                            >
+                                                ⭐ Next
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                                     Learn how encrypted communication works in Web3 using public‑key cryptography,
