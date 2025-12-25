@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.png";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
+import BadgeWithTooltip from "../components/BadgeWithTooltip.jsx";
 
 const LabsGR = () => {
     const { address } = useAccount();
@@ -142,12 +143,21 @@ const LabsGR = () => {
                             {/* 🔐 Encrypted Messages Lab */}
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                           bg-white/80 dark:bg-slate-900/60 p-6 shadow-sm
-                          hover:shadow-lg hover:-translate-y-1 transition-all">
-                                <div className="flex items-center justify-between mb-3">
+                          hover:shadow-lg hover:-translate-y-1 transition-all
+                          overflow-visible">
+                                <div className="flex items-center justify-between mb-3 relative overflow-visible">
                                     <h3 className="text-lg font-semibold">🔐 Κρυπτογραφημένα Μηνύματα</h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
-                                        Διαθέσιμο
-                                    </span>
+                                    <BadgeWithTooltip
+                                        label="Διαθέσιμο"
+                                        variant="success"
+                                        tooltip={
+                                            <>
+                                                Κρυπτογραφία εκτός blockchain<br />
+                                                • Καμία συναλλαγή<br />
+                                                • Κανένα smart contract
+                                            </>
+                                        }
+                                    />
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                                     Μάθετε πώς λειτουργεί η κρυπτογραφημένη επικοινωνία στο Web3 χρησιμοποιώντας
@@ -160,7 +170,7 @@ const LabsGR = () => {
                                         Αρχάριο → Μεσαίο
                                     </span>
                                     <Link
-                                        to="/labs/lab02"
+                                        to="/labs-gr/lab02"
                                         className="text-sm font-semibold text-indigo-600 hover:underline"
                                     >
                                         Άνοιγμα Εργαστηρίου →
