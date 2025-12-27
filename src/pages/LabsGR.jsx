@@ -25,6 +25,9 @@ const LabsGR = () => {
     const lab01Completed =
         Boolean(metadata?.labsCompleted && metadata?.labsCompleted >= 1);
 
+    const showLab02Next =
+        Boolean(metadata?.labsCompleted === 1);
+
     return (
         <PageShell title="Εργαστήρια Web3Edu">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
@@ -146,18 +149,37 @@ const LabsGR = () => {
                           hover:shadow-lg hover:-translate-y-1 transition-all
                           overflow-visible">
                                 <div className="flex items-center justify-between mb-3 relative overflow-visible">
-                                    <h3 className="text-lg font-semibold">🔐 Κρυπτογραφημένα Μηνύματα</h3>
-                                    <BadgeWithTooltip
-                                        label="Διαθέσιμο"
-                                        variant="success"
-                                        tooltip={
-                                            <>
-                                                Κρυπτογραφία εκτός blockchain<br />
-                                                • Καμία συναλλαγή<br />
-                                                • Κανένα smart contract
-                                            </>
-                                        }
-                                    />
+                                    <h3 className="text-lg font-semibold">Lab 02 — 🔐 Κρυπτογραφημένα Μηνύματα</h3>
+                                    <div className="flex items-center gap-2 flex-nowrap">
+                                        <BadgeWithTooltip
+                                            label="Διαθέσιμο"
+                                            variant="success"
+                                            tooltip={
+                                                <>
+                                                    Κρυπτογραφία εκτός blockchain<br />
+                                                    • Καμία συναλλαγή<br />
+                                                    • Κανένα smart contract
+                                                </>
+                                            }
+                                        />
+                                        {showLab02Next && (
+                                            <span
+                                                title="Προτεινόμενο επόμενο εργαστήριο μετά την ολοκλήρωση του Lab 01"
+                                                className="
+                                                    inline-flex items-center gap-1
+                                                    px-2 py-0.5
+                                                    text-xs font-semibold uppercase tracking-wide
+                                                    rounded-full
+                                                    bg-indigo-100 text-indigo-700
+                                                    dark:bg-indigo-500/20 dark:text-indigo-300
+                                                    ring-1 ring-indigo-400/30
+                                                    whitespace-nowrap
+                                                "
+                                            >
+                                                ⭐ NEXT
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                                     Μάθετε πώς λειτουργεί η κρυπτογραφημένη επικοινωνία στο Web3 χρησιμοποιώντας
@@ -178,32 +200,11 @@ const LabsGR = () => {
                                 </div>
                             </div>
 
-                            {/* ⚙️ Consensus & Finality */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">⚙️ Συναίνεση & Οριστικότητα</h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
-                                        Σύντομα
-                                    </span>
-                                </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Κατανοήστε πώς τα blockchain δίκτυα καταλήγουν σε συμφωνία και
-                                    οριστικοποίηση μέσω μηχανισμών ανοχής βυζαντινών σφαλμάτων.
-                                </p>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Μεσαίο
-                                    </span>
-                                    <span className="text-sm text-slate-400">Προεπισκόπηση</span>
-                                </div>
-                            </div>
-
                             {/* ✍️ Message Signing */}
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                           bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">✍️ Υπογραφή Μηνυμάτων</h3>
+                                    <h3 className="text-lg font-semibold">Lab 03 — ✍️ Υπογραφή Μηνυμάτων και Ιδιοκτησία</h3>
                                     <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
                                         Σύντομα
                                     </span>
@@ -220,11 +221,32 @@ const LabsGR = () => {
                                 </div>
                             </div>
 
+                            {/* ⚙️ Consensus & Finality */}
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
+                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-lg font-semibold">Lab 04 — ⚙️ Συναίνεση & Οριστικότητα</h3>
+                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
+                                        Σύντομα
+                                    </span>
+                                </div>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                                    Κατανοήστε πώς τα blockchain δίκτυα καταλήγουν σε συμφωνία και
+                                    οριστικοποίηση μέσω μηχανισμών ανοχής βυζαντινών σφαλμάτων.
+                                </p>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
+                                        Μεσαίο
+                                    </span>
+                                    <span className="text-sm text-slate-400">Προεπισκόπηση</span>
+                                </div>
+                            </div>
+
                             {/* ⛽ Transactions & Gas */}
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                           bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">⛽ Συναλλαγές & Gas</h3>
+                                    <h3 className="text-lg font-semibold">Lab 05 — ⛽ Συναλλαγές & Gas</h3>
                                     <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
                                         Σύντομα
                                     </span>
@@ -245,7 +267,7 @@ const LabsGR = () => {
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                           bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">📜 Πρώτο Έξυπνο Συμβόλαιο</h3>
+                                    <h3 className="text-lg font-semibold">Lab 06 — 📜 Έξυπνα Συμβόλαια</h3>
                                     <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
                                         Σύντομα
                                     </span>
@@ -279,7 +301,7 @@ const LabsGR = () => {
               bg-white/80 dark:bg-slate-900/60 p-6 shadow-sm
               hover:shadow-lg hover:-translate-y-1 transition-all">
                             <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-semibold">🧠 Proof of Escape</h3>
+                                <h3 className="text-lg font-semibold">Lab 07 — 🧠 Proof of Escape</h3>
                                 <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
                                     Διαθέσιμο
                                 </span>
@@ -300,7 +322,7 @@ const LabsGR = () => {
                         <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
               bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                             <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-semibold">🖼 Εργαστήριο NFT Marketplace</h3>
+                                <h3 className="text-lg font-semibold">Lab 08 — 🖼 Εργαστήριο NFT Marketplace</h3>
                                 <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
                                     Σύντομα
                                 </span>

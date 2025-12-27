@@ -46,6 +46,7 @@ const LabTemplate = ({
         "Browser wallet (MetaMask or equivalent)",
         "Besu Edu‑Net RPC details",
     ],
+    interactionPath = null,
     readmeUrl = "https://github.com/dimikog/web3edu-labs/blob/main/lab-01-wallets-identity/README.md",
     conceptualFocusText = "",
     labels = {},
@@ -322,20 +323,37 @@ Timestamp: ${timestamp}`;
 
                 {/* CTA */}
                 <div className="flex justify-center mt-12">
-                    <a
-                        href={readmeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex flex-col items-center gap-1 px-8 py-4 rounded-xl
-                        bg-gradient-to-r from-indigo-600 to-violet-600
-                        text-white font-semibold text-lg
-                        hover:from-indigo-500 hover:to-violet-500
-                        hover:scale-[1.02]
-                        transition-all duration-200 shadow-xl"
-                    >
-                        <span>{mergedLabels.startLab}</span>
-                        <span className="text-xs opacity-90">{mergedLabels.startLabHint}</span>
-                    </a>
+                    {interactionPath ? (
+                        <a
+                            href={`/#${interactionPath}`}
+                            className="inline-flex flex-col items-center gap-1 px-8 py-4 rounded-xl
+                            bg-gradient-to-r from-indigo-600 to-violet-600
+                            text-white font-semibold text-lg
+                            hover:from-indigo-500 hover:to-violet-500
+                            hover:scale-[1.02]
+                            transition-all duration-200 shadow-xl"
+                        >
+                            <span>{mergedLabels.startLab}</span>
+                            <span className="text-xs opacity-90">
+                                Opens interactive lab inside Web3Edu
+                            </span>
+                        </a>
+                    ) : (
+                        <a
+                            href={readmeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex flex-col items-center gap-1 px-8 py-4 rounded-xl
+                            bg-gradient-to-r from-indigo-600 to-violet-600
+                            text-white font-semibold text-lg
+                            hover:from-indigo-500 hover:to-violet-500
+                            hover:scale-[1.02]
+                            transition-all duration-200 shadow-xl"
+                        >
+                            <span>{mergedLabels.startLab}</span>
+                            <span className="text-xs opacity-90">{mergedLabels.startLabHint}</span>
+                        </a>
+                    )}
                 </div>
 
                 <section

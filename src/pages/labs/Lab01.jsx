@@ -22,6 +22,7 @@ const Lab01 = () => {
                 "Browser wallet (MetaMask or equivalent)",
                 "Besu Edu-Net RPC details",
             ]}
+            interactionPath="/labs/wallets-keys/interaction"
             readmeUrl="https://github.com/DimiKog/web3edu-labs/blob/main/lab-01-wallets-identity/README.md"
             xp={100}
             badge="Identity Explorer"

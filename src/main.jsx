@@ -9,6 +9,7 @@ import { WagmiProvider, createConfig } from "wagmi";
 import { http } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 import AppEN from './pages/appEN.jsx';
 import AppGR from './pages/appGR.jsx';
@@ -34,12 +35,16 @@ import VerifyIdentity from "./pages/VerifyIdentity.jsx";
 import VerifyIdentityGR from "./pages/VerifyIdentityGR.jsx";
 import StartHere from './pages/StartHere.jsx';
 import StartHereGR from './pages/StartHereGR.jsx';
+
+//Labs
 import Labs from "./pages/Labs.jsx";
 import LabsGR from './pages/LabsGR.jsx';
 import Lab01 from "./pages/labs/Lab01";
 import Lab01GR from "./pages/labs/Lab01GR";
 import Lab02 from "./pages/labs/Lab02.jsx";
 import Lab02GR from "./pages/labs/Lab02GR.jsx";
+import Lab01Interaction from './pages/labs/Lab01Interaction.jsx';
+import Lab01InteractionGR from './pages/labs/Lab01InteractionGR.jsx';
 
 
 // Besu Edu-Net chain config
@@ -80,6 +85,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <HashRouter>
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<AppEN />} />
               <Route path="/gr" element={<AppGR />} />
@@ -111,6 +117,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs-gr/wallets-keys" element={<Lab01GR />} />
               <Route path="/labs/lab02" element={<Lab02 />} />
               <Route path="/labs-gr/lab02" element={<Lab02GR />} />
+              <Route path="/labs/wallets-keys/interaction" element={<Lab01Interaction />} />
+              <Route path="/labs-gr/wallets-keys/interaction" element={<Lab01InteractionGR />} />
             </Routes>
           </HashRouter>
         </RainbowKitProvider>

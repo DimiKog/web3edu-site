@@ -68,7 +68,7 @@ const Labs = () => {
                         </p>
 
                         <div className="space-y-20">
-                            {/* 👛 Wallets & Web3 Identities — Featured Card */}
+                            {/* 👛 Wallets & Web3 Identity — Featured Card */}
                             <div className="w-full">
                                 <Link
                                     to="/labs/wallets-keys"
@@ -102,7 +102,7 @@ const Labs = () => {
                                         <div className="p-10 flex flex-col justify-between">
                                             <div>
                                                 <h3 className="text-2xl font-bold mb-3">
-                                                    Lab 01 — Wallets & Web3 Identities
+                                                    Lab 01 — Wallets & Web3 Identity
                                                 </h3>
                                                 <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-xl">
                                                     Understand how wallets and addresses establish Web3 identity
@@ -147,7 +147,7 @@ const Labs = () => {
                           overflow-visible">
                                 <div className="flex items-center justify-between mb-3 gap-2">
                                     <h3 className="text-lg font-semibold">
-                                        🔐 Encrypted Messages Lab
+                                        Lab 02 — 🔐 Encrypted Messages
                                     </h3>
 
                                     <div className="flex items-center gap-2 flex-nowrap">
@@ -177,7 +177,7 @@ const Labs = () => {
                                                     whitespace-nowrap
                                                 "
                                             >
-                                                ⭐ Next
+                                                ⭐ NEXT
                                             </span>
                                         )}
                                     </div>
@@ -199,31 +199,11 @@ const Labs = () => {
                                     </Link>
                                 </div>
                             </div>
-                            {/* ⚙️ Consensus & Finality */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">⚙️ Consensus & Finality</h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
-                                        Coming Soon
-                                    </span>
-                                </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Understand how blockchain networks reach agreement and finality through
-                                    Byzantine Fault Tolerant consensus mechanisms.
-                                </p>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Intermediate
-                                    </span>
-                                    <span className="text-sm text-slate-400">Preview</span>
-                                </div>
-                            </div>
                             {/* ✍️ Message Signing */}
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                           bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">✍️ Message Signing</h3>
+                                    <h3 className="text-lg font-semibold">Lab 03 — ✍️ Message Signing & Ownership</h3>
                                     <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
                                         Coming Soon
                                     </span>
@@ -239,11 +219,31 @@ const Labs = () => {
                                     <span className="text-sm text-slate-400">Preview</span>
                                 </div>
                             </div>
+                            {/* ⚙️ Consensus & Finality */}
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
+                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-lg font-semibold">Lab 04 — ⚙️ Consensus & Finality</h3>
+                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
+                                        Coming Soon
+                                    </span>
+                                </div>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                                    Understand how blockchain networks reach agreement and finality through
+                                    Byzantine Fault Tolerant consensus mechanisms.
+                                </p>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
+                                        Intermediate
+                                    </span>
+                                    <span className="text-sm text-slate-400">Preview</span>
+                                </div>
+                            </div>
                             {/* ⛽ Transactions & Gas */}
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                           bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">⛽ Transactions & Gas</h3>
+                                    <h3 className="text-lg font-semibold">Lab 05 — ⛽ Transactions & Gas</h3>
                                     <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
                                         Coming Soon
                                     </span>
@@ -262,7 +262,7 @@ const Labs = () => {
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                           bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">📜 First Smart Contract</h3>
+                                    <h3 className="text-lg font-semibold">Lab 06 — 📜 Smart Contracts</h3>
                                     <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
                                         Coming Soon
                                     </span>
@@ -294,7 +294,7 @@ const Labs = () => {
                       bg-white/80 dark:bg-slate-900/60 p-6 shadow-sm
                       hover:shadow-lg hover:-translate-y-1 transition-all">
                             <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-semibold">🧠 Proof of Escape</h3>
+                                <h3 className="text-lg font-semibold">Lab 07 — 🧠 Proof of Escape</h3>
                                 <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
                                     Available
                                 </span>
@@ -315,7 +315,7 @@ const Labs = () => {
                         <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                       bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                             <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-semibold">🖼 NFT Marketplace Lab</h3>
+                                <h3 className="text-lg font-semibold">Lab 08 — 🖼 NFT Marketplace Lab</h3>
                                 <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
                                     Coming Soon
                                 </span>

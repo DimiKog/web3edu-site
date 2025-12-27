@@ -25,6 +25,7 @@ const Lab01GR = () => {
                 "Πορτοφόλι browser (π.χ. MetaMask)",
                 "Στοιχεία RPC για το Besu Edu-Net",
             ]}
+            interactionPath="/labs-gr/wallets-keys/interaction"
             readmeUrl="https://github.com/DimiKog/web3edu-labs/blob/main/lab-01-wallets-identity/README.md"
             labels={{
                 breadcrumbLabs: "Εργαστήρια",
