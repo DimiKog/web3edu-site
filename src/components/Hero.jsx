@@ -66,19 +66,22 @@ const Hero = ({ content }) => {
                         <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#FF67D2]/22 via-[#8A57FF]/26 to-[#4ACBFF]/22 blur-2xl opacity-40 pointer-events-none"></div>
                     </div>
 
-                    <div className="inline-flex items-center gap-2 rounded-full px-6 py-2 text-sm font-semibold bg-gradient-to-r from-[#FF67D2]/20 via-[#8A57FF]/20 to-[#4ACBFF]/20 text-white border border-white/20 shadow-md tracking-wide backdrop-blur-md">
+                    <div className="inline-flex items-center gap-2 rounded-full px-6 py-2 text-xs uppercase tracking-wide font-semibold bg-gradient-to-r from-[#FF67D2]/20 via-[#8A57FF]/20 to-[#4ACBFF]/20 text-white border border-white/20 shadow-md tracking-wide backdrop-blur-md">
                         {content.tagline}
                     </div>
                 </div>
 
                 {/* RIGHT SIDE — Text + CTA */}
-                <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-xl relative">
+                <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-2xl relative">
                     <div className="absolute -z-10 -top-10 left-1/2 -translate-x-1/2 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-[#4ACBFF]/10 to-[#8A57FF]/10 rounded-full blur-3xl opacity-40 animate-pulse-slow"></div>
-                    <h1 className="text-5xl sm:text-6xl lg:text-8xl font-extrabold tracking-tight bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(74,203,255,.28)] animate-fade-up">
-                        👋 {content.welcome}
+                    <p className="text-sm uppercase tracking-widest text-slate-200/80 animate-fade-up">
+                        {content.welcome}
+                    </p>
+                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight lg:leading-[1.05] bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(74,203,255,.28)] animate-fade-up delay-150">
+                        A Web3-native learning identity<br />that grows with the ecosystem
                     </h1>
 
-                    <p className="text-base sm:text-lg text-slate-100/95 leading-relaxed max-w-lg animate-fade-up delay-150">
+                    <p className="text-base sm:text-lg text-slate-200/90 leading-relaxed max-w-xl animate-fade-up delay-150">
                         {content.desc}
                     </p>
 

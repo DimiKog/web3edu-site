@@ -4,8 +4,9 @@ const en = {
     // -------------------------
     hero: {
         welcome: "Welcome to Web3Edu",
-        tagline: "The Web3 learning hub",
-        desc: "A portal for exploring blockchain learning tools and experiments — powered by Besu EduNet and built for students, researchers, and educators.",
+        headline: "A Web3-native learning identity that grows with the ecosystem",
+        tagline: "Proof of learning, not proof of attendance",
+        desc: "Build real Web3 skills through hands-on labs and experiments, earn verifiable on-chain credentials, and carry your learning identity across networks, tools, and communities.",
         cta: "Start Learning",
     },
 
@@ -16,10 +17,11 @@ const en = {
         heading: "Why Web3Edu?",
         detailHeading: "Our Mission",
         badgeText: "Because learning Web3 should be empowering.",
-        body: `Web3Edu brings together courses, practical tools, and experiment-driven learning into one unified digital 
-ecosystem. Learners explore blockchain technologies and beyond through hands-on labs, gamified challenges, 
-and real interactions with decentralized systems. With verifiable credentials and DAO participation, every 
-member contributes to shaping the next evolution of the platform.`,
+        body: `Web3Edu treats learning as a first-class Web3 concept — not as content to consume, but as identity to build.
+
+Learners develop real blockchain skills through hands-on labs, experiments, and direct interaction with decentralized systems. Each step of progress becomes verifiable, composable, and reusable across the ecosystem.
+
+With on-chain credentials and participation in the Web3Edu DAO, learning does not end at completion. It evolves through contribution, collaboration, and shared governance — shaping both the learner and the platform itself.`,
     },
 
     // -------------------------

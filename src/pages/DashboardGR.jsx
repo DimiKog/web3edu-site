@@ -283,6 +283,10 @@ export default function Dashboard() {
         metadata && typeof metadata.recommendedNext === "object"
             ? metadata.recommendedNext
             : null;
+    const recommendedLabSlug =
+        recommended?.slug?.endsWith("-gr")
+            ? recommended.slug.replace(/-gr$/, "")
+            : recommended?.slug;
 
     return (
         <PageShell>
@@ -745,8 +749,8 @@ export default function Dashboard() {
                                     className="mt-3 py-2 px-5 rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#4ACBFF]
         text-white hover:scale-[1.04] hover:opacity-90 transition font-semibold shadow-md"
                                     onClick={() => {
-                                        if (recommended.type === "lab" && recommended.slug) {
-                                            navigate(`/labs/${recommended.slug}`);
+                                        if (recommended.type === "lab" && recommendedLabSlug) {
+                                            navigate(`/labs-gr/${recommendedLabSlug}`);
                                             return;
                                         }
                                         if (recommended.type === "lesson" && recommended.slug) {
@@ -771,7 +775,7 @@ export default function Dashboard() {
 
                 {/* Learning Timeline — full width, after recommendation */}
                 <div className="w-full max-w-5xl mx-auto mb-10">
-                    <LearningTimeline timeline={metadata?.timeline || []} />
+                    <LearningTimeline timeline={metadata?.timeline || []} lang="gr" />
                 </div>
 
                 {/* Side Gradient Glow */}

@@ -260,6 +260,10 @@ export default function Dashboard() {
         metadata && typeof metadata.recommendedNext === "object"
             ? metadata.recommendedNext
             : null;
+    const recommendedLabSlug =
+        recommended?.slug?.endsWith("-gr")
+            ? recommended.slug.replace(/-gr$/, "")
+            : recommended?.slug;
 
 
     return (
@@ -694,8 +698,8 @@ export default function Dashboard() {
                             <div
                                 className="space-y-3 cursor-pointer"
                                 onClick={() => {
-                                    if (recommended.type === "lab" && recommended.slug) {
-                                        navigate(`/labs/${recommended.slug}`);
+                                    if (recommended.type === "lab" && recommendedLabSlug) {
+                                        navigate(`/labs/${recommendedLabSlug}`);
                                         return;
                                     }
                                     if (recommended.type === "lesson" && recommended.slug) {

@@ -14,7 +14,7 @@ const Lab02 = () => {
             }
             heroImage={lab02HeroImg}
             level="Beginner"
-            estimatedTime="25–35 minutes"
+            estimatedTime="10–15 minutes"
             tools={[
                 "Key Generator",
                 "Message Encryptor",
@@ -24,6 +24,7 @@ const Lab02 = () => {
                 "Modern browser (Chrome / Firefox / Brave)",
                 "Basic understanding of wallets and addresses (Lab 01)",
             ]}
+            interactionPath="/labs/lab02/interaction"
             readmeUrl="https://github.com/DimiKog/web3edu-labs/blob/main/lab-02-encrypted-messages/README.md"
             xp={150}
             badge="Encryption Explorer"

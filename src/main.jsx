@@ -45,6 +45,18 @@ import Lab02 from "./pages/labs/Lab02.jsx";
 import Lab02GR from "./pages/labs/Lab02GR.jsx";
 import Lab01Interaction from './pages/labs/Lab01Interaction.jsx';
 import Lab01InteractionGR from './pages/labs/Lab01InteractionGR.jsx';
+import Lab02Interaction from './pages/labs/Lab02Interaction.jsx';
+import Lab02InteractionGR from './pages/labs/Lab02InteractionGR.jsx';
+import Lab03 from './pages/labs/Lab03.jsx';
+import Lab03GR from './pages/labs/Lab03GR.jsx';
+import Lab03Interaction from './pages/labs/Lab03Interaction.jsx';
+import Lab04 from './pages/labs/Lab04.jsx';
+import Lab04GR from './pages/labs/Lab04GR.jsx';
+import Lab04Interaction from './pages/labs/Lab04Interaction.jsx';
+import Lab04InteractionGR from './pages/labs/Lab04InteractionGR.jsx';
+import Lab05 from './pages/labs/Lab05.jsx';
+import Lab05GR from './pages/labs/Lab05GR.jsx';
+import Lab05Interaction from './pages/labs/Lab05Interaction.jsx';
 
 
 // Besu Edu-Net chain config
@@ -119,6 +131,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs-gr/lab02" element={<Lab02GR />} />
               <Route path="/labs/wallets-keys/interaction" element={<Lab01Interaction />} />
               <Route path="/labs-gr/wallets-keys/interaction" element={<Lab01InteractionGR />} />
+              <Route path="/labs/lab02/interaction" element={<Lab02Interaction />} />
+              <Route path="/labs-gr/lab02/interaction" element={<Lab02InteractionGR />} />
+              <Route path="/labs/lab03" element={<Lab03 />} />
+              <Route path="/labs-gr/lab03" element={<Lab03GR />} />
+              <Route path="/labs/lab03/interaction" element={<Lab03Interaction />} />
+              <Route path="/labs/lab04" element={<Lab04 />} />
+              <Route path="/labs-gr/lab04" element={<Lab04GR />} />
+              <Route path="/labs/lab04/interaction" element={<Lab04Interaction />} />
+              <Route path="/labs-gr/lab04/interaction" element={<Lab04InteractionGR />} />
+              <Route path="/labs/lab05" element={<Lab05 />} />
+              <Route path="/labs-gr/lab05" element={<Lab05GR />} />
+              <Route path="/labs/lab05/interaction" element={<Lab05Interaction />} />
             </Routes>
           </HashRouter>
         </RainbowKitProvider>

@@ -12,8 +12,13 @@ const DEFAULT_LABELS = {
     prerequisites: "Prerequisites",
     startLab: "Start Lab →",
     startLabHint: "Opens full step-by-step guide",
+    startLabInteractionHint: "Opens interactive lab inside Web3Edu",
     conceptualFocus: "Conceptual focus",
     heroCaption: "Web3 identity emerges from cryptographic wallets and network context",
+    headerPill: "🧪 Web3Edu · Foundational Lab",
+    completedBadge: "✓ Completed",
+    checkingStatus: "Checking completion status…",
+    completedOn: "Completed on:",
 
     // Completion / Claim section
     completionTitle: "Lab completion",
@@ -175,7 +180,7 @@ Timestamp: ${timestamp}`;
                             text-sm font-semibold tracking-wide
                             text-indigo-700 dark:text-indigo-300"
                         >
-                            🧪 Web3Edu · Foundational Lab
+                            {mergedLabels.headerPill}
                         </span>
 
                         {claimed && (
@@ -186,7 +191,7 @@ Timestamp: ${timestamp}`;
                                 text-green-700 dark:text-green-300
                                 animate-in fade-in zoom-in-95 duration-300"
                             >
-                                ✓ Completed
+                                {mergedLabels.completedBadge}
                             </span>
                         )}
                     </div>
@@ -335,7 +340,7 @@ Timestamp: ${timestamp}`;
                         >
                             <span>{mergedLabels.startLab}</span>
                             <span className="text-xs opacity-90">
-                                Opens interactive lab inside Web3Edu
+                                {mergedLabels.startLabInteractionHint}
                             </span>
                         </a>
                     ) : (
@@ -370,7 +375,7 @@ Timestamp: ${timestamp}`;
 
                     {checkingStatus && (
                         <p className="text-sm text-slate-500 dark:text-slate-400 text-center">
-                            Checking completion status…
+                            {mergedLabels.checkingStatus}
                         </p>
                     )}
                     {!claimed && !checkingStatus ? (
@@ -409,7 +414,7 @@ Timestamp: ${timestamp}`;
                             )}
                             {completedAt && (
                                 <div className="text-xs mt-1 text-green-600 dark:text-green-400">
-                                    Completed on: {new Date(completedAt).toLocaleString()}
+                                    {mergedLabels.completedOn} {new Date(completedAt).toLocaleString()}
                                 </div>
                             )}
                         </div>

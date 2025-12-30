@@ -1,0 +1,55 @@
+import React from "react";
+import LabTemplate from "./LabTemplate";
+
+import lab03HeroImg from "../../assets/labs/lab03-message-signing-diagram.jpg";
+
+const Lab03GR = () => {
+    return (
+        <LabTemplate
+            labId="lab03"
+            title="Lab 03 — Υπογραφή Μηνυμάτων & Ιδιοκτησία"
+            subtitle="Απόδειξη ιδιοκτησίας και πρόθεσης με κρυπτογραφικές υπογραφές"
+            conceptualFocusText={
+                "Αυτό το εργαστήριο εξερευνά πώς λειτουργεί η υπογραφή μηνυμάτων στο Web3 και πώς οι κρυπτογραφικές υπογραφές χρησιμοποιούνται για να αποδεικνύουν ιδιοκτησία και πρόθεση χωρίς να αποκαλύπτονται ιδιωτικά κλειδιά ή να γίνονται συναλλαγές. Θα μάθετε πώς οι υπογραφές διαφέρουν από την κρυπτογράφηση, πώς επαληθεύεται η ιδιοκτησία εκτός blockchain και γιατί η υπογραφή είναι θεμελιώδης για την αυθεντικοποίηση, τα DAOs και την Web3 ταυτότητα."
+            }
+            heroImage={lab03HeroImg}
+            level="Αρχάριο"
+            estimatedTime="10–15 λεπτά"
+            tools={[
+                "Υπογραφέας Μηνυμάτων",
+                "Επαληθευτής Υπογραφής",
+            ]}
+            prerequisites={[
+                "Σύγχρονος browser (Chrome / Firefox / Brave)",
+                "Κατανόηση πορτοφολιών και διευθύνσεων (Εργαστήριο 01)",
+                "Κατανόηση κλειδιών και εμπιστευτικότητας (Εργαστήριο 02)",
+            ]}
+            interactionPath="/labs-gr/lab03/interaction"
+            readmeUrl="https://github.com/DimiKog/web3edu-labs/blob/main/lab-03-message-signing/README.md"
+            xp={150}
+            badge="Αποδεικτής Ιδιοκτησίας"
+            completionMessage="Ολοκληρώθηκε το Εργαστήριο 03 — Υπογραφή Μηνυμάτων & Ιδιοκτησία"
+            labels={{
+                breadcrumbLabs: "Εργαστήρια",
+                level: "Επίπεδο",
+                estimatedTime: "Εκτιμώμενος χρόνος",
+                tools: "Εργαλεία",
+                prerequisites: "Προαπαιτούμενα",
+                startLab: "Έναρξη Εργαστηρίου →",
+                startLabHint: "Ανοίγει τον πλήρη οδηγό βημάτων",
+                conceptualFocus: "Εκπαιδευτικό επίκεντρο",
+                completionTitle: "Ολοκλήρωση Εργαστηρίου",
+                completionDescription:
+                    "Αφού ολοκληρώσετε το εργαστήριο, υπογράψτε ένα μήνυμα για να καταγραφεί η πρόοδός σας στο Web3Edu.",
+                claimButton: "✅ Δήλωση Ολοκλήρωσης",
+                claimingButton: "Υπογραφή…",
+                successMessage: "✔ Η ολοκλήρωση καταγράφηκε επιτυχώς",
+                walletNotConnectedError: "Το πορτοφόλι δεν είναι συνδεδεμένο",
+                labIdMissingError: "Λείπει το αναγνωριστικό του εργαστηρίου",
+                backendError: "Σφάλμα κατά την καταγραφή της ολοκλήρωσης",
+            }}
+        />
+    );
+};
+
+export default Lab03GR;

@@ -7,28 +7,110 @@ import BadgeWithTooltip from "../components/BadgeWithTooltip.jsx";
 
 const Labs = () => {
     const { address } = useAccount();
-    const [metadata, setMetadata] = useState(null);
-
+    const [lab01Completed, setLab01Completed] = useState(false);
+    const [lab02Completed, setLab02Completed] = useState(false);
+    const [lab03Completed, setLab03Completed] = useState(false);
+    const [lab04Completed, setLab04Completed] = useState(false);
     useEffect(() => {
-        if (!address) return;
+        if (!address) {
+            setLab01Completed(false);
+            return;
+        }
 
-        fetch(`https://web3edu-api.dimikog.org/web3sbt/resolve/${address}`)
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab01`,
+            { signal: controller.signal }
+        )
             .then(res => res.json())
             .then(data => {
-                setMetadata(data.metadata || null);
+                setLab01Completed(Boolean(data?.completed));
             })
             .catch(err => {
-                console.error("Failed to load user metadata", err);
+                if (err.name !== "AbortError") {
+                    console.error("Failed to load Lab 01 status", err);
+                }
             });
+
+        return () => controller.abort();
+    }, [address]);
+    useEffect(() => {
+        if (!address) {
+            setLab03Completed(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab03`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setLab03Completed(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Failed to load Lab 03 status", err);
+                }
+            });
+
+        return () => controller.abort();
     }, [address]);
 
-    // Defensive: labsCompleted is computed backend-side and reflects total foundational labs completed.
-    // Per-lab granularity will move to a dedicated endpoint or expanded metadata in the future.
-    const lab01Completed =
-        Boolean(metadata?.labsCompleted && metadata?.labsCompleted >= 1);
+    useEffect(() => {
+        if (!address) {
+            setLab02Completed(false);
+            return;
+        }
 
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab02`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setLab02Completed(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Failed to load Lab 02 status", err);
+                }
+            });
+
+        return () => controller.abort();
+    }, [address]);
+
+    useEffect(() => {
+        if (!address) {
+            setLab04Completed(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab04`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setLab04Completed(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Failed to load Lab 04 status", err);
+                }
+            });
+
+        return () => controller.abort();
+    }, [address]);
     const showLab02Next =
-        Boolean(metadata?.labsCompleted === 1);
+        Boolean(lab01Completed && !lab02Completed);
 
     return (
         <PageShell title="Web3Edu Labs">
@@ -163,6 +245,23 @@ const Labs = () => {
                                             }
                                         />
 
+                                        {lab02Completed && (
+                                            <span
+                                                className="
+                                                    inline-flex items-center gap-1
+                                                    px-2 py-0.5
+                                                    text-xs font-semibold
+                                                    rounded-full
+                                                    bg-green-100 text-green-700
+                                                    dark:bg-green-500/20 dark:text-green-300
+                                                    ring-1 ring-green-400/30
+                                                    whitespace-nowrap
+                                                "
+                                            >
+                                                ✓ Completed
+                                            </span>
+                                        )}
+
                                         {showLab02Next && (
                                             <span
                                                 title="Recommended next lab after completing Lab 01"
@@ -189,7 +288,7 @@ const Labs = () => {
                                 </p>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Beginner → Intermediate
+                                        Beginner
                                     </span>
                                     <Link
                                         to="/labs/lab02"
@@ -201,12 +300,38 @@ const Labs = () => {
                             </div>
                             {/* ✍️ Message Signing */}
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
+                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm">
                                 <div className="flex items-center justify-between mb-3">
                                     <h3 className="text-lg font-semibold">Lab 03 — ✍️ Message Signing & Ownership</h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
-                                        Coming Soon
-                                    </span>
+                                    <div className="flex items-center gap-2 flex-nowrap">
+                                        <BadgeWithTooltip
+                                            label="Available"
+                                            variant="success"
+                                            tooltip={
+                                                <>
+                                                    Off-chain signatures<br />
+                                                    • Ownership proof<br />
+                                                    • No transactions
+                                                </>
+                                            }
+                                        />
+                                        {lab03Completed && (
+                                            <span
+                                                className="
+                                                    inline-flex items-center gap-1
+                                                    px-2 py-0.5
+                                                    text-xs font-semibold
+                                                    rounded-full
+                                                    bg-green-100 text-green-700
+                                                    dark:bg-green-500/20 dark:text-green-300
+                                                    ring-1 ring-green-400/30
+                                                    whitespace-nowrap
+                                                "
+                                            >
+                                                ✓ Completed
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                                     Learn how cryptographic signatures prove ownership and intent without revealing
@@ -216,14 +341,93 @@ const Labs = () => {
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                         Beginner
                                     </span>
-                                    <span className="text-sm text-slate-400">Preview</span>
+                                    <Link
+                                        to="/labs/lab03"
+                                        className="text-sm font-semibold text-indigo-600 hover:underline"
+                                    >
+                                        Open Lab →
+                                    </Link>
+                                </div>
+                            </div>
+                            {/* ⛽ Transactions & Gas */}
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
+                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-lg font-semibold">Lab 04 — ⛽ Transactions & Gas</h3>
+                                    <div className="flex items-center gap-2 flex-nowrap">
+                                        <BadgeWithTooltip
+                                            label="Available"
+                                            variant="success"
+                                            tooltip={
+                                                <>
+                                                    On-chain transactions<br />
+                                                    • Gas & execution<br />
+                                                    • State changes
+                                                </>
+                                            }
+                                        />
+                                        {lab04Completed && (
+                                            <span
+                                                className="
+                                                    inline-flex items-center gap-1
+                                                    px-2 py-0.5
+                                                    text-xs font-semibold
+                                                    rounded-full
+                                                    bg-green-100 text-green-700
+                                                    dark:bg-green-500/20 dark:text-green-300
+                                                    ring-1 ring-green-400/30
+                                                    whitespace-nowrap
+                                                "
+                                            >
+                                                ✓ Completed
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                                    Send your first blockchain transaction and understand how gas, execution, and state changes work on-chain.
+                                </p>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
+                                        Beginner → Intermediate
+                                    </span>
+                                    <Link
+                                        to="/labs/lab04"
+                                        className="text-sm font-semibold text-indigo-600 hover:underline"
+                                    >
+                                        Open Lab →
+                                    </Link>
+                                </div>
+                            </div>
+                            {/* 📜 First Smart Contract */}
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
+                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-lg font-semibold">Lab 05 — 📜 Smart Contracts & State</h3>
+                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
+                                        Coming Soon
+                                    </span>
+                                </div>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                                    Deploy and interact with your first smart contract to understand on-chain state and execution.
+                                </p>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
+                                        Intermediate
+                                    </span>
+                                    <Link
+                                        to="/labs/lab05"
+                                        className="text-sm font-semibold text-indigo-600 hover:underline"
+                                    >
+                                        Open Lab →
+                                    </Link>
                                 </div>
                             </div>
                             {/* ⚙️ Consensus & Finality */}
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                           bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                                 <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">Lab 04 — ⚙️ Consensus & Finality</h3>
+                                    <h3 className="text-lg font-semibold">Lab 06 — ⚙️ Consensus & Finality</h3>
                                     <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
                                         Coming Soon
                                     </span>
@@ -231,44 +435,6 @@ const Labs = () => {
                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                                     Understand how blockchain networks reach agreement and finality through
                                     Byzantine Fault Tolerant consensus mechanisms.
-                                </p>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Intermediate
-                                    </span>
-                                    <span className="text-sm text-slate-400">Preview</span>
-                                </div>
-                            </div>
-                            {/* ⛽ Transactions & Gas */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">Lab 05 — ⛽ Transactions & Gas</h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
-                                        Coming Soon
-                                    </span>
-                                </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Explore how transactions are executed, paid for, and included in the blockchain.
-                                </p>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Beginner → Intermediate
-                                    </span>
-                                    <span className="text-sm text-slate-400">Preview</span>
-                                </div>
-                            </div>
-                            {/* 📜 First Smart Contract */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-lg font-semibold">Lab 06 — 📜 Smart Contracts</h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
-                                        Coming Soon
-                                    </span>
-                                </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Deploy and interact with your first smart contract to understand on-chain state and execution.
                                 </p>
                                 <div className="flex items-center justify-between">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">

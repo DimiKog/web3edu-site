@@ -209,47 +209,49 @@ const Lab01InteractionGR = () => {
 
     return (
         <PageShell title="Lab 01 — Πορτοφόλια & Web3 Ταυτότητες">
-            <div className="max-w-5xl mx-auto px-4 py-12 space-y-12">
+            <div className="max-w-5xl mx-auto px-4 py-12 space-y-10">
 
                 {/* 🎯 Στόχος */}
-                <section>
-                    <h2 className="text-xl font-semibold mb-2">🎯 Στόχος</h2>
-                    <p className="text-slate-600 dark:text-slate-300">
+                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-slate-50 dark:bg-slate-900/40">
+                    <h1 className="text-3xl font-extrabold mb-2">
+                        Lab 01 — Πορτοφόλια & Web3 Ταυτότητες
+                    </h1>
+                    <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
                         Ανακάλυψε πώς μια Web3 ταυτότητα αναπαρίσταται από μια δημόσια διεύθυνση που διαχειρίζεται το πορτοφόλι και υπάρχει πριν από συναλλαγές, λογαριασμούς ή smart contracts.
                     </p>
                 </section>
 
                 {/* 🧭 Τρέχουσα Κατάσταση */}
-                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                    <h2 className="text-lg font-semibold mb-4">🧭 Τρέχουσα Κατάσταση</h2>
-                    <ul className="space-y-1 text-slate-600 dark:text-slate-300">
+                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-slate-50 dark:bg-slate-900/40">
+                    <h2 className="font-semibold mb-2">🧭 Τρέχουσα Κατάσταση</h2>
+                    <ul className="text-sm space-y-1 text-slate-700 dark:text-slate-300">
                         <li>
-                            • Ανιχνεύθηκε δίκτυο: {labState.networkDetected ? "✅" : "❌"}
+                            Ανιχνεύθηκε δίκτυο: {labState.networkDetected ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Δόθηκε διεύθυνση: {labState.addressProvided ? "✅" : "❌"}
+                            Δόθηκε διεύθυνση: {labState.addressProvided ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Έγκυρη διεύθυνση: {labState.addressValid ? "✅" : "❌"}
+                            Έγκυρη διεύθυνση: {labState.addressValid ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Επιθεωρήθηκε διεύθυνση: {labState.addressInspected ? "✅" : "❌"}
+                            Επιθεωρήθηκε διεύθυνση: {labState.addressInspected ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Κατανόηση σχέσης κλειδιών: {labState.keyRelationshipRevealed ? "✅" : "❌"}
+                            Κατανόηση σχέσης κλειδιών: {labState.keyRelationshipRevealed ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Σύγκριση ταυτότητας μεταξύ δικτύων: {labState.identityComparedAcrossNetworks ? "✅" : "❌"}
+                            Σύγκριση ταυτότητας μεταξύ δικτύων: {labState.identityComparedAcrossNetworks ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Αναγνώριση ταυτότητας χωρίς λογαριασμούς: {labState.identityWithoutAccountsAcknowledged ? "✅" : "❌"}
+                            Αναγνώριση ταυτότητας χωρίς λογαριασμούς: {labState.identityWithoutAccountsAcknowledged ? "✅" : "❌"}
                         </li>
                     </ul>
                 </section>
 
                 {/* 🎛 Διαθέσιμες Ενέργειες */}
-                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                    <h2 className="text-lg font-semibold mb-6">🎛 Διαθέσιμες Ενέργειες</h2>
+                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-slate-50 dark:bg-slate-900/40">
+                    <h2 className="text-xl font-semibold mb-4">🎛 Διαθέσιμες Ενέργειες</h2>
 
                     <div className="space-y-6">
 
@@ -260,7 +262,7 @@ const Lab01InteractionGR = () => {
                             </div>
                         </div>
                         {/* Ενέργεια 1 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <button
                                 onClick={handleDetectNetwork}
                                 disabled={!canDetectNetwork}
@@ -279,7 +281,7 @@ const Lab01InteractionGR = () => {
                         </div>
 
                         {/* Ενέργεια 2 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <label className="block text-sm font-medium mb-2">
                                 Εισάγετε δημόσια διεύθυνση
                             </label>
@@ -310,7 +312,7 @@ const Lab01InteractionGR = () => {
                         </div>
 
                         {/* Ενέργεια 3 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <button
                                 onClick={handleInspectAddress}
                                 disabled={!canInspectAddress}
@@ -365,7 +367,7 @@ const Lab01InteractionGR = () => {
                         </div>
 
                         {/* Ενέργεια 4 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <button
                                 onClick={handleRevealKeyRelationship}
                                 disabled={!canRevealKeyRelationship}
@@ -409,7 +411,7 @@ const Lab01InteractionGR = () => {
                         </div>
 
                         {/* Ενέργεια 5 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             {/* Οδηγίες αλλαγής δικτύων στο MetaMask */}
                             {labState.networkDetected === true && (
                                 <div className="mb-3 px-4 py-3 rounded bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700">
@@ -491,7 +493,7 @@ const Lab01InteractionGR = () => {
                         </div>
 
                         {/* Ενέργεια 6 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <button
                                 onClick={handleAcknowledgeIdentityWithoutAccounts}
                                 disabled={!canAcknowledgeIdentityWithoutAccounts}
@@ -529,7 +531,7 @@ const Lab01InteractionGR = () => {
                 </section>
 
                 {/* 🔍 Ανακαλυφθέντα Δεδομένα */}
-                <section className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-6">
+                <section className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-6 bg-slate-50 dark:bg-slate-900/40">
                     <h2 className="text-lg font-semibold mb-4">🔍 Ανακαλυφθέντα Δεδομένα</h2>
                     {labState.discoveredData && labState.discoveredData.length > 0 ? (
                         <ul className="text-slate-700 dark:text-slate-200 list-disc ml-5 space-y-1">
@@ -546,7 +548,7 @@ const Lab01InteractionGR = () => {
 
                 {/* 🧠 Επεξήγηση */}
                 <section
-                    className={`rounded-xl border border-slate-200 dark:border-slate-700 p-6 ${explanationUnlocked ? "" : "opacity-60"
+                    className={`rounded-xl border border-slate-200 dark:border-slate-700 p-6 bg-slate-50 dark:bg-slate-900/40 ${explanationUnlocked ? "" : "opacity-60"
                         }`}
                 >
                     <h2 className="text-lg font-semibold mb-2">🧠 Επεξήγηση</h2>
@@ -575,7 +577,7 @@ const Lab01InteractionGR = () => {
                             Επιστρέψτε στην επισκόπηση του εργαστηρίου για να το επισημάνετε ως ολοκληρωμένο και να λάβετε τις ανταμοιβές σας.
                         </p>
                         <a
-                            href="/#/labs/wallets-keys"
+                            href="/#/labs-gr/wallets-keys"
                             className="inline-block px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
                         >
                             ⬅ Επιστροφή στην Επισκόπηση & Δήλωση Ανταμοιβών

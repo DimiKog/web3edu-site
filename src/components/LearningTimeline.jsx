@@ -6,14 +6,35 @@ import { useState } from "react";
  *  - timeline: Array of timeline events from backend metadata
  *      [{ type, id, title, xp, badge, completedAt }]
  */
-const LearningTimeline = ({ timeline = [] }) => {
+const LearningTimeline = ({ timeline = [], lang = "en" }) => {
     const [filter, setFilter] = useState("all");
 
+    const labels = {
+        en: {
+            title: "📈 Learning Timeline",
+            all: "All",
+            lab: "Labs",
+            lesson: "Lessons",
+            quiz: "Quizzes",
+            empty: "No activity recorded yet."
+        },
+        gr: {
+            title: "📈 Χρονολόγιο Μάθησης",
+            all: "Όλα",
+            lab: "Εργαστήρια",
+            lesson: "Μαθήματα",
+            quiz: "Κουίζ",
+            empty: "Δεν έχει καταγραφεί δραστηριότητα ακόμη."
+        }
+    };
+
+    const t = labels[lang] || labels.en;
+
     const filters = [
-        { id: "all", label: "All" },
-        { id: "lab", label: "Labs" },
-        { id: "lesson", label: "Lessons" },
-        { id: "quiz", label: "Quizzes" },
+        { id: "all", label: t.all },
+        { id: "lab", label: t.lab },
+        { id: "lesson", label: t.lesson },
+        { id: "quiz", label: t.quiz },
     ];
 
     const filteredTimeline =
@@ -24,7 +45,7 @@ const LearningTimeline = ({ timeline = [] }) => {
     const formatDate = (iso) => {
         if (!iso) return "—";
         try {
-            return new Date(iso).toLocaleString();
+            return new Date(iso).toLocaleString(lang === "gr" ? "el-GR" : "en-US");
         } catch {
             return iso;
         }
@@ -36,7 +57,7 @@ const LearningTimeline = ({ timeline = [] }) => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
                 <h3 className="text-xl font-semibold">
-                    📈 Learning Timeline
+                    {t.title}
                 </h3>
 
                 {/* Filters */}
@@ -60,7 +81,7 @@ const LearningTimeline = ({ timeline = [] }) => {
             {/* Timeline */}
             {filteredTimeline.length === 0 ? (
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                    No activity recorded yet.
+                    {t.empty}
                 </p>
             ) : (
                 <ul className="space-y-6">
@@ -79,7 +100,7 @@ const LearningTimeline = ({ timeline = [] }) => {
                                     <h4 className="font-semibold">
                                         {typeof item.title === "string"
                                             ? item.title
-                                            : item.title?.en || item.title?.gr}
+                                            : item.title?.[lang] || item.title?.en}
                                     </h4>
                                     <span className="text-xs text-slate-500">
                                         {formatDate(item.completedAt)}

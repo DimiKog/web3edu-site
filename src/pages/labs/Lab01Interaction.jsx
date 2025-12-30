@@ -209,47 +209,49 @@ const Lab01Interaction = () => {
 
     return (
         <PageShell title="Lab 01 — Wallets & Web3 Identity">
-            <div className="max-w-5xl mx-auto px-4 py-12 space-y-12">
+            <div className="max-w-5xl mx-auto px-4 py-12 space-y-10">
 
                 {/* 🎯 Goal */}
-                <section>
-                    <h2 className="text-xl font-semibold mb-2">🎯 Goal</h2>
-                    <p className="text-slate-600 dark:text-slate-300">
+                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-slate-50 dark:bg-slate-900/40">
+                    <h1 className="text-3xl font-extrabold mb-2">
+                        Lab 01 — Wallets & Web3 Identity
+                    </h1>
+                    <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
                         Discover how a Web3 identity is represented by a wallet-managed public address and exists before transactions, accounts, or smart contracts.
                     </p>
                 </section>
 
                 {/* 🧭 Current State */}
-                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                    <h2 className="text-lg font-semibold mb-4">🧭 Current State</h2>
-                    <ul className="space-y-1 text-slate-600 dark:text-slate-300">
+                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-slate-50 dark:bg-slate-900/40">
+                    <h2 className="font-semibold mb-2">🧭 Current State</h2>
+                    <ul className="text-sm space-y-1 text-slate-700 dark:text-slate-300">
                         <li>
-                            • Network detected: {labState.networkDetected ? "✅" : "❌"}
+                            Network detected: {labState.networkDetected ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Address provided: {labState.addressProvided ? "✅" : "❌"}
+                            Address provided: {labState.addressProvided ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Address valid: {labState.addressValid ? "✅" : "❌"}
+                            Address valid: {labState.addressValid ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Address inspected: {labState.addressInspected ? "✅" : "❌"}
+                            Address inspected: {labState.addressInspected ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Key relationship understood: {labState.keyRelationshipRevealed ? "✅" : "❌"}
+                            Key relationship understood: {labState.keyRelationshipRevealed ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Identity compared across networks: {labState.identityComparedAcrossNetworks ? "✅" : "❌"}
+                            Identity compared across networks: {labState.identityComparedAcrossNetworks ? "✅" : "❌"}
                         </li>
                         <li>
-                            • Identity without accounts acknowledged: {labState.identityWithoutAccountsAcknowledged ? "✅" : "❌"}
+                            Identity without accounts acknowledged: {labState.identityWithoutAccountsAcknowledged ? "✅" : "❌"}
                         </li>
                     </ul>
                 </section>
 
                 {/* 🎛 Available Actions */}
-                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                    <h2 className="text-lg font-semibold mb-6">🎛 Available Actions</h2>
+                <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-slate-50 dark:bg-slate-900/40">
+                    <h2 className="text-xl font-semibold mb-4">🎛 Available Actions</h2>
 
                     <div className="space-y-6">
 
@@ -260,7 +262,7 @@ const Lab01Interaction = () => {
                             </div>
                         </div>
                         {/* Action 1 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <button
                                 onClick={handleDetectNetwork}
                                 disabled={!canDetectNetwork}
@@ -279,7 +281,7 @@ const Lab01Interaction = () => {
                         </div>
 
                         {/* Action 2 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <label className="block text-sm font-medium mb-2">
                                 Enter public address
                             </label>
@@ -310,7 +312,7 @@ const Lab01Interaction = () => {
                         </div>
 
                         {/* Action 3 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <button
                                 onClick={handleInspectAddress}
                                 disabled={!canInspectAddress}
@@ -365,7 +367,7 @@ const Lab01Interaction = () => {
                         </div>
 
                         {/* Action 4 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <button
                                 onClick={handleRevealKeyRelationship}
                                 disabled={!canRevealKeyRelationship}
@@ -409,7 +411,7 @@ const Lab01Interaction = () => {
                         </div>
 
                         {/* Action 5 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             {/* MetaMask network switching guidance */}
                             {labState.networkDetected === true && (
                                 <div className="mb-3 px-4 py-3 rounded bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700">
@@ -491,7 +493,7 @@ const Lab01Interaction = () => {
                         </div>
 
                         {/* Action 6 */}
-                        <div>
+                        <div className="rounded-xl border p-5">
                             <button
                                 onClick={handleAcknowledgeIdentityWithoutAccounts}
                                 disabled={!canAcknowledgeIdentityWithoutAccounts}
@@ -529,7 +531,7 @@ const Lab01Interaction = () => {
                 </section>
 
                 {/* 🔍 Discovered Data */}
-                <section className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-6">
+                <section className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-6 bg-slate-50 dark:bg-slate-900/40">
                     <h2 className="text-lg font-semibold mb-4">🔍 Discovered Data</h2>
                     {labState.discoveredData && labState.discoveredData.length > 0 ? (
                         <ul className="text-slate-700 dark:text-slate-200 list-disc ml-5 space-y-1">
@@ -546,7 +548,7 @@ const Lab01Interaction = () => {
 
                 {/* 🧠 Explanation */}
                 <section
-                    className={`rounded-xl border border-slate-200 dark:border-slate-700 p-6 ${explanationUnlocked ? "" : "opacity-60"
+                    className={`rounded-xl border border-slate-200 dark:border-slate-700 p-6 bg-slate-50 dark:bg-slate-900/40 ${explanationUnlocked ? "" : "opacity-60"
                         }`}
                 >
                     <h2 className="text-lg font-semibold mb-2">🧠 Explanation</h2>
