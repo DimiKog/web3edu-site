@@ -33,7 +33,7 @@ const counterAbi = [
     "function increment()"
 ];
 
-const Lab05Interaction = () => {
+const Lab05InteractionGR = () => {
     const [labState, setLabState] = useState(initialLab05State);
     const [showContractDetails, setShowContractDetails] = useState(false);
     // Step 1 feedback state
@@ -72,17 +72,17 @@ const Lab05Interaction = () => {
                 {/* 🎯 Goal */}
                 <section className="rounded-xl border border-white/80 dark:border-slate-700 p-5 bg-white/70 dark:bg-slate-900/40">
                     <h1 className="text-3xl font-extrabold mb-2">
-                        Lab 05 — Smart Contracts & State
+                        Lab 05 — Έξυπνα Συμβόλαια & Κατάσταση
                     </h1>
                     <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
-                        Understand how smart contracts store state on-chain and how
-                        transactions execute code that permanently modifies it.
+                        Κατανοήστε πώς τα έξυπνα συμβόλαια αποθηκεύουν κατάσταση on-chain και πώς
+                        οι συναλλαγές εκτελούν κώδικα που την τροποποιεί μόνιμα.
                     </p>
                 </section>
 
                 {/* 🧭 Current State */}
                 <section className="rounded-xl border border-white/80 dark:border-slate-700 p-5 bg-slate-50 dark:bg-slate-900/40">
-                    <h2 className="font-semibold mb-2">🧭 Current State</h2>
+                    <h2 className="font-semibold mb-2">🧭 Τρέχουσα Κατάσταση</h2>
 
                     {labState.lastAction && (
                         <div className="mb-3 p-3 rounded-md bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-sm font-semibold">
@@ -91,30 +91,30 @@ const Lab05Interaction = () => {
                     )}
 
                     <ul className="text-sm space-y-1 text-slate-700 dark:text-slate-300">
-                        <li>Contract existence observed (on-chain code): {labState.contractObserved ? "✅" : "❌"}</li>
-                        <li>State read (read-only, no gas): {labState.stateRead ? "✅" : "❌"}</li>
-                        <li>Function execution prepared (transaction intent): {labState.txPrepared ? "✅" : "❌"}</li>
-                        <li>State updated on-chain (after block): {labState.stateUpdated ? "✅" : "❌"}</li>
-                        <li>Blockchain interaction required: {labState.txPrepared ? "✅" : "❌"}</li>
+                        <li>Παρατήρηση ύπαρξης συμβολαίου (κώδικας on-chain): {labState.contractObserved ? "✅" : "❌"}</li>
+                        <li>Ανάγνωση κατάστασης (μόνο ανάγνωση, χωρίς gas): {labState.stateRead ? "✅" : "❌"}</li>
+                        <li>Προετοιμασία εκτέλεσης συνάρτησης (πρόθεση συναλλαγής): {labState.txPrepared ? "✅" : "❌"}</li>
+                        <li>Ενημέρωση κατάστασης on-chain (μετά το block): {labState.stateUpdated ? "✅" : "❌"}</li>
+                        <li>Απαιτήθηκε αλληλεπίδραση με το blockchain: {labState.txPrepared ? "✅" : "❌"}</li>
                     </ul>
                 </section>
 
                 {/* 🎛 Available Actions */}
                 <section className="rounded-xl border border-white/80 dark:border-slate-700 p-5 bg-white/70 dark:bg-slate-900/40">
-                    <h2 className="text-xl font-semibold mb-4">🎛 Available Actions</h2>
+                    <h2 className="text-xl font-semibold mb-4">🎛 Διαθέσιμες Ενέργειες</h2>
 
                     <div className="space-y-6">
 
                         {/* Step 1 */}
                         <div className="rounded-xl border p-5 bg-white/80 dark:bg-slate-900/50">
                             <h3 className="font-semibold mb-2">
-                                1️⃣ Observe Smart Contract Existence
+                                1️⃣ Παρατηρήστε την ύπαρξη του Έξυπνου Συμβολαίου
                             </h3>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 font-semibold">
-                                Educational Demo Contract — already deployed on Besu Edu‑Net
+                                Εκπαιδευτικό demo συμβόλαιο — ήδη ανεπτυγμένο στο Besu Edu‑Net
                             </p>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
-                                Contract Address: <code className="font-mono">{demoContractAddress}</code>
+                                Διεύθυνση Συμβολαίου: <code className="font-mono">{demoContractAddress}</code>
                             </p>
                             <a
                                 href={`https://blockexplorer.dimikog.org/address/${demoContractAddress}`}
@@ -122,34 +122,34 @@ const Lab05Interaction = () => {
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 px-4 py-2 mt-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition"
                             >
-                                🔍 Open Contract in Block Explorer
+                                🔍 Άνοιγμα συμβολαίου στον Block Explorer
                             </a>
                             <div className="mt-4 p-4 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 text-sm text-yellow-900 dark:text-yellow-200">
-                                <p className="font-semibold mb-2">🧭 Where to find the real code</p>
+                                <p className="font-semibold mb-2">🧭 Πού θα βρείτε τον πραγματικό κώδικα</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                                     <div className="p-2 rounded border bg-white/70 dark:bg-slate-900/30">
-                                        <div className="font-semibold">This Lab UI</div>
-                                        <div className="opacity-80">Guides you</div>
+                                        <div className="font-semibold">Αυτό το UI εργαστηρίου</div>
+                                        <div className="opacity-80">Σε καθοδηγεί</div>
                                     </div>
                                     <div className="p-2 rounded border bg-white/70 dark:bg-slate-900/30">
                                         <div className="font-semibold">Block Explorer</div>
-                                        <div className="opacity-80">Shows verified source</div>
+                                        <div className="opacity-80">Εμφανίζει επαληθευμένο κώδικα</div>
                                     </div>
                                     <div className="p-2 rounded border bg-white/70 dark:bg-slate-900/30">
-                                        <div className="font-semibold">On-chain Contract</div>
-                                        <div className="opacity-80">Code + state live here</div>
+                                        <div className="font-semibold">Συμβόλαιο on-chain</div>
+                                        <div className="opacity-80">Κώδικας + κατάσταση ζουν εδώ</div>
                                     </div>
                                 </div>
                                 <p className="mt-3">
-                                    Open the explorer → click <strong>Code</strong>. That Solidity is the <strong>verified</strong> contract.
+                                    Ανοίξτε τον Block Explorer → πατήστε <strong>Code</strong>. Αυτό το Solidity είναι το <strong>επαληθευμένο</strong> συμβόλαιο.
                                 </p>
                             </div>
                             <div className="mt-4 p-3 rounded-md bg-slate-100 dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-300 border">
-                                👀 Hint: Find the <strong>Creator / Deployer</strong> field in the explorer before answering.
+                                👀 Υπόδειξη: Βρείτε το πεδίο <strong>Creator / Deployer</strong> στον Block Explorer πριν απαντήσετε.
                             </div>
                             <div className="mt-4 space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                    Who deployed (created) this contract?
+                                    Ποιος ανέπτυξε (δημιούργησε) αυτό το συμβόλαιο;
                                 </label>
                                 <select
                                     className="w-full max-w-md px-3 py-2 border rounded-md bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-sm"
@@ -161,7 +161,7 @@ const Lab05Interaction = () => {
                                             setCreatorFeedback("correct");
                                             recordAction(
                                                 { contractObserved: true },
-                                                "The contract creator was verified directly from the block explorer."
+                                                "Ο δημιουργός του συμβολαίου επαληθεύτηκε απευθείας από τον Block Explorer."
                                             );
                                             setShowContractDetails(true);
                                         } else if (selected !== "") {
@@ -172,7 +172,7 @@ const Lab05Interaction = () => {
                                     defaultValue=""
                                 >
                                     <option value="" disabled>
-                                        Select creator address
+                                        Επιλέξτε διεύθυνση δημιουργού
                                     </option>
                                     <option value="0x3A91b2cD9E0f4c6F21b8E1aA0C4eD92F7C5A1123">
                                         0x3A91b2cD9E0f4c6F21b8E1aA0C4eD92F7C5A1123
@@ -187,33 +187,33 @@ const Lab05Interaction = () => {
                                 {/* Step 1 feedback blocks */}
                                 {creatorFeedback === "correct" && (
                                     <div className="mt-2 p-3 rounded-md bg-green-100 dark:bg-green-900/40 border border-green-400 dark:border-green-600 text-green-900 dark:text-green-200 text-sm font-semibold">
-                                        ✅ Correct. This address is listed as the contract creator in the Block Explorer.
+                                        ✅ Σωστά. Αυτή η διεύθυνση εμφανίζεται ως δημιουργός του συμβολαίου στον Block Explorer.
                                     </div>
                                 )}
                                 {creatorFeedback === "wrong" && (
                                     <div className="mt-2 p-3 rounded-md bg-yellow-100 dark:bg-yellow-900/40 border border-yellow-400 dark:border-yellow-600 text-yellow-900 dark:text-yellow-200 text-sm font-semibold">
-                                        ❌ Not quite. Check the <strong>Creator / Deployer</strong> field in the Block Explorer and try again.
+                                        ❌ Όχι ακριβώς. Ελέγξτε το πεδίο <strong>Creator / Deployer</strong> στον Block Explorer και δοκιμάστε ξανά.
                                     </div>
                                 )}
                             </div>
                             <p className="text-sm text-slate-700 dark:text-slate-300 mb-3 mt-2">
-                                Smart contracts are deployed code + state stored permanently on-chain, not abstractions or placeholders.
+                                Τα έξυπνα συμβόλαια είναι ανεπτυγμένος κώδικας + κατάσταση αποθηκευμένη μόνιμα on-chain, όχι αφαιρέσεις ή placeholders.
                             </p>
                             {/* Old confirm button removed; contractObserved now set via dropdown */}
                             {showContractDetails && labState.contractObserved && (
                                 <div className="mt-4 p-4 border rounded bg-indigo-50 dark:bg-indigo-900/20 text-sm text-indigo-900 dark:text-indigo-300">
                                     <p>
-                                        This address points to a verified smart contract deployed on Besu Edu‑Net.
+                                        Αυτή η διεύθυνση αντιστοιχεί σε επαληθευμένο έξυπνο συμβόλαιο που έχει αναπτυχθεί στο Besu Edu‑Net.
                                     </p>
                                     <p className="mt-2">
-                                        The <strong>Code</strong> tab in the block explorer is the single source of truth
-                                        for the contract logic.
+                                        Η καρτέλα <strong>Code</strong> στον Block Explorer είναι η μοναδική πηγή αλήθειας
+                                        για τη λογική του συμβολαίου.
                                     </p>
                                     <div className="mt-4 p-3 border rounded bg-white dark:bg-slate-800 text-indigo-900 dark:text-indigo-300 font-mono">
-                                        <p><strong>Contract Address:</strong> {demoContractAddress}</p>
-                                        <p><strong>Status:</strong> Deployed ✅</p>
-                                        <p><strong>Network:</strong> Besu Edu‑Net</p>
-                                        <p><strong>Gas spent by student:</strong> 0 (read‑only observation)</p>
+                                        <p><strong>Διεύθυνση Συμβολαίου:</strong> {demoContractAddress}</p>
+                                        <p><strong>Κατάσταση:</strong> Αναπτυγμένο ✅</p>
+                                        <p><strong>Δίκτυο:</strong> Besu Edu‑Net</p>
+                                        <p><strong>Gas που ξόδεψε ο μαθητής:</strong> 0 (παρατήρηση μόνο ανάγνωσης)</p>
                                     </div>
                                 </div>
                             )}
@@ -222,33 +222,33 @@ const Lab05Interaction = () => {
                         {/* Step 2 */}
                         <div className="rounded-xl border p-5 bg-white/80 dark:bg-slate-900/50">
                             <h3 className="font-semibold mb-2">
-                                2️⃣ Read Contract State (No Transaction)
+                                2️⃣ Ανάγνωση κατάστασης συμβολαίου (χωρίς συναλλαγή)
                             </h3>
                             <div className="p-3 rounded-md bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-sm text-blue-900 dark:text-blue-200">
-                                <div className="font-semibold mb-2">📖 READ (eth_call)</div>
+                                <div className="font-semibold mb-2">📖 ΑΝΑΓΝΩΣΗ (eth_call)</div>
                                 <div className="flex flex-wrap gap-2 text-xs mb-2">
                                     <span className="px-2 py-1 rounded bg-white/70 dark:bg-slate-900/30 border">⛽ Gas: 0</span>
-                                    <span className="px-2 py-1 rounded bg-white/70 dark:bg-slate-900/30 border">✍️ Signature: No</span>
-                                    <span className="px-2 py-1 rounded bg-white/70 dark:bg-slate-900/30 border">📦 Block: No</span>
-                                    <span className="px-2 py-1 rounded bg-white/70 dark:bg-slate-900/30 border">🔁 State change: No</span>
+                                    <span className="px-2 py-1 rounded bg-white/70 dark:bg-slate-900/30 border">✍️ Υπογραφή: Όχι</span>
+                                    <span className="px-2 py-1 rounded bg-white/70 dark:bg-slate-900/30 border">📦 Block: Όχι</span>
+                                    <span className="px-2 py-1 rounded bg-white/70 dark:bg-slate-900/30 border">🔁 Αλλαγή κατάστασης: Όχι</span>
                                 </div>
                                 <div>
-                                    You will read <strong>value()</strong> from the deployed contract at
+                                    Θα διαβάσεις τη <strong>value()</strong> από το αναπτυγμένο συμβόλαιο στο
                                     <code className="font-mono ml-1">{demoContractAddress}</code>.
                                 </div>
                             </div>
                             <div className="mt-3 p-3 rounded-md bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-300 dark:border-indigo-700 text-sm text-indigo-900 dark:text-indigo-200">
-                                🔍 <strong>Explorer Tip:</strong> Open the contract in the block explorer and locate the
+                                🔍 <strong>Συμβουλή Block Explorer:</strong> Ανοίξτε το συμβόλαιο στον Block Explorer και βρείτε τη
                                 <span className="mx-1 px-2 py-0.5 rounded bg-indigo-200 dark:bg-indigo-800 font-mono text-xs">value()</span>
-                                function under the <strong>Read Contract</strong> section.
+                                συνάρτηση στην ενότητα <strong>Read Contract</strong>.
                                 <br />
-                                This function exists because <code className="font-mono">value</code> is declared <strong>public</strong> in Solidity.
+                                Αυτή η συνάρτηση υπάρχει επειδή η <code className="font-mono">value</code> έχει δηλωθεί ως <strong>public</strong> στη Solidity.
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2 text-xs">
                                 <span className="px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/40 border">⛽ Gas: 0</span>
-                                <span className="px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/40 border">✍️ Signature: No</span>
-                                <span className="px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/40 border">📦 Block: No</span>
-                                <span className="px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/40 border">🔁 State change: No</span>
+                                <span className="px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/40 border">✍️ Υπογραφή: Όχι</span>
+                                <span className="px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/40 border">📦 Block: Όχι</span>
+                                <span className="px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/40 border">🔁 Αλλαγή κατάστασης: Όχι</span>
                             </div>
                             <button
                                 onClick={async () => {
@@ -258,31 +258,31 @@ const Lab05Interaction = () => {
                                         const value = await contract.value();
                                         recordAction(
                                             { stateRead: true, storedValue: Number(value) },
-                                            "Contract state can be read freely without a transaction."
+                                            "Η κατάσταση του συμβολαίου μπορεί να διαβαστεί ελεύθερα χωρίς συναλλαγή."
                                         );
                                     } catch (err) {
-                                        alert("Failed to read contract state: " + (err?.message ?? err));
+                                        alert("Αποτυχία ανάγνωσης κατάστασης συμβολαίου: " + (err?.message ?? err));
                                     }
                                 }}
                                 className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
                             >
-                                🔍 Read on-chain state (no transaction, no gas)
+                                🔍 Ανάγνωση on-chain κατάστασης (χωρίς συναλλαγή, χωρίς gas)
                             </button>
 
                             {labState.stateRead && (
                                 <div className="mt-4 p-4 rounded-lg border bg-slate-50 dark:bg-slate-900/40">
                                     <p className="text-sm font-semibold mb-2">
-                                        ✅ Contract State Read Successfully
+                                        ✅ Η κατάσταση του συμβολαίου διαβάστηκε επιτυχώς
                                     </p>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                                         <div className="p-3 rounded bg-white dark:bg-slate-800 border">
-                                            <div className="text-xs text-slate-500">Function called</div>
+                                            <div className="text-xs text-slate-500">Κλήση συνάρτησης</div>
                                             <div className="font-mono">value()</div>
                                         </div>
 
                                         <div className="p-3 rounded bg-white dark:bg-slate-800 border">
-                                            <div className="text-xs text-slate-500">Returned value</div>
+                                            <div className="text-xs text-slate-500">Επιστρεφόμενη τιμή</div>
                                             <div className="font-mono text-lg font-bold">
                                                 {labState.storedValue}
                                             </div>
@@ -290,39 +290,39 @@ const Lab05Interaction = () => {
                                     </div>
 
                                     <div className="mt-3 p-3 rounded bg-green-100 dark:bg-green-900/30 text-sm text-green-900 dark:text-green-200 space-y-1">
-                                        ✔ Read-only call executed (<code className="font-mono">eth_call</code>)<br />
-                                        ✔ No transaction created<br />
-                                        ✔ No gas spent<br />
-                                        ✔ Wallet signature not required
+                                        ✔ Εκτελέστηκε κλήση μόνο ανάγνωσης (<code className="font-mono">eth_call</code>)<br />
+                                        ✔ Δεν δημιουργήθηκε συναλλαγή<br />
+                                        ✔ Δεν καταναλώθηκε gas<br />
+                                        ✔ Δεν απαιτήθηκε υπογραφή πορτοφολιού
                                     </div>
                                     <details className="mt-3">
                                         <summary className="cursor-pointer p-3 rounded-md bg-yellow-100 dark:bg-yellow-900/40 border border-yellow-300 dark:border-yellow-700 text-sm text-yellow-900 dark:text-yellow-200 font-semibold">
-                                            ⚠️ Common Mistake — ABI mismatch (click to expand)
+                                            ⚠️ Συνηθισμένο λάθος — ασυμφωνία ABI (πατήστε για επέκταση)
                                         </summary>
                                         <div className="p-3 rounded-md border border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20 text-sm text-yellow-900 dark:text-yellow-200">
-                                            If your frontend ABI does <strong>not</strong> match the deployed contract (e.g., calling <code className="font-mono">get()</code> instead of <code className="font-mono">value()</code>), the EVM will <strong>revert</strong> the call.
-                                            <div className="mt-2">Verify function names directly in the <strong>block explorer</strong>.</div>
+                                            Αν το ABI του frontend <strong>δεν</strong> ταιριάζει με το ανεπτυγμένο συμβόλαιο (π.χ. καλείτε <code className="font-mono">get()</code> αντί για <code className="font-mono">value()</code>), η EVM θα <strong>κάνει revert</strong> την κλήση.
+                                            <div className="mt-2">Επαληθεύστε τα ονόματα συναρτήσεων απευθείας στον <strong>Block Explorer</strong>.</div>
                                         </div>
                                     </details>
                                 </div>
                             )}
                             <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
-                                💡 This is why blockchains can be used as public databases:
-                                <strong> anyone can read state, but only transactions can change it.</strong>
+                                💡 Γι’ αυτό τα blockchains μπορούν να χρησιμοποιούνται ως δημόσιες βάσεις δεδομένων:
+                                <strong> οποιοσδήποτε μπορεί να διαβάσει την κατάσταση, αλλά μόνο οι συναλλαγές μπορούν να την αλλάξουν.</strong>
                             </p>
                         </div>
 
                         {/* Step 3 */}
                         <div className="rounded-xl border p-5 bg-white/80 dark:bg-slate-900/50">
                             <h3 className="font-semibold mb-2">
-                                3️⃣ Execute Contract Function (Transaction)
+                                3️⃣ Εκτέλεση συνάρτησης συμβολαίου (συναλλαγή)
                             </h3>
                             <p className="text-xs text-indigo-700 dark:text-indigo-300 mb-2">
-                                This step becomes available after reading the contract state in Step 2.
+                                Αυτό το βήμα είναι διαθέσιμο αφού διαβάσετε την κατάσταση στο Βήμα 2.
                             </p>
                             {labState.stateRead && (
                                 <div className="mb-3 inline-block px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-900 dark:text-indigo-200 text-xs font-semibold">
-                                    🔁 Transition: Read → Write (gas required)
+                                    🔁 Μετάβαση: Ανάγνωση → Εγγραφή (απαιτείται gas)
                                 </div>
                             )}
                             {/* Visual READ vs WRITE diagram */}
@@ -330,14 +330,14 @@ const Lab05Interaction = () => {
                                 {/* READ */}
                                 <div className="flex-1 p-4 rounded-xl border bg-blue-50 dark:bg-blue-900/30 transition-all duration-300 hover:shadow-lg hover:shadow-blue-400/50">
                                     <div className="text-3xl mb-2">📖</div>
-                                    <div className="font-semibold text-sm mb-1">READ</div>
+                                    <div className="font-semibold text-sm mb-1">ΑΝΑΓΝΩΣΗ</div>
                                     <div className="text-xs text-slate-600 dark:text-slate-300">
                                         eth_call · value()
                                     </div>
                                     <div className="mt-2 flex flex-wrap justify-center gap-1 text-xs">
                                         <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">⛽ 0 gas</span>
-                                        <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">✍️ no signature</span>
-                                        <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">🔁 no change</span>
+                                        <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">✍️ χωρίς υπογραφή</span>
+                                        <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">🔁 χωρίς αλλαγή</span>
                                     </div>
                                 </div>
 
@@ -349,32 +349,32 @@ const Lab05Interaction = () => {
                                 {/* WRITE */}
                                 <div className="flex-1 p-4 rounded-xl border bg-yellow-50 dark:bg-yellow-900/30 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-400/50">
                                     <div className="text-3xl mb-2">✍️</div>
-                                    <div className="font-semibold text-sm mb-1">WRITE</div>
+                                    <div className="font-semibold text-sm mb-1">ΕΓΓΡΑΦΗ</div>
                                     <div className="text-xs text-slate-600 dark:text-slate-300">
-                                        transaction · increment()
+                                        συναλλαγή · increment()
                                     </div>
                                     <div className="mt-2 flex flex-wrap justify-center gap-1 text-xs">
                                         <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">⛽ gas</span>
-                                        <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">✍️ signature</span>
-                                        <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">🔁 state change</span>
+                                        <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">✍️ υπογραφή</span>
+                                        <span className="px-2 py-0.5 rounded bg-white/70 dark:bg-slate-900/30 border">🔁 αλλαγή κατάστασης</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="p-4 rounded-lg bg-slate-100 dark:bg-slate-800 border text-sm text-slate-700 dark:text-slate-300 mb-4">
-                                <p className="font-semibold mb-1">Function to execute:</p>
+                                <p className="font-semibold mb-1">Συνάρτηση προς εκτέλεση:</p>
                                 <div className="font-mono bg-white dark:bg-slate-900 p-2 rounded border inline-block">
                                     increment()
                                 </div>
                                 <p className="mt-2">
-                                    This function updates the contract’s internal counter by <strong>+1</strong>.
+                                    Αυτή η συνάρτηση ενημερώνει τον εσωτερικό μετρητή του συμβολαίου κατά <strong>+1</strong>.
                                 </p>
                             </div>
 
                             {/* Step 3 warning if state not read */}
                             {!labState.stateRead && (
                                 <div className="mb-4 p-3 rounded-md bg-yellow-100 dark:bg-yellow-900/40 border border-yellow-400 dark:border-yellow-600 text-yellow-900 dark:text-yellow-200 text-sm font-semibold">
-                                    ⚠️ You must read the contract state in Step 2 before executing a transaction.
+                                    ⚠️ Πρέπει να διαβάσετε την κατάσταση στο Βήμα 2 πριν εκτελέσετε συναλλαγή.
                                 </div>
                             )}
 
@@ -390,61 +390,61 @@ const Lab05Interaction = () => {
                                                 txPrepared: true,
                                                 txHash: tx.hash,
                                             },
-                                            "Executing a contract function requires a signed transaction and gas."
+                                            "Η εκτέλεση συνάρτησης συμβολαίου απαιτεί υπογεγραμμένη συναλλαγή και gas."
                                         );
                                         await tx.wait();
                                     } catch (err) {
-                                        alert("Transaction rejected or failed: " + (err?.message ?? err));
+                                        alert("Η συναλλαγή απορρίφθηκε ή απέτυχε: " + (err?.message ?? err));
                                     }
                                 }}
                                 disabled={!labState.stateRead}
                                 className={`px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold${!labState.stateRead ? " opacity-50 cursor-not-allowed" : ""}`}
                             >
-                                🚀 Execute increment() via transaction
+                                🚀 Εκτέλεση increment() μέσω συναλλαγής
                             </button>
 
                             <div className="mt-3 p-3 rounded-md bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 text-sm">
-                                💧 Need funds to send this transaction?
+                                💧 Χρειάζεστε κεφάλαια για να στείλετε αυτή τη συναλλαγή;
                                 <a
                                     href="https://faucet.dimikog.org/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="ml-1 font-semibold text-indigo-700 dark:text-indigo-300 hover:underline"
                                 >
-                                    Open the Besu Edu‑Net Faucet
+                                    Ανοίξτε το Faucet του Besu Edu‑Net
                                 </a>
                             </div>
 
                             {labState.txPrepared && (
                                 <div className="mt-4 rounded-lg border border-slate-200 dark:border-slate-700 p-4 bg-green-100 dark:bg-green-900/30 text-sm text-green-900 dark:text-green-200 animate-fade-in">
-                                    <p className="font-semibold mb-2">✅ Transaction submitted and mined. State can now be re‑read.</p>
+                                    <p className="font-semibold mb-2">✅ Η συναλλαγή υποβλήθηκε και εξορύχθηκε. Η κατάσταση μπορεί πλέον να ξαναδιαβαστεί.</p>
                                     <ul className="list-disc list-inside space-y-1">
-                                        <li>Wallet was involved</li>
-                                        <li>Gas was required</li>
-                                        <li>Transaction was included in a block</li>
+                                        <li>Συμμετείχε πορτοφόλι</li>
+                                        <li>Απαιτήθηκε gas</li>
+                                        <li>Η συναλλαγή συμπεριλήφθηκε σε block</li>
                                     </ul>
                                     <div className="mt-2 font-mono text-xs break-all">
-                                        Transaction hash: {labState.txHash}
+                                        Hash συναλλαγής: {labState.txHash}
                                     </div>
                                     <p className="mt-3 text-sm font-semibold text-indigo-700 dark:text-indigo-300">
-                                        👉 Proceed to Step 4 to read the updated contract state.
+                                        👉 Προχωρήστε στο Βήμα 4 για να διαβάσετε την ενημερωμένη κατάσταση.
                                     </p>
                                 </div>
                             )}
 
                             <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
-                                💡 Until this transaction is mined, the contract state is <strong>not yet changed</strong>.
+                                💡 Μέχρι να εξορυχθεί αυτή η συναλλαγή, η κατάσταση του συμβολαίου <strong>δεν έχει αλλάξει ακόμα</strong>.
                             </p>
                         </div>
 
                         {/* Step 4 */}
                         <div className="rounded-xl border p-5 bg-white/80 dark:bg-slate-900/50">
                             <h3 className="font-semibold mb-2">
-                                4️⃣ Observe Updated Contract State
+                                4️⃣ Παρατηρήστε την ενημερωμένη κατάσταση του συμβολαίου
                             </h3>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                                After the transaction is included in a block,
-                                the contract’s state is permanently updated.
+                                Αφού η συναλλαγή συμπεριληφθεί σε block,
+                                η κατάσταση του συμβολαίου ενημερώνεται μόνιμα.
                             </p>
                             <button
                                 onClick={async () => {
@@ -458,44 +458,44 @@ const Lab05Interaction = () => {
                                                 updatedValue: Number(value),
                                                 explanationUnlocked: true,
                                             },
-                                            "Smart contract state changes persist after execution."
+                                            "Οι αλλαγές στην κατάσταση του έξυπνου συμβολαίου παραμένουν μετά την εκτέλεση."
                                         );
                                     } catch (err) {
-                                        alert("Failed to read updated state: " + (err?.message ?? err));
+                                        alert("Αποτυχία ανάγνωσης ενημερωμένης κατάστασης: " + (err?.message ?? err));
                                     }
                                 }}
                                 className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
                             >
-                                Read updated on-chain state
+                                Ανάγνωση ενημερωμένης on-chain κατάστασης
                             </button>
 
                             {labState.stateUpdated && (
                                 <div className="mt-3 text-sm font-mono animate-fade-in">
-                                    Updated value: {labState.updatedValue}
+                                    Ενημερωμένη τιμή: {labState.updatedValue}
                                 </div>
                             )}
                             {/* Read-Before / Read-After comparison box */}
                             {labState.stateUpdated && (
                                 <div className="mt-4 p-4 rounded-lg border border-indigo-300 dark:border-indigo-700 bg-indigo-50 dark:bg-indigo-900/30">
                                     <h4 className="font-semibold mb-3 text-indigo-900 dark:text-indigo-200">
-                                        🔍 Read-Before vs Read-After Comparison
+                                        🔍 Σύγκριση πριν/μετά την ανάγνωση
                                     </h4>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                                         <div className="p-3 rounded bg-white dark:bg-slate-800 border">
-                                            <div className="text-xs text-slate-500">Before Transaction (Step 2)</div>
+                                            <div className="text-xs text-slate-500">Πριν τη συναλλαγή (Βήμα 2)</div>
                                             <div className="mt-1 font-mono text-lg font-bold">
                                                 {labState.storedValue}
                                             </div>
                                         </div>
                                         <div className="p-3 rounded bg-white dark:bg-slate-800 border">
-                                            <div className="text-xs text-slate-500">After Transaction (Step 4)</div>
+                                            <div className="text-xs text-slate-500">Μετά τη συναλλαγή (Βήμα 4)</div>
                                             <div className="mt-1 font-mono text-lg font-bold text-green-700 dark:text-green-300">
                                                 {labState.updatedValue}
                                             </div>
                                         </div>
                                     </div>
                                     <p className="mt-3 text-sm text-indigo-800 dark:text-indigo-300">
-                                        The difference proves that a <strong>transaction</strong> (Step 3) permanently modified on-chain state.
+                                        Η διαφορά αποδεικνύει ότι μια <strong>συναλλαγή</strong> (Βήμα 3) τροποποίησε μόνιμα την κατάσταση on-chain.
                                     </p>
                                 </div>
                             )}
@@ -506,15 +506,15 @@ const Lab05Interaction = () => {
 
                 {/* 🔍 Discovered Data */}
                 <section className="rounded-xl border p-5 bg-white/70 dark:bg-slate-900/60">
-                    <h2 className="font-semibold mb-3">🔍 Discovered Data</h2>
+                    <h2 className="font-semibold mb-3">🔍 Ανακαλυφθέντα Δεδομένα</h2>
                     {labState.discoveredData.length === 0 ? (
                         <p className="text-sm text-slate-500">
-                            No discoveries yet — complete steps above to unlock insights.
+                            Δεν υπάρχουν ακόμα ανακαλύψεις — ολοκληρώστε τα βήματα για να ξεκλειδώσετε συμπεράσματα.
                         </p>
                     ) : (
                         <div className="bg-slate-50 dark:bg-slate-800/40 border rounded-md p-3">
                             <p className="text-sm mb-2">
-                                Here’s what you proved (by interacting with the real contract):
+                                Να τι αποδείξατε (αλληλεπιδρώντας με το πραγματικό συμβόλαιο):
                             </p>
                             <ul className="list-disc list-inside text-sm space-y-1">
                                 {labState.discoveredData.map((item, idx) => (
@@ -528,15 +528,15 @@ const Lab05Interaction = () => {
                 {/* 🧠 Explanation */}
                 {labState.explanationUnlocked && (
                     <section className="rounded-xl border border-indigo-300 dark:border-indigo-700 p-6 bg-indigo-50 dark:bg-indigo-900/30">
-                        <h2 className="text-xl font-semibold mb-2">🧠 Explanation</h2>
+                        <h2 className="text-xl font-semibold mb-2">🧠 Εξήγηση</h2>
                         <ul className="list-disc list-inside space-y-2 text-slate-700 dark:text-slate-300">
-                            <li>Smart contracts are deployed code + state stored on-chain.</li>
-                            <li>Read-only calls (<code className="font-mono">eth_call</code>) do not create transactions and cost no gas.</li>
-                            <li>Executing a contract function requires a signed transaction and gas.</li>
-                            <li>State changes become permanent only after block inclusion.</li>
+                            <li>Τα έξυπνα συμβόλαια είναι ανεπτυγμένος κώδικας + κατάσταση αποθηκευμένη on-chain.</li>
+                            <li>Οι κλήσεις μόνο ανάγνωσης (<code className="font-mono">eth_call</code>) δεν δημιουργούν συναλλαγές και δεν κοστίζουν gas.</li>
+                            <li>Η εκτέλεση συνάρτησης συμβολαίου απαιτεί υπογεγραμμένη συναλλαγή και gas.</li>
+                            <li>Οι αλλαγές κατάστασης γίνονται μόνιμες μόνο μετά τη συμπερίληψη σε block.</li>
                         </ul>
                         <p className="mt-4 font-semibold text-indigo-900 dark:text-indigo-200">
-                            <em>Pattern to remember: read → write → read.</em>
+                            <em>Μοτίβο για να θυμάστε: ανάγνωση → εγγραφή → ανάγνωση.</em>
                         </p>
                     </section>
                 )}
@@ -544,15 +544,15 @@ const Lab05Interaction = () => {
                 {/* 🎉 Completion & Claim Reward */}
                 {labState.explanationUnlocked && (
                     <section className="rounded-xl border border-green-300 dark:border-green-700 p-6 bg-green-50 dark:bg-green-900/20 mt-8">
-                        <h2 className="text-xl font-semibold mb-2">🎉 Lab Completed</h2>
+                        <h2 className="text-xl font-semibold mb-2">🎉 Ολοκλήρωση εργαστηρίου</h2>
                         <p className="mb-4 text-slate-700 dark:text-slate-200">
-                            You have completed this lab! You can now return to the lab overview to claim your rewards and track your progress.
+                            Ολοκληρώσατε αυτό το εργαστήριο! Μπορείτε τώρα να επιστρέψετε στην επισκόπηση του εργαστηρίου για να διεκδικήσετε τις ανταμοιβές σας και να παρακολουθήσετε την πρόοδό σας.
                         </p>
                         <a
-                            href="/#/labs/lab05"
+                            href="/#/labs-gr/lab05"
                             className="inline-block px-5 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white font-semibold transition"
                         >
-                            ← Back to Lab Overview &amp; Claim Reward
+                            ← Επιστροφή στην επισκόπηση &amp; διεκδίκηση ανταμοιβής
                         </a>
                     </section>
                 )}
@@ -567,7 +567,7 @@ const Lab05Interaction = () => {
                             : "text-slate-400 cursor-not-allowed"
                             }`}
                     >
-                        🔁 Reset Lab
+                        🔁 Επαναφορά εργαστηρίου
                     </button>
                 </section>
 
@@ -576,4 +576,4 @@ const Lab05Interaction = () => {
     );
 };
 
-export default Lab05Interaction;
+export default Lab05InteractionGR;

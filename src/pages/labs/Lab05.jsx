@@ -20,6 +20,7 @@ const Lab05 = () => {
                 "Besu Edu-Net RPC",
                 "Simple Counter Contract",
                 "Block Explorer",
+                "Faucet (optional)",
             ]}
             prerequisites={[
                 "Completed Lab 01 — Wallets & Web3 Identity",

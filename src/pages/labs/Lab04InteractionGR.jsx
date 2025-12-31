@@ -138,7 +138,7 @@ const Lab04InteractionGR = () => {
             );
 
             if (newBalance <= prevBalance) {
-                alert("Το υπόλοιπο δεν αυξήθηκε. Ολοκλήρωσε πρώτα τη συναλλαγή από το faucet.");
+                alert("Το υπόλοιπο δεν αυξήθηκε. Ολοκληρώστε πρώτα τη συναλλαγή από το faucet.");
                 return;
             }
 
@@ -183,7 +183,7 @@ const Lab04InteractionGR = () => {
                         Lab 04 — Συναλλαγές & Gas
                     </h1>
                     <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
-                        Εξερεύνησε πώς οι συναλλαγές στο blockchain αλλάζουν την on‑chain κατάσταση
+                        Εξερευνήστε πώς οι συναλλαγές στο blockchain αλλάζουν την on‑chain κατάσταση
                         και γιατί απαιτείται gas για την εκτέλεση.
                     </p>
                 </section>
@@ -256,8 +256,8 @@ const Lab04InteractionGR = () => {
                             </h3>
 
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                                Ακόμα και πριν στείλεις συναλλαγή, το πορτοφόλι σου έχει ήδη <strong>on‑chain κατάσταση</strong>.
-                                Αυτή η κατάσταση υπάρχει ανεξάρτητα από οποιαδήποτε ενέργεια κάνεις τώρα.
+                                Ακόμα και πριν στείλετε συναλλαγή, το πορτοφόλι σας έχει ήδη <strong>on‑chain κατάσταση</strong>.
+                                Αυτή η κατάσταση υπάρχει ανεξάρτητα από οποιαδήποτε ενέργεια κάνετε τώρα.
                             </p>
 
                             <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 mb-4 space-y-1">
@@ -268,7 +268,7 @@ const Lab04InteractionGR = () => {
                             <div className="p-3 rounded-md bg-yellow-100 dark:bg-yellow-900/40
                                 text-yellow-800 dark:text-yellow-300 text-sm mb-4">
                                 🔎 Σε αυτό το στάδιο, <strong>δεν υπάρχει ακόμη συναλλαγή</strong>.
-                                Παρατηρείς μόνο την υπάρχουσα κατάσταση του blockchain.
+                                Παρατηρείτε μόνο την υπάρχουσα κατάσταση του blockchain.
                             </div>
 
                             <button
@@ -285,7 +285,7 @@ const Lab04InteractionGR = () => {
                                     {!labState.wallet.isCorrectNetwork && (
                                         <div className="mb-3 p-3 rounded-md bg-yellow-100 dark:bg-yellow-900/40
                                             text-yellow-800 dark:text-yellow-300 text-sm font-semibold">
-                                            ⚠️ Μετάβαλε στο <strong>Besu Edu‑Net</strong> για να συνεχίσεις.
+                                            ⚠️ Μεταβείτε στο <strong>Besu Edu‑Net</strong> για να συνεχίσετε.
                                         </div>
                                     )}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -356,11 +356,11 @@ const Lab04InteractionGR = () => {
                                 </div>
                             </div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                                Αυτή η συναλλαγή παραδείγματος μεταφέρει <strong>1 EDU‑D</strong> (εμφανίζεται ως ETH στον block explorer)
-                                από μια διεύθυνση σε μια άλλη. Πρόκειται για απλή μεταφορά αξίας χωρίς εκτέλεση smart contract.
+                                Αυτή η συναλλαγή παραδείγματος μεταφέρει <strong>1 EDU‑D</strong> (εμφανίζεται ως ETH στον Block Explorer)
+                                από μια διεύθυνση σε μια άλλη. Πρόκειται για απλή μεταφορά αξίας χωρίς εκτέλεση έξυπνου συμβολαίου.
                             </p>
                             <p className="text-xs text-slate-500 italic">
-                                Σημείωση: Ο explorer εμφανίζει ETH, αλλά το asset είναι EDU-D στο Besu Edu-Net.
+                                Σημείωση: Ο Block Explorer εμφανίζει ETH, αλλά το asset είναι EDU-D στο Besu Edu-Net.
                             </p>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
                                 Μια συναλλαγή είναι ένα υπογεγραμμένο μήνυμα που περιλαμβάνει συγκεκριμένα πεδία.
@@ -439,10 +439,10 @@ const Lab04InteractionGR = () => {
                                         </li>
                                     </ul>
                                     <div className="mt-2 text-xs text-indigo-600 dark:text-indigo-400">
-                                        👀 Εντόπισε κάθε πεδίο στον block explorer και επιβεβαίωσε ότι ταιριάζει με τις τιμές παραπάνω.
+                                        👀 Εντοπίστε κάθε πεδίο στον Block Explorer και επιβεβαιώστε ότι ταιριάζει με τις τιμές παραπάνω.
                                     </div>
                                     <div className="mt-2 text-xs text-indigo-700 dark:text-indigo-300">
-                                        <span className="font-semibold">Συμβουλή:</span> Κάθε <span className="inline-block px-2 py-0.5 rounded bg-indigo-200 dark:bg-indigo-800 text-indigo-900 dark:text-indigo-200 text-xs font-bold align-middle">πεδίο</span> είναι κρίσιμο — κάνε hover ή click σε explorers για να δεις πραγματικές τιμές.
+                                        <span className="font-semibold">Συμβουλή:</span> Κάθε <span className="inline-block px-2 py-0.5 rounded bg-indigo-200 dark:bg-indigo-800 text-indigo-900 dark:text-indigo-200 text-xs font-bold align-middle">πεδίο</span> είναι κρίσιμο — κάντε hover ή click στον Block Explorer για να δείτε πραγματικές τιμές.
                                     </div>
 
                                     <div className="p-3 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-sm text-indigo-800 dark:text-indigo-300">
@@ -451,7 +451,7 @@ const Lab04InteractionGR = () => {
                                     </div>
 
                                     <div className="p-3 rounded-md bg-yellow-100 dark:bg-yellow-900/40 text-sm text-yellow-800 dark:text-yellow-300">
-                                        🔎 Άνοιξε τον explorer και επιβεβαίωσε χειροκίνητα ότι κάθε τιμή παραπάνω ταιριάζει με την on‑chain συναλλαγή.
+                                        🔎 Ανοίξτε τον Block Explorer και επιβεβαιώστε χειροκίνητα ότι κάθε τιμή παραπάνω ταιριάζει με την on‑chain συναλλαγή.
                                     </div>
 
                                     <a
@@ -460,7 +460,7 @@ const Lab04InteractionGR = () => {
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                                     >
-                                        🔗 Δες αυτή τη συναλλαγή στον Block Explorer
+                                        🔗 Δείτε αυτή τη συναλλαγή στον Block Explorer
                                     </a>
                                 </div>
                             )}
@@ -595,7 +595,7 @@ const Lab04InteractionGR = () => {
                                     <div className="text-sm text-slate-700 dark:text-slate-300">
                                         <span className="font-semibold">Από</span>
                                         <div className="mt-1 font-mono text-xs break-all bg-white/70 dark:bg-slate-900/50 rounded-md px-2 py-1">
-                                            Η διεύθυνσή σου (αποστολέας)
+                                            Η διεύθυνσή σας (αποστολέας)
                                         </div>
                                     </div>
 
@@ -700,7 +700,7 @@ const Lab04InteractionGR = () => {
                                             </div>
 
                                             <p className="mt-3 text-sm text-indigo-800 dark:text-indigo-300">
-                                                📘 Αυτό είναι <strong>ενδεικτικό παράδειγμα</strong>. Η πραγματική σου κατάσταση επιβεβαιώνεται στο Βήμα 5.
+                                                📘 Αυτό είναι <strong>ενδεικτικό παράδειγμα</strong>. Η πραγματική σας κατάσταση επιβεβαιώνεται στο Βήμα 5.
                                             </p>
                                         </div>
                                     </div>
@@ -715,21 +715,21 @@ const Lab04InteractionGR = () => {
                             </h3>
 
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                                Για να αποδείξεις ότι κατανοείς πλήρως τις συναλλαγές, θα κάνεις τώρα μια πραγματική on‑chain ενέργεια.
-                                Θα ζητήσεις κεφάλαια από το faucet και έπειτα θα επιβεβαιώσεις ότι η on‑chain κατάσταση άλλαξε.
+                                Για να αποδείξετε ότι κατανοείτε πλήρως τις συναλλαγές, θα κάνετε τώρα μια πραγματική on‑chain ενέργεια.
+                                Θα ζητήσετε κεφάλαια από το faucet και έπειτα θα επιβεβαιώσετε ότι η on‑chain κατάσταση άλλαξε.
                             </p>
 
                             <div className="p-3 rounded-md bg-yellow-100 dark:bg-yellow-900/40
                         text-yellow-800 dark:text-yellow-300 text-sm mb-4">
-                                💡 Χρησιμοποίησε το faucet για να στείλεις ETH στο πορτοφόλι σου.
+                                💡 Χρησιμοποιήστε το faucet για να στείλετε ETH στο πορτοφόλι σας.
                                 Αυτό δημιουργεί μια πραγματική συναλλαγή στο blockchain που καταναλώνει gas.
-                                Το nonce σου ΔΕΝ θα αυξηθεί επειδή ο λογαριασμός σου ΛΑΜΒΑΝΕΙ κεφάλαια.
+                                Το nonce σας ΔΕΝ θα αυξηθεί επειδή ο λογαριασμός σας ΛΑΜΒΑΝΕΙ κεφάλαια.
                             </div>
 
                             <div className="mt-3 p-3 rounded-md bg-blue-100 dark:bg-blue-900/40
   text-blue-800 dark:text-blue-300 text-sm">
                                 ℹ️ <strong>Σημαντικό:</strong> Η λήψη κεφαλαίων <strong>δεν</strong> αυξάνει το nonce.
-                                Το nonce αυξάνεται μόνο όταν <strong>ο λογαριασμός σου στέλνει</strong> συναλλαγή.
+                                Το nonce αυξάνεται μόνο όταν <strong>ο λογαριασμός σας στέλνει</strong> συναλλαγή.
                             </div>
 
                             <a
@@ -744,7 +744,7 @@ const Lab04InteractionGR = () => {
                             <div className="mt-4 text-sm text-slate-600 dark:text-slate-400">
                                 Μετά την επιβεβαίωση της συναλλαγής από το faucet:
                                 <ul className="list-disc list-inside mt-2 space-y-1">
-                                    <li>Το <strong>υπόλοιπό</strong> σου θα αυξηθεί</li>
+                                    <li>Το <strong>υπόλοιπό</strong> σας θα αυξηθεί</li>
                                 </ul>
                             </div>
 
@@ -778,7 +778,7 @@ const Lab04InteractionGR = () => {
                     <h2 className="font-semibold mb-3">🧠 Μίνι Ανακεφαλαίωση — Αποστολέας vs Παραλήπτης</h2>
 
                     <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                        Χρησιμοποίησε αυτόν τον πίνακα για να συνοψίσεις όσα παρατήρησες στα προηγούμενα βήματα.
+                        Χρησιμοποιήστε αυτόν τον πίνακα για να συνοψίσετε όσα παρατηρήσατε στα προηγούμενα βήματα.
                         Οι παρακάτω κανόνες ισχύουν πάντα σε Ethereum‑based blockchains.
                     </p>
 
@@ -812,7 +812,7 @@ const Lab04InteractionGR = () => {
                     <div className="mt-6 p-4 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                         <p className="text-sm font-semibold mb-2">🧪 Γρήγορος Έλεγχος</p>
                         <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                            Όταν <strong>λαμβάνεις κεφάλαια</strong> από το faucet, θα αυξηθεί το <strong>nonce</strong> σου;
+                            Όταν <strong>λαμβάνετε κεφάλαια</strong> από το faucet, θα αυξηθεί το <strong>nonce</strong> σας;
                         </p>
                         <select
                             className="w-full max-w-xs px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600
@@ -822,7 +822,7 @@ const Lab04InteractionGR = () => {
                                 alert(
                                     correct
                                         ? "✅ Σωστά! Η λήψη κεφαλαίων ΔΕΝ αλλάζει το nonce."
-                                        : "❌ Όχι ακριβώς. Το nonce αυξάνεται μόνο όταν ΕΣΥ στέλνεις συναλλαγή."
+                                        : "❌ Όχι ακριβώς. Το nonce αυξάνεται μόνο όταν στέλνετε εσείς συναλλαγή."
                                 );
                             }}
                             defaultValue=""
@@ -839,12 +839,12 @@ const Lab04InteractionGR = () => {
                     <h2 className="font-semibold mb-3">🔍 Ανακαλυφθέντα Δεδομένα</h2>
                     {labState.discoveredData.length === 0 ? (
                         <p className="text-sm text-slate-500">
-                            Καμία ανακάλυψη ακόμα — ολοκλήρωσε τα βήματα παραπάνω για να ξεκλειδώσεις βασικές γνώσεις.
+                            Καμία ανακάλυψη ακόμα — ολοκληρώστε τα βήματα παραπάνω για να ξεκλειδώσετε βασικές γνώσεις.
                         </p>
                     ) : (
                         <>
                             <div className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                                Αυτοί είναι οι βασικοί κανόνες και οι παρατηρήσεις που ανακάλυψες κατά τη διάρκεια του εργαστηρίου.
+                                Αυτοί είναι οι βασικοί κανόνες και οι παρατηρήσεις που ανακαλύψατε κατά τη διάρκεια του εργαστηρίου.
                             </div>
                             <ul className="list-disc list-inside text-sm space-y-1 animate-fadeIn">
                                 {labState.discoveredData.map((item, idx) => (
@@ -876,14 +876,14 @@ const Lab04InteractionGR = () => {
                             🎉 Το Lab Ολοκληρώθηκε
                         </h2>
                         <p className="text-slate-700 dark:text-slate-200 mb-4">
-                            Ολοκλήρωσες το <strong>Lab 04 — Συναλλαγές &amp; Gas</strong>.
-                            Επέστρεψε στη σύνοψη εργαστηρίων για να το σημειώσεις ως ολοκληρωμένο και να λάβεις τα rewards σου.
+                            Ολοκληρώσατε το <strong>Lab 04 — Συναλλαγές &amp; Gas</strong>.
+                            Επιστρέψτε στη σύνοψη εργαστηρίων για να το σημειώσετε ως ολοκληρωμένο και να λάβετε τις ανταμοιβές σας.
                         </p>
                         <a
                             href="/#/labs-gr/lab04"
                             className="inline-block px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
                         >
-                            ⬅ Επιστροφή στη Σύνοψη Εργαστηρίου &amp; Λήψη Rewards
+                            ⬅ Επιστροφή στη Σύνοψη Εργαστηρίου &amp; Λήψη Ανταμοιβών
                         </a>
                     </section>
                 )}

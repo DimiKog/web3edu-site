@@ -7,6 +7,12 @@ const Lab01Interaction = () => {
         if (!window.ethereum) return null;
 
         try {
+            const accounts = await window.ethereum.request({ method: "eth_accounts" });
+            if (!accounts || accounts.length === 0) {
+                // Wallet exists but is not connected
+                return null;
+            }
+
             const chainId = await window.ethereum.request({ method: "eth_chainId" });
 
             if (chainId === "0x67932") return "Besu Edu-Net"; // 424242
@@ -33,30 +39,32 @@ const Lab01Interaction = () => {
     });
     const [lastAction, setLastAction] = useState(null);
 
-    // Handler: detect network (now uses wallet, with fallback)
+    // Handler: detect network (now uses wallet, with improved logic)
     const handleDetectNetwork = async () => {
         const detectedNetwork = await detectNetworkFromWallet();
-        if (detectedNetwork) {
+
+        if (!detectedNetwork) {
             setLabState((s) => ({
                 ...s,
-                networkDetected: true,
-                activeNetwork: detectedNetwork,
+                networkDetected: false,
                 discoveredData: [
                     ...s.discoveredData,
-                    `Detected active network context: ${detectedNetwork}`,
+                    "No wallet connected — network context cannot be detected.",
                 ],
             }));
-        } else {
-            setLabState((s) => ({
-                ...s,
-                networkDetected: true,
-                activeNetwork: "Besu Edu-Net",
-                discoveredData: [
-                    ...s.discoveredData,
-                    "Detected network context: Besu Edu-Net (fallback — wallet detection unavailable)",
-                ],
-            }));
+            setLastAction("detect-network-failed");
+            return;
         }
+
+        setLabState((s) => ({
+            ...s,
+            networkDetected: true,
+            activeNetwork: detectedNetwork,
+            discoveredData: [
+                ...s.discoveredData,
+                `Detected active network context: ${detectedNetwork}`,
+            ],
+        }));
         setLastAction("detect-network");
     };
 
@@ -276,6 +284,11 @@ const Lab01Interaction = () => {
                             {lastAction === "detect-network" && labState.activeNetwork && (
                                 <div className="mt-2 text-xs rounded bg-green-50 dark:bg-slate-800 text-green-700 dark:text-green-300 px-3 py-1">
                                     ✔ Network detected: {labState.activeNetwork}
+                                </div>
+                            )}
+                            {lastAction === "detect-network-failed" && (
+                                <div className="mt-2 text-xs rounded bg-yellow-50 dark:bg-slate-800 text-yellow-900 dark:text-yellow-200 px-3 py-1">
+                                    ⚠️ Please connect your wallet before detecting the network.
                                 </div>
                             )}
                         </div>

@@ -5,13 +5,12 @@ const Lab01InteractionGR = () => {
     // Βοηθητικό: ανίχνευση δικτύου από το πορτοφόλι (window.ethereum)
     const detectNetworkFromWallet = async () => {
         if (!window.ethereum) return null;
-
         try {
+            const accounts = await window.ethereum.request({ method: "eth_accounts" });
+            if (!accounts || accounts.length === 0) return null;
             const chainId = await window.ethereum.request({ method: "eth_chainId" });
-
             if (chainId === "0x67932") return "Besu Edu-Net"; // 424242
             if (chainId === "0x1") return "Ethereum Mainnet";
-
             return `Άγνωστο δίκτυο (${chainId})`;
         } catch {
             return null;
@@ -33,7 +32,7 @@ const Lab01InteractionGR = () => {
     });
     const [lastAction, setLastAction] = useState(null);
 
-    // Χειριστής: ανίχνευση δικτύου (τώρα από πορτοφόλι, με fallback)
+    // Χειριστής: ανίχνευση δικτύου (τώρα απαιτεί συνδεδεμένο πορτοφόλι)
     const handleDetectNetwork = async () => {
         const detectedNetwork = await detectNetworkFromWallet();
         if (detectedNetwork) {
@@ -46,18 +45,17 @@ const Lab01InteractionGR = () => {
                     `Ανιχνεύθηκε ενεργό πλαίσιο δικτύου: ${detectedNetwork}`,
                 ],
             }));
+            setLastAction("detect-network");
         } else {
+            setLastAction("detect-network-failed");
             setLabState((s) => ({
                 ...s,
-                networkDetected: true,
-                activeNetwork: "Besu Edu-Net",
                 discoveredData: [
                     ...s.discoveredData,
-                    "Ανιχνεύθηκε πλαίσιο δικτύου: Besu Edu-Net (fallback — μη διαθέσιμη ανίχνευση από πορτοφόλι)",
+                    "Απαιτείται σύνδεση πορτοφολιού για ανίχνευση δικτύου.",
                 ],
             }));
         }
-        setLastAction("detect-network");
     };
 
     // Χειριστής: επιβεβαίωση διεύθυνσης
@@ -217,7 +215,7 @@ const Lab01InteractionGR = () => {
                         Lab 01 — Πορτοφόλια & Web3 Ταυτότητες
                     </h1>
                     <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
-                        Ανακάλυψε πώς μια Web3 ταυτότητα αναπαρίσταται από μια δημόσια διεύθυνση που διαχειρίζεται το πορτοφόλι και υπάρχει πριν από συναλλαγές, λογαριασμούς ή smart contracts.
+                        Ανακαλύψτε πώς μια Web3 ταυτότητα αναπαρίσταται από μια δημόσια διεύθυνση που διαχειρίζεται το πορτοφόλι και υπάρχει πριν από συναλλαγές, λογαριασμούς ή έξυπνα συμβόλαια.
                     </p>
                 </section>
 
@@ -276,6 +274,11 @@ const Lab01InteractionGR = () => {
                             {lastAction === "detect-network" && labState.activeNetwork && (
                                 <div className="mt-2 text-xs rounded bg-green-50 dark:bg-slate-800 text-green-700 dark:text-green-300 px-3 py-1">
                                     ✔ Ανιχνεύθηκε δίκτυο: {labState.activeNetwork}
+                                </div>
+                            )}
+                            {lastAction === "detect-network-failed" && (
+                                <div className="mt-2 text-xs rounded bg-yellow-50 dark:bg-slate-800 text-yellow-900 dark:text-yellow-200 px-3 py-1">
+                                    ⚠️ Παρακαλώ συνδέστε πρώτα το πορτοφόλι σας για να ανιχνευθεί το δίκτυο.
                                 </div>
                             )}
                         </div>
@@ -379,7 +382,7 @@ const Lab01InteractionGR = () => {
                                 Προβολή Σχέσης Κλειδιού–Διεύθυνσης
                             </button>
                             <div className="text-xs text-slate-500 dark:text-slate-400 italic mt-1">
-                                Κατανόησε πώς σχετίζονται τα κλειδιά με τη διεύθυνσή σου — χωρίς να αποκαλυφθούν κλειδιά.
+                                Κατανοήστε πώς σχετίζονται τα κλειδιά με τη διεύθυνσή σας — χωρίς να αποκαλυφθούν κλειδιά.
                             </div>
                             {labState.keyRelationshipRevealed === true && (
                                 <div className="mt-4 rounded bg-slate-50 dark:bg-slate-800 px-4 py-3">
@@ -398,7 +401,7 @@ const Lab01InteractionGR = () => {
                                             </div>
                                             <div className="flex flex-col items-center">
                                                 <span>👁️</span>
-                                                <span className="text-slate-500 dark:text-slate-400">η δημόσια ταυτότητά σου</span>
+                                                <span className="text-slate-500 dark:text-slate-400">η δημόσια ταυτότητά σας</span>
                                             </div>
                                         </div>
                                     </div>
@@ -556,7 +559,7 @@ const Lab01InteractionGR = () => {
                         <p className="text-slate-700 dark:text-slate-200">
                             Μια Web3 ταυτότητα αναπαρίσταται από μια δημόσια διεύθυνση που διαχειρίζεται ένα πορτοφόλι.<br />
                             Το πορτοφόλι διαχειρίζεται με ασφάλεια τα κρυπτογραφικά κλειδιά για λογαριασμό σας, ενώ η διεύθυνση λειτουργεί ως η ορατή ταυτότητά σας σε ένα συγκεκριμένο δίκτυο.<br />
-                            Αυτή η ταυτότητα υπάρχει πριν από οποιαδήποτε συναλλαγή, αλληλεπίδραση με smart contract ή εγγραφή λογαριασμού.<br />
+                            Αυτή η ταυτότητα υπάρχει πριν από οποιαδήποτε συναλλαγή, αλληλεπίδραση με έξυπνο συμβόλαιο ή εγγραφή λογαριασμού.<br />
                             Η ίδια διεύθυνση μπορεί να εμφανίζεται σε πολλαπλά δίκτυα, αλλά το νόημα και η εμπιστοσύνη της καθορίζονται από το πλαίσιο του δικτύου — όχι από usernames ή κεντρικοποιημένους λογαριασμούς.
                         </p>
                     ) : (

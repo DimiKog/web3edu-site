@@ -22,13 +22,13 @@ const Lab02GR = () => {
             ]}
             prerequisites={[
                 "Σύγχρονος browser (Chrome / Firefox / Brave)",
-                "Βασική κατανόηση wallets και διευθύνσεων (Εργαστήριο 01)",
+                "Βασική κατανόηση πορτοφολιών και διευθύνσεων (Lab 01)",
             ]}
             interactionPath="/labs-gr/lab02/interaction"
             readmeUrl="https://github.com/DimiKog/web3edu-labs/blob/main/lab-02-encrypted-messages/README.md"
             xp={150}
             badge="Εξερευνητής Κρυπτογράφησης"
-            completionMessage="Ολοκληρώθηκε το Εργαστήριο 02 — Κρυπτογραφημένα Μηνύματα"
+            completionMessage="Ολοκλήρωση Lab 02 — Κρυπτογραφημένα Μηνύματα"
             labels={{
                 tools: "Εργαλεία",
                 prerequisites: "Προαπαιτούμενα",

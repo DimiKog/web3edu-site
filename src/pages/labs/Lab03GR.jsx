@@ -21,14 +21,14 @@ const Lab03GR = () => {
             ]}
             prerequisites={[
                 "Σύγχρονος browser (Chrome / Firefox / Brave)",
-                "Κατανόηση πορτοφολιών και διευθύνσεων (Εργαστήριο 01)",
-                "Κατανόηση κλειδιών και εμπιστευτικότητας (Εργαστήριο 02)",
+                "Κατανόηση πορτοφολιών και διευθύνσεων (Lab 01)",
+                "Κατανόηση κλειδιών και εμπιστευτικότητας (Lab 02)",
             ]}
             interactionPath="/labs-gr/lab03/interaction"
             readmeUrl="https://github.com/DimiKog/web3edu-labs/blob/main/lab-03-message-signing/README.md"
             xp={150}
             badge="Αποδεικτής Ιδιοκτησίας"
-            completionMessage="Ολοκληρώθηκε το Εργαστήριο 03 — Υπογραφή Μηνυμάτων & Ιδιοκτησία"
+            completionMessage="Ολοκλήρωση Lab 03 — Υπογραφή Μηνυμάτων & Ιδιοκτησία"
             labels={{
                 breadcrumbLabs: "Εργαστήρια",
                 level: "Επίπεδο",

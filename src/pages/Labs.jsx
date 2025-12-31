@@ -1,3 +1,6 @@
+// Animation: When a lab is marked as completed, the "✓ Completed" badge animates in with a subtle fade and scale effect
+// using Tailwind's arbitrary value for the animation utility class: animate-[fadeInScale_300ms_ease-out].
+// This signals completion visually without disrupting layout or logic.
 import PageShell from "../components/PageShell.jsx";
 import { Link } from "react-router-dom";
 import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.png";
@@ -11,6 +14,31 @@ const Labs = () => {
     const [lab02Completed, setLab02Completed] = useState(false);
     const [lab03Completed, setLab03Completed] = useState(false);
     const [lab04Completed, setLab04Completed] = useState(false);
+    const [lab05Completed, setLab05Completed] = useState(false);
+    useEffect(() => {
+        if (!address) {
+            setLab05Completed(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab05`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setLab05Completed(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Failed to load Lab 05 status", err);
+                }
+            });
+
+        return () => controller.abort();
+    }, [address]);
     useEffect(() => {
         if (!address) {
             setLab01Completed(false);
@@ -164,7 +192,8 @@ const Labs = () => {
                                         <div className="absolute top-4 right-4 z-20">
                                             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full
                                                 bg-green-500/90 text-white text-xs font-semibold
-                                                shadow-lg backdrop-blur">
+                                                shadow-lg backdrop-blur
+                                                transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]">
                                                 ✓ Completed
                                             </span>
                                         </div>
@@ -256,6 +285,7 @@ const Labs = () => {
                                                     dark:bg-green-500/20 dark:text-green-300
                                                     ring-1 ring-green-400/30
                                                     whitespace-nowrap
+                                                    transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]
                                                 "
                                             >
                                                 ✓ Completed
@@ -326,6 +356,7 @@ const Labs = () => {
                                                     dark:bg-green-500/20 dark:text-green-300
                                                     ring-1 ring-green-400/30
                                                     whitespace-nowrap
+                                                    transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]
                                                 "
                                             >
                                                 ✓ Completed
@@ -377,6 +408,7 @@ const Labs = () => {
                                                     dark:bg-green-500/20 dark:text-green-300
                                                     ring-1 ring-green-400/30
                                                     whitespace-nowrap
+                                                    transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]
                                                 "
                                             >
                                                 ✓ Completed
@@ -401,12 +433,39 @@ const Labs = () => {
                             </div>
                             {/* 📜 First Smart Contract */}
                             <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
+                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm">
                                 <div className="flex items-center justify-between mb-3">
                                     <h3 className="text-lg font-semibold">Lab 05 — 📜 Smart Contracts & State</h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
-                                        Coming Soon
-                                    </span>
+                                    <div className="flex items-center gap-2 flex-nowrap">
+                                        <BadgeWithTooltip
+                                            label="Available"
+                                            variant="success"
+                                            tooltip={
+                                                <>
+                                                    Smart contracts<br />
+                                                    • On-chain state<br />
+                                                    • Read & write calls
+                                                </>
+                                            }
+                                        />
+                                        {lab05Completed && (
+                                            <span
+                                                className="
+                                                    inline-flex items-center gap-1
+                                                    px-2 py-0.5
+                                                    text-xs font-semibold
+                                                    rounded-full
+                                                    bg-green-100 text-green-700
+                                                    dark:bg-green-500/20 dark:text-green-300
+                                                    ring-1 ring-green-400/30
+                                                    whitespace-nowrap
+                                                    transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]
+                                                "
+                                            >
+                                                ✓ Completed
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
                                     Deploy and interact with your first smart contract to understand on-chain state and execution.

@@ -36,9 +36,9 @@ const INCOMING_MESSAGE = {
     sbtImage: "https://bronze-secondary-catfish-124.mypinata.cloud/ipfs/bafybeihnyrl6wrvqmt5moatkztryx32pux7l2f2lkcopoz53frije6ztui",
     address: "0x0E66db7d115B8F392eB7DFb8BaCb23675dAEB59E", // placeholder
     message:
-        "👋 Γεια σου από το Web3Edu!\n\nΜόλις επαλήθευσες μια πραγματική κρυπτογραφική υπογραφή.\n\nΑυτό το μήνυμα αποδεικνύει ιδιοκτησία, όχι ταυτότητα.\n\nΤώρα επαλήθευσε ποιος το έστειλε.",
+        "👋 Γεια σας από το Web3Edu!\n\nΜόλις επαληθεύσατε μια πραγματική κρυπτογραφική υπογραφή.\n\nΑυτό το μήνυμα αποδεικνύει ιδιοκτησία, όχι ταυτότητα.\n\nΤώρα επαληθεύστε ποιος το έστειλε.",
     signedMessage:
-        "👋 Γεια σου από το Web3Edu!\n\nΜόλις επαλήθευσες μια πραγματική κρυπτογραφική υπογραφή.\n\nΑυτό το μήνυμα αποδεικνύει ιδιοκτησία, όχι ταυτότητα.\n\nΤώρα επαλήθευσε ποιος το έστειλε.",
+        "👋 Γεια σας από το Web3Edu!\n\nΜόλις επαληθεύσατε μια πραγματική κρυπτογραφική υπογραφή.\n\nΑυτό το μήνυμα αποδεικνύει ιδιοκτησία, όχι ταυτότητα.\n\nΤώρα επαληθεύστε ποιος το έστειλε.",
     signature: "0x003b342acf2581a2c301380f1e3910d4f930f37abb7140d8c3e9429daa5e5e5e6dad49b6fa07035d36ddf1c8f55bd20d5dd0e27e3cdd302e04db15e87f7d6f3d1c",
     hasValidSignature: true,
 };
@@ -194,7 +194,7 @@ const Lab03InteractionGR = () => {
                         Lab 03 — Υπογραφή Μηνύματος & Ιδιοκτησία
                     </h1>
                     <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
-                        Απόδειξε ιδιοκτησία και πρόθεση χρησιμοποιώντας κρυπτογραφικές υπογραφές — χωρίς να αποκαλύψεις ιδιωτικά κλειδιά ή να στείλεις συναλλαγές.
+                        Αποδείξτε ιδιοκτησία και πρόθεση χρησιμοποιώντας κρυπτογραφικές υπογραφές — χωρίς να αποκαλύψετε ιδιωτικά κλειδιά ή να στείλετε συναλλαγές.
                     </p>
                 </header>
 
@@ -203,7 +203,7 @@ const Lab03InteractionGR = () => {
                                     p-5 bg-slate-50 dark:bg-slate-900/40">
                     <h2 className="font-semibold mb-2">🎯 Στόχος</h2>
                     <p>
-                        Υπόγραψε ένα μήνυμα και επαλήθευσε την υπογραφή για να αποδείξεις την ιδιοκτησία μιας Web3 ταυτότητας.
+                        Υπογράψτε ένα μήνυμα και επαληθεύστε την υπογραφή για να αποδείξετε την ιδιοκτησία μιας Web3 ταυτότητας.
                     </p>
                 </section>
 
@@ -232,7 +232,7 @@ const Lab03InteractionGR = () => {
 
                     {/* Action 1 — Provide Message */}
                     <div>
-                        <h3 className="font-semibold mb-2">1️⃣ Δώσε ένα μήνυμα</h3>
+                        <h3 className="font-semibold mb-2">1️⃣ Δώστε ένα μήνυμα</h3>
                         <textarea
                             value={labState.message.text}
                             onChange={handleMessageChange}
@@ -242,13 +242,13 @@ const Lab03InteractionGR = () => {
                                        bg-white dark:bg-slate-800
                                        placeholder-slate-400
                                        focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Γράψε οποιοδήποτε μήνυμα θέλεις να υπογράψεις…"
+                            placeholder="Γράψτε οποιοδήποτε μήνυμα θέλετε να υπογράψετε…"
                         />
                     </div>
 
                     {/* Action 2 — Sign Message */}
                     <div>
-                        <h3 className="font-semibold mb-2">2️⃣ Υπόγραψε το μήνυμα</h3>
+                        <h3 className="font-semibold mb-2">2️⃣ Υπογράψτε το μήνυμα</h3>
                         <div className="flex gap-3">
                             <button
                                 disabled={!labState.message.provided || !isConnected}
@@ -258,7 +258,7 @@ const Lab03InteractionGR = () => {
                                     : "bg-indigo-300 cursor-not-allowed"
                                     }`}
                             >
-                                Υπόγραψε με Πορτοφόλι
+                                Υπογράψτε με Πορτοφόλι
                             </button>
                             <button
                                 disabled={!labState.message.provided}
@@ -268,12 +268,12 @@ const Lab03InteractionGR = () => {
                                     : "bg-indigo-300 cursor-not-allowed"
                                     }`}
                             >
-                                Υπόγραψε με Ιδιωτικό Κλειδί
+                                Υπογράψτε με Ιδιωτικό Κλειδί
                             </button>
                         </div>
                         {!isConnected && (
                             <p className="text-xs text-slate-500 mt-1">
-                                Σύνδεσε το πορτοφόλι σου για να υπογράψεις με Web3 ταυτότητα.
+                                Συνδέστε το πορτοφόλι σας για να υπογράψετε με Web3 ταυτότητα.
                             </p>
                         )}
                         {/* Visual feedback for message signing */}
@@ -286,7 +286,7 @@ const Lab03InteractionGR = () => {
 
                     {/* Action 3 — Verify Signature */}
                     <div>
-                        <h3 className="font-semibold mb-2">3️⃣ Επαλήθευσε την υπογραφή</h3>
+                        <h3 className="font-semibold mb-2">3️⃣ Επαληθεύστε την υπογραφή</h3>
                         {!labState.verification.verified ? (
                             <button
                                 disabled={!labState.signing.signed}
@@ -339,8 +339,8 @@ const Lab03InteractionGR = () => {
                         <h2 className="font-semibold text-lg">📩 Εισερχόμενο Υπογεγραμμένο Μήνυμα</h2>
 
                         <p className="text-sm text-slate-700 dark:text-slate-300">
-                            Κάποιος σου έστειλε ένα υπογεγραμμένο μήνυμα. Πριν το εμπιστευτείς, πρέπει
-                            να επαληθεύσεις ποιος το υπέγραψε.
+                            Κάποιος σας έστειλε ένα υπογεγραμμένο μήνυμα. Πριν το εμπιστευτείτε, πρέπει
+                            να επαληθεύσετε ποιος το υπέγραψε.
                         </p>
 
                         <div className="rounded-md border border-slate-300 dark:border-slate-600
@@ -467,7 +467,7 @@ const Lab03InteractionGR = () => {
                                         p-5 bg-slate-50 dark:bg-slate-900/40">
                         <h2 className="font-semibold mb-2">🏁 Πρόκληση</h2>
                         <p className="text-sm">
-                            Μπορείς να αποδείξεις σε έναν φίλο ότι έχεις ένα Web3 address χωρίς να του στείλεις ETH ή να αποκαλύψεις το ιδιωτικό σου κλειδί;
+                            Μπορείτε να αποδείξετε σε έναν φίλο ότι έχετε ένα Web3 address χωρίς να του στείλετε ETH ή να αποκαλύψετε το ιδιωτικό σας κλειδί;
                         </p>
                     </section>
                 )}
@@ -479,10 +479,10 @@ const Lab03InteractionGR = () => {
                                         bg-green-50 dark:bg-green-900/30 p-6 mt-6 flex flex-col items-center text-center">
                             <h2 className="text-2xl font-bold mb-2 text-green-600 dark:text-green-400">🎉 Το Lab ολοκληρώθηκε</h2>
                             <p className="text-green-700 dark:text-green-300 font-semibold mb-2">
-                                Ολοκλήρωσες το Lab 03 — Υπογραφή Μηνύματος &amp; Ιδιοκτησία.
+                                Ολοκληρώσατε το Lab 03 — Υπογραφή Μηνύματος &amp; Ιδιοκτησία.
                             </p>
                             <p className="mb-4 text-slate-800 dark:text-slate-200 text-sm max-w-lg">
-                                Επαλήθευσες επιτυχώς την ιδιοκτησία ενός Web3 address και εμπιστεύτηκες ένα υπογεγραμμένο μήνυμα από άλλο μέρος — όλα χωρίς καμία συναλλαγή στο blockchain ή αποκάλυψη του ιδιωτικού σου κλειδιού. Αυτό είναι το θεμέλιο του Web3 authentication!
+                                Επαληθεύσατε επιτυχώς την ιδιοκτησία ενός Web3 address και εμπιστευθήκατε ένα υπογεγραμμένο μήνυμα από άλλο μέρος — όλα χωρίς καμία συναλλαγή στο blockchain ή αποκάλυψη του ιδιωτικού σας κλειδιού. Αυτό είναι το θεμέλιο του Web3 authentication!
                             </p>
                             <a
                                 href="/#/labs-gr/lab03"
