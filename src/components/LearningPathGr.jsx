@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const LearningPath = ({ content }) => (
     <section className="mt-12 rounded-2xl border border-slate-200/40 bg-gradient-to-br from-[#F6F1FF] via-white to-[#EAF8FF] p-6 shadow-sm backdrop-blur-sm dark:border-slate-700/40 dark:bg-gradient-to-br dark:from-[#0A0F1A] dark:via-[#111626] dark:to-[#131B2D]">
         <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
@@ -23,6 +25,14 @@ const LearningPath = ({ content }) => (
                     <p className="mt-3 text-base text-slate-600 dark:text-slate-400">{step.desc}</p>
                 </div>
             ))}
+        </div>
+        <div className="mt-10 flex justify-center">
+            <Link
+                to="/start-here-gr"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#8A57FF] to-[#4ACBFF] px-6 py-3 text-base font-semibold text-white shadow-md hover:shadow-lg hover:scale-[1.02] transition"
+            >
+                🚀 Ξεκίνα το Web3 ταξίδι σου
+            </Link>
         </div>
     </section>
 );

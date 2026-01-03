@@ -33,23 +33,23 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
         steps: [
             {
                 emoji: "🪪",
-                title: "Access the DAO",
-                desc: "Get your Web3 identity and gain access to the learner-driven DAO.",
-            },
-            {
-                emoji: "📘",
-                title: "Learn",
-                desc: "Master blockchain fundamentals through hands-on labs and real examples.",
+                title: "Identity & Fundamentals",
+                desc: "Establish your Web3 learning identity and grasp the core blockchain concepts."
             },
             {
                 emoji: "🏛️",
-                title: "Participate",
-                desc: "Vote, propose ideas, collaborate, and contribute to real experiments.",
+                title: "Access the DAO",
+                desc: "Join the Web3Edu DAO and unlock participation in a learner-driven ecosystem."
+            },
+            {
+                emoji: "📘",
+                title: "Learn by Doing",
+                desc: "Explore blockchain concepts through hands-on labs and guided experiments."
             },
             {
                 emoji: "🛠️",
-                title: "Build",
-                desc: "Turn concepts into prototypes and build your own Web3 applications.",
+                title: "Build & Contribute",
+                desc: "Apply what you learned by building prototypes and shaping what comes next."
             }
         ],
         ctaLabel: "Start Your Web3 Journey →",
@@ -60,11 +60,11 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
     // -------------------------
     dao: {
         title: "Web3Edu DAO — The Governance Layer",
-        desc: "The Web3Edu DAO connects educators, students, and researchers in shaping the future of blockchain education. Members propose improvements, vote on new modules, and help guide the evolution of the platform.",
-        imageCaption: "A living governance layer where students, mentors and partners vote on the evolution of the Web3Edu ecosystem.",
+        desc: "The Web3Edu DAO connects educators, students, and researchers in shaping the future of blockchain education. Members propose improvements, vote on new modules, and directly shape the platform’s evolution.",
+        imageCaption: "A living governance layer where students, mentors and partners collectively shape the evolution of the Web3Edu ecosystem.",
         buttons: {
-            learn: "Learn About the DAO",
-            enter: "Enter the DAO",
+            learn: "Learn About the Governance Model",
+            enter: "Explore DAO",
         },
     },
 

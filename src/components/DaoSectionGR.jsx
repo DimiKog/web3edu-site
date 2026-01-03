@@ -15,7 +15,7 @@ const DaoSection = ({ content }) => (
                 {content.buttons.learn} ↗
             </a>
             <a
-                href="/#/dao"
+                href="/#/dao-preview"
                 className="inline-flex items-center gap-2 rounded-full border border-transparent bg-[#8A57FF] px-4 py-2 text-sm font-medium text-white shadow-[0_0_15px_rgba(138,87,255,0.45)] hover:bg-[#7A4DE5] hover:shadow-[0_0_18px_rgba(138,87,255,0.55)] dark:bg-[#8A57FF]/90"
             >
                 {content.buttons.enter} ↗

@@ -14,7 +14,7 @@ const Lab04 = () => {
             }
             heroImage={lab04HeroImg}
             level="Beginner"
-            estimatedTime="15–25 minutes"
+            estimatedTime="15–20 minutes"
             tools={[
                 "Wallet (MetaMask or equivalent)",
                 "Besu Edu-Net RPC",

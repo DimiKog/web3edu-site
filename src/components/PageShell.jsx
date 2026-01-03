@@ -239,33 +239,6 @@ export default function PageShell({
   after:transition-transform hover:after:scale-x-100">Ομάδα</a>
 
 
-                <span className="text-[10px] px-2 py-0.5 rounded-full 
-    border border-indigo-300/30 dark:border-indigo-300/40
-    bg-indigo-500/10 dark:bg-indigo-500/20
-    text-indigo-600 dark:text-indigo-200">
-                  Μαθήματα Σύντομα
-                </span>
-
-                <span className="text-[10px] px-2 py-0.5 rounded-full 
-    border border-indigo-300/30 dark:border-indigo-300/40
-    bg-indigo-500/10 dark:bg-indigo-500/20
-    text-indigo-600 dark:text-indigo-200">
-                  Workshops Σύντομα
-                </span>
-
-                <span className="text-[10px] px-2 py-0.5 rounded-full 
-    border border-indigo-300/30 dark:border-indigo-300/40
-    bg-indigo-500/10 dark:bg-indigo-500/20
-    text-indigo-600 dark:text-indigo-200">
-                  Εργαλεία Σύντομα
-                </span>
-
-                <span className="text-[10px] px-2 py-0.5 rounded-full 
-    border border-indigo-300/30 dark:border-indigo-300/40
-    bg-indigo-500/10 dark:bg-indigo-500/20
-    text-indigo-600 dark:text-indigo-200">
-                  Κοινότητα Σύντομα
-                </span>
               </>
             ) : (
               <>
@@ -308,33 +281,6 @@ export default function PageShell({
   after:from-[#7b3df8] after:to-[#00d4ff]
   after:transition-transform hover:after:scale-x-100">Team</a>
 
-                <span className="text-[10px] px-2 py-0.5 rounded-full 
-    border border-indigo-300/30 dark:border-indigo-300/40
-    bg-indigo-500/10 dark:bg-indigo-500/20
-    text-indigo-600 dark:text-indigo-200">
-                  Courses Soon
-                </span>
-
-                <span className="text-[10px] px-2 py-0.5 rounded-full 
-    border border-indigo-300/30 dark:border-indigo-300/40
-    bg-indigo-500/10 dark:bg-indigo-500/20
-    text-indigo-600 dark:text-indigo-200">
-                  Workshops Soon
-                </span>
-
-                <span className="text-[10px] px-2 py-0.5 rounded-full 
-    border border-indigo-300/30 dark:border-indigo-300/40
-    bg-indigo-500/10 dark:bg-indigo-500/20
-    text-indigo-600 dark:text-indigo-200">
-                  Tools Soon
-                </span>
-
-                <span className="text-[10px] px-2 py-0.5 rounded-full 
-    border border-indigo-300/30 dark:border-indigo-300/40
-    bg-indigo-500/10 dark:bg-indigo-500/20
-    text-indigo-600 dark:text-indigo-200">
-                  Community Soon
-                </span>
               </>
             )}
           </div>

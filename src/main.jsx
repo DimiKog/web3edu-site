@@ -58,7 +58,10 @@ import Lab05 from './pages/labs/Lab05.jsx';
 import Lab05GR from './pages/labs/Lab05GR.jsx';
 import Lab05Interaction from './pages/labs/Lab05Interaction.jsx';
 import Lab05InteractionGR from './pages/labs/Lab05InteractionGR.jsx';
-
+import Lab06 from './pages/labs/Lab06.jsx';
+import Lab06GR from './pages/labs/Lab06GR.jsx';
+import Lab06Interaction from './pages/labs/Lab06Interaction.jsx';
+import Lab06InteractionGR from './pages/labs/Lab06InteractionGR.jsx';
 
 // Besu Edu-Net chain config
 const web3EduChain = {
@@ -145,6 +148,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs-gr/lab05" element={<Lab05GR />} />
               <Route path="/labs/lab05/interaction" element={<Lab05Interaction />} />
               <Route path="/labs-gr/lab05/interaction" element={<Lab05InteractionGR />} />
+              <Route path="/labs/lab06" element={<Lab06 />} />
+              <Route path="/labs/lab06/interaction" element={<Lab06Interaction />} />
+              <Route path="/labs-gr/lab06" element={<Lab06GR />} />
+              <Route path="/labs-gr/lab06/interaction" element={<Lab06InteractionGR />} />
             </Routes>
           </HashRouter>
         </RainbowKitProvider>

@@ -191,7 +191,7 @@ const Lab03InteractionGR = () => {
                 {/* Header */}
                 <header>
                     <h1 className="text-3xl font-extrabold mb-2">
-                        Lab 03 — Υπογραφή Μηνύματος & Ιδιοκτησία
+                        Lab 03 — Υπογραφή Μηνυμάτων & Ιδιοκτησία
                     </h1>
                     <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
                         Αποδείξτε ιδιοκτησία και πρόθεση χρησιμοποιώντας κρυπτογραφικές υπογραφές — χωρίς να αποκαλύψετε ιδιωτικά κλειδιά ή να στείλετε συναλλαγές.
@@ -479,7 +479,7 @@ const Lab03InteractionGR = () => {
                                         bg-green-50 dark:bg-green-900/30 p-6 mt-6 flex flex-col items-center text-center">
                             <h2 className="text-2xl font-bold mb-2 text-green-600 dark:text-green-400">🎉 Το Lab ολοκληρώθηκε</h2>
                             <p className="text-green-700 dark:text-green-300 font-semibold mb-2">
-                                Ολοκληρώσατε το Lab 03 — Υπογραφή Μηνύματος &amp; Ιδιοκτησία.
+                                Ολοκληρώσατε το Lab 03 — Υπογραφή Μηνυμάτων &amp; Ιδιοκτησία.
                             </p>
                             <p className="mb-4 text-slate-800 dark:text-slate-200 text-sm max-w-lg">
                                 Επαληθεύσατε επιτυχώς την ιδιοκτησία ενός Web3 address και εμπιστευθήκατε ένα υπογεγραμμένο μήνυμα από άλλο μέρος — όλα χωρίς καμία συναλλαγή στο blockchain ή αποκάλυψη του ιδιωτικού σας κλειδιού. Αυτό είναι το θεμέλιο του Web3 authentication!

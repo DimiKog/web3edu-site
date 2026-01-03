@@ -1,5 +1,6 @@
 import { Puzzle, BadgeCheck, Landmark, GraduationCap, Eye } from "lucide-react";
 import { CARD_BACKGROUND_MAP } from "../design/theme.js";
+import { Link } from "react-router-dom";
 
 const iconMap = {
     poe: Puzzle,
@@ -17,9 +18,9 @@ const AppsGrid = ({ content }) => (
             const backgrounds = CARD_BACKGROUND_MAP.indigo;
 
             return (
-                <a
+                <Link
                     key={key}
-                    href={`/#/${key}`}
+                    to={`/${key}`}
                     className="group rounded-2xl bg-white/80 p-6 shadow-sm border text-left 
                                hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_16px_40px_rgba(138,87,255,0.25)] 
                                transition-all dark:bg-slate-900/60"
@@ -39,7 +40,7 @@ const AppsGrid = ({ content }) => (
                     <div className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-[#8A57FF] dark:text-[#CBB2FF]">
                         {content.cta} →
                     </div>
-                </a>
+                </Link>
             );
         })}
     </section>

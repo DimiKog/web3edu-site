@@ -14,7 +14,7 @@ const Lab05GR = () => {
             }
             heroImage={lab05HeroImg}
             level="Αρχάριο"
-            estimatedTime="20–30 λεπτά"
+            estimatedTime="15-20 λεπτά"
             tools={[
                 "Πορτοφόλι (MetaMask ή αντίστοιχο)",
                 "Besu Edu-Net RPC",

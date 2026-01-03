@@ -3,7 +3,13 @@ import daoHolo from "../assets/dao-holo.png";
 
 const DEFAULT_CAPTION = "A living governance layer where students, mentors and partners vote on the evolution of the Web3Edu ecosystem.";
 
-const DaoSection = ({ content, badgeLabel = "Community Governance" }) => (
+const DEFAULT_STATUS = "preview"; // "preview" | "coming-soon" | "active"
+
+const DaoSection = ({
+    content,
+    badgeLabel = "Community Governance",
+    status = DEFAULT_STATUS,
+}) => (
     <section className="relative mt-16 overflow-hidden rounded-3xl border border-[#8A57FF]/25 dark:border-[#8A57FF]/30 shadow-2xl">
 
         {/* Background image + overlay */}
@@ -48,6 +54,13 @@ const DaoSection = ({ content, badgeLabel = "Community Governance" }) => (
                     {/* eyebrow badge */}
                     <SectionBadge label={badgeLabel} variant="dark" className="mb-2" />
 
+                    {/* status badge */}
+                    {status !== "active" && (
+                        <div className="mt-2 inline-flex items-center rounded-full border border-yellow-400/40 bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-300">
+                            {status === "preview" ? "Preview" : "Coming Soon"}
+                        </div>
+                    )}
+
                     {/* Title */}
                     <h2 className="mt-4 text-3xl font-bold tracking-tight text-white md:text-5xl">
                         {content.title}
@@ -61,10 +74,10 @@ const DaoSection = ({ content, badgeLabel = "Community Governance" }) => (
                     {/* Buttons */}
                     <div className="mt-6 flex flex-wrap gap-4">
                         <a
-                            href="/#/dao"
+                            href={status === "active" ? "/#/dao" : "/#/dao-preview"}
                             className="inline-flex items-center gap-2 rounded-full bg-[#8A57FF] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_0_15px_rgba(138,87,255,0.45)] transition hover:bg-[#7A4DE5] hover:shadow-[0_0_18px_rgba(138,87,255,0.55)]"
                         >
-                            {content.buttons.enter} ↗
+                            {status === "active" ? content.buttons.enter : "Explore DAO (Preview)"} ↗
                         </a>
 
                         <a

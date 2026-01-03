@@ -32,6 +32,8 @@ const HomePageLayout = ({
     daoBadgeLabel = "Community Governance",
     appsBadgeLabel = "Developer’s Corner",
 }) => {
+    const isGreek = heroContent?.lang === "gr";
+
     return (
         <>
             {heroContent?.lang === "gr" ? <HeroGR content={heroContent} /> : <Hero content={heroContent} />}
@@ -116,7 +118,11 @@ const HomePageLayout = ({
 
                 <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
                 <div className="w-full px-6 opacity-0 animate-fadeInSlow duration-500">
-                    <LearningPath content={learnPathContent} badgeLabel={learnBadgeLabel} />
+                    <LearningPath
+                        content={learnPathContent}
+                        badgeLabel={learnBadgeLabel}
+                        ctaHref={isGreek ? "/#/start-here-gr" : "/#/start-here"}
+                    />
                 </div>
                 <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
 

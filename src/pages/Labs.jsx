@@ -15,6 +15,31 @@ const Labs = () => {
     const [lab03Completed, setLab03Completed] = useState(false);
     const [lab04Completed, setLab04Completed] = useState(false);
     const [lab05Completed, setLab05Completed] = useState(false);
+    const [lab06Completed, setLab06Completed] = useState(false);
+    useEffect(() => {
+        if (!address) {
+            setLab06Completed(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab06`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setLab06Completed(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Failed to load Lab 06 status", err);
+                }
+            });
+
+        return () => controller.abort();
+    }, [address]);
     useEffect(() => {
         if (!address) {
             setLab05Completed(false);
@@ -158,7 +183,7 @@ const Labs = () => {
                 {/* How Labs Work */}
                 <section className="mb-14">
                     <h2 className="text-xl font-semibold mb-4">
-                        How Labs work
+                        How Labs Work
                     </h2>
                     <ul className="space-y-2 text-slate-600 dark:text-slate-300">
                         <li>• Hands-on exercises using real Web3 infrastructure</li>
@@ -176,6 +201,42 @@ const Labs = () => {
                         <p className="max-w-3xl mb-8 text-slate-600 dark:text-slate-300">
                             Build your Web3 identity and core mental models before touching transactions or smart contracts.
                         </p>
+
+                        {/* 📊 Foundational Labs Progress */}
+                        <div className="mb-10">
+                            {(() => {
+                                const completedCount = [
+                                    lab01Completed,
+                                    lab02Completed,
+                                    lab03Completed,
+                                    lab04Completed,
+                                    lab05Completed,
+                                    lab06Completed,
+                                ].filter(Boolean).length;
+
+                                const progressPercent = Math.round((completedCount / 6) * 100);
+
+                                return (
+                                    <div className="max-w-xl">
+                                        <div className="flex items-center justify-between mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                            <span>Foundational Labs Progress</span>
+                                            <span>{completedCount} / 6 completed</span>
+                                        </div>
+                                        <div className="h-2 w-full rounded-full bg-slate-200/70 dark:bg-slate-700/60 overflow-hidden">
+                                            <div
+                                                className="h-full bg-indigo-500 rounded-full transition-all duration-500 ease-out"
+                                                style={{ width: `${progressPercent}%` }}
+                                            />
+                                        </div>
+                                        {completedCount === 6 && (
+                                            <p className="mt-2 text-xs font-semibold text-green-600 dark:text-green-400">
+                                                🎉 All foundational labs completed!
+                                            </p>
+                                        )}
+                                    </div>
+                                );
+                            })()}
+                        </div>
 
                         <div className="space-y-20">
                             {/* 👛 Wallets & Web3 Identity — Featured Card */}
@@ -215,6 +276,9 @@ const Labs = () => {
                                                 <h3 className="text-2xl font-bold mb-3">
                                                     Lab 01 — Wallets & Web3 Identity
                                                 </h3>
+                                                <p className="text-xs italic text-slate-600/90 dark:text-slate-300/80 mb-4">
+                                                    Pedagogy hint: Your wallet is your Web3 identity — before transactions ever happen.
+                                                </p>
                                                 <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-xl">
                                                     Understand how wallets and addresses establish Web3 identity
                                                     on a permissioned Ethereum network — before transactions,
@@ -250,18 +314,15 @@ const Labs = () => {
                             {/* Secondary grid of foundational labs */}
                         </div>
                         <div className="h-8 lg:h-12"></div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                             {/* 🔐 Encrypted Messages Lab */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/80 dark:bg-slate-900/60 p-6 shadow-sm
-                          hover:shadow-lg hover:-translate-y-1 transition-all
-                          overflow-visible">
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all overflow-visible">
                                 <div className="flex items-center justify-between mb-3 gap-2">
                                     <h3 className="text-lg font-semibold">
                                         Lab 02 — 🔐 Encrypted Messages
                                     </h3>
-
                                     <div className="flex items-center gap-2 flex-nowrap">
+                                        {/* 1. Available */}
                                         <BadgeWithTooltip
                                             label="Available"
                                             variant="success"
@@ -272,51 +333,34 @@ const Labs = () => {
                                                     • No smart contracts
                                                 </>
                                             }
+                                            className="rounded-full text-xs whitespace-nowrap"
                                         />
-
+                                        {/* 2. Completed */}
                                         {lab02Completed && (
                                             <span
-                                                className="
-                                                    inline-flex items-center gap-1
-                                                    px-2 py-0.5
-                                                    text-xs font-semibold
-                                                    rounded-full
-                                                    bg-green-100 text-green-700
-                                                    dark:bg-green-500/20 dark:text-green-300
-                                                    ring-1 ring-green-400/30
-                                                    whitespace-nowrap
-                                                    transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]
-                                                "
+                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
                                             >
                                                 ✓ Completed
                                             </span>
                                         )}
-
+                                        {/* 3. NEXT */}
                                         {showLab02Next && (
                                             <span
                                                 title="Recommended next lab after completing Lab 01"
-                                                className="
-                                                    inline-flex items-center gap-1
-                                                    px-2 py-0.5
-                                                    text-xs font-semibold uppercase tracking-wide
-                                                    rounded-full
-                                                    bg-indigo-100 text-indigo-700
-                                                    dark:bg-indigo-500/20 dark:text-indigo-300
-                                                    ring-1 ring-indigo-400/30
-                                                    whitespace-nowrap
-                                                "
+                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap uppercase tracking-wide bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 ring-1 ring-indigo-400/30 font-semibold"
                                             >
                                                 ⭐ NEXT
                                             </span>
                                         )}
                                     </div>
                                 </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Learn how encrypted communication works in Web3 using public‑key cryptography,
-                                    cryptographic identities, and off‑chain message encryption — without relying on
-                                    blockchain transactions or Smart Contracts.
+                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
+                                    Pedagogy hint: <span className="not-italic">Privacy in Web3 starts off‑chain with encryption.</span>
                                 </p>
-                                <div className="flex items-center justify-between">
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
+                                    Learn how encrypted communication works in Web3 using public‑key cryptography and off‑chain message encryption — without blockchain transactions or smart contracts.
+                                </p>
+                                <div className="flex items-center justify-between mt-auto">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                         Beginner
                                     </span>
@@ -329,11 +373,11 @@ const Labs = () => {
                                 </div>
                             </div>
                             {/* ✍️ Message Signing */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm">
-                                <div className="flex items-center justify-between mb-3">
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                                <div className="flex items-center justify-between mb-3 gap-2">
                                     <h3 className="text-lg font-semibold">Lab 03 — ✍️ Message Signing & Ownership</h3>
                                     <div className="flex items-center gap-2 flex-nowrap">
+                                        {/* 1. Available */}
                                         <BadgeWithTooltip
                                             label="Available"
                                             variant="success"
@@ -344,31 +388,26 @@ const Labs = () => {
                                                     • No transactions
                                                 </>
                                             }
+                                            className="rounded-full text-xs whitespace-nowrap"
                                         />
+                                        {/* 2. Completed */}
                                         {lab03Completed && (
                                             <span
-                                                className="
-                                                    inline-flex items-center gap-1
-                                                    px-2 py-0.5
-                                                    text-xs font-semibold
-                                                    rounded-full
-                                                    bg-green-100 text-green-700
-                                                    dark:bg-green-500/20 dark:text-green-300
-                                                    ring-1 ring-green-400/30
-                                                    whitespace-nowrap
-                                                    transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]
-                                                "
+                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
                                             >
                                                 ✓ Completed
                                             </span>
                                         )}
+                                        {/* 3. NEXT (never shown for Lab 03, but keep order for consistency) */}
                                     </div>
                                 </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Learn how cryptographic signatures prove ownership and intent without revealing
-                                    private keys or requiring on‑chain transactions.
+                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
+                                    Pedagogy hint: <span className="not-italic">Signatures prove ownership and intent without spending gas.</span>
                                 </p>
-                                <div className="flex items-center justify-between">
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
+                                    Learn how cryptographic signatures prove ownership and intent — without revealing private keys or sending on‑chain transactions.
+                                </p>
+                                <div className="flex items-center justify-between mt-auto">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                         Beginner
                                     </span>
@@ -381,11 +420,11 @@ const Labs = () => {
                                 </div>
                             </div>
                             {/* ⛽ Transactions & Gas */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm">
-                                <div className="flex items-center justify-between mb-3">
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                                <div className="flex items-center justify-between mb-3 gap-2">
                                     <h3 className="text-lg font-semibold">Lab 04 — ⛽ Transactions & Gas</h3>
                                     <div className="flex items-center gap-2 flex-nowrap">
+                                        {/* 1. Available */}
                                         <BadgeWithTooltip
                                             label="Available"
                                             variant="success"
@@ -396,32 +435,28 @@ const Labs = () => {
                                                     • State changes
                                                 </>
                                             }
+                                            className="rounded-full text-xs whitespace-nowrap"
                                         />
+                                        {/* 2. Completed */}
                                         {lab04Completed && (
                                             <span
-                                                className="
-                                                    inline-flex items-center gap-1
-                                                    px-2 py-0.5
-                                                    text-xs font-semibold
-                                                    rounded-full
-                                                    bg-green-100 text-green-700
-                                                    dark:bg-green-500/20 dark:text-green-300
-                                                    ring-1 ring-green-400/30
-                                                    whitespace-nowrap
-                                                    transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]
-                                                "
+                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
                                             >
                                                 ✓ Completed
                                             </span>
                                         )}
+                                        {/* 3. NEXT (never shown for Lab 04, but keep order for consistency) */}
                                     </div>
                                 </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Send your first blockchain transaction and understand how gas, execution, and state changes work on-chain.
+                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
+                                    Pedagogy hint: <span className="not-italic">On‑chain actions cost gas and permanently change state.</span>
                                 </p>
-                                <div className="flex items-center justify-between">
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
+                                    Interact with your first blockchain transaction and learn how gas, execution, and state changes work on-chain.
+                                </p>
+                                <div className="flex items-center justify-between mt-auto">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Beginner → Intermediate
+                                        Beginner
                                     </span>
                                     <Link
                                         to="/labs/lab04"
@@ -432,47 +467,43 @@ const Labs = () => {
                                 </div>
                             </div>
                             {/* 📜 First Smart Contract */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm">
-                                <div className="flex items-center justify-between mb-3">
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                                <div className="flex items-center justify-between mb-3 gap-2">
                                     <h3 className="text-lg font-semibold">Lab 05 — 📜 Smart Contracts & State</h3>
                                     <div className="flex items-center gap-2 flex-nowrap">
+                                        {/* 1. Available */}
                                         <BadgeWithTooltip
                                             label="Available"
                                             variant="success"
                                             tooltip={
                                                 <>
-                                                    Smart contracts<br />
-                                                    • On-chain state<br />
+                                                    Smart contract interaction<br />
+                                                    • On‑chain state<br />
                                                     • Read & write calls
                                                 </>
                                             }
+                                            className="rounded-full text-xs whitespace-nowrap"
                                         />
+                                        {/* 2. Completed */}
                                         {lab05Completed && (
                                             <span
-                                                className="
-                                                    inline-flex items-center gap-1
-                                                    px-2 py-0.5
-                                                    text-xs font-semibold
-                                                    rounded-full
-                                                    bg-green-100 text-green-700
-                                                    dark:bg-green-500/20 dark:text-green-300
-                                                    ring-1 ring-green-400/30
-                                                    whitespace-nowrap
-                                                    transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]
-                                                "
+                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
                                             >
                                                 ✓ Completed
                                             </span>
                                         )}
+                                        {/* 3. NEXT (never shown for Lab 05, but keep order for consistency) */}
                                     </div>
                                 </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Deploy and interact with your first smart contract to understand on-chain state and execution.
+                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
+                                    Pedagogy hint: <span className="not-italic">READ is a free call; WRITE is a transaction.</span>
                                 </p>
-                                <div className="flex items-center justify-between">
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
+                                    Interact with a real smart contract and learn how on‑chain state, reads, and writes work.
+                                </p>
+                                <div className="flex items-center justify-between mt-auto">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Intermediate
+                                        Beginner
                                     </span>
                                     <Link
                                         to="/labs/lab05"
@@ -483,23 +514,50 @@ const Labs = () => {
                                 </div>
                             </div>
                             {/* ⚙️ Consensus & Finality */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                          bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
-                                <div className="flex items-center justify-between mb-3">
+                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                                <div className="flex items-center justify-between mb-3 gap-2">
                                     <h3 className="text-lg font-semibold">Lab 06 — ⚙️ Consensus & Finality</h3>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
-                                        Coming Soon
-                                    </span>
+                                    <div className="flex items-center gap-2 flex-nowrap">
+                                        {/* 1. Available */}
+                                        <BadgeWithTooltip
+                                            label="Available"
+                                            variant="success"
+                                            tooltip={
+                                                <>
+                                                    Validator agreement<br />
+                                                    • Consensus<br />
+                                                    • Finality
+                                                </>
+                                            }
+                                            className="rounded-full text-xs whitespace-nowrap"
+                                        />
+                                        {/* 2. Completed */}
+                                        {lab06Completed && (
+                                            <span
+                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
+                                            >
+                                                ✓ Completed
+                                            </span>
+                                        )}
+                                        {/* 3. NEXT (never shown for Lab 06, but keep order for consistency) */}
+                                    </div>
                                 </div>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                                    Understand how blockchain networks reach agreement and finality through
-                                    Byzantine Fault Tolerant consensus mechanisms.
+                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
+                                    Pedagogy hint: <span className="not-italic">Consensus picks one chain; finality locks it.</span>
                                 </p>
-                                <div className="flex items-center justify-between">
+                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
+                                    Explore how validators reach agreement and when blocks become truly final.
+                                </p>
+                                <div className="flex items-center justify-between mt-auto">
                                     <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Intermediate
+                                        Beginner
                                     </span>
-                                    <span className="text-sm text-slate-400">Preview</span>
+                                    <Link
+                                        to="/labs/lab06"
+                                        className="text-sm font-semibold text-indigo-600 hover:underline"
+                                    >
+                                        Open Lab →
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -515,45 +573,42 @@ const Labs = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                         {/* 🧠 Proof of Escape */}
-                        <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                      bg-white/80 dark:bg-slate-900/60 p-6 shadow-sm
-                      hover:shadow-lg hover:-translate-y-1 transition-all">
-                            <div className="flex items-center justify-between mb-3">
+                        <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
+                            <div className="flex items-center justify-between mb-3 gap-2">
                                 <h3 className="text-lg font-semibold">Lab 07 — 🧠 Proof of Escape</h3>
-                                <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                                <span className="rounded-full text-xs whitespace-nowrap px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 font-semibold">
                                     Available
                                 </span>
                             </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
                                 A gamified Web3 challenge combining quizzes, NFTs, and on‑chain verification
                                 to introduce core blockchain concepts.
                             </p>
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mt-auto">
                                 <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                     Beginner
                                 </span>
-                                <span className="text-sm text-slate-500">Open Lab</span>
+                                <span className="text-sm font-semibold text-indigo-600 hover:underline">Open Lab</span>
                             </div>
                         </div>
 
                         {/* 🖼 NFT Marketplace Lab */}
-                        <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                      bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
-                            <div className="flex items-center justify-between mb-3">
+                        <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
+                            <div className="flex items-center justify-between mb-3 gap-2">
                                 <h3 className="text-lg font-semibold">Lab 08 — 🖼 NFT Marketplace Lab</h3>
-                                <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300">
+                                <span className="rounded-full text-xs whitespace-nowrap px-3 py-1 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300 font-semibold">
                                     Coming Soon
                                 </span>
                             </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
                                 Build and interact with a simple NFT marketplace while learning token
                                 standards, ownership, and on‑chain events.
                             </p>
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mt-auto">
                                 <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                     Intermediate
                                 </span>
-                                <span className="text-sm text-slate-400">Preview</span>
+                                <span className="text-sm text-slate-400">Coming Soon</span>
                             </div>
                         </div>
 

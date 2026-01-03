@@ -1,6 +1,7 @@
 import { Puzzle, BadgeCheck, Landmark, GraduationCap, Eye, ArrowRight } from "lucide-react";
 import { CARD_BACKGROUND_MAP } from "../design/theme.js";
 import SectionBadge from "./SectionBadge.jsx";
+import { Link } from "react-router-dom";
 
 const iconMap = {
     poe: Puzzle,
@@ -44,9 +45,9 @@ const AppsGrid = ({ content, badgeLabel = "Developer’s Corner" }) => (
                 const theme = COLOR_THEME[key];
 
                 return (
-                    <a
+                    <Link
                         key={key}
-                        href={`/#/${key}`}
+                        to={`/${key}`}
                         className="group relative rounded-3xl p-[2px] shadow-xl transition-all
            hover:-translate-y-2 hover:scale-[1.02] hover:shadow-[0_16px_40px_rgba(138,87,255,0.25)]
            hover:[transform:perspective(900px)_rotateX(4deg)_rotateY(-4deg)]
@@ -107,7 +108,7 @@ const AppsGrid = ({ content, badgeLabel = "Developer’s Corner" }) => (
 
                             </div>
                         </div>
-                    </a>
+                    </Link>
                 );
             })}
         </div>

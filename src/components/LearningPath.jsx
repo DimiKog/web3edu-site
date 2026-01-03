@@ -3,13 +3,29 @@ import holoImg from "../assets/holo.png";
 import SectionBadge from "./SectionBadge.jsx";
 
 const DEFAULT_STEPS = [
-    { title: "Join DAO", emoji: "🪪", desc: "Get your Web3 identity and unlock access to the learner‑driven DAO." },
-    { title: "Learn", emoji: "📘", desc: "Master blockchain fundamentals through hands‑on labs and real examples." },
-    { title: "Participate", emoji: "🏛️", desc: "Vote, propose ideas, collaborate, and contribute to real experiments." },
-    { title: "Build", emoji: "🛠️", desc: "Turn concepts into prototypes and build your own Web3 applications." }
+    {
+        title: "Identity & Foundations",
+        emoji: "🪪",
+        desc: "Create your Web3 identity and learn the core concepts needed to interact safely with decentralized systems."
+    },
+    {
+        title: "Access the DAO",
+        emoji: "🏛️",
+        desc: "Unlock DAO access, verify your progress, and join a learner-driven Web3 community."
+    },
+    {
+        title: "Participate",
+        emoji: "🤝",
+        desc: "Vote, propose ideas, collaborate, and contribute to real Web3 experiments."
+    },
+    {
+        title: "Build",
+        emoji: "🛠️",
+        desc: "Turn concepts into prototypes and build your own Web3 applications."
+    }
 ];
 
-const LearningPath = ({ content, badgeLabel = "Learning Journey" }) => {
+const LearningPath = ({ content, badgeLabel = "Learning Journey", ctaHref = "/#/start-here" }) => {
     const containerRef = useRef(null);
     const cardRefs = useRef([]);
     const [nodeYs, setNodeYs] = useState([]);
@@ -268,7 +284,7 @@ const LearningPath = ({ content, badgeLabel = "Learning Journey" }) => {
                                       ${i === 2 ? "bg-gradient-to-r from-[#FF67D2]/90 to-[#8A57FF]/90" : ""}
                                       ${i === 3 ? "bg-gradient-to-r from-[#4ACBFF]/90 to-[#8A57FF]/90" : ""}`}
                                 >
-                                    <span>STEP {i + 1}</span>
+                                    <span>{content?.stepLabel || "STEP"} {i + 1}</span>
                                 </div>
 
                                 <span
@@ -295,9 +311,12 @@ const LearningPath = ({ content, badgeLabel = "Learning Journey" }) => {
             </div>
 
             <div className="mt-12 flex justify-center">
-                <button className="w-full md:w-auto text-center px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white font-semibold text-lg shadow-lg hover:opacity-90 transition">
+                <a
+                    className="w-full md:w-auto text-center px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white font-semibold text-lg shadow-lg hover:opacity-90 transition"
+                    href={ctaHref}
+                >
                     {ctaLabel}
-                </button>
+                </a>
             </div>
 
             <style>{`
