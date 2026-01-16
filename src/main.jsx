@@ -50,6 +50,7 @@ import Lab02InteractionGR from './pages/labs/Lab02InteractionGR.jsx';
 import Lab03 from './pages/labs/Lab03.jsx';
 import Lab03GR from './pages/labs/Lab03GR.jsx';
 import Lab03Interaction from './pages/labs/Lab03Interaction.jsx';
+import Lab03InteractionGR from './pages/labs/Lab03InteractionGR.jsx';
 import Lab04 from './pages/labs/Lab04.jsx';
 import Lab04GR from './pages/labs/Lab04GR.jsx';
 import Lab04Interaction from './pages/labs/Lab04Interaction.jsx';
@@ -62,6 +63,9 @@ import Lab06 from './pages/labs/Lab06.jsx';
 import Lab06GR from './pages/labs/Lab06GR.jsx';
 import Lab06Interaction from './pages/labs/Lab06Interaction.jsx';
 import Lab06InteractionGR from './pages/labs/Lab06InteractionGR.jsx';
+
+//Project Labs
+import PoELab from './pages/labs/PoELab.jsx';
 
 // Besu Edu-Net chain config
 const web3EduChain = {
@@ -140,6 +144,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs/lab03" element={<Lab03 />} />
               <Route path="/labs-gr/lab03" element={<Lab03GR />} />
               <Route path="/labs/lab03/interaction" element={<Lab03Interaction />} />
+              <Route path="/labs-gr/lab03/interaction" element={<Lab03InteractionGR />} />
               <Route path="/labs/lab04" element={<Lab04 />} />
               <Route path="/labs-gr/lab04" element={<Lab04GR />} />
               <Route path="/labs/lab04/interaction" element={<Lab04Interaction />} />
@@ -152,6 +157,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs/lab06/interaction" element={<Lab06Interaction />} />
               <Route path="/labs-gr/lab06" element={<Lab06GR />} />
               <Route path="/labs-gr/lab06/interaction" element={<Lab06InteractionGR />} />
+              <Route path="/labs/proof-of-escape" element={<PoELab />} />
             </Routes>
           </HashRouter>
         </RainbowKitProvider>

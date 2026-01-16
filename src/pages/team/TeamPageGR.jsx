@@ -38,8 +38,8 @@ export default function TeamPageGR() {
                                             from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
                                             blur-[1px] opacity-80 rounded-full animate-flow"></div>
                             <p className="mt-4 text-slate-700 dark:text-slate-300 max-w-3xl mx-auto text-lg sm:text-xl leading-loose">
-                                Μια διεπιστημονική ομάδα που εξελίσσει την εκπαίδευση στο blockchain μέσα από έρευνα,
-                                αποκέντρωση, gamification και hands-on μάθηση — αξιοποιώντας το οικοσύστημα Besu EduNet.
+                                Μια διεπιστημονική ομάδα που αναπτύσσει υποδομές Web3 εκπαίδευσης μέσα από έρευνα,
+                                αποκεντρωμένα συστήματα, gamification και hands‑on μάθηση — βασισμένη στο οικοσύστημα Besu EduNet.
                             </p>
                             <div className="relative mt-10 mb-6">
                                 <div className="absolute inset-0 mx-auto w-48 h-48 sm:w-64 sm:h-64 rounded-full
@@ -179,21 +179,35 @@ export default function TeamPageGR() {
                         <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
 
                         <div className="text-center max-w-3xl mx-auto mt-24 mb-16 text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
-                            <h3 className="text-3xl font-bold mb-6">Πώς λειτουργεί η ομάδα Web3Edu</h3>
-                            <p>Η ακαδημαϊκή αριστεία συναντά την αποκεντρωμένη τεχνολογία.</p>
-                            <p>Κάθε τομέας συνεργάζεται μέσω κοινής υποδομής που τροφοδοτείται από το Besu EduNet.</p>
-                            <p>Η αποστολή μας είναι να γεφυρώσουμε την εκπαίδευση, την έρευνα και τις πραγματικές blockchain εφαρμογές.</p>
+                            <h3 className="text-3xl font-bold mb-6">
+                                🧬 Web3Edu ως Επίπεδο Ταυτότητας για την Εκπαίδευση Web3
+                            </h3>
+                            <p className="mb-3">
+                                Το Web3Edu λειτουργεί ως <strong>επίπεδο ταυτότητας μάθησης</strong> για το Web3.
+                            </p>
+                            <p className="mb-3">
+                                Η γνώση, η συμμετοχή και η συνεισφορά μετατρέπονται σε
+                                <strong> επαληθεύσιμα διαπιστευτήρια</strong>, συνδεδεμένα με
+                                Soulbound Tokens και συμμετοχή στο DAO.
+                            </p>
+                            <p>
+                                Η ομάδα Web3Edu σχεδιάζει και υποστηρίζει αυτή την υποδομή,
+                                γεφυρώνοντας <strong>έρευνα, εκπαίδευση και πραγματικές blockchain εφαρμογές</strong>.
+                            </p>
                         </div>
 
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
+
                         <p className="text-center text-slate-700 dark:text-slate-400 text-lg mt-8 mb-8">
-                            Περισσότερα μέλη και συνεργάτες θα προστεθούν καθώς το Web3Edu επεκτείνει τα ερευνητικά και DAO εγχειρήματα.
+                            Περισσότερα μέλη, συνεργάτες και contributors θα προστεθούν καθώς το Web3Edu επεκτείνει
+                            τα ερευνητικά του προγράμματα, τις εκπαιδευτικές δράσεις και τις DAO‑driven πρωτοβουλίες.
                         </p>
 
                         <div className="w-20 h-[2px] bg-gradient-to-r from-[#8A57FF]/20 via-[#4ACBFF]/20 to-[#FF67D2]/20 mx-auto mb-8"></div>
 
                         <div className="text-center mt-16 mb-16 sm:mt-24 sm:mb-20 opacity-0 animate-fadeInSlow">
                             <a
-                                href="/#/join"
+                                href="/#/join-gr"
                                 className="px-6 py-3 rounded-full bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] text-white font-bold shadow-[0_0_25px_rgba(74,203,255,0.22)] hover:opacity-95 transition-all duration-300 flex items-center justify-center gap-2 text-center w-fit mx-auto"
                             >
                                 Γίνετε μέλος της κοινότητας Web3Edu →

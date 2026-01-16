@@ -256,10 +256,27 @@ export default function Dashboard() {
         }
     }, [metadata?.tier]);
 
-    const recommended =
+    // Always provide a recommendation (backend-driven or fallback)
+    const fallbackRecommendation = {
+        type: "guide",
+        title: "Start Here — Your Web3 Learning Path",
+        slug: "start-here",
+        why: "This short guide explains how Web3Edu works and helps you choose what to learn next.",
+        estimatedTime: 5,
+    };
+
+    const recommendedFromBackend =
         metadata && typeof metadata.recommendedNext === "object"
             ? metadata.recommendedNext
             : null;
+    const hasBackendRecommendation =
+        recommendedFromBackend &&
+        (recommendedFromBackend.title || recommendedFromBackend.slug);
+    const recommended = hasBackendRecommendation
+        ? recommendedFromBackend
+        : fallbackRecommendation;
+    const isFallbackRecommendation = !hasBackendRecommendation;
+
     const recommendedLabSlug =
         recommended?.slug?.endsWith("-gr")
             ? recommended.slug.replace(/-gr$/, "")
@@ -488,34 +505,15 @@ export default function Dashboard() {
                                     <p className="text-xs text-slate-600/90 dark:text-slate-400/90">
                                         Earn XP from lessons and quizzes to upgrade your tier.
                                     </p>
+                                    <p className="mt-2 text-xs text-slate-600/90 dark:text-slate-400/90">
+                                        {metadata?.tier === "Builder" || metadata?.tier === "Architect"
+                                            ? "DAO governance access unlocked at your current tier."
+                                            : "Reach Builder tier to unlock DAO governance access."}
+                                    </p>
                                 </div>
                             </div>
                         </DashboardCard>
 
-                        {/* Continue Learning Callout */}
-                        <DashboardCard
-                            title="Continue Learning"
-                            className="
-                                rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                                bg-gradient-to-br from-white/95 via-indigo-50/70 to-slate-100/90
-                                dark:from-[#0e1020]/90 dark:via-[#0a0d19]/85 dark:to-[#060811]/90
-                                backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                                hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                            "
-                            icon={<BookOpenIcon className="w-5 h-5 text-white" />}
-                        >
-                            <p className="text-sm text-slate-700 dark:text-slate-300 mb-3 leading-relaxed">
-                                You’re progressing well — the next steps of your Web3 journey are waiting.
-                            </p>
-                            <button
-                                onClick={() => navigate("/education")}
-                                className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#4ACBFF]
-                                           text-white hover:scale-[1.04] hover:opacity-90 transition 
-                                           font-semibold shadow-md"
-                            >
-                                Continue Learning
-                            </button>
-                        </DashboardCard>
 
                         {/* Progress Card */}
                         <DashboardCard
@@ -541,7 +539,7 @@ export default function Dashboard() {
 
                         {/* Actions */}
                         <DashboardCard
-                            title="Actions"
+                            title="Quick Actions"
                             className="
                             rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
                             bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
@@ -567,7 +565,7 @@ export default function Dashboard() {
                                     onClick={() => navigate("/education")}
                                     className="py-3 px-6 rounded-xl bg-gradient-to-r from-[#33D6FF] to-[#24A9D0] text-white hover:scale-[1.03] hover:opacity-90 transition font-semibold shadow-md"
                                 >
-                                    Start Learning
+                                    Continue Learning
                                 </button>
 
                                 <div className="mt-3">
@@ -585,14 +583,6 @@ export default function Dashboard() {
                                         Start Here (guide)
                                     </button>
                                 </div>
-
-                                <button
-                                    onClick={() => navigate("/")}
-                                    className="py-3 px-6 rounded-xl bg-white/10 hover:bg
-                                    white/20 hover:scale-[1.03] transition font-semibold shadow-md text-slate-900 dark:text-white"
-                                >
-                                    Back to Home
-                                </button>
                             </div>
                         </DashboardCard>
 
@@ -600,12 +590,12 @@ export default function Dashboard() {
                         <DashboardCard
                             title="Badges"
                             className="
-                            rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                            bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
-                            dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
-                            dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                            hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                        "
+                        rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
+                        bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
+                        dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
+                        dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
+                        hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
+                    "
                             icon={<StarIcon className="w-5 h-5 text-white" />}
                         >
                             <p className="text-sm text-slate-700 dark:text-slate-200 mb-4 leading-relaxed">
@@ -631,13 +621,13 @@ export default function Dashboard() {
                                             <span
                                                 key={`${i}-${typeof b === "string" ? b : b?.id || "badge"}`}
                                                 className="
-                                                    inline-flex items-center gap-2 
-                                                    px-3 py-1 rounded-full 
-                                                    text-xs font-semibold
-                                                    bg-indigo-200/60 dark:bg-indigo-900/40
-                                                    border border-indigo-300/30 dark:border-indigo-700/30
-                                                    text-slate-900 dark:text-slate-100
-                                                "
+                                                inline-flex items-center gap-2 
+                                                px-3 py-1 rounded-full 
+                                                text-xs font-semibold
+                                                bg-indigo-200/60 dark:bg-indigo-900/40
+                                                border border-indigo-300/30 dark:border-indigo-700/30
+                                                text-slate-900 dark:text-slate-100
+                                            "
                                             >
                                                 <Icon className="w-4 h-4 text-white/90" />
                                                 {typeof b === "string"
@@ -654,38 +644,15 @@ export default function Dashboard() {
                             )}
                         </DashboardCard>
 
-
-                        {/* DAO Access */}
-                        <DashboardCard
-                            title="DAO Access"
-                            className="
-                            rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                            bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
-                            dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
-                            dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                            hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                        "
-                            icon={<ShieldCheckIcon className="w-5 h-5 text-white" />}
-                        >
-                            {metadata?.tier === "Builder" || metadata?.tier === "Architect" ? (
-                                <p className="text-slate-800 dark:text-slate-100">
-                                    You are eligible for DAO participation.
-                                </p>
-                            ) : (
-                                <p className="text-slate-700 dark:text-slate-300">
-                                    Reach Builder tier to unlock DAO access.
-                                </p>
-                            )}
-                        </DashboardCard>
-
                     </div>
                 </div>
 
-                {/* Recommended Next Lesson — Full Width */}
+
+                {/* Recommended Next Module — Full Width */}
                 {recommended && (
                     <div className="relative z-10 w-full max-w-6xl mx-auto mt-6 mb-8 px-2 md:px-0">
                         <DashboardCard
-                            title="Recommended Next Lesson"
+                            title="Recommended Next Module"
                             className="
                 rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
                 bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
@@ -698,6 +665,10 @@ export default function Dashboard() {
                             <div
                                 className="space-y-3 cursor-pointer"
                                 onClick={() => {
+                                    if (recommended.type === "guide" && recommended.slug) {
+                                        navigate(`/${recommended.slug}`);
+                                        return;
+                                    }
                                     if (recommended.type === "lab" && recommendedLabSlug) {
                                         navigate(`/labs/${recommendedLabSlug}`);
                                         return;
@@ -710,7 +681,7 @@ export default function Dashboard() {
                                 }}
                             >
                                 <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
-                                    Recommended for you
+                                    {isFallbackRecommendation ? "Getting started" : "Recommended for you"}
                                 </p>
 
                                 <p className="text-xl font-bold text-slate-900 dark:text-white leading-snug">
@@ -722,7 +693,7 @@ export default function Dashboard() {
                                 {recommended.why && (
                                     <div className="mt-1">
                                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500 mb-1">
-                                            Why this is recommended
+                                            {isFallbackRecommendation ? "Suggested next step" : "Why this is recommended"}
                                         </p>
                                         <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
                                             {typeof recommended.why === "object"

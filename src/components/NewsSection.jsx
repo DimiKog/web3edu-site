@@ -40,12 +40,6 @@ const NewsSection = ({ content }) => (
                 <div className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-[#7BE88B]"></span> Update</div>
             </div>
 
-            <a
-                href="/#/news"
-                className="inline-flex items-center gap-2 mt-3 text-[#8A57FF] dark:text-[#CBB2FF] text-xs underline hover:text-[#7A4DE5]"
-            >
-                {content.viewArchive} ↗
-            </a>
         </div>
 
         <div className="ml-16 h-8 w-[3px] bg-slate-300/50 dark:bg-slate-600/50 rounded-full mb-8"></div>
@@ -55,83 +49,92 @@ const NewsSection = ({ content }) => (
         {/* Timeline */}
         <div className="ml-24 space-y-16 relative z-10">
 
-            {content.items.map((n, i) => (
-                <div
-                    key={i}
-                    className="relative pl-6 border-l border-slate-400/70 dark:border-slate-700/50 animate-fadeInUp"
-                    style={{ animationDelay: `${0.25 * i}s` }}
-                >
-                    {/* Glowing Dot */}
-                    <div className={`absolute -left-[11px] top-1 w-5 h-5 rounded-full shadow-xl ring-2 ring-white/60 dark:ring-indigo-900/40 animate-pulseSlow ${n.category === "event"
-                        ? "bg-gradient-to-br from-[#8A57FF] to-[#FF67D2]"
-                        : n.category === "release"
-                            ? "bg-gradient-to-br from-[#4ACBFF] to-[#8AE2FF]"
-                            : n.category === "update"
-                                ? "bg-gradient-to-br from-[#7BE88B] to-[#36C870]"
-                                : "bg-gradient-to-br from-[#8A57FF] to-[#B08BFF]"
-                        }`}></div>
-
-                    {/* Month Label */}
-                    {n.monthLabel && (
-                        <div className="absolute -left-32 top-0 text-right pr-3 w-28 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                            {n.monthLabel}
-                        </div>
-                    )}
-
-                    {/* News Card */}
-                    <div className={`mt-3 p-6 rounded-2xl 
-    ${n.category === "event"
-                            ? "bg-gradient-to-br from-[#E9D8FF]/55 via-[#FAD0F0]/45 to-[#FFD4EC]/55"
+            {[...content.items]
+                .sort((a, b) => {
+                    // Expect format like "Jan 2026", "Nov 2025"
+                    const parseDate = (d) => {
+                        const [month, year] = d.split(" ");
+                        return new Date(`${month} 1, ${year}`);
+                    };
+                    return parseDate(b.date) - parseDate(a.date);
+                })
+                .map((n, i) => (
+                    <div
+                        key={i}
+                        className="relative pl-6 border-l border-slate-400/70 dark:border-slate-700/50 animate-fadeInUp"
+                        style={{ animationDelay: `${0.25 * i}s` }}
+                    >
+                        {/* Glowing Dot */}
+                        <div className={`absolute -left-[11px] top-1 w-5 h-5 rounded-full shadow-xl ring-2 ring-white/60 dark:ring-indigo-900/40 animate-pulseSlow ${n.category === "event"
+                            ? "bg-gradient-to-br from-[#8A57FF] to-[#FF67D2]"
                             : n.category === "release"
-                                ? "bg-gradient-to-br from-[#D4F1FF]/55 via-[#D9F6FF]/45 to-[#E0E2FF]/55"
+                                ? "bg-gradient-to-br from-[#4ACBFF] to-[#8AE2FF]"
                                 : n.category === "update"
-                                    ? "bg-gradient-to-br from-[#E4FFE9]/55 via-[#D8FFE3]/45 to-[#E9FFDA]/55"
-                                    : "bg-gradient-to-br from-[#E9D8FF]/55 via-[#D7E9FF]/45 to-[#D9F7FF]/55"
-                        }
+                                    ? "bg-gradient-to-br from-[#7BE88B] to-[#36C870]"
+                                    : "bg-gradient-to-br from-[#8A57FF] to-[#B08BFF]"
+                            }`}></div>
+
+                        {/* Month Label */}
+                        {n.monthLabel && (
+                            <div className="absolute -left-32 top-0 text-right pr-3 w-28 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                                {n.monthLabel}
+                            </div>
+                        )}
+
+                        {/* News Card */}
+                        <div className={`mt-3 p-6 rounded-2xl 
     ${n.category === "event"
-                            ? "dark:from-[#3A2A66]/55 dark:via-[#5A2C50]/45 dark:to-[#5A1F3D]/45"
-                            : n.category === "release"
-                                ? "dark:from-[#0B3A5C]/55 dark:via-[#0A2E4A]/45 dark:to-[#1C1A3A]/45"
-                                : n.category === "update"
-                                    ? "dark:from-[#123A1B]/55 dark:via-[#0F2F17]/45 dark:to-[#1F2F0F]/45"
-                                    : "dark:from-[#1C1A3A]/55 dark:via-[#3A2A66]/45 dark:to-[#0A2E4A]/45"
-                        }
+                                ? "bg-gradient-to-br from-[#E9D8FF]/55 via-[#FAD0F0]/45 to-[#FFD4EC]/55"
+                                : n.category === "release"
+                                    ? "bg-gradient-to-br from-[#D4F1FF]/55 via-[#D9F6FF]/45 to-[#E0E2FF]/55"
+                                    : n.category === "update"
+                                        ? "bg-gradient-to-br from-[#E4FFE9]/55 via-[#D8FFE3]/45 to-[#E9FFDA]/55"
+                                        : "bg-gradient-to-br from-[#E9D8FF]/55 via-[#D7E9FF]/45 to-[#D9F7FF]/55"
+                            }
+    ${n.category === "event"
+                                ? "dark:from-[#3A2A66]/55 dark:via-[#5A2C50]/45 dark:to-[#5A1F3D]/45"
+                                : n.category === "release"
+                                    ? "dark:from-[#0B3A5C]/55 dark:via-[#0A2E4A]/45 dark:to-[#1C1A3A]/45"
+                                    : n.category === "update"
+                                        ? "dark:from-[#123A1B]/55 dark:via-[#0F2F17]/45 dark:to-[#1F2F0F]/45"
+                                        : "dark:from-[#1C1A3A]/55 dark:via-[#3A2A66]/45 dark:to-[#0A2E4A]/45"
+                            }
     shadow-xl border border-white/20 dark:border-slate-700/40
     backdrop-blur-xl hover:shadow-[0_0_20px_rgba(138,87,255,0.25)]
     transition-all duration-300 animate-elasticIn`}>
 
-                        {/* Category Icon */}
-                        <span className="mr-1 text-lg">
-                            {n.category === "event" ? "🎉" : n.category === "release" ? "🪩" : n.category === "update" ? "📢" : "✨"}
-                        </span>
+                            {/* Category Icon */}
+                            <span className="mr-1 text-lg">
+                                {n.category === "event" ? "🎉" : n.category === "release" ? "🪩" : n.category === "update" ? "📢" : "✨"}
+                            </span>
 
-                        {/* Category Tag */}
-                        {n.category && (
-                            <span className={`text-xs px-2.5 py-1 mr-2 rounded-full font-medium 
+                            {/* Category Tag */}
+                            {n.category && (
+                                <span className={`text-xs px-2.5 py-1 mr-2 rounded-full font-medium 
                               animate-pulseSlow 
                               ${n.category === "event" ? "bg-purple-200/70 text-purple-900" : ""} 
                               ${n.category === "release" ? "bg-blue-200/70 text-blue-900" : ""} 
                               ${n.category === "update" ? "bg-green-200/70 text-green-900" : ""}`}>
-                                {n.category.toUpperCase()}
+                                    {n.category.toUpperCase()}
+                                </span>
+                            )}
+
+                            {/* Date Badge */}
+                            <span className="text-xs px-2 py-1 rounded-full from-[#E9D8FF]/70 to-[#D7E9FF]/70 dark:from-[#1C1A3A]/40 dark:to-[#3A2A66]/40 text-[#8A57FF] dark:text-[#CBB2FF] border border-[#8A57FF]/20 dark:border-[#8A57FF]/35 bg-gradient-to-r">
+                                {n.date}
                             </span>
-                        )}
 
-                        {/* Date Badge */}
-                        <span className="text-xs px-2 py-1 rounded-full from-[#E9D8FF]/70 to-[#D7E9FF]/70 dark:from-[#1C1A3A]/40 dark:to-[#3A2A66]/40 text-[#8A57FF] dark:text-[#CBB2FF] border border-[#8A57FF]/20 dark:border-[#8A57FF]/35 bg-gradient-to-r">
-                            {n.date}
-                        </span>
-
-                        <h3 className="mt-3 text-xl font-bold text-slate-900 dark:text-white 
+                            <h3 className="mt-3 text-xl font-bold text-slate-900 dark:text-white 
     leading-snug tracking-tight drop-shadow-[0_0_10px_rgba(99,102,241,0.25)]">
-                            {n.title}
-                        </h3>
+                                {n.title}
+                            </h3>
 
-                        <p className="mt-2 text-sm text-slate-700/90 dark:text-slate-300/90 leading-relaxed">
-                            {n.desc}
-                        </p>
+                            <p className="mt-2 text-sm text-slate-700/90 dark:text-slate-300/90 leading-relaxed">
+                                {n.desc}
+                            </p>
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
         </div>
     </section>
 );

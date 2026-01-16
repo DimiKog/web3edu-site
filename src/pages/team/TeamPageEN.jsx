@@ -46,7 +46,7 @@ export default function TeamPageEN() {
                                             from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
                                             blur-[1px] opacity-80 rounded-full animate-flow"></div>
                             <p className="mt-4 text-slate-700 dark:text-slate-300 max-w-3xl mx-auto text-lg sm:text-xl leading-loose">
-                                A multidisciplinary team advancing blockchain education through research, decentralization, gamification and hands-on learning — powered by the Besu EduNet ecosystem.
+                                A multidisciplinary team advancing blockchain education through research, decentralization, gamification, and hands-on learning — supported by the Besu EduNet research infrastructure.
                             </p>
                             <div className="relative mt-10 mb-6">
                                 <div className="absolute inset-0 mx-auto w-48 h-48 sm:w-64 sm:h-64 rounded-full
@@ -56,8 +56,10 @@ export default function TeamPageEN() {
                         </div>
 
                         <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
+
+
                         <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
-                            Vision & Research Directions
+                            Vision & Research Leadership
                         </h2>
                         <div className="flex flex-col md:flex-row items-center gap-10 sm:gap-14 mb-20 sm:mb-32 text-lg w-full max-w-6xl mx-auto relative z-10 space-y-4 md:space-y-0">
                             <TeamMemberCard
@@ -88,7 +90,7 @@ Dimitris is a blockchain researcher specializing in Web3 educational ecosystems,
 
                         <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
                         <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
-                            Academic & Outreach
+                            Academic Strategy & Outreach
                         </h2>
                         <div className="flex flex-col md:flex-row items-center gap-10 sm:gap-14 mb-28 text-lg w-full max-w-6xl mx-auto space-y-4 md:space-y-0">
                             <TeamMemberCard
@@ -115,7 +117,7 @@ Nelly brings extensive academic and research experience in networking, digital e
 
                         <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
                         <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
-                            Governance & Community
+                            Governance & Community Operations
                         </h2>
                         <div className="flex flex-col md:flex-row-reverse items-center gap-10 sm:gap-14 mb-28 text-lg w-full max-w-6xl mx-auto space-y-4 md:space-y-0">
                             <TeamMemberCard
@@ -142,7 +144,7 @@ Tonia specializes in decentralized governance and DAO participation systems. She
 
                         <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
                         <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
-                            Infrastructure & Operations
+                            Infrastructure & Network Operations
                         </h2>
                         <div className="flex flex-col md:flex-row items-center gap-10 sm:gap-14 mb-28 text-lg w-full max-w-6xl mx-auto space-y-4 md:space-y-0">
                             <TeamMemberCard
@@ -167,16 +169,22 @@ Michael leads Web3Edu’s Infrastructure and Community Operations sector. He sup
 
                         <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
 
-                        <div className="text-center max-w-3xl mx-auto mt-32 mb-16 text-xl text-slate-700 dark:text-slate-300 leading-relaxed">
-                            <h3 className="text-3xl font-bold mb-6">How the Web3Edu Team Works</h3>
-                            <p>Academic excellence meets decentralized technology.</p>
-                            <p>Each sector collaborates through shared infrastructure powered by the Besu EduNet.</p>
-                            <p>Our mission is to bridge education, research, and real-world blockchain applications.</p>
+                        <div className="text-center max-w-3xl mx-auto mt-24 mb-16 text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <h3 className="text-3xl font-bold mb-6">
+                                Web3Edu as an Identity Layer for Web3 Education
+                            </h3>
+                            <p className="mb-3">
+                                Web3Edu operates as a <strong>learning identity layer</strong> for Web3.
+                            </p>
+                            <p className="mb-3">
+                                Knowledge, participation, and contribution are transformed into
+                                <strong> verifiable credentials</strong>, linked to Soulbound Tokens and DAO participation.
+                            </p>
+                            <p>
+                                The Web3Edu team designs and supports this infrastructure, bridging
+                                <strong> research, education, and real-world blockchain applications</strong>.
+                            </p>
                         </div>
-
-                        <p className="text-center text-slate-600 dark:text-slate-400 text-lg mt-8 mb-8">
-                            More team members and collaborators will appear as Web3Edu expands its research and DAO initiatives.
-                        </p>
 
                         <div className="text-center mt-16 mb-16 sm:mt-24 sm:mb-20 opacity-0 animate-fadeInSlow">
                             <a

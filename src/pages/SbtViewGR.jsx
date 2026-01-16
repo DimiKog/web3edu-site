@@ -20,7 +20,7 @@ export default function SbtViewGR() {
 
     useEffect(() => {
         if (!isConnected) {
-            navigate("/join");
+            navigate("/join-gr");
             return;
         }
         window.scrollTo(0, 0);

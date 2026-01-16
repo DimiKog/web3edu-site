@@ -600,7 +600,12 @@ const LabsGR = () => {
                                 <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                     Αρχάριο
                                 </span>
-                                <span className="text-sm font-semibold text-indigo-600 hover:underline">Άνοιγμα Εργαστηρίου</span>
+                                <Link
+                                    to="/labs/proof-of-escape"
+                                    className="text-sm font-semibold text-indigo-600 hover:underline"
+                                >
+                                    Άνοιγμα Εργαστηρίου
+                                </Link>
                             </div>
                         </div>
 

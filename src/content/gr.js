@@ -104,26 +104,32 @@ const gr = {
     news: {
         title: "Νέα και Εκδηλώσεις",
         badge: "Χρονολόγιο / Agenda",
-        subtitle: "Μείνετε ενημερωμένοι για τα τελευταία εργαστήρια, ομιλίες και εκδόσεις έργων από το οικοσύστημα Web3Edu.",
+        subtitle: "Ενημερωθείτε για εκθέσεις, παρουσιάσεις έργων και βασικές ανακοινώσεις από το οικοσύστημα Web3Edu.",
         viewArchive: "Προβολή αρχείου",
         items: [
             {
-                category: "event",
-                date: "Nov 2025",
-                title: "Συμμετοχή Web3Edu στο Φεστιβάλ UNOVATE",
-                desc: "Διαδραστική παρουσίαση με το Proof of Escape – Festival Edition, minting του DAO Invite και live onboarding.",
-            },
-            {
                 category: "release",
-                date: "Oct 2025",
-                title: "Κυκλοφορία του Web3Edu DAO Invite NFT",
-                desc: "Τα soulbound membership tokens είναι διαθέσιμα. Αποκτήστε το δικό σας για να συμμετέχετε στη διακυβέρνηση.",
+                date: "Ιανουάριος 2026",
+                title: "Web3Edu Platform — Δημόσια Κυκλοφορία (Σύντομα)",
+                desc: "Δημόσια διάθεση της μαθησιακής πλατφόρμας Web3Edu, με θεμελιώδη labs, μαθησιακή ταυτότητα και πρόσβαση στο οικοσύστημα.",
             },
             {
                 category: "update",
-                date: "Sept 2025",
-                title: "Ενοποίηση Education Portal και Proof of Escape",
-                desc: "Ενιαίο dashboard που συνδυάζει κουίζ, NFTs και εκπαιδευτικό υλικό σε ένα learning profile.",
+                date: "Δεκέμβριος 2025",
+                title: "Ορόσημο Ανάπτυξης της Πλατφόρμας Web3Edu",
+                desc: "Τα βασικά θεμελιώδη labs και η υποδομή μάθησης ολοκληρώθηκαν εσωτερικά πριν από τη δημόσια κυκλοφορία του Web3Edu.",
+            },
+            {
+                category: "event",
+                date: "Νοέμβριος 2025",
+                title: "Έκθεση Proof of Escape στο Φεστιβάλ UNOVATE",
+                desc: "Δημόσια έκθεση του έργου Proof of Escape (PoE), με παρουσίαση της εμπειρίας παιχνιδιού Festival Edition και επιτόπιο Web3 onboarding.",
+            },
+            {
+                category: "update",
+                date: "Οκτώβριος 2025",
+                title: "Proof of Escape — Festival Edition Ολοκληρώθηκε",
+                desc: "Η ειδική έκδοση Festival Edition του Proof of Escape ολοκληρώθηκε και προετοιμάστηκε για ζωντανή δημόσια επίδειξη.",
             },
         ]
     },

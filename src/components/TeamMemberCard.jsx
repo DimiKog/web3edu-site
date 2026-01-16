@@ -100,11 +100,27 @@ export default function TeamMemberCard({
                         </a>
                     </div>
 
-                    {/* Full Role Under Avatar */}
-                    <div className="mt-4 text-center text-slate-800 dark:text-slate-200">
-                        <p className="font-bold text-lg md:text-xl leading-tight whitespace-pre-line">
-                            {role}
-                        </p>
+                    {/* Role Hierarchy Under Avatar */}
+                    <div className="mt-4 text-center text-slate-800 dark:text-slate-200 space-y-1">
+                        {role
+                            .split("\n")
+                            .map((line, i) =>
+                                i === 0 ? (
+                                    <p
+                                        key={i}
+                                        className="font-bold text-lg md:text-xl leading-tight"
+                                    >
+                                        {line}
+                                    </p>
+                                ) : (
+                                    <p
+                                        key={i}
+                                        className="text-sm md:text-base text-slate-600 dark:text-slate-400 leading-snug"
+                                    >
+                                        {line}
+                                    </p>
+                                )
+                            )}
                     </div>
                 </div>
 

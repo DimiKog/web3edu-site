@@ -102,26 +102,32 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
     news: {
         title: "News & Events",
         badge: "Timeline / Agenda",
-        subtitle: "Stay updated with the latest workshops, talks, and project releases from the Web3Edu ecosystem.",
+        subtitle: "Key events, milestones, and public appearances related to the Web3Edu ecosystem and its projects.",
         viewArchive: "View Archive",
         items: [
             {
                 category: "event",
                 date: "Nov 2025",
-                title: "Web3Edu Workshop at UNOVATE Festival",
-                desc: "Interactive showcase featuring Proof of Escape — Festival Edition, DAO Invite minting, and live onboarding.",
-            },
-            {
-                category: "release",
-                date: "Oct 2025",
-                title: "Launch of Web3Edu DAO Invite NFT",
-                desc: "Soulbound membership tokens are now live. Collect yours to unlock governance participation.",
+                title: "Proof of Escape Exhibition at UNOVATE Festival",
+                desc: "Public exhibition of the Proof of Escape (PoE) project, showcasing the Festival Edition game experience and on-site Web3 onboarding.",
             },
             {
                 category: "update",
-                date: "Sept 2025",
-                title: "Education Portal + Proof of Escape Integration",
-                desc: "Unified dashboard delivers quizzes, NFTs, and course materials under a single learning profile.",
+                date: "Oct 2025",
+                title: "Proof of Escape — Festival Edition Completed",
+                desc: "The special Festival Edition of Proof of Escape was finalized and prepared for live public demonstration.",
+            },
+            {
+                category: "update",
+                date: "Dec 2025",
+                title: "Web3Edu Platform Development Milestone",
+                desc: "Core foundational labs and learning infrastructure reached internal completion ahead of the public Web3Edu launch.",
+            },
+            {
+                category: "release",
+                date: "Jan 2026",
+                title: "Web3Edu Platform — Public Launch (Coming Soon)",
+                desc: "Public release of the Web3Edu learning platform, including foundational labs, learning identity, and ecosystem access.",
             },
         ]
     },

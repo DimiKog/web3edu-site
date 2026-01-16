@@ -88,7 +88,7 @@ const Footer = ({ content }) => {
                             Web3Edu
                         </div>
                         <div className="text-[#4ACBFF] dark:text-white/80 text-[11px]">
-                            Blockchain Education Ecosystem
+                            Identification Layer for Web3 Education
                         </div>
 
                         {/* Powered by Badge */}
@@ -105,8 +105,7 @@ const Footer = ({ content }) => {
                 <nav className="flex gap-6 text-slate-600 dark:text-white/80 text-[11px] tracking-wide">
                     <a href="/#/" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">Home</a>
                     <a href="/#/team" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">Team</a>
-                    <a href="/#applications" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">Applications</a>
-                    <a href="/#dao" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">DAO</a>
+                    <a href="/#/start-here" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">Start Here</a>
                 </nav>
 
                 {/* Right: Social Icons */}
@@ -125,6 +124,7 @@ const Footer = ({ content }) => {
                         href="#"
                         target="_blank"
                         className="relative opacity-60 cursor-not-allowed"
+                        title="Community Discord (Coming Soon)"
                     >
                         <FaDiscord className="relative" />
                     </a>
@@ -133,6 +133,7 @@ const Footer = ({ content }) => {
                         href="#"
                         target="_blank"
                         className="relative opacity-60 cursor-not-allowed"
+                        title="LinkedIn Page (Coming Soon)"
                     >
                         <FaLinkedin className="relative" />
                     </a>
@@ -141,7 +142,7 @@ const Footer = ({ content }) => {
 
             {/* Micro-CTA */}
             <div className="mt-6 text-center text-[10px] text-[#8A57FF] dark:text-white/70 tracking-wide">
-                Explore: Proof of Escape · Education Portal · Learning Path · DAO
+                Explore: Learning Path · Proof of Escape (Preview) · DAO (Preview)
             </div>
 
             <div className="w-20 h-[2px] bg-gradient-to-r from-[#8A57FF]/20 via-[#4ACBFF]/20 to-[#FF67D2]/20 mx-auto mb-4"></div>

@@ -101,7 +101,7 @@ const FooterGr = ({ content }) => {
                             Web3Edu
                         </div>
                         <div className="text-[#4ACBFF] dark:text-slate-300 text-[11px]">
-                            Οικοσύστημα Εκπαίδευσης Blockchain
+                            Επίπεδο Ταυτοποίησης για την Εκπαίδευση Web3
                         </div>
 
                         <div className="mt-2 inline-flex px-3 py-1 rounded-full text-[10px] 
@@ -113,10 +113,9 @@ const FooterGr = ({ content }) => {
                 </div>
 
                 <nav className="flex gap-6 text-white/80 text-[11px] tracking-wide">
-                    <a href="/#/" className="hover:text-[#8A57FF] transition">{nav.home ?? "Αρχική"}</a>
+                    <a href="/#/gr" className="hover:text-[#8A57FF] transition">{nav.home ?? "Αρχική"}</a>
                     <a href="/#/team-gr" className="hover:text-[#8A57FF] transition">{nav.team ?? "Ομάδα"}</a>
-                    <a href="/#applications" className="hover:text-[#8A57FF] transition">{nav.apps ?? "Εφαρμογές"}</a>
-                    <a href="/#dao" className="hover:text-[#8A57FF] transition">{nav.dao ?? "DAO"}</a>
+                    <a href="/#/start-here-gr" className="hover:text-[#8A57FF] transition">{nav.startHere ?? "Ξεκίνα Εδώ"}</a>
                 </nav>
 
                 <div className="flex gap-6 text-lg">

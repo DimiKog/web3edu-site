@@ -6,15 +6,8 @@ import DashboardCard from "../components/DashboardCard.jsx";
 import XPProgressCard from "../components/XPProgressCard.jsx";
 import LearningTimeline from "../components/LearningTimeline.jsx";
 
-import { UserIcon, AcademicCapIcon, StarIcon, ShieldCheckIcon } from "@heroicons/react/24/solid";
-import { KeyIcon } from "@heroicons/react/24/solid";
-import {
-    BookOpenIcon as BookOpenIcon2,
-    AcademicCapIcon as AcademicCapIcon2,
-    TrophyIcon as TrophyIcon2,
-} from "@heroicons/react/24/outline";
-import BookOpenIcon from "@heroicons/react/24/solid/BookOpenIcon";
-import TrophyIcon from "@heroicons/react/24/solid/TrophyIcon";
+import { UserIcon, AcademicCapIcon, StarIcon } from "@heroicons/react/24/solid";
+import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
 import IdentityCard from "../components/IdentityCard.jsx";
 import {
     ExplorerIcon,
@@ -77,7 +70,7 @@ export default function Dashboard() {
     })();
 
     useEffect(() => {
-        if (!isConnected) navigate("/join");
+        if (!isConnected) navigate("/join-gr");
         window.scrollTo(0, 0);
     }, [isConnected, navigate]);
 
@@ -262,27 +255,24 @@ export default function Dashboard() {
         }
     }, [metadata?.tier]);
 
-    const cleanNextLesson = (() => {
-        if (!displayedMetadata?.nextLesson) return "";
-        const trimmed = displayedMetadata.nextLesson
-            .trim()
-            .replace(/^Start\s+/i, "")
-            .replace(/^with\s+/i, "")
-            .trim();
-        if (!trimmed) return "";
-        const normalized = trimmed.toLowerCase();
-        const looksLikePlaceholderLesson1 =
-            /^lesson\s*1$/.test(normalized) ||
-            normalized.includes("with lesson 1") ||
-            (normalized.includes("lesson 1") && normalized.length <= 20);
-        if (looksLikePlaceholderLesson1) return "";
-        return trimmed;
-    })();
-
-    const recommended =
+    const fallbackRecommendation = {
+        type: "guide",
+        title: "Ξεκίνα εδώ — Οδηγός Web3Edu",
+        slug: "start-here-gr",
+        why: "Αυτός ο σύντομος οδηγός εξηγεί πώς λειτουργεί το Web3Edu και σε βοηθά να επιλέξεις το επόμενο βήμα.",
+        estimatedTime: 5,
+    };
+    const recommendedFromBackend =
         metadata && typeof metadata.recommendedNext === "object"
             ? metadata.recommendedNext
             : null;
+    const hasBackendRecommendation =
+        recommendedFromBackend &&
+        (recommendedFromBackend.title || recommendedFromBackend.slug);
+    const recommended = hasBackendRecommendation
+        ? recommendedFromBackend
+        : fallbackRecommendation;
+    const isFallbackRecommendation = !hasBackendRecommendation;
     const recommendedLabSlug =
         recommended?.slug?.endsWith("-gr")
             ? recommended.slug.replace(/-gr$/, "")
@@ -511,33 +501,13 @@ export default function Dashboard() {
                                     <p className="text-xs text-slate-600/90 dark:text-slate-400/90">
                                         Κέρδισε XP από μαθήματα και κουίζ για να αναβαθμίσεις τη βαθμίδα σου.
                                     </p>
+                                    <p className="mt-2 text-xs text-slate-600/90 dark:text-slate-400/90">
+                                        {metadata?.tier === "Builder" || metadata?.tier === "Architect"
+                                            ? "Η πρόσβαση στη διακυβέρνηση DAO είναι ξεκλειδωμένη στη βαθμίδα σου."
+                                            : "Φτάσε τη βαθμίδα Builder για να ξεκλειδώσεις πρόσβαση στη διακυβέρνηση DAO."}
+                                    </p>
                                 </div>
                             </div>
-                        </DashboardCard>
-
-                        {/* Continue Learning Callout */}
-                        <DashboardCard
-                            title="Συνέχισε να μαθαίνεις"
-                            className="
-                                rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                                bg-gradient-to-br from-white/95 via-indigo-50/70 to-slate-100/90
-                                dark:from-[#0e1020]/90 dark:via-[#0a0d19]/85 dark:to-[#060811]/90
-                                backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                                hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                            "
-                            icon={<BookOpenIcon className="w-5 h-5 text-white" />}
-                        >
-                            <p className="text-sm text-slate-700 dark:text-slate-300 mb-3 leading-relaxed">
-                                Προχωράς πολύ καλά — τα επόμενα βήματα του Web3 ταξιδιού σου σε περιμένουν.
-                            </p>
-                            <button
-                                onClick={() => navigate("/education")}
-                                className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#4ACBFF]
-                                           text-white hover:scale-[1.04] hover:opacity-90 transition 
-                                           font-semibold shadow-md"
-                            >
-                                Συνέχισε να μαθαίνεις
-                            </button>
                         </DashboardCard>
 
                         {/* Progress Card */}
@@ -593,27 +563,21 @@ export default function Dashboard() {
                                     Ξεκίνησε τα μαθήματα
                                 </button>
 
-                                <button
-                                    onClick={() => navigate("/start-here-gr")}
-                                    className="
-    py-3 px-6 rounded-xl
-    bg-gradient-to-r from-indigo-500 to-purple-400
-    text-white
-    hover:scale-[1.03] hover:opacity-90
-    transition
-    font-semibold shadow-md
-  "
-                                >
-                                    Ξεκίνα εδώ (οδηγός)
-                                </button>
-
-                                <button
-                                    onClick={() => navigate("/")}
-                                    className="py-3 px-6 rounded-xl bg-white/10 hover:bg
-                                    white/20 hover:scale-[1.03] transition font-semibold shadow-md text-slate-900 dark:text-white"
-                                >
-                                    Επιστροφή στην Αρχική
-                                </button>
+                                <div className="mt-3">
+                                    <button
+                                        onClick={() => navigate("/start-here-gr")}
+                                        className="
+  w-full py-3 px-6 rounded-xl
+  bg-gradient-to-r from-indigo-500/80 to-purple-500/80
+  text-white
+  hover:scale-[1.03] hover:opacity-90
+  transition
+  font-semibold shadow-md
+"
+                                    >
+                                        Ξεκίνα εδώ (οδηγός)
+                                    </button>
+                                </div>
                             </div>
                         </DashboardCard>
 
@@ -636,14 +600,20 @@ export default function Dashboard() {
                                 <div className="flex flex-wrap gap-2">
                                     {metadata.badges.map((b, i) => {
                                         let Icon = StarIcon;
-                                        const lower = b.toLowerCase();
+                                        const lower =
+                                            typeof b === "string"
+                                                ? b.toLowerCase()
+                                                : (b?.label?.toLowerCase?.() ||
+                                                    b?.en?.toLowerCase?.() ||
+                                                    b?.gr?.toLowerCase?.() ||
+                                                    "");
                                         if (lower.includes("wallet")) Icon = KeyIcon;
                                         if (lower.includes("lesson")) Icon = BookOpenIcon;
                                         if (lower.includes("quiz")) Icon = TrophyIcon;
 
                                         return (
                                             <span
-                                                key={i}
+                                                key={`${i}-${typeof b === "string" ? b : b?.id || "badge"}`}
                                                 className="
                                                     inline-flex items-center gap-2 
                                                     px-3 py-1 rounded-full 
@@ -654,7 +624,9 @@ export default function Dashboard() {
                                                 "
                                             >
                                                 <Icon className="w-4 h-4 text-white/90" />
-                                                {b}
+                                                {typeof b === "string"
+                                                    ? b
+                                                    : b?.gr || b?.en || b?.label || JSON.stringify(b)}
                                             </span>
                                         );
                                     })}
@@ -666,115 +638,85 @@ export default function Dashboard() {
                             )}
                         </DashboardCard>
 
-                        {/* DAO Access */}
-                        <DashboardCard
-                            title="Πρόσβαση DAO"
-                            className="
-                            rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                            bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
-                            dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
-                            dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                            hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                        "
-                            icon={<ShieldCheckIcon className="w-5 h-5 text-white" />}
-                        >
-                            {metadata?.tier === "Builder" || metadata?.tier === "Architect" ? (
-                                <p className="text-slate-800 dark:text-slate-100">
-                                    Είσαι επιλέξιμος/η για συμμετοχή στο DAO.
-                                </p>
-                            ) : (
-                                <p className="text-slate-700 dark:text-slate-300">
-                                    Φτάσε τη βαθμίδα Builder για να ξεκλειδώσεις πρόσβαση στο DAO.
-                                </p>
-                            )}
-                        </DashboardCard>
                     </div>
                 </div>
 
-                {/* Recommended Next Lesson — full width, after dashboard grid */}
-                <div className="w-full max-w-5xl mx-auto mt-12 mb-6">
-                    <DashboardCard
-                        title="Προτεινόμενο επόμενο μάθημα"
-                        className="
-                            rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                            bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
-                            dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
-                            dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                            hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                        "
-                        icon={<AcademicCapIcon2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />}
-                    >
-                        {recommended ? (
-                            <div>
-                                <div className="mb-3 flex flex-col md:flex-row md:items-center md:justify-between">
-                                    <div>
-                                        <div className="text-xs text-indigo-500 font-semibold mb-1">
-                                            Πρόταση για εσένα
-                                        </div>
-                                        <div className="text-lg font-bold text-slate-900 dark:text-white mb-1">
-                                            {typeof recommended.title === "object"
-                                                ? recommended.title.gr || recommended.title.en
-                                                : recommended.title}
-                                        </div>
-                                        {recommended.description && (
-                                            <div className="text-sm text-slate-600 dark:text-slate-300">
-                                                {typeof recommended.description === "object"
-                                                    ? recommended.description.gr || recommended.description.en
-                                                    : recommended.description}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="mt-4 md:mt-0 flex flex-row items-center gap-2">
-                                        {recommended.type === "lesson" && (
-                                            <BookOpenIcon2 className="w-8 h-8 text-indigo-500" />
-                                        )}
-                                        {recommended.type === "quiz" && (
-                                            <TrophyIcon2 className="w-8 h-8 text-indigo-500" />
-                                        )}
-                                    </div>
-                                </div>
+                {/* Recommended Next Module — Full Width */}
+                {recommended && (
+                    <div className="relative z-10 w-full max-w-6xl mx-auto mt-6 mb-8 px-2 md:px-0">
+                        <DashboardCard
+                            title="Προτεινόμενο επόμενο βήμα"
+                            className="
+                rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
+                bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
+                dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
+                dark:border-white/10 backdrop-blur-xl shadow-xl
+                hover:scale-[1.002] hover:shadow-2xl transition-all duration-500
+            "
+                            icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
+                        >
+                            <div
+                                className="space-y-3 cursor-pointer"
+                                onClick={() => {
+                                    if (recommended.type === "lab" && recommendedLabSlug) {
+                                        navigate(`/labs-gr/${recommendedLabSlug}`);
+                                        return;
+                                    }
+                                    if (recommended.type === "lesson" && recommended.slug) {
+                                        navigate(`/lessons/${recommended.slug}`);
+                                        return;
+                                    }
+                                    if (recommended.type === "guide" && recommended.slug) {
+                                        navigate(`/${recommended.slug}`);
+                                        return;
+                                    }
+                                    navigate("/start-here-gr");
+                                }}
+                            >
+                                <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
+                                    {isFallbackRecommendation ? "Ξεκίνα από εδώ" : "Προτείνεται για εσένα"}
+                                </p>
+
+                                <p className="text-xl font-bold text-slate-900 dark:text-white leading-snug">
+                                    {typeof recommended.title === "object"
+                                        ? recommended.title.gr || recommended.title.en
+                                        : recommended.title}
+                                </p>
+
                                 {recommended.why && (
-                                    <div className="mt-2">
+                                    <div className="mt-1">
                                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500 mb-1">
-                                            Γιατί προτείνεται
+                                            {isFallbackRecommendation ? "Προτεινόμενο πρώτο βήμα" : "Γιατί προτείνεται"}
                                         </p>
-                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
                                             {typeof recommended.why === "object"
                                                 ? recommended.why.gr || recommended.why.en
                                                 : recommended.why}
                                         </p>
                                     </div>
                                 )}
-                                <button
-                                    className="mt-3 py-2 px-5 rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#4ACBFF]
-        text-white hover:scale-[1.04] hover:opacity-90 transition font-semibold shadow-md"
-                                    onClick={() => {
-                                        if (recommended.type === "lab" && recommendedLabSlug) {
-                                            navigate(`/labs-gr/${recommendedLabSlug}`);
-                                            return;
-                                        }
-                                        if (recommended.type === "lesson" && recommended.slug) {
-                                            navigate(`/lessons/${recommended.slug}`);
-                                            return;
-                                        }
-                                        navigate("/education");
-                                    }}
-                                >
-                                    Συνέχισε →
-                                </button>
-                            </div>
-                        ) : (
-                            <div>
-                                <div className="text-slate-700 dark:text-slate-300">
-                                    Νέες προτάσεις σύντομα…
+
+                                <div className="flex flex-wrap items-center gap-6 pt-1 text-sm text-slate-600 dark:text-slate-400">
+                                    {!isFallbackRecommendation && recommended.estimatedTime && (
+                                        <span>⏱ {recommended.estimatedTime} λεπτά</span>
+                                    )}
+                                    {!isFallbackRecommendation && recommended.xp && (
+                                        <span>🏅 +{recommended.xp} XP</span>
+                                    )}
+                                </div>
+
+                                <div className="pt-2">
+                                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                                        Συνέχισε →
+                                    </span>
                                 </div>
                             </div>
-                        )}
-                    </DashboardCard>
-                </div>
+                        </DashboardCard>
+                    </div>
+                )}
 
-                {/* Learning Timeline — full width, after recommendation */}
-                <div className="w-full max-w-5xl mx-auto mb-10">
+                {/* Full-width Learning Timeline */}
+                <div className="relative z-10 w-full max-w-6xl mx-auto mt-12 px-2 md:px-0">
                     <LearningTimeline timeline={metadata?.timeline || []} lang="gr" />
                 </div>
 
