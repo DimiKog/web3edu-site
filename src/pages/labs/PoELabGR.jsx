@@ -1,0 +1,46 @@
+import React from "react";
+import ProjectLabTemplate from "./ProjectLabTemplate";
+import poeLogo from "../../assets/labs/poe_logo.jpeg";
+
+const PoELabGR = () => {
+    return (
+        <ProjectLabTemplate
+            projectId="proof-of-escape"
+            title="Proof of Escape (PoE)"
+            subtitle="Ένα παιχνιδοποιημένο Web3 challenge που αποδεικνύει τη μάθηση on-chain"
+            heroImage={poeLogo}
+            heroImageWrapperClass="mb-14 rounded-3xl overflow-hidden border bg-slate-50 w-fit mx-auto"
+            heroImageClass="w-full max-w-xs h-auto object-contain"
+            level="Εφαρμοσμένο · Project Lab"
+            estimatedTime="15–20 λεπτά"
+            difficulty="Μέτριο"
+            missionText={`
+Το Proof of Escape δεν είναι tutorial — είναι πρόκληση.
+
+Θα εξερευνήσεις ένα ζωντανό Web3 περιβάλλον, θα λύσεις κρυπτογραφικές και
+blockchain αποστολές, και θα αφήσεις ένα επαληθεύσιμο on-chain αποτύπωμα συμμετοχής.
+Δεν υπάρχουν πιστοποιητικά — μόνο απόδειξη.
+            `}
+            whatYouDo={[
+                "Εξερεύνησε το περιβάλλον της πρόκλησης Proof of Escape",
+                "Αλληλεπίδρασε με πορτοφόλια, μηνύματα και smart contracts",
+                "Λύσε τα απαιτούμενα quiz για να ξεκλειδώσεις το τελικό βήμα",
+                "Κάνε mint ένα on-chain proof ολοκλήρωσης (NFT)",
+            ]}
+            unlocks={[
+                "Proof of Escape on-chain NFT",
+                "Δικαίωμα πρόσβασης στο Web3Edu DAO",
+                "Επαληθεύσιμη ολοκλήρωση project στο Web3 προφίλ σου",
+                "Πρόσβαση σε μελλοντικά Applied & Project Labs",
+            ]}
+            primaryCta={{
+                label: "Ξεκίνα το Proof of Escape →",
+                href: "https://dimikog.github.io/proof-of-escape/",
+            }}
+            completionType="onchain"
+            verifyEndpoint="https://web3edu-api.dimikog.org/projects/poe/status"
+        />
+    );
+};
+
+export default PoELabGR;

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import PageShell from "../../components/PageShell";
 import { useAccount } from "wagmi";
+import FeedbackModal from "../../components/FeedbackModal";
 
 /**
  * ProjectLabTemplate
@@ -36,6 +37,14 @@ const ProjectLabTemplate = ({
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completed, setCompleted] = useState(false);
     const [completionData, setCompletionData] = useState(null);
+    const [showFeedback, setShowFeedback] = useState(false);
+    const wasCompletedRef = useRef(false);
+
+    const language =
+        typeof window !== "undefined" &&
+            window.location.hash.includes("/labs-gr")
+            ? "gr"
+            : "en";
 
     /**
      * Completion verification
@@ -44,7 +53,7 @@ const ProjectLabTemplate = ({
      * - DAO invite SBT
      */
     useEffect(() => {
-        if (!isConnected || !address || !verifyEndpoint) {
+        if (!address || !verifyEndpoint) {
             setCheckingStatus(false);
             return;
         }
@@ -52,7 +61,7 @@ const ProjectLabTemplate = ({
         const checkCompletion = async () => {
             try {
                 const res = await fetch(
-                    `${verifyEndpoint}?address=${address}&projectId=${projectId}`
+                    `${verifyEndpoint}?address=${address}`
                 );
 
                 if (!res.ok) return;
@@ -61,10 +70,18 @@ const ProjectLabTemplate = ({
                 if (data.completed) {
                     setCompleted(true);
                     setCompletionData(data);
+
+                    if (!wasCompletedRef.current) {
+                        setShowFeedback(true);
+                        wasCompletedRef.current = true;
+                    }
                 }
             } catch (err) {
                 console.warn("Project completion check failed", err);
             } finally {
+                if (completed) {
+                    wasCompletedRef.current = true;
+                }
                 setCheckingStatus(false);
             }
         };
@@ -163,7 +180,7 @@ const ProjectLabTemplate = ({
                 )}
 
                 {/* CTA */}
-                {primaryCta?.href && (
+                {primaryCta?.href && !completed && (
                     <div className="max-w-3xl mx-auto text-center">
                         <a
                             href={primaryCta.href}
@@ -176,6 +193,9 @@ const ProjectLabTemplate = ({
                         <p className="mt-2 text-xs text-slate-500">
                             Opens in a new tab
                         </p>
+                        <p className="mt-1 text-xs text-slate-400">
+                            If redirected to a wallet app, copy the link and open it directly in your browser.
+                        </p>
                     </div>
                 )}
 
@@ -185,7 +205,7 @@ const ProjectLabTemplate = ({
 
                     {!checkingStatus && completed && (
                         <div className="text-green-700 font-semibold">
-                            ✓ Project completed — on-chain proof verified
+                            ✓ Applied project completed — on-chain proof verified
                         </div>
                     )}
 
@@ -195,6 +215,26 @@ const ProjectLabTemplate = ({
                         </div>
                     )}
                 </section>
+
+                <FeedbackModal
+                    isOpen={showFeedback}
+                    onClose={() => setShowFeedback(false)}
+                    labId={projectId}
+                    labTitle={title}
+                    labType="project"
+                    language={language}
+                    onSubmit={async (feedback) => {
+                        try {
+                            await fetch("https://web3edu-api.dimikog.org/feedback", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(feedback),
+                            });
+                        } catch (e) {
+                            console.warn("Feedback submission failed", e);
+                        }
+                    }}
+                />
 
             </div>
         </PageShell>

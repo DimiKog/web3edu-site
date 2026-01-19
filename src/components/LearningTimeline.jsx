@@ -16,6 +16,7 @@ const LearningTimeline = ({ timeline = [], lang = "en" }) => {
             lab: "Labs",
             lesson: "Lessons",
             quiz: "Quizzes",
+            project: "Projects",
             empty: "No activity recorded yet."
         },
         gr: {
@@ -24,6 +25,7 @@ const LearningTimeline = ({ timeline = [], lang = "en" }) => {
             lab: "Εργαστήρια",
             lesson: "Μαθήματα",
             quiz: "Κουίζ",
+            project: "Projects",
             empty: "Δεν έχει καταγραφεί δραστηριότητα ακόμη."
         }
     };
@@ -35,6 +37,7 @@ const LearningTimeline = ({ timeline = [], lang = "en" }) => {
         { id: "lab", label: t.lab },
         { id: "lesson", label: t.lesson },
         { id: "quiz", label: t.quiz },
+        { id: "project", label: t.project },
     ];
 
     const filteredTimeline =
@@ -92,6 +95,7 @@ const LearningTimeline = ({ timeline = [], lang = "en" }) => {
                                 {item.type === "lab" && <span>🧪</span>}
                                 {item.type === "lesson" && <span>📘</span>}
                                 {item.type === "quiz" && <span>📝</span>}
+                                {item.type === "project" && <span>🧾</span>}
                             </div>
 
                             {/* Content */}

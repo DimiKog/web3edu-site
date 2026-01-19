@@ -3,6 +3,8 @@ import PageShell from "../../components/PageShell";
 import { useAccount, useSignMessage } from "wagmi";
 import { useEffect, useState } from "react";
 
+import FeedbackModal from "../../components/FeedbackModal";
+
 const DEFAULT_LABELS = {
     breadcrumbLabs: "Labs",
     overview: "",
@@ -59,6 +61,10 @@ const LabTemplate = ({
 
     const mergedLabels = { ...DEFAULT_LABELS, ...labels };
 
+    // Detect language from route (labs / labs-gr)
+    const isGreekRoute = window.location.hash.includes("/labs-gr/");
+    const lang = isGreekRoute ? "gr" : "en";
+
     const { address, isConnected } = useAccount();
     const { signMessageAsync } = useSignMessage();
 
@@ -67,6 +73,7 @@ const LabTemplate = ({
     const [error, setError] = useState(null);
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completedAt, setCompletedAt] = useState(null);
+    const [showFeedback, setShowFeedback] = useState(false);
 
     useEffect(() => {
         if (!isConnected || !address || !labId) {
@@ -144,6 +151,7 @@ Timestamp: ${timestamp}`;
             }
 
             setClaimed(true);
+            setShowFeedback(true);
             setTimeout(() => {
                 document
                     .getElementById("lab-completion")
@@ -237,6 +245,25 @@ Timestamp: ${timestamp}`;
                         🧠 <span className="font-semibold">{mergedLabels.conceptualFocus}:</span>{" "}
                         {conceptualFocusText}
                     </p>
+                    <FeedbackModal
+                        isOpen={showFeedback}
+                        onClose={() => setShowFeedback(false)}
+                        labId={labId}
+                        labTitle={title}
+                        labType="foundation"
+                        language={lang}
+                        onSubmit={async (feedback) => {
+                            try {
+                                await fetch("https://web3edu-api.dimikog.org/feedback", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(feedback),
+                                });
+                            } catch (e) {
+                                console.warn("Feedback submission failed", e);
+                            }
+                        }}
+                    />
                 </section>
 
                 {/* Meta info */}

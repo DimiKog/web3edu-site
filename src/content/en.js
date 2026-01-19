@@ -68,32 +68,38 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
         },
     },
 
-    // -------------------------
+    /// -------------------------
     // APP CARDS
     // -------------------------
     apps: {
-        heading: "Web3 Applications & Tools",
+        heading: "Web3Edu Ecosystem",
+
         poe: {
             title: "Proof of Escape",
-            desc: "Kick off with an interactive story-driven challenge that introduces core blockchain ideas.",
+            desc: "An applied, on-chain challenge that validates core Web3 concepts through interaction rather than quizzes."
         },
+
         education: {
-            title: "Education Portal",
-            desc: "Follow the course roadmap, session recordings, and practical resources in one place.",
+            title: "Web3 Laboratories",
+            desc: "A structured laboratory environment for exploring foundational Web3 concepts, from wallets and cryptography to smart contracts and consensus."
         },
+
         nft: {
             title: "NFT Verifier",
-            desc: "Quickly confirm wallet eligibility before accessing gated labs and assessments.",
+            desc: "A utility module for verifying NFT ownership and on-chain credentials issued within the Web3Edu ecosystem."
         },
+
         dao: {
             title: "DAO Playground",
-            desc: "Use your learning credentials to co-design quests, tooling, and governance experiments.",
+            desc: "An experimental governance sandbox for exploring proposals, voting mechanisms, and decentralized participation models."
         },
+
         zkp: {
-            title: "ZKP Module",
-            desc: "Advance into privacy engineering with visual ZKP walkthroughs and guided exercises.",
+            title: "Zero-Knowledge Module",
+            desc: "A research-oriented module focused on privacy-preserving techniques and zero-knowledge proofs in applied Web3 systems."
         },
-        cta: "Explore",
+
+        cta: "Explore"
     },
 
     // -------------------------

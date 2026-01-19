@@ -16,6 +16,28 @@ const LabsGR = () => {
     const [lab04Completed, setLab04Completed] = useState(false);
     const [lab05Completed, setLab05Completed] = useState(false);
     const [lab06Completed, setLab06Completed] = useState(false);
+    const [poeCompleted, setPoeCompleted] = useState(false);
+    useEffect(() => {
+        if (!address) {
+            setPoeCompleted(false);
+            return;
+        }
+        const controller = new AbortController();
+        fetch(
+            `https://web3edu-api.dimikog.org/projects/poe/status?address=${address}`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setPoeCompleted(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Αποτυχία φόρτωσης κατάστασης Proof of Escape", err);
+                }
+            });
+        return () => controller.abort();
+    }, [address]);
     useEffect(() => {
         if (!address) {
             setLab06Completed(false);
@@ -586,22 +608,41 @@ const LabsGR = () => {
 
                         {/* 🧠 Proof of Escape */}
                         <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                            <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center justify-between mb-3 gap-2">
                                 <h3 className="text-lg font-semibold">Lab 07 — 🧠 Proof of Escape</h3>
-                                <span className="rounded-full text-xs whitespace-nowrap px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 font-semibold">
-                                    Διαθέσιμο
-                                </span>
+                                <div className="flex items-center gap-2 flex-nowrap">
+                                    {/* 1. Διαθέσιμο */}
+                                    <BadgeWithTooltip
+                                        label="Διαθέσιμο"
+                                        variant="success"
+                                        tooltip="On-chain επαληθευμένο project lab"
+                                        className="rounded-full text-xs whitespace-nowrap"
+                                    />
+                                    {/* 2. Ολοκληρώθηκε */}
+                                    {poeCompleted && (
+                                        <span
+                                            title="Ολοκληρώθηκε μέσω on-chain απόδειξης"
+                                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full
+                                                       text-xs whitespace-nowrap bg-green-500/90 text-white
+                                                       font-semibold shadow-lg backdrop-blur
+                                                       transition transform
+                                                       motion-safe:animate-[fadeInScale_300ms_ease-out]"
+                                        >
+                                            ✓ Ολοκληρώθηκε
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
                                 Ένα παιγνιοποιημένο Web3 challenge με quizzes, NFTs και
                                 on-chain επαλήθευση βασικών εννοιών.
                             </p>
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mt-auto">
                                 <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                     Αρχάριο
                                 </span>
                                 <Link
-                                    to="/labs/proof-of-escape"
+                                    to="/labs-gr/proof-of-escape"
                                     className="text-sm font-semibold text-indigo-600 hover:underline"
                                 >
                                     Άνοιγμα Εργαστηρίου

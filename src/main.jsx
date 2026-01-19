@@ -66,6 +66,7 @@ import Lab06InteractionGR from './pages/labs/Lab06InteractionGR.jsx';
 
 //Project Labs
 import PoELab from './pages/labs/PoELab.jsx';
+import PoELabGR from './pages/labs/PoELabGR.jsx';
 
 // Besu Edu-Net chain config
 const web3EduChain = {
@@ -158,6 +159,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs-gr/lab06" element={<Lab06GR />} />
               <Route path="/labs-gr/lab06/interaction" element={<Lab06InteractionGR />} />
               <Route path="/labs/proof-of-escape" element={<PoELab />} />
+              <Route path="/labs-gr/proof-of-escape" element={<PoELabGR />} />
             </Routes>
           </HashRouter>
         </RainbowKitProvider>
