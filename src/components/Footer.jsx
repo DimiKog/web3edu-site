@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 const Footer = ({ content }) => {
     const safe = content ?? {};
     const year = new Date().getFullYear();
+    const nav = safe.nav ?? {};
     const [isDark, setIsDark] = useState(
         typeof document !== "undefined" &&
         document.documentElement.classList.contains("dark")
@@ -103,9 +104,10 @@ const Footer = ({ content }) => {
 
                 {/* Middle Nav */}
                 <nav className="flex gap-6 text-slate-600 dark:text-white/80 text-[11px] tracking-wide">
-                    <a href="/#/" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">Home</a>
-                    <a href="/#/team" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">Team</a>
-                    <a href="/#/start-here" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">Start Here</a>
+                    <a href="/#/" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">{nav.home ?? "Home"}</a>
+                    <a href="/#/team" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">{nav.team ?? "Team"}</a>
+                    <a href="/#/start-here" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">{nav.startHere ?? "Start Here"}</a>
+                    <a href="/#/dao-info" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">{nav.dao ?? "DAO Governance"}</a>
                 </nav>
 
                 {/* Right: Social Icons */}
@@ -142,7 +144,7 @@ const Footer = ({ content }) => {
 
             {/* Micro-CTA */}
             <div className="mt-6 text-center text-[10px] text-[#8A57FF] dark:text-white/70 tracking-wide">
-                Explore: Learning Path · Proof of Escape (Preview) · DAO (Preview)
+                Explore: Learning Path · Proof of Escape · DAO Governance
             </div>
 
             <div className="w-20 h-[2px] bg-gradient-to-r from-[#8A57FF]/20 via-[#4ACBFF]/20 to-[#FF67D2]/20 mx-auto mb-4"></div>

@@ -48,7 +48,7 @@ const AppsGridGR = ({ content, badgeLabel = "Επισκόπηση Οικοσυσ
 
         {/*
       Το AppsGrid είναι κατηγοριοκεντρικό και όχι βασισμένο σε ενέργειες.
-      Κάθε κάρτα αντιπροσωπεύει μία δυνατότητα του οικοσυστήματος Web3Edu
+      Κάθε κάρτα αντιπροσωπεύει μία βασική δυνατότητα του οικοσυστήματος Web3Edu
       και όχι πρόοδο, ολοκλήρωση ή XP.
       Η πρόοδος και τα αποτελέσματα εμφανίζονται στα Labs και στο Dashboard.
     */}
@@ -135,7 +135,7 @@ const AppsGridGR = ({ content, badgeLabel = "Επισκόπηση Οικοσυσ
                                         className={`inline-flex items-center gap-2 text-base font-semibold
                                   text-slate-700 dark:${theme.icon}`}
                                     >
-                                        Σύντομα διαθέσιμο
+                                        Διαθέσιμο σύντομα
                                     </div>
                                 )}
                             </div>

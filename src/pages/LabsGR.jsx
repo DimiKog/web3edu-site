@@ -311,7 +311,7 @@ const LabsGR = () => {
                                                     σε ένα αδειοδοτημένο Ethereum δίκτυο — πριν από συναλλαγές, gas ή smart contracts.
                                                 </p>
 
-                                                <div className="grid grid-cols-2 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
                                                     <span>🧭 <strong className="font-semibold text-slate-700 dark:text-slate-200">Επίπεδο:</strong> Αρχάριο</span>
                                                     <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Διάρκεια:</strong> 15–20 λεπτά</span>
                                                     <span>🌐 <strong className="font-semibold text-slate-700 dark:text-slate-200">Δίκτυο:</strong> Besu Edu‑Net</span>
@@ -666,7 +666,7 @@ const LabsGR = () => {
                                 <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
                                     Μεσαίο
                                 </span>
-                                <span className="text-sm text-slate-400">Προεπισκόπηση</span>
+                                <span className="text-sm text-slate-400">Μη διαθέσιμο</span>
                             </div>
                         </div>
 

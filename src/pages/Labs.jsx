@@ -306,7 +306,7 @@ const Labs = () => {
                                                     on a permissioned Ethereum network — before transactions,
                                                     gas, or smart contracts exist.
                                                 </p>
-                                                <div className="grid grid-cols-2 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
                                                     <span>🧭 <strong className="font-semibold text-slate-700 dark:text-slate-200">Level:</strong> Beginner</span>
                                                     <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Time:</strong> 15–20 minutes</span>
                                                     <span>🌐 <strong className="font-semibold text-slate-700 dark:text-slate-200">Network:</strong> Besu Edu‑Net</span>

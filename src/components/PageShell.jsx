@@ -58,6 +58,7 @@ export default function PageShell({
   accentColor = ACCENT_PRIMARY,
   innerClassName = "",
   children,
+  footerContent,
 }) {
   const [isShrunk, setIsShrunk] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -237,8 +238,18 @@ export default function PageShell({
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
   after:transition-transform hover:after:scale-x-100">Ομάδα</a>
-
-
+                <a
+                  href="/#/dao-info-gr"
+                  className="relative font-medium 
+    text-white dark:text-blue-200
+    hover:text-blue-300 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  Διακυβέρνηση DAO
+                </a>
               </>
             ) : (
               <>
@@ -280,7 +291,18 @@ export default function PageShell({
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
   after:transition-transform hover:after:scale-x-100">Team</a>
-
+                <a
+                  href="/#/dao-info"
+                  className="relative font-medium 
+    text-white dark:text-blue-200
+    hover:text-blue-300 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  DAO Governance
+                </a>
               </>
             )}
           </div>
@@ -379,7 +401,7 @@ export default function PageShell({
         {mobileOpen && (
           <div className="fixed inset-0 md:hidden z-40 px-4 pt-24 pb-8 bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-xl">
             <div className="h-full w-full overflow-y-auto rounded-2xl border border-white/10 bg-white/80 dark:bg-slate-900/85 shadow-2xl shadow-indigo-500/10 p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {isGR ? (
                   <>
                     <button
@@ -412,6 +434,13 @@ export default function PageShell({
                     >
                       Ομάδα
                     </button>
+                    <a
+                      href="/#/dao-info-gr"
+                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50 flex items-center justify-center"
+                      style={{ textAlign: "center" }}
+                    >
+                      Διακυβέρνηση DAO
+                    </a>
                   </>
                 ) : (
                   <>
@@ -445,6 +474,13 @@ export default function PageShell({
                     >
                       Team
                     </button>
+                    <a
+                      href="/#/dao-info"
+                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50 flex items-center justify-center"
+                      style={{ textAlign: "center" }}
+                    >
+                      DAO Governance
+                    </a>
                   </>
                 )}
               </div>
@@ -538,7 +574,7 @@ export default function PageShell({
 
       {/* GLOBAL FOOTER */}
       <div className="w-full">
-        {isGR ? <FooterGr /> : <Footer />}
+        {isGR ? <FooterGr content={footerContent} /> : <Footer content={footerContent} />}
       </div>
     </main>
   );

@@ -371,6 +371,9 @@ export default function Dashboard() {
                                 🕒 Συγχρονίστηκε πριν {Math.max(1, Math.floor((Date.now() - lastSyncTime.getTime()) / 1000))} δευτ • Ταυτότητα Web3Edu
                             </p>
                         )}
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                            Κάνε mint την Ταυτότητα Web3Edu για να αποθηκεύσεις τη μάθησή σου on-chain.
+                        </p>
 
                         <div
                             className="

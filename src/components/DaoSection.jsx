@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import SectionBadge from "./SectionBadge.jsx";
 import daoHolo from "../assets/dao-holo.png";
 
@@ -9,6 +10,8 @@ const DaoSection = ({
     content,
     badgeLabel = "Community Governance",
     status = DEFAULT_STATUS,
+    previewPath = "/dao-preview",
+    governancePath = "/dao-info",
 }) => (
     <section className="relative mt-16 overflow-hidden rounded-3xl border border-[#8A57FF]/25 dark:border-[#8A57FF]/30 shadow-2xl">
 
@@ -57,7 +60,7 @@ const DaoSection = ({
                     {/* status badge */}
                     {status !== "active" && (
                         <div className="mt-2 inline-flex items-center rounded-full border border-yellow-400/40 bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-300">
-                            {status === "preview" ? "Preview" : "Coming Soon"}
+                            {status === "preview" ? "Planned" : "Coming Soon"}
                         </div>
                     )}
 
@@ -73,19 +76,19 @@ const DaoSection = ({
 
                     {/* Buttons */}
                     <div className="mt-6 flex flex-wrap gap-4">
-                        <a
-                            href={status === "active" ? "/#/dao" : "/#/dao-preview"}
+                        <Link
+                            to={status === "active" ? "/dao" : previewPath}
                             className="inline-flex items-center gap-2 rounded-full bg-[#8A57FF] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_0_15px_rgba(138,87,255,0.45)] transition hover:bg-[#7A4DE5] hover:shadow-[0_0_18px_rgba(138,87,255,0.55)]"
                         >
-                            {status === "active" ? content.buttons.enter : "Explore DAO (Preview)"} ↗
-                        </a>
+                            {status === "active" ? content.buttons.enter : "Explore DAO"} ↗
+                        </Link>
 
-                        <a
-                            href="/#/dao-info"
+                        <Link
+                            to={governancePath}
                             className="inline-flex items-center gap-2 rounded-full border border-[#8A57FF]/40 bg-slate-900/40 px-5 py-2.5 text-sm font-semibold text-[#CBB2FF] backdrop-blur-xl transition hover:border-[#CBB2FF] hover:bg-slate-900/70"
                         >
                             {content.buttons.learn} ↗
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>

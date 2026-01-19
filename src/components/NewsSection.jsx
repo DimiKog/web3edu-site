@@ -1,7 +1,7 @@
 import SectionBadge from "./SectionBadge.jsx";
 
 const NewsSection = ({ content }) => (
-    <section className="relative z-10 mt-24 rounded-3xl p-10 border 
+    <section className="relative z-10 mt-16 sm:mt-24 rounded-3xl p-6 sm:p-10 border 
                       bg-gradient-to-br from-[#F6F1FF]/70 via-white/60 to-[#EAF8FF]/70 
                       dark:bg-gradient-to-br dark:from-[#0A0F1A]/60 dark:via-[#111626]/50 dark:to-[#131B2D]/50 
                       shadow-xl backdrop-blur-2xl overflow-hidden">
@@ -12,7 +12,7 @@ const NewsSection = ({ content }) => (
         </div>
 
         {/* 🔮 Vertical Neon Spine */}
-        <div className="absolute left-6 top-0 h-full w-[4px] z-0 bg-gradient-to-b 
+        <div className="absolute left-4 sm:left-6 top-0 h-full w-[3px] sm:w-[4px] z-0 bg-gradient-to-b 
              from-[#8A57FF] via-[#FF67D2] to-[#4ACBFF] 
              opacity-70 rounded-full 
              shadow-[0_0_20px_rgba(138,87,255,0.85)] blur-[0.4px]"></div>
@@ -25,7 +25,7 @@ const NewsSection = ({ content }) => (
         </svg>
 
         {/* Section Header */}
-        <div className="ml-16 mb-10 max-w-4xl relative z-20">
+        <div className="ml-6 sm:ml-16 mb-8 sm:mb-10 max-w-4xl relative z-20">
             <SectionBadge label={content.badge || content.title || "News"} className="mb-6" />
 
             <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">
@@ -42,12 +42,12 @@ const NewsSection = ({ content }) => (
 
         </div>
 
-        <div className="ml-16 h-8 w-[3px] bg-slate-300/50 dark:bg-slate-600/50 rounded-full mb-8"></div>
+        <div className="ml-6 sm:ml-16 h-8 w-[3px] bg-slate-300/50 dark:bg-slate-600/50 rounded-full mb-8"></div>
 
-        <div className="absolute left-10 top-0 h-full w-[2px] z-0 bg-gradient-to-b from-[#8A57FF]/20 via-[#FF67D2]/15 to-[#4ACBFF]/15 rounded-full blur-[1px]"></div>
+        <div className="absolute left-8 sm:left-10 top-0 h-full w-[2px] z-0 bg-gradient-to-b from-[#8A57FF]/20 via-[#FF67D2]/15 to-[#4ACBFF]/15 rounded-full blur-[1px]"></div>
 
         {/* Timeline */}
-        <div className="ml-24 space-y-16 relative z-10">
+        <div className="ml-6 sm:ml-24 space-y-10 sm:space-y-16 relative z-10">
 
             {[...content.items]
                 .sort((a, b) => {
@@ -76,7 +76,7 @@ const NewsSection = ({ content }) => (
 
                         {/* Month Label */}
                         {n.monthLabel && (
-                            <div className="absolute -left-32 top-0 text-right pr-3 w-28 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                            <div className="hidden sm:block absolute -left-32 top-0 text-right pr-3 w-28 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                                 {n.monthLabel}
                             </div>
                         )}

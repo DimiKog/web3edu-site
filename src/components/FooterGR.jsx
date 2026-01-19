@@ -116,6 +116,9 @@ const FooterGr = ({ content }) => {
                     <a href="/#/gr" className="hover:text-[#8A57FF] transition">{nav.home ?? "Αρχική"}</a>
                     <a href="/#/team-gr" className="hover:text-[#8A57FF] transition">{nav.team ?? "Ομάδα"}</a>
                     <a href="/#/start-here-gr" className="hover:text-[#8A57FF] transition">{nav.startHere ?? "Ξεκίνα Εδώ"}</a>
+                    <a href="/#/dao-info-gr" className="hover:text-[#FF67D2] transition">
+                        DAO Διακυβέρνηση
+                    </a>
                 </nav>
 
                 <div className="flex gap-6 text-lg">
@@ -148,7 +151,7 @@ const FooterGr = ({ content }) => {
             </div>
 
             <div className="mt-6 text-center text-[10px] text-[#8A57FF] dark:text-white/80 tracking-wide">
-                Εξερευνήστε: Proof of Escape · Εκπαιδευτική Πύλη · Μαθησιακό Μονοπάτι · DAO
+                Εξερευνήστε: Proof of Escape · Εργαστήρια Web3 · Μαθησιακό Μονοπάτι · DAO Διακυβέρνηση
             </div>
 
             <div className="w-20 h-[2px] bg-gradient-to-r from-[#8A57FF]/20 via-[#4ACBFF]/20 to-[#FF67D2]/20 mx-auto mb-4"></div>

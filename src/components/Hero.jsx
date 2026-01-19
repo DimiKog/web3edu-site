@@ -6,7 +6,7 @@ import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
 import web3EduLogoLightPng from "../assets/web3edu_logo_light.png";
 import web3EduLogoDarkPng from "../assets/web3edu_logo.png";
 
-const Hero = ({ content }) => {
+const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => {
     const [isDark, setIsDark] = useState(
         typeof document !== "undefined" &&
         document.documentElement.classList.contains("dark")
@@ -28,7 +28,9 @@ const Hero = ({ content }) => {
         return () => window.removeEventListener("scroll", h);
     }, []);
 
-    const ctaLabel = content.cta ?? "Start Learning";
+    const ctaLabel = ctaOverride ?? content.cta ?? "Start Learning";
+    const headline = content.headline ?? "A Web3-native learning identity\nthat grows with the ecosystem";
+    const headlineLines = headline.split("\n");
 
     return (
         <header className="w-full py-20 sm:py-28 px-4 sm:px-6 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#081018] overflow-hidden rounded-b-[80px] lg:rounded-b-[120px] relative z-10">
@@ -78,7 +80,12 @@ const Hero = ({ content }) => {
                         {content.welcome}
                     </p>
                     <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight lg:leading-[1.05] bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(74,203,255,.28)] animate-fade-up delay-150">
-                        A Web3-native learning identity<br />that grows with the ecosystem
+                        {headlineLines.map((line, idx) => (
+                            <span key={`${line}-${idx}`}>
+                                {line}
+                                {idx < headlineLines.length - 1 && <br />}
+                            </span>
+                        ))}
                     </h1>
 
                     <p className="text-base sm:text-lg text-slate-200/90 leading-relaxed max-w-xl animate-fade-up delay-150">
@@ -86,7 +93,7 @@ const Hero = ({ content }) => {
                     </p>
 
                     <a
-                        href="/#/start-here"
+                        href={ctaHref}
                         className="inline-flex items-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300 animate-fade-up delay-300"
                     >
                         🚀 {ctaLabel}

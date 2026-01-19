@@ -155,6 +155,7 @@ const gr = {
             dao: "DAO",
             contact: "Επικοινωνία",
             news: "Νέα",
+            startHere: "Ξεκίνα εδώ",
         },
 
         socials: {

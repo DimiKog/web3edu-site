@@ -376,6 +376,9 @@ export default function Dashboard() {
                                 🕒 Synced {Math.max(1, Math.floor((Date.now() - lastSyncTime.getTime()) / 1000))}s ago • Web3Edu Identity
                             </p>
                         )}
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                            Mint your Web3Edu Identity to anchor your learning on-chain.
+                        </p>
 
                         <div
                             className="

@@ -5,10 +5,7 @@ import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
 import web3EduLogoLightPng from "../assets/web3edu_logo_light.png";
 import web3EduLogoDarkPng from "../assets/web3edu_logo.png";
-import { useNavigate } from "react-router-dom";
-
-const HeroGR = ({ content }) => {
-    const navigate = useNavigate();
+const HeroGR = ({ content, ctaHref = "/#/start-here-gr", ctaLabel: ctaOverride }) => {
 
     const [isDark, setIsDark] = useState(
         typeof document !== "undefined" &&
@@ -31,7 +28,7 @@ const HeroGR = ({ content }) => {
         return () => window.removeEventListener("scroll", h);
     }, []);
 
-    const ctaLabel = content.cta ?? "Ξεκίνα τη Μάθηση";
+    const ctaLabel = ctaOverride ?? content.cta ?? "Ξεκίνα τη Μάθηση";
 
     return (
         <header className="w-full py-20 sm:py-28 px-4 sm:px-6 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#081018] overflow-hidden rounded-b-[80px] lg:rounded-b-[120px] relative z-10">
@@ -83,12 +80,12 @@ const HeroGR = ({ content }) => {
                         {content.desc}
                     </p>
 
-                    <button
-                        onClick={() => navigate("/start-here-gr")}
+                    <a
+                        href={ctaHref}
                         className="inline-flex items-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300 animate-fade-up delay-300"
                     >
                         🚀 {ctaLabel}
-                    </button>
+                    </a>
                 </div>
 
             </div>

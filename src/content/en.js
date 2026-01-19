@@ -153,6 +153,7 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
             dao: "DAO",
             contact: "Contact",
             news: "News",
+            startHere: "Start Here",
         },
 
         socials: {

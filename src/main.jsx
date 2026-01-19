@@ -35,6 +35,10 @@ import VerifyIdentity from "./pages/VerifyIdentity.jsx";
 import VerifyIdentityGR from "./pages/VerifyIdentityGR.jsx";
 import StartHere from './pages/StartHere.jsx';
 import StartHereGR from './pages/StartHereGR.jsx';
+import DaoPreview from './pages/dao-preview/DaoPreview.jsx';
+import DaoPreviewGR from './pages/dao-preview/DaoPreviewGR.jsx';
+import DaoGovernance from './pages/dao-preview/DaoGovernance.jsx';
+import DaoGovernanceGR from './pages/dao-preview/DaoGovernanceGR.jsx';
 
 //Labs
 import Labs from "./pages/Labs.jsx";
@@ -132,6 +136,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/verify-gr/:address" element={<VerifyIdentityGR />} />
               <Route path="/start-here" element={<StartHere />} />
               <Route path="/start-here-gr" element={<StartHereGR />} />
+              <Route path="/dao-preview" element={<DaoPreview />} />
+              <Route path="/dao-preview-gr" element={<DaoPreviewGR />} />
+              <Route path="/dao-info" element={<DaoGovernance />} />
+              <Route path="/dao-info-gr" element={<DaoGovernanceGR />} />
               <Route path="/labs" element={<Labs />} />
               <Route path="/labs-gr" element={<LabsGR />} />
               <Route path="/labs/wallets-keys" element={<Lab01 />} />

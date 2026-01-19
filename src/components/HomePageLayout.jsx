@@ -2,17 +2,23 @@ import Hero from "./Hero.jsx";
 import HeroGR from "./HeroGR.jsx";
 import PageShell from "./PageShell.jsx";
 import Motivation from "./Motivation.jsx";
+import MotivationGR from "./MotivationGR.jsx";
 import LearningPath from "./LearningPath.jsx";
+import LearningPathGr from "./LearningPathGr.jsx";
 import DaoSection from "./DaoSection.jsx";
+import DaoSectionGR from "./DaoSectionGR.jsx";
 import AppsGrid from "./AppsGrid.jsx";
 import AppsGridGR from "./AppsGridGR.jsx";
 import NewsSection from "./NewsSection.jsx";
+import NewsSectionGR from "./NewsSectionGR.jsx";
 import SectionBadge from "./SectionBadge.jsx";
 import { ACCENT_PRIMARY } from "../design/theme.js";
 
 const HomePageLayout = ({
     heroContent,
     motivationContent,
+    heroCtaHref,
+    heroCtaLabel,
     motivationHeading,
     motivationImage,
     motivationImageAlt,
@@ -37,8 +43,12 @@ const HomePageLayout = ({
 
     return (
         <>
-            {heroContent?.lang === "gr" ? <HeroGR content={heroContent} /> : <Hero content={heroContent} />}
-            <PageShell accentColor={ACCENT_PRIMARY}>
+            {heroContent?.lang === "gr" ? (
+                <HeroGR content={heroContent} ctaHref={heroCtaHref} ctaLabel={heroCtaLabel} />
+            ) : (
+                <Hero content={heroContent} ctaHref={heroCtaHref} ctaLabel={heroCtaLabel} />
+            )}
+            <PageShell accentColor={ACCENT_PRIMARY} footerContent={footerContent}>
                 <style>{`html { scroll-behavior: smooth; }
 
 @keyframes holoShimmer {
@@ -107,7 +117,11 @@ const HomePageLayout = ({
 
                         <div className="relative flex flex-col lg:flex-row gap-10 items-center">
                             <div className="flex-1 px-2 md:px-4">
-                                <Motivation content={motivationContent} />
+                                {isGreek ? (
+                                    <MotivationGR content={motivationContent} />
+                                ) : (
+                                    <Motivation content={motivationContent} />
+                                )}
                             </div>
                             <div className="relative flex-1 flex lg:flex items-center justify-center mt-4 max-w-[85%] sm:max-w-[70%] mx-auto mb-6 lg:mb-0 overflow-hidden">
                                 <div className="absolute w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-full bg-gradient-to-br from-[#8A57FF]/30 via-[#4ACBFF]/20 to-[#FF67D2]/20 blur-3xl"></div>
@@ -119,11 +133,19 @@ const HomePageLayout = ({
 
                 <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
                 <div className="w-full px-6 opacity-0 animate-fadeInSlow duration-500">
-                    <LearningPath
-                        content={learnPathContent}
-                        badgeLabel={learnBadgeLabel}
-                        ctaHref={isGreek ? "/#/start-here-gr" : "/#/start-here"}
-                    />
+                    {isGreek ? (
+                        <LearningPathGr
+                            content={learnPathContent}
+                            badgeLabel={learnBadgeLabel}
+                            ctaHref="/#/start-here-gr"
+                        />
+                    ) : (
+                        <LearningPath
+                            content={learnPathContent}
+                            badgeLabel={learnBadgeLabel}
+                            ctaHref="/#/start-here"
+                        />
+                    )}
                 </div>
                 <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
 
@@ -140,7 +162,21 @@ const HomePageLayout = ({
 
                 <div className="w-full px-6 opacity-0 animate-fadeInSlow duration-500">
                     <div className="rounded-3xl p-6 sm:p-8 lg:p-10 bg-white/80 dark:bg-slate-900/60 shadow-xl hover:shadow-[0_16px_40px_rgba(138,87,255,0.28)] sm:hover:scale-[1.015] border border-slate-200/70 dark:border-slate-700/60 backdrop-blur-sm">
-                        <DaoSection content={daoContent} badgeLabel={daoBadgeLabel} />
+                        {isGreek ? (
+                            <DaoSectionGR
+                                content={daoContent}
+                                badgeLabel={daoBadgeLabel}
+                                previewPath="/dao-preview-gr"
+                                governancePath="/dao-info-gr"
+                            />
+                        ) : (
+                            <DaoSection
+                                content={daoContent}
+                                badgeLabel={daoBadgeLabel}
+                                previewPath="/dao-preview"
+                                governancePath="/dao-info"
+                            />
+                        )}
                     </div>
                 </div>
                 <div className="w-full my-8" aria-hidden="true"></div>
@@ -187,7 +223,11 @@ const HomePageLayout = ({
                 <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
 
                 <div className="w-full px-6 opacity-0 animate-fadeInSlow duration-500 hover:shadow-[0_16px_40px_rgba(138,87,255,0.28)] sm:hover:scale-[1.015] transition-all duration-300">
-                    <NewsSection content={newsContent} />
+                    {isGreek ? (
+                        <NewsSectionGR content={newsContent} />
+                    ) : (
+                        <NewsSection content={newsContent} />
+                    )}
                 </div>
 
             </PageShell>
