@@ -10,6 +10,7 @@ import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
 import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
 import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
+import PilotBanner from "../components/PilotBanner.jsx";
 import {
     ExplorerIcon,
     BuilderIcon,
@@ -407,6 +408,9 @@ export default function Dashboard() {
                     </div>
                 )}
 
+                {/* Pilot User Banner */}
+                <PilotBanner lang={document.documentElement.lang === "gr" ? "gr" : "en"} />
+
                 {/* 2-Column Premium Layout */}
                 <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 px-2 md:px-0">
                     {/* Left Column — IdentityCard */}
@@ -565,7 +569,7 @@ export default function Dashboard() {
                                 </button>
 
                                 <button
-                                    onClick={() => navigate("/education")}
+                                    onClick={() => navigate("/labs")}
                                     className="py-3 px-6 rounded-xl bg-gradient-to-r from-[#33D6FF] to-[#24A9D0] text-white hover:scale-[1.03] hover:opacity-90 transition font-semibold shadow-md"
                                 >
                                     Continue Learning

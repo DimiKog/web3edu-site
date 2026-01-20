@@ -165,8 +165,6 @@ const Lab03InteractionGR = () => {
             const verified =
                 recoveredAddress.toLowerCase() ===
                 INCOMING_MESSAGE.address.toLowerCase();
-            console.log("Recovered address:", recoveredAddress);
-            console.log("Expected address:", INCOMING_MESSAGE.address);
             setLabState((prev) => ({
                 ...prev,
                 verification: {

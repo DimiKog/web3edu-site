@@ -140,7 +140,7 @@ export default function FeedbackModal({
                             required
                             value={duration}
                             onChange={(e) => setDuration(e.target.value)}
-                            className="w-full rounded-lg border p-2"
+                            className="w-full rounded-lg border p-2 bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
                         >
                             <option value="">{t.selectPlaceholder}</option>
                             {Object.entries(t.durationOptions).map(([value, label]) => (
@@ -180,7 +180,7 @@ export default function FeedbackModal({
                             required
                             value={clarity}
                             onChange={(e) => setClarity(e.target.value)}
-                            className="w-full rounded-lg border p-2"
+                            className="w-full rounded-lg border p-2 bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
                         >
                             <option value="">{t.selectPlaceholder}</option>
                             {Object.entries(t.clarityOptions).map(([value, label]) => (
@@ -198,7 +198,7 @@ export default function FeedbackModal({
                             rows={3}
                             value={issues}
                             onChange={(e) => setIssues(e.target.value)}
-                            className="w-full rounded-lg border p-2"
+                            className="w-full rounded-lg border p-2 bg-white text-slate-900 dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
                         />
                     </div>
 

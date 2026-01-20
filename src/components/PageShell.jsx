@@ -337,9 +337,14 @@ export default function PageShell({
                   >
                     <AddressIdenticon address={address} />
                   </div>
-                  <span className="text-[11px] font-mono tracking-wide hidden sm:inline">
-                    {shortAddr}
-                  </span>
+                  <div className="flex flex-col items-start">
+                    <span className="text-[11px] font-mono tracking-wide hidden sm:inline">
+                      {shortAddr}
+                    </span>
+                    <span className="block text-[10px] text-white/70 leading-tight">
+                      {isGR ? "Προφίλ" : "Profile"}
+                    </span>
+                  </div>
                 </button>
                 <button
                   onClick={() => disconnect()}
@@ -509,6 +514,7 @@ export default function PageShell({
                     <div className="flex-1 text-left">
                       <p className="text-xs text-white/70">{isGR ? "Ταυτότητα" : "Identity"}</p>
                       <p className="font-mono text-sm">{shortAddr}</p>
+                      <p className="text-[11px] text-white/70">{isGR ? "Άνοιγμα Προφίλ" : "Open Profile"}</p>
                     </div>
                     <span className="text-[10px] rounded-full bg-white/15 px-3 py-1">
                       {savedTier}

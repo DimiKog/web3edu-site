@@ -163,8 +163,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs/lab05/interaction" element={<Lab05Interaction />} />
               <Route path="/labs-gr/lab05/interaction" element={<Lab05InteractionGR />} />
               <Route path="/labs/lab06" element={<Lab06 />} />
-              <Route path="/labs/lab06/interaction" element={<Lab06Interaction />} />
               <Route path="/labs-gr/lab06" element={<Lab06GR />} />
+              <Route path="/labs/lab06/interaction" element={<Lab06Interaction />} />
               <Route path="/labs-gr/lab06/interaction" element={<Lab06InteractionGR />} />
               <Route path="/labs/proof-of-escape" element={<PoELab />} />
               <Route path="/labs-gr/proof-of-escape" element={<PoELabGR />} />

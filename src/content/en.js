@@ -30,6 +30,7 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
     learnPath: {
         title: "How Web3Edu Works",
         subtitle: "Follow a clear rhythm: understand the concepts, experiment with them, then co-create what comes next.",
+        stepLabel: "STEP",
         steps: [
             {
                 emoji: "🪪",
@@ -112,6 +113,18 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
         viewArchive: "View Archive",
         items: [
             {
+                category: "release",
+                date: "Jan 2026",
+                title: "Web3Edu Platform — Public Launch (Coming Soon)",
+                desc: "Public release of the Web3Edu learning platform, including foundational labs, learning identity, and ecosystem access.",
+            },
+            {
+                category: "update",
+                date: "Dec 2025",
+                title: "Web3Edu Platform Development Milestone",
+                desc: "Core foundational labs and learning infrastructure reached internal completion ahead of the public Web3Edu launch.",
+            },
+            {
                 category: "event",
                 date: "Nov 2025",
                 title: "Proof of Escape Exhibition at UNOVATE Festival",
@@ -122,18 +135,6 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
                 date: "Oct 2025",
                 title: "Proof of Escape — Festival Edition Completed",
                 desc: "The special Festival Edition of Proof of Escape was finalized and prepared for live public demonstration.",
-            },
-            {
-                category: "update",
-                date: "Dec 2025",
-                title: "Web3Edu Platform Development Milestone",
-                desc: "Core foundational labs and learning infrastructure reached internal completion ahead of the public Web3Edu launch.",
-            },
-            {
-                category: "release",
-                date: "Jan 2026",
-                title: "Web3Edu Platform — Public Launch (Coming Soon)",
-                desc: "Public release of the Web3Edu learning platform, including foundational labs, learning identity, and ecosystem access.",
             },
         ]
     },

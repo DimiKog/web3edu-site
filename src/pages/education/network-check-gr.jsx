@@ -11,7 +11,7 @@ export default function NetworkCheckGR() {
     const [connected, setConnected] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
 
-    const BESU_RPC_URL = "https://rpc.dimikog.org/rpc";
+    const BESU_RPC_URL = "https://rpc.dimikog.org/rpc/";
     const CHAIN_NAME = "Besu EduNet";
     const CHAIN_ID_DEC = 424242;
     const CHAIN_ID_HEX = "0x67932";

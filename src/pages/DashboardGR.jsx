@@ -5,6 +5,7 @@ import PageShell from "../components/PageShell.jsx";
 import DashboardCard from "../components/DashboardCard.jsx";
 import XPProgressCard from "../components/XPProgressCard.jsx";
 import LearningTimeline from "../components/LearningTimeline.jsx";
+import PilotBanner from "../components/PilotBanner.jsx";
 
 import { UserIcon, AcademicCapIcon, StarIcon } from "@heroicons/react/24/solid";
 import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
@@ -316,6 +317,7 @@ export default function Dashboard() {
                     <div className="absolute bottom-[15%] right-[25%] w-[340px] h-[340px] bg-indigo-400/30 dark:bg-indigo-500/20 blur-[140px] rounded-full"></div>
                 </div>
 
+
                 {/* Dashboard Header */}
                 {profile && (
                     <div
@@ -401,6 +403,14 @@ export default function Dashboard() {
                         </style>
                     </div>
                 )}
+
+                {/* Pilot User Banner */}
+                <div className="relative z-20 w-full max-w-6xl mx-auto mb-8 px-2 md:px-0">
+                    <PilotBanner
+                        lang="gr"
+                        teamsLink="https://teams.microsoft.com/l/team/19%3Apwj5b5f8p7xMSvMQLth7ewFU5-aSEeowtClTZHt9Zqg1%40thread.tacv2/conversations?groupId=e5ff2c9e-34e6-4d42-9246-88b9de4fd760&tenantId=0c8943ee-c370-4bb3-ba51-321f406f32ec"
+                    />
+                </div>
 
                 {/* 2-Column Premium Layout */}
                 <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 px-2 md:px-0">
@@ -560,7 +570,7 @@ export default function Dashboard() {
                                 </button>
 
                                 <button
-                                    onClick={() => navigate("/education")}
+                                    onClick={() => navigate("/labs-gr")}
                                     className="py-3 px-6 rounded-xl bg-gradient-to-r from-[#33D6FF] to-[#24A9D0] text-white hover:scale-[1.03] hover:opacity-90 transition font-semibold shadow-md"
                                 >
                                     Ξεκίνησε τα μαθήματα
