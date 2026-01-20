@@ -258,17 +258,27 @@ const Lab03Interaction = () => {
                             >
                                 Sign with Wallet
                             </button>
-                            <button
-                                disabled={!labState.message.provided}
-                                onClick={() => handleSignMessage("privateKey")}
-                                className={`px-4 py-2 rounded-md font-semibold text-white ${labState.message.provided
-                                    ? "bg-indigo-600 hover:bg-indigo-700"
-                                    : "bg-indigo-300 cursor-not-allowed"
-                                    }`}
-                            >
-                                Sign with Private Key
-                            </button>
                         </div>
+
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                            The generated signature will appear in the <strong>Discovered Data</strong> section below.
+                        </p>
+                        {labState.signing.signed && (
+                            <div className="mt-3 rounded-lg border border-amber-300 dark:border-amber-600
+                                          bg-amber-50 dark:bg-amber-900/30 p-3 text-sm">
+                                <p className="font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                                    ⚠️ Why private keys are never exposed
+                                </p>
+                                <p className="mt-1 text-amber-800/90 dark:text-amber-200/90">
+                                    A private key is the ultimate proof of ownership of a Web3 account.
+                                    If it is ever revealed, copied, or shared, <strong>control of the account is permanently lost</strong>.
+                                    <br />
+                                    <br />
+                                    Modern wallets perform signing <em>internally</em>, so the private key never leaves the wallet —
+                                    even the application itself never sees it.
+                                </p>
+                            </div>
+                        )}
                         {!isConnected && (
                             <p className="text-xs text-slate-500 mt-1">
                                 Connect your wallet to sign using Web3 identity.
@@ -285,6 +295,20 @@ const Lab03Interaction = () => {
                     {/* Action 3 — Verify Signature */}
                     <div>
                         <h3 className="font-semibold mb-2">3️⃣ Verify the signature</h3>
+                        <p className="text-sm md:text-base text-slate-700 dark:text-slate-300 mt-1 max-w-md">
+                            Verification means <strong>cryptographically proving</strong> that this signature
+                            was produced by the private key controlling the recovered address —
+                            <span className="font-semibold"> without trusting this application or the blockchain</span>.
+                        </p>
+                        {labState.verification.verified && (
+                            <p className="mt-2 text-sm md:text-base font-mono tracking-wide">
+                                <span className="text-indigo-600 dark:text-indigo-400">Message</span>
+                                <span className="mx-2 text-slate-400">→</span>
+                                <span className="text-fuchsia-600 dark:text-fuchsia-400">Signature</span>
+                                <span className="mx-2 text-slate-400">→</span>
+                                <span className="text-emerald-600 dark:text-emerald-400">Address</span>
+                            </p>
+                        )}
                         {!labState.verification.verified ? (
                             <button
                                 disabled={!labState.signing.signed}
@@ -297,9 +321,15 @@ const Lab03Interaction = () => {
                                 Verify Signature
                             </button>
                         ) : (
-                            <p className="text-green-600 dark:text-green-400 text-sm flex items-center gap-1">
-                                <span aria-hidden="true">✓</span> Signature verified
-                            </p>
+                            <div className="text-green-600 dark:text-green-400 text-sm space-y-1">
+                                <p className="flex items-center gap-1">
+                                    <span aria-hidden="true">✓</span> Signature verified
+                                </p>
+                                <p className="text-slate-600 dark:text-slate-300 text-xs">
+                                    You can now see in <strong>Discovered Data</strong> that the recovered address
+                                    matches the wallet address you used to sign the message.
+                                </p>
+                            </div>
                         )}
                     </div>
                 </section>
@@ -321,10 +351,18 @@ const Lab03Interaction = () => {
                         {labState.verification.verified && (
                             <li>
                                 <strong>Recovered address:</strong>
-                                <div className="mt-1 p-2 rounded-md bg-slate-100 dark:bg-slate-800
-                                                font-mono text-xs break-all">
+                                <div
+                                    className="relative mt-1 p-2 rounded-md bg-slate-100 dark:bg-slate-800
+                                               font-mono text-xs break-all
+                                               ring-2 ring-emerald-400/60
+                                               animate-pulse"
+                                    title="This address was mathematically recovered from your signature."
+                                >
                                     {labState.verification.recoveredAddress}
                                 </div>
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    This address was mathematically recovered from your signature.
+                                </p>
                             </li>
                         )}
                     </ul>

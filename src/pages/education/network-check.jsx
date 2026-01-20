@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import PageShell from "../../components/PageShell.jsx";
+import SectionBadge from "../../components/SectionBadge.jsx";
+import { Link } from "react-router-dom";
 
 export default function NetworkCheck() {
     const [address, setAddress] = useState("");
@@ -16,7 +19,7 @@ export default function NetworkCheck() {
     const CHAIN_ID_HEX = "0x67932";
     const NATIVE_SYMBOL = "EDU-D";
 
-    // --- Detect chainId from RPC ---
+    // Detect chainId from the RPC
     useEffect(() => {
         async function detectBesuChainId() {
             try {
@@ -39,7 +42,7 @@ export default function NetworkCheck() {
         detectBesuChainId();
     }, []);
 
-    // --- Ensure Besu EduNet is active in MetaMask ---
+    // Switch/add the Besu EduNet in MetaMask
     async function ensureBesuNetwork() {
         try {
             await window.ethereum.request({
@@ -79,7 +82,7 @@ export default function NetworkCheck() {
         }
     }
 
-    // --- Fetch balance from RPC ---
+    // Fetch balance from RPC
     async function fetchBalance(addr) {
         try {
             setRefreshing(true);
@@ -95,7 +98,7 @@ export default function NetworkCheck() {
         }
     }
 
-    // --- Connect wallet ---
+    // Connect wallet
     async function connectWallet() {
         try {
             if (!window.ethereum) {
@@ -119,7 +122,6 @@ export default function NetworkCheck() {
                 setConnected(true);
             }
 
-
             setAddress(userAddress);
             await fetchBalance(userAddress);
             setError("");
@@ -131,129 +133,170 @@ export default function NetworkCheck() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 text-white
-bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#0a0f1a] relative overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1/4 left-1/3 w-[480px] h-[480px] bg-[#33D6FF]/20 blur-[140px] rounded-full"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-[380px] h-[380px] bg-[#7F3DF1]/25 blur-[130px] rounded-full"></div>
+        <PageShell>
+            {/* Animated gradient glow orbs and subtle grid */}
+            <div aria-hidden="true" className="fixed inset-0 -z-10 overflow-hidden">
+                <div className="absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-600 opacity-30 blur-3xl animate-glowSlow"></div>
+                <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 opacity-20 blur-3xl animate-glowSlow delay-2000"></div>
+                <svg
+                    className="absolute inset-0 w-full h-full stroke-[0.5] stroke-gray-700/10 dark:stroke-gray-400/10"
+                    aria-hidden="true"
+                >
+                    <defs>
+                        <pattern
+                            id="grid"
+                            width="40"
+                            height="40"
+                            patternUnits="userSpaceOnUse"
+                            x="50%"
+                            y="50%"
+                        >
+                            <path d="M 40 0 L 0 0 0 40" fill="none" />
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+                </svg>
             </div>
-            <div className="w-full max-w-md backdrop-blur-xl bg-[#0E0F1A]/40 border border-white/20
-rounded-3xl shadow-[0_0_30px_rgba(0,0,0,0.25)] p-8 relative z-10 text-white">
-                {/* 🌐 Language Toggle */}
-                <div className="absolute top-3 right-3 flex items-center gap-2 text-sm">
-                    <a
-                        href="#/education/network-check-gr"
-                        className="px-3 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition"
-                        title="Ελληνικά"
-                    >
-                        🇬🇷 GR
-                    </a>
-                </div>
 
-                <h1 className="text-2xl font-bold text-center mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)] text-white">
-                    🧠 Besu EduNet Connectivity Check
+            <main className="max-w-3xl mx-auto px-6 pt-16 pb-24">
+                <SectionBadge className="mb-6">Network Check</SectionBadge>
+
+                <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-indigo-500 to-pink-500 mb-12 animate-fadeUp">
+                    Connect to Besu EduNet
                 </h1>
 
-                {/* Info Box */}
-                <div className="bg-white/10 border border-white/20 rounded-xl p-4 mb-6 text-sm text-white/90">
-                    Use this tool to confirm you’re connected to <strong>Besu EduNet</strong>
-                    and to check your balance in <strong>{NATIVE_SYMBOL}</strong>.
-                    <br />
-                    If you’ve just received tokens from the faucet, click <em>↻ Refresh</em> to update.
-                </div>
-
-                <button
-                    onClick={connectWallet}
-                    className="w-full py-2 px-4 
-bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF] 
-hover:opacity-90 text-white font-semibold rounded-xl shadow-lg shadow-[#7F3DF1]/30 transition"
+                {/* Glassmorphism card container */}
+                <div
+                    className="bg-gradient-to-tr from-[#0A0F1A]/80 via-[#111626]/80 to-[#131B2D]/80 border border-[#8A57FF]/20 backdrop-blur-md rounded-3xl p-8 shadow-lg space-y-10"
+                    style={{ minHeight: "480px" }}
                 >
-                    Connect Wallet
-                </button>
-
-                {error && <p className="mt-4 text-red-500 text-center text-sm">{error}</p>}
-
-                {besuChainId && (
-                    <p className="mt-4 text-center text-sm text-white/70">
-                        Detected Chain ID: {parseInt(besuChainId, 16)} ({besuChainId})
-                    </p>
-                )}
-
-                {address && (
-                    <div className="mt-6 space-y-3 text-sm sm:text-base">
-                        <p><strong>Address:</strong> {address}</p>
-
-                        <div className="flex items-center justify-between">
-                            <p>
-                                <strong>Balance:</strong> {balance} {NATIVE_SYMBOL}
-                            </p>
-                            <button
-                                onClick={() => fetchBalance(address)}
-                                disabled={refreshing}
-                                className={`ml-2 px-3 py-1 text-sm rounded-md font-medium ${refreshing
-                                    ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-gradient-to-r from-[#33D6FF] to-[#7F3DF1] hover:opacity-90"
-                                    } text-white transition`}
-                            >
-                                {refreshing ? "Refreshing..." : "↻ Refresh"}
-                            </button>
-                        </div>
-
-                        <p className="text-xs text-white/70 italic">
-                            If MetaMask shows 0 {NATIVE_SYMBOL}, treat this value as the correct network balance.
+                    {/* 1) Intro / explanation card */}
+                    <section
+                        className="bg-[#1B2238]/50 rounded-2xl p-6 text-blue-400 text-sm leading-relaxed space-y-3 shadow-inner shadow-blue-900/20 animate-fadeUp"
+                        style={{ animationDelay: "100ms" }}
+                    >
+                        <p>
+                            Use this tool to confirm you’re connected to <strong>Besu EduNet</strong> and
+                            check your balance in <strong>{NATIVE_SYMBOL}</strong>.
                         </p>
+                        <p>
+                            If you just received tokens from the faucet, press <em>↻ Refresh</em> to update.
+                        </p>
+                    </section>
 
-                        <p><strong>Status:</strong> {networkStatus}</p>
-                        {connected && Number(besuChainId) === CHAIN_ID_DEC && (
-                            <button
-                                onClick={() => {
-                                    window.location.hash = "#/join";
-                                }}
-                                className="mt-6 w-full py-2 px-4 rounded-xl 
-bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF] 
-text-white font-semibold shadow-lg shadow-[#7F3DF1]/30 hover:opacity-90 transition"
-                            >
-                                Continue
-                            </button>
-                        )}
-                    </div>
-                )}
+                    {/* 2) Wallet connection button */}
+                    <section className="flex justify-center" style={{ animationDelay: "200ms" }}>
+                        <button
+                            onClick={connectWallet}
+                            className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 px-6 py-3 font-semibold text-white shadow-md transition hover:brightness-110 focus:outline-none focus:ring-4 focus:ring-indigo-500/50"
+                            type="button"
+                        >
+                            Connect Wallet
+                        </button>
+                    </section>
 
-                <p className="mt-6 text-sm text-center text-white/70">
-                    Connected via {BESU_RPC_URL}
-                </p>
+                    {/* 3) Status + address + balance area */}
+                    {address && (
+                        <section
+                            className="text-gray-300 space-y-5 animate-fadeUp"
+                            style={{ animationDelay: "300ms" }}
+                        >
+                            <div className="space-y-2">
+                                <p className="break-all">
+                                    <strong>Address:</strong> {address}
+                                </p>
 
-                {connected && (
-                    <div className="absolute inset-x-0 top-0 flex justify-center mt-2 animate-fadeIn">
-                        <div className="bg-green-500/90 text-white text-sm font-medium px-4 py-2 rounded-full shadow-lg drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]">
-                            ✅ Connected to Besu EduNet! Balance updates directly from RPC.
+                                <div className="flex items-center justify-between">
+                                    <p>
+                                        <strong>Balance:</strong> {balance} {NATIVE_SYMBOL}
+                                    </p>
+                                    <button
+                                        onClick={() => fetchBalance(address)}
+                                        disabled={refreshing}
+                                        className={`ml-2 inline-flex items-center gap-1 rounded-md px-3 py-1 text-sm font-medium transition ${refreshing
+                                            ? "bg-gray-600 cursor-not-allowed text-gray-400"
+                                            : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                                            }`}
+                                        type="button"
+                                        aria-label="Refresh balance"
+                                    >
+                                        {refreshing ? "Refreshing..." : "↻ Refresh"}
+                                    </button>
+                                </div>
+
+                                <p className="text-xs italic text-gray-400">
+                                    If MetaMask shows 0 {NATIVE_SYMBOL}, treat this value as the correct network balance.
+                                </p>
+
+                                <p>
+                                    <strong>Status:</strong> {networkStatus}
+                                </p>
+                            </div>
+
+                            {error && (
+                                <p className="text-red-500 text-sm font-medium">
+                                    {error}
+                                </p>
+                            )}
+
+                            {besuChainId && (
+                                <p className="text-sm text-gray-500">
+                                    Detected Chain ID: {parseInt(besuChainId, 16)} ({besuChainId})
+                                </p>
+                            )}
+                        </section>
+                    )}
+
+                    {connected && (
+                        <div className="mt-6 rounded-full bg-green-600/80 px-6 py-3 text-center text-white font-semibold shadow-lg animate-fadeUp glow">
+                            ✅ You're connected to Besu EduNet! Balance updates directly from the RPC.
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            </main>
 
-            {/* 🏠 Back to Education Portal */}
-            <div className="mt-10">
-                <a
-                    href="#/education"
-                    className="inline-flex items-center gap-2 px-5 py-3 
-bg-gradient-to-r from-[#33D6FF]/25 to-[#7F3DF1]/25 
-hover:from-[#33D6FF]/35 hover:to-[#7F3DF1]/35
-text-white/90 font-medium rounded-xl shadow-md border border-white/20 backdrop-blur-sm transition"
+            <div className="mt-10 flex justify-center animate-fadeUp">
+                <Link
+                    to="/start-here"
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 px-6 py-3 font-semibold text-white shadow-lg transition hover:brightness-110 hover:shadow-[0_0_20px_rgba(168,85,247,0.6)]"
                 >
-                    <span>🏠</span> Back to Education Portal
-                </a>
+                    🏠 Back to Start Here
+                </Link>
             </div>
 
             <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.6s ease-in-out;
-        }
-      `}</style>
-        </div>
+                @keyframes fadeUp {
+                    0% {
+                        opacity: 0;
+                        transform: translateY(10px);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .animate-fadeUp {
+                    animation: fadeUp 0.6s ease forwards;
+                }
+                @keyframes glowSlow {
+                    0%, 100% {
+                        filter: blur(60px);
+                        opacity: 0.3;
+                        transform: translateY(0) translateX(0);
+                    }
+                    50% {
+                        filter: blur(80px);
+                        opacity: 0.4;
+                        transform: translateY(10px) translateX(10px);
+                    }
+                }
+                .animate-glowSlow {
+                    animation: glowSlow 10s ease-in-out infinite;
+                }
+                .glow {
+                    filter: drop-shadow(0 0 8px rgba(34,197,94,0.7)) drop-shadow(0 0 12px rgba(34,197,94,0.5));
+                }
+            `}</style>
+        </PageShell>
     );
 }

@@ -95,6 +95,42 @@ export default function DaoPreview() {
                         </div>
                     </section>
 
+                    {/* Governance Principles */}
+                    <section className="relative group rounded-3xl bg-gradient-to-br from-[#0A0F1A]/80 via-[#111626]/80 to-[#131B2D]/80 border border-[#8A57FF]/20 backdrop-blur-xl shadow-[0_0_40px_rgba(138,87,255,0.1)] p-8 mt-16 transition-all duration-500 hover:border-[#8A57FF]/40 hover:shadow-[0_0_60px_rgba(138,87,255,0.2)]">
+                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#8A57FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="relative space-y-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-[#8A57FF]/30 to-[#4ACBFF]/20 border border-[#8A57FF]/30 shadow-[0_0_20px_rgba(138,87,255,0.3)]">
+                                    <span className="text-2xl">📜</span>
+                                </div>
+                                <h2 className="text-2xl font-bold text-white">
+                                    Governance Principles
+                                </h2>
+                            </div>
+
+                            <div className="h-1 w-24 bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] rounded-full" />
+
+                            <ul className="space-y-4 text-white/80 leading-relaxed">
+                                <li className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                    <strong className="text-[#FF67D2]">Educational First:</strong> Governance exists to support learning outcomes, not financial speculation.
+                                </li>
+                                <li className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                    <strong className="text-[#8A57FF]">Credential-Based Participation:</strong> Influence is earned through learning progress and contribution, not token accumulation.
+                                </li>
+                                <li className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                    <strong className="text-[#4ACBFF]">Progressive Decentralization:</strong> Governance mechanisms are introduced gradually as the community matures.
+                                </li>
+                                <li className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                    <strong className="text-[#FF67D2]">Transparency by Design:</strong> Decisions, proposals, and outcomes are documented and reviewable as learning artifacts.
+                                </li>
+                            </ul>
+
+                            <p className="text-white/60 text-sm italic">
+                                These principles reflect Web3Edu’s research-driven approach to decentralized education governance.
+                            </p>
+                        </div>
+                    </section>
+
                     {/* Capabilities */}
                     <section className="relative group rounded-3xl bg-gradient-to-br from-[#0A0F1A]/80 via-[#111626]/80 to-[#131B2D]/80 border border-[#8A57FF]/20 backdrop-blur-xl shadow-[0_0_40px_rgba(138,87,255,0.1)] p-8 mt-16 transition-all duration-500 hover:border-[#8A57FF]/40 hover:shadow-[0_0_60px_rgba(138,87,255,0.2)]">
                         <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#FF67D2]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

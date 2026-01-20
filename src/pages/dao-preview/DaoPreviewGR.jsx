@@ -59,7 +59,7 @@ export default function DaoPreviewGR() {
                             <p>
                                 Αυτή η σελίδα παρουσιάζει το όραμα διακυβέρνησης πίσω από το Web3Edu.
                                 <span className="inline-flex items-center ml-2 px-2 py-0.5 rounded-full text-xs bg-[#8A57FF]/20 text-[#CBB2FF] border border-[#8A57FF]/30">
-                                    DAO μη ενεργό ακόμη
+                                    DAO not yet live
                                 </span>
                             </p>
                         </div>
@@ -89,9 +89,45 @@ export default function DaoPreviewGR() {
                                 </p>
                                 <p className="p-4 rounded-xl bg-[#8A57FF]/10 border border-[#8A57FF]/20">
                                     Η συμμετοχή κερδίζεται μέσω <span className="text-[#8A57FF] font-semibold">μάθησης και συνεισφοράς</span>,
-                                    όχι μόνο μέσω κατοχής token.
+                                    όχι μόνο μέσω κατοχής tokens.
                                 </p>
                             </div>
+                        </div>
+                    </section>
+
+                    {/* Governance Principles */}
+                    <section className="relative group rounded-3xl bg-gradient-to-br from-[#0A0F1A]/80 via-[#111626]/80 to-[#131B2D]/80 border border-[#8A57FF]/20 backdrop-blur-xl shadow-[0_0_40px_rgba(138,87,255,0.1)] p-8 mt-16 transition-all duration-500 hover:border-[#8A57FF]/40 hover:shadow-[0_0_60px_rgba(138,87,255,0.2)]">
+                        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#8A57FF]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="relative space-y-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-[#8A57FF]/30 to-[#4ACBFF]/20 border border-[#8A57FF]/30 shadow-[0_0_20px_rgba(138,87,255,0.3)]">
+                                    <span className="text-2xl">📜</span>
+                                </div>
+                                <h2 className="text-2xl font-bold text-white">
+                                    Governance Principles
+                                </h2>
+                            </div>
+
+                            <div className="h-1 w-24 bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] rounded-full" />
+
+                            <ul className="space-y-4 text-white/80 leading-relaxed">
+                                <li className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                    <strong className="text-[#FF67D2]">Educational First:</strong> Η διακυβέρνηση υπάρχει για να στηρίζει τα μαθησιακά αποτελέσματα, όχι την οικονομική κερδοσκοπία.
+                                </li>
+                                <li className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                    <strong className="text-[#8A57FF]">Credential-Based Participation:</strong> Η επιρροή κερδίζεται μέσω μαθησιακής προόδου και συνεισφοράς, όχι μέσω συσσώρευσης tokens.
+                                </li>
+                                <li className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                    <strong className="text-[#4ACBFF]">Progressive Decentralization:</strong> Οι μηχανισμοί διακυβέρνησης εισάγονται σταδιακά καθώς ωριμάζει η κοινότητα.
+                                </li>
+                                <li className="p-4 rounded-xl bg-white/[0.03] border border-white/10">
+                                    <strong className="text-[#FF67D2]">Transparency by Design:</strong> Οι αποφάσεις, οι προτάσεις και τα αποτελέσματα τεκμηριώνονται και είναι ελέγξιμα ως μαθησιακά τεκμήρια.
+                                </li>
+                            </ul>
+
+                            <p className="text-white/60 text-sm italic">
+                                Αυτές οι αρχές αντικατοπτρίζουν την ερευνητικά τεκμηριωμένη προσέγγιση του Web3Edu στη διακυβέρνηση της αποκεντρωμένης εκπαίδευσης.
+                            </p>
                         </div>
                     </section>
 
@@ -109,10 +145,10 @@ export default function DaoPreviewGR() {
 
                             <ul className="space-y-4">
                                 {[
-                                    { icon: "💡", text: "Να προτείνουν νέα εργαστήρια, έργα και μαθησιακές ενότητες", color: "#FF67D2" },
-                                    { icon: "📚", text: "Να συμβάλλουν στην εξέλιξη του προγράμματος σπουδών και του σχεδιασμού της πλατφόρμας", color: "#8A57FF" },
-                                    { icon: "🗳️", text: "Να ψηφίζουν για προτεραιότητες, πειράματα και ερευνητικές κατευθύνσεις", color: "#4ACBFF" },
-                                    { icon: "🤝", text: "Να συμμετέχουν σε συνεργατικές πρωτοβουλίες εκπαίδευσης Web3", color: "#FF67D2" },
+                                    { icon: "💡", text: "Να προτείνουν νέα labs, projects και learning modules", color: "#FF67D2" },
+                                    { icon: "📚", text: "Να συμβάλλουν στην εξέλιξη του curriculum και του platform design", color: "#8A57FF" },
+                                    { icon: "🗳️", text: "Να ψηφίζουν για priorities, experiments και research directions", color: "#4ACBFF" },
+                                    { icon: "🤝", text: "Να συμμετέχουν σε collaborative Web3 education initiatives", color: "#FF67D2" },
                                 ].map((item, i) => (
                                     <li key={i} className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all duration-300 group/item">
                                         <span className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-white/10 to-white/5 text-lg group-hover/item:scale-110 transition-transform duration-300">

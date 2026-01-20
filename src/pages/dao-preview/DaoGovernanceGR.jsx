@@ -73,6 +73,7 @@ export default function DaoGovernanceGR() {
                                 { label: "Προοδευτική", desc: "Η επιρροή αυξάνεται με τη συνεισφορά.", color: "#8A57FF" },
                                 { label: "Διαφανής", desc: "Οι κανόνες και οι αποφάσεις είναι ορατοί.", color: "#4ACBFF" },
                                 { label: "Μη κερδοσκοπική", desc: "Δεν υπάρχουν οικονομικά κίνητρα.", color: "#FF67D2" },
+                                { label: "Credential-based", desc: "Η συμμετοχή και η επιρροή κερδίζονται μέσω μαθησιακής προόδου και επαληθευμένης συνεισφοράς, όχι μέσω κατοχής tokens.", color: "#4ACBFF" },
                             ].map((item, i) => (
                                 <li key={i} className="flex items-start gap-3">
                                     <span className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: item.color }} />
@@ -87,6 +88,12 @@ export default function DaoGovernanceGR() {
                         <p className="mt-6 p-4 rounded-xl bg-[#8A57FF]/10 border border-[#8A57FF]/20 text-white/90">
                             Το DAO συντονίζει τη μάθηση — δεν αποσπά αξία.
                         </p>
+                        <p className="mt-3 text-sm text-white/70">
+                            Όλη η δραστηριότητα διακυβέρνησης λειτουργεί σε εκπαιδευτικό πλαίσιο. Δεν χρησιμοποιούνται
+                            πραγματικά οικονομικά περιουσιακά στοιχεία. Οποιαδήποτε on-chain αλληλεπίδραση βασίζεται σε
+                            δοκιμαστικά διαπιστευτήρια και tokens μάθησης (π.χ. EDU‑D) που εκδίδονται αποκλειστικά για
+                            πειραματισμό και ανάπτυξη δεξιοτήτων.
+                        </p>
                     </GovernanceCard>
 
                     {/* SECTION 2 — ROLES */}
@@ -98,21 +105,21 @@ export default function DaoGovernanceGR() {
                     >
                         <div className="grid md:grid-cols-3 gap-4">
                             <RoleBlock
-                                title="Εξερευνητής"
+                                title="Explorer"
                                 emoji="🔭"
                                 desc="Παρατηρεί προτάσεις και συζητήσεις."
-                                extra="Ξεκλειδώνεται μέσω βασικών εργαστηρίων."
+                                extra="Ξεκλειδώνεται μέσω foundational labs."
                                 color="#4ACBFF"
                             />
                             <RoleBlock
                                 title="Builder"
                                 emoji="🛠️"
                                 desc="Υποβάλλει προτάσεις και δομημένο feedback."
-                                extra="Ξεκλειδώνεται μέσω προχωρημένων labs και έργων εφαρμογής."
+                                extra="Ξεκλειδώνεται μέσω advanced labs και applied projects."
                                 color="#8A57FF"
                             />
                             <RoleBlock
-                                title="Αρχιτέκτονας"
+                                title="Architect"
                                 emoji="🏛️"
                                 desc="Καθοδηγεί τη διακυβέρνηση και τον σχεδιασμό μάθησης."
                                 extra="Ρόλος βάσει προσφοράς ή πρόσκλησης."
@@ -162,7 +169,7 @@ export default function DaoGovernanceGR() {
                             <div className="p-4 rounded-xl bg-[#4ACBFF]/10 border border-[#4ACBFF]/20">
                                 <h4 className="font-bold text-[#4ACBFF] mb-3 flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-[#4ACBFF]" />
-                                    Εντός πεδίου
+                                    On-chain
                                 </h4>
                                 <ul className="space-y-2 text-white/80">
                                     <li>• Νέα εργαστήρια και μαθησιακές διαδρομές</li>
@@ -175,7 +182,7 @@ export default function DaoGovernanceGR() {
                             <div className="p-4 rounded-xl bg-[#FF67D2]/10 border border-[#FF67D2]/20">
                                 <h4 className="font-bold text-[#FF67D2] mb-3 flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-[#FF67D2]" />
-                                    Εκτός πεδίου
+                                    Off-chain
                                 </h4>
                                 <ul className="space-y-2 text-white/80">
                                     <li>• Οικονομικά περιουσιακά στοιχεία</li>
@@ -193,21 +200,25 @@ export default function DaoGovernanceGR() {
                         color="#4ACBFF"
                     >
                         <p className="text-white/80">
-                            Το Web3Edu συνδυάζει <span className="text-[#4ACBFF] font-medium">συζήτηση εκτός αλυσίδας</span> με <span className="text-[#8A57FF] font-medium">επαλήθευση εντός αλυσίδας</span>.
+                            Το Web3Edu συνδυάζει <span className="text-[#4ACBFF] font-medium">off-chain συζήτηση</span> με <span className="text-[#8A57FF] font-medium">on-chain επαλήθευση</span>.
+                        </p>
+                        <p className="mt-4 p-4 rounded-xl bg-[#4ACBFF]/10 border border-[#4ACBFF]/20 text-white/90">
+                            Τα on-chain στοιχεία χρησιμοποιούνται για να επιδείξουν πραγματικούς μηχανισμούς διακυβέρνησης
+                            (ταυτότητα, προτάσεις, attestations) χωρίς να εκθέτουν τους μαθητές σε οικονομικό ρίσκο.
                         </p>
 
                         <div className="mt-6 grid md:grid-cols-2 gap-4">
                             <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
                                 <span className="text-2xl">💬</span>
                                 <div>
-                                    <p className="font-medium text-white">Εκτός αλυσίδας</p>
+                                    <p className="font-medium text-white">Off-chain</p>
                                     <p className="text-sm text-white/60">Συζήτηση, μάθηση, επανάληψη</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.02] border border-white/5">
                                 <span className="text-2xl">⛓️</span>
                                 <div>
-                                    <p className="font-medium text-white">Εντός αλυσίδας</p>
+                                    <p className="font-medium text-white">On-chain</p>
                                     <p className="text-sm text-white/60">Ταυτότητα, αποδείξεις, τελικές αποφάσεις</p>
                                 </div>
                             </div>
@@ -256,8 +267,9 @@ export default function DaoGovernanceGR() {
                                 <div className="h-1 w-32 bg-gradient-to-r from-yellow-400 via-[#8A57FF] to-[#4ACBFF] rounded-full" />
 
                                 <p className="text-white/80">
-                                    Η διακυβέρνηση έχει οριστικοποιηθεί αλλά δεν έχει ενεργοποιηθεί on-chain.
-                                    Η τρέχουσα εστίαση είναι στα labs, το feedback και τη σταθερότητα της μάθησης.
+                                    Η διακυβέρνηση εισάγεται σκόπιμα σε φάσεις. Η τρέχουσα εστίαση είναι στη σταθερότητα
+                                    της μάθησης, τη συλλογή feedback και την κατανόηση της διακυβέρνησης πριν
+                                    ενεργοποιηθούν δεσμευτικές on-chain αποφάσεις.
                                 </p>
                             </div>
                         </div>

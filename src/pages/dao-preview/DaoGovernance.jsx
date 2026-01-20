@@ -73,6 +73,7 @@ export default function DaoGovernance() {
                                 { label: "Progressive", desc: "Influence grows with contribution.", color: "#8A57FF" },
                                 { label: "Transparent", desc: "Rules and decisions are visible.", color: "#4ACBFF" },
                                 { label: "Non-speculative", desc: "No financial incentives.", color: "#FF67D2" },
+                                { label: "Credential-based", desc: "Participation and influence are earned through learning progress and verified contribution, not token holdings.", color: "#4ACBFF" },
                             ].map((item, i) => (
                                 <li key={i} className="flex items-start gap-3">
                                     <span className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: item.color }} />
@@ -86,6 +87,11 @@ export default function DaoGovernance() {
 
                         <p className="mt-6 p-4 rounded-xl bg-[#8A57FF]/10 border border-[#8A57FF]/20 text-white/90">
                             The DAO coordinates learning — it does not extract value.
+                        </p>
+                        <p className="mt-3 text-sm text-white/70">
+                            All governance activity operates in an educational context. No real financial assets are used.
+                            Any on-chain interactions rely on test credentials and learning tokens (e.g. EDU‑D) issued solely
+                            for experimentation and skill development.
                         </p>
                     </GovernanceCard>
 
@@ -137,8 +143,8 @@ export default function DaoGovernance() {
                                 "Open discussion and refinement",
                                 "Structured proposal draft",
                                 "Community review window",
-                                "Decision phase (future on-chain)",
-                                "Execution and reflection",
+                                "Decision phase (initially off-chain, later verifiable on-chain)",
+                                "Execution, evaluation, and learning feedback",
                             ].map((step, i) => (
                                 <li key={i} className="flex items-start gap-4 group/step">
                                     <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#FF67D2]/20 to-[#8A57FF]/10 border border-[#FF67D2]/30 text-sm font-bold text-[#FF67D2] group-hover/step:scale-110 transition-transform duration-300">
@@ -194,6 +200,10 @@ export default function DaoGovernance() {
                     >
                         <p className="text-white/80">
                             Web3Edu combines <span className="text-[#4ACBFF] font-medium">off-chain discussion</span> with <span className="text-[#8A57FF] font-medium">on-chain verification</span>.
+                        </p>
+                        <p className="mt-4 p-4 rounded-xl bg-[#4ACBFF]/10 border border-[#4ACBFF]/20 text-white/90">
+                            On-chain components are used to demonstrate real governance mechanics
+                            (identity, proposals, attestations) without exposing learners to financial risk.
                         </p>
 
                         <div className="mt-6 grid md:grid-cols-2 gap-4">
@@ -256,8 +266,9 @@ export default function DaoGovernance() {
                                 <div className="h-1 w-32 bg-gradient-to-r from-yellow-400 via-[#8A57FF] to-[#4ACBFF] rounded-full" />
 
                                 <p className="text-white/80">
-                                    Governance is conceptually finalized but not yet activated on-chain.
-                                    Current focus is on labs, feedback, and learning stability.
+                                    Governance is intentionally introduced in phases. The current focus is on
+                                    learning stability, feedback collection, and governance literacy before
+                                    enabling binding on-chain decisions.
                                 </p>
                             </div>
                         </div>

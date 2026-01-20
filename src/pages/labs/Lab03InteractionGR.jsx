@@ -36,9 +36,9 @@ const INCOMING_MESSAGE = {
     sbtImage: "https://bronze-secondary-catfish-124.mypinata.cloud/ipfs/bafybeihnyrl6wrvqmt5moatkztryx32pux7l2f2lkcopoz53frije6ztui",
     address: "0x0E66db7d115B8F392eB7DFb8BaCb23675dAEB59E", // placeholder
     message:
-        "👋 Γεια σας από το Web3Edu!\n\nΜόλις επαληθεύσατε μια πραγματική κρυπτογραφική υπογραφή.\n\nΑυτό το μήνυμα αποδεικνύει ιδιοκτησία, όχι ταυτότητα.\n\nΤώρα επαληθεύστε ποιος το έστειλε.",
+        "👋 Hello from Web3Edu!\n\nYou have just verified a real cryptographic signature.\n\nThis message proves ownership, not identity.\n\nNow verify who sent it.",
     signedMessage:
-        "👋 Γεια σας από το Web3Edu!\n\nΜόλις επαληθεύσατε μια πραγματική κρυπτογραφική υπογραφή.\n\nΑυτό το μήνυμα αποδεικνύει ιδιοκτησία, όχι ταυτότητα.\n\nΤώρα επαληθεύστε ποιος το έστειλε.",
+        "👋 Hello from Web3Edu!\n\nYou have just verified a real cryptographic signature.\n\nThis message proves ownership, not identity.\n\nNow verify who sent it.",
     signature: "0x003b342acf2581a2c301380f1e3910d4f930f37abb7140d8c3e9429daa5e5e5e6dad49b6fa07035d36ddf1c8f55bd20d5dd0e27e3cdd302e04db15e87f7d6f3d1c",
     hasValidSignature: true,
 };
@@ -258,17 +258,26 @@ const Lab03InteractionGR = () => {
                             >
                                 Υπογράψτε με Πορτοφόλι
                             </button>
-                            <button
-                                disabled={!labState.message.provided}
-                                onClick={() => handleSignMessage("privateKey")}
-                                className={`px-4 py-2 rounded-md font-semibold text-white ${labState.message.provided
-                                    ? "bg-indigo-600 hover:bg-indigo-700"
-                                    : "bg-indigo-300 cursor-not-allowed"
-                                    }`}
-                            >
-                                Υπογράψτε με Ιδιωτικό Κλειδί
-                            </button>
                         </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                            Η παραγόμενη υπογραφή θα εμφανιστεί στην ενότητα <strong>Ανακτημένα Δεδομένα</strong> πιο κάτω.
+                        </p>
+                        {labState.signing.signed && (
+                            <div className="mt-3 rounded-lg border border-amber-300 dark:border-amber-600
+                                          bg-amber-50 dark:bg-amber-900/30 p-3 text-sm">
+                                <p className="font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                                    ⚠️ Γιατί τα ιδιωτικά κλειδιά δεν αποκαλύπτονται ποτέ
+                                </p>
+                                <p className="mt-1 text-amber-800/90 dark:text-amber-200/90">
+                                    Ένα ιδιωτικό κλειδί είναι η απόλυτη απόδειξη ιδιοκτησίας ενός Web3 λογαριασμού.
+                                    Αν ποτέ αποκαλυφθεί, αντιγραφεί ή μοιραστεί, <strong>ο έλεγχος του λογαριασμού χάνεται μόνιμα</strong>.
+                                    <br />
+                                    <br />
+                                    Τα σύγχρονα πορτοφόλια πραγματοποιούν την υπογραφή <em>εσωτερικά</em>, ώστε το ιδιωτικό κλειδί να μην φεύγει ποτέ από το πορτοφόλι —
+                                    ακόμη και η ίδια η εφαρμογή δεν το βλέπει.
+                                </p>
+                            </div>
+                        )}
                         {!isConnected && (
                             <p className="text-xs text-slate-500 mt-1">
                                 Συνδέστε το πορτοφόλι σας για να υπογράψετε με Web3 ταυτότητα.
@@ -285,6 +294,20 @@ const Lab03InteractionGR = () => {
                     {/* Action 3 — Verify Signature */}
                     <div>
                         <h3 className="font-semibold mb-2">3️⃣ Επαληθεύστε την υπογραφή</h3>
+                        <p className="text-sm md:text-base text-slate-700 dark:text-slate-300 mt-1 max-w-md">
+                            Η επαλήθευση σημαίνει <strong>κρυπτογραφική απόδειξη</strong> ότι αυτή η υπογραφή
+                            δημιουργήθηκε από το ιδιωτικό κλειδί που ελέγχει τη διεύθυνση που ανακτήθηκε —
+                            <span className="font-semibold"> χωρίς εμπιστοσύνη στην εφαρμογή ή στο blockchain</span>.
+                        </p>
+                        {labState.verification.verified && (
+                            <p className="mt-2 text-sm md:text-base font-mono tracking-wide">
+                                <span className="text-indigo-600 dark:text-indigo-400">Μήνυμα</span>
+                                <span className="mx-2 text-slate-400">→</span>
+                                <span className="text-fuchsia-600 dark:text-fuchsia-400">Υπογραφή</span>
+                                <span className="mx-2 text-slate-400">→</span>
+                                <span className="text-emerald-600 dark:text-emerald-400">Διεύθυνση</span>
+                            </p>
+                        )}
                         {!labState.verification.verified ? (
                             <button
                                 disabled={!labState.signing.signed}
@@ -297,9 +320,15 @@ const Lab03InteractionGR = () => {
                                 Επαλήθευση Υπογραφής
                             </button>
                         ) : (
-                            <p className="text-green-600 dark:text-green-400 text-sm flex items-center gap-1">
-                                <span aria-hidden="true">✓</span> Η υπογραφή επαληθεύτηκε
-                            </p>
+                            <div className="text-green-600 dark:text-green-400 text-sm space-y-1">
+                                <p className="flex items-center gap-1">
+                                    <span aria-hidden="true">✓</span> Η υπογραφή επαληθεύτηκε
+                                </p>
+                                <p className="text-slate-600 dark:text-slate-300 text-xs">
+                                    Τώρα μπορείτε να δείτε στα <strong>Ανακτημένα Δεδομένα</strong> ότι η ανακτημένη διεύθυνση
+                                    ταιριάζει με τη διεύθυνση του πορτοφολιού που χρησιμοποιήσατε για την υπογραφή.
+                                </p>
+                            </div>
                         )}
                     </div>
                 </section>
@@ -307,7 +336,7 @@ const Lab03InteractionGR = () => {
                 {/* Discovered Data */}
                 <section className="rounded-xl border border-slate-200 dark:border-slate-700
                                     p-5 bg-slate-50 dark:bg-slate-900/40">
-                    <h2 className="font-semibold mb-4">🔍 Ανακαλυμμένα Δεδομένα</h2>
+                    <h2 className="font-semibold mb-4">🔍 Ανακτημένα Δεδομένα</h2>
                     <ul className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
                         {labState.signing.signed && (
                             <li>
@@ -321,10 +350,18 @@ const Lab03InteractionGR = () => {
                         {labState.verification.verified && (
                             <li>
                                 <strong>Ανακτημένη διεύθυνση:</strong>
-                                <div className="mt-1 p-2 rounded-md bg-slate-100 dark:bg-slate-800
-                                                font-mono text-xs break-all">
+                                <div
+                                    className="relative mt-1 p-2 rounded-md bg-slate-100 dark:bg-slate-800
+                                               font-mono text-xs break-all
+                                               ring-2 ring-emerald-400/60
+                                               animate-pulse"
+                                    title="Η διεύθυνση ανακτήθηκε μαθηματικά από την υπογραφή σας."
+                                >
                                     {labState.verification.recoveredAddress}
                                 </div>
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    Η διεύθυνση αυτή ανακτήθηκε μαθηματικά από την υπογραφή σας.
+                                </p>
                             </li>
                         )}
                     </ul>

@@ -19,6 +19,8 @@ import Education from './pages/education/index.jsx';
 import EducationGR from './pages/education/index-gr.jsx';
 import NetworkCheck from './pages/education/network-check.jsx';
 import NetworkCheckGR from './pages/education/network-check-gr.jsx';
+import NetworkCheckStandalone from './pages/network-check.jsx';
+import NetworkCheckStandaloneGR from './pages/network-check-gr.jsx';
 import TeamPageEN from './pages/team/TeamPageEN.jsx';
 import TeamPageGR from './pages/team/TeamPageGR.jsx';
 import Join from './pages/Join.jsx';
@@ -120,6 +122,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/education-gr" element={<EducationGR />} />
               <Route path="/education/network-check" element={<NetworkCheck />} />
               <Route path="/education/network-check-gr" element={<NetworkCheckGR />} />
+              <Route path="/network-check" element={<NetworkCheckStandalone />} />
+              <Route path="/network-check-gr" element={<NetworkCheckStandaloneGR />} />
               <Route path="/team" element={<TeamPageEN />} />
               <Route path="/team-gr" element={<TeamPageGR />} />
               <Route path="/join" element={<Join />} />
@@ -139,6 +143,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/dao-preview" element={<DaoPreview />} />
               <Route path="/dao-preview-gr" element={<DaoPreviewGR />} />
               <Route path="/dao-info" element={<DaoGovernance />} />
+              <Route path="/dao-governance" element={<DaoGovernance />} />
               <Route path="/dao-info-gr" element={<DaoGovernanceGR />} />
               <Route path="/labs" element={<Labs />} />
               <Route path="/labs-gr" element={<LabsGR />} />
