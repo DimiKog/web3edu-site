@@ -2,9 +2,9 @@ import PageShell from '../../components/PageShell.jsx';
 import { ACCENT_PRIMARY, ACCENT_SECONDARY } from '../../design/theme.js';
 
 const accentCardClasses = {
-    blue: 'border-sky-200/70 bg-sky-50/80 hover:border-sky-300 dark:border-sky-500/40 dark:bg-sky-500/15 dark:hover:border-sky-400/60',
-    violet: 'border-violet-200/70 bg-violet-50/80 hover:border-violet-300 dark:border-violet-500/40 dark:bg-violet-500/15 dark:hover:border-violet-400/60',
-    emerald: 'border-emerald-200/70 bg-emerald-50/80 hover:border-emerald-300 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:hover:border-emerald-400/60',
+    blue: 'border-sky-300/80 bg-sky-50/90 hover:border-sky-400 dark:border-sky-500/40 dark:bg-sky-500/15 dark:hover:border-sky-400/60',
+    violet: 'border-violet-300/80 bg-violet-50/90 hover:border-violet-400 dark:border-violet-500/40 dark:bg-violet-500/15 dark:hover:border-violet-400/60',
+    emerald: 'border-emerald-300/80 bg-emerald-50/90 hover:border-emerald-400 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:hover:border-emerald-400/60',
 };
 
 const content = {
@@ -75,24 +75,24 @@ export default function Poe({ language = 'EN' }) {
 
     return (
         <PageShell accentColor={ACCENT_PRIMARY} innerClassName="items-center">
-            <div className="relative w-full max-w-3xl rounded-2xl bg-white/90 p-8 shadow-lg backdrop-blur-sm transition dark:bg-slate-900/80 sm:p-12">
+            <div className="relative w-full max-w-3xl rounded-2xl border border-slate-200/80 bg-white/95 p-8 shadow-lg backdrop-blur-sm transition dark:border-slate-700/50 dark:bg-slate-900/80 sm:p-12">
                 <div className="absolute top-5 right-5 flex items-center gap-2 text-sm">
                     <a
                         href={language === 'EN' ? '#/poe-gr' : '#/poe'}
-                        className="rounded-lg bg-gray-200 px-3 py-1 transition hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
+                        className="rounded-lg bg-slate-200 px-3 py-1 text-slate-800 transition hover:bg-slate-300 dark:bg-gray-700 dark:text-slate-100 dark:hover:bg-gray-600"
                     >
                         {language === 'EN' ? '🇬🇷 GR' : '🇬🇧 EN'}
                     </a>
                 </div>
 
                 <header className="space-y-4 text-center sm:text-left">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200/70 bg-indigo-50/70 px-4 py-1 text-sm font-medium text-indigo-700 shadow-sm dark:border-indigo-500/40 dark:bg-indigo-500/15 dark:text-indigo-200">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-indigo-300/80 bg-indigo-100/90 px-4 py-1 text-sm font-medium text-indigo-800 shadow-sm dark:border-indigo-400/60 dark:bg-indigo-500/20 dark:text-indigo-100">
                         {strings.tag}
                     </div>
                     <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
                         {strings.title}
                     </h1>
-                    <p className="text-base leading-relaxed text-slate-600 dark:text-slate-300">
+                    <p className="text-base leading-relaxed text-slate-700 dark:text-slate-200">
                         {strings.intro}
                     </p>
                 </header>
@@ -118,11 +118,11 @@ export default function Poe({ language = 'EN' }) {
                                             {exp.title}
                                         </h2>
                                     </div>
-                                    <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-100">
+                                    <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-100">
                                         {exp.description}
                                     </p>
                                 </div>
-                                <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-indigo-700 transition-colors duration-200 group-hover:text-indigo-500 dark:text-indigo-200 dark:group-hover:text-indigo-100">
+                                <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-indigo-800 transition-colors duration-200 group-hover:text-indigo-700 dark:text-indigo-100 dark:group-hover:text-white">
                                     {exp.cta} ↗
                                 </div>
                             </a>
@@ -139,7 +139,7 @@ export default function Poe({ language = 'EN' }) {
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                         {strings.readyTitle}
                     </h2>
-                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-200">
                         {strings.readyBody}
                     </p>
                 </section>
@@ -147,7 +147,7 @@ export default function Poe({ language = 'EN' }) {
                 <div className="mt-8 text-center">
                     <a
                         href="https://web3edu.dimikog.org"
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-700"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-700 px-5 py-3 text-sm font-medium text-white transition hover:bg-indigo-600"
                     >
                         <span>🏠</span> {strings.homeCta}
                     </a>

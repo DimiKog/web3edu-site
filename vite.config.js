@@ -16,8 +16,51 @@ export default defineConfig({
 
   // Rollup cannot use wildcards → Just ignore the folder name
   build: {
+    modulePreload: {
+      resolveDependencies: (_filename, deps) =>
+        deps.filter((dep) => !dep.includes("web3-vendor"))
+    },
     rollupOptions: {
-      external: ["dao-invite"]
+      external: ["dao-invite"],
+      output: {
+        manualChunks(id) {
+          if (
+            id.includes("vite/preload-helper") ||
+            id.includes("modulepreload-polyfill")
+          ) {
+            return "react-vendor";
+          }
+
+          if (!id.includes("node_modules")) return;
+
+          if (
+            id.includes("/react/") ||
+            id.includes("/react-dom/") ||
+            id.includes("/react-router/") ||
+            id.includes("/react-router-dom/")
+          ) {
+            return "react-vendor";
+          }
+
+          if (
+            id.includes("/wagmi/") ||
+            id.includes("/viem/") ||
+            id.includes("/ethers/") ||
+            id.includes("/@rainbow-me/")
+          ) {
+            return "web3-vendor";
+          }
+
+          if (
+            id.includes("/react-icons/") ||
+            id.includes("/lucide-react/") ||
+            id.includes("/qrcode.react/") ||
+            id.includes("/react-qr-code/")
+          ) {
+            return "ui-vendor";
+          }
+        }
+      }
     }
   },
 

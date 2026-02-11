@@ -5,21 +5,6 @@ import Footer from "./Footer.jsx";
 import FooterGr from "./FooterGR.jsx";
 import web3EduLogoLight from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDark from "../assets/web3edu_logo.svg";
-import { ACCENT_PRIMARY } from "../design/theme.js";
-import { useAccount } from "wagmi";
-import { useDisconnect } from "wagmi";
-import { AddressIdenticon, generateAvatarStyle, shortAddress } from "./identity-ui.jsx";
-
-const ADMIN_WALLETS = (
-  import.meta.env.VITE_ADMIN_WALLETS ??
-  "0x0e66db7d115b8f392eb7dfb8bacb23675daeb59e"
-)
-  .split(",")
-  .map((a) => a.trim().toLowerCase())
-  .filter(Boolean);
-
-const isAdminWallet = (address) =>
-  Boolean(address && ADMIN_WALLETS.includes(address.toLowerCase()));
 
 const getLangFromHash = (hash) => {
   if (!hash) return null;
@@ -62,18 +47,12 @@ const translateHashForLang = (hash, targetLang) => {
 };
 
 export default function PageShell({
-  accentColor = ACCENT_PRIMARY,
   innerClassName = "",
   children,
   footerContent,
 }) {
   const [isShrunk, setIsShrunk] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [showJoin, setShowJoin] = React.useState(false);
-
-  const { address, isConnected } = useAccount();
-  const isAdmin = isConnected && isAdminWallet(address);
-  const { disconnect } = useDisconnect();
 
   const [currentHash, setCurrentHash] = React.useState(
     typeof window !== "undefined" ? window.location.hash || "#/" : "#/"
@@ -148,22 +127,10 @@ export default function PageShell({
     window.location.hash = nextHash;
   };
 
-  const inDashboard = currentHash.startsWith("#/dashboard");
-  const inSbtView = currentHash.startsWith("#/sbt-view");
-  const inVerify = currentHash.startsWith("#/verify");
-  const inWelcomeIdentity = currentHash.startsWith("#/welcome-identity");
-
-  const showIdentityAvatar = Boolean(isConnected && address);
-  const shortAddr = address ? shortAddress(address) : "";
-  const savedTier = localStorage.getItem("web3edu-tier") || "Explorer";
-
   const navigateTo = (hash) => {
     window.location.hash = hash;
     setMobileOpen(false);
   };
-
-  const baseClasses =
-    "w-full flex flex-col px-4 sm:px-8 text-slate-900 dark:text-slate-100 transition-colors duration-300";
 
   return (
     <main
@@ -208,8 +175,8 @@ export default function PageShell({
             {isGR ? (
               <>
                 <a href="/#/gr" className="relative font-medium 
-  text-white dark:text-blue-200
-  hover:text-blue-300 dark:hover:text-white
+  text-slate-800 dark:text-slate-100
+  hover:text-indigo-700 dark:hover:text-white
   after:absolute after:-bottom-1 after:left-0 after:h-[2px]
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
@@ -217,8 +184,8 @@ export default function PageShell({
                 <a
                   href="/#/start-here-gr"
                   className="relative font-medium 
-    text-white dark:text-blue-200
-    hover:text-blue-300 dark:hover:text-white
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
     after:absolute after:-bottom-1 after:left-0 after:h-[2px]
     after:w-full after:scale-x-0 after:bg-gradient-to-r
     after:from-[#7b3df8] after:to-[#00d4ff]
@@ -229,8 +196,8 @@ export default function PageShell({
                 <a
                   href="/#/labs-gr"
                   className="relative font-medium 
-    text-white dark:text-blue-200
-    hover:text-blue-300 dark:hover:text-white
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
     after:absolute after:-bottom-1 after:left-0 after:h-[2px]
     after:w-full after:scale-x-0 after:bg-gradient-to-r
     after:from-[#7b3df8] after:to-[#00d4ff]
@@ -239,8 +206,8 @@ export default function PageShell({
                   Εργαστήρια
                 </a>
                 <a href="/#/team-gr" className="relative font-medium 
-  text-white dark:text-blue-200
-  hover:text-blue-300 dark:hover:text-white
+  text-slate-800 dark:text-slate-100
+  hover:text-indigo-700 dark:hover:text-white
   after:absolute after:-bottom-1 after:left-0 after:h-[2px]
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
@@ -248,8 +215,8 @@ export default function PageShell({
                 <a
                   href="/#/dao-info-gr"
                   className="relative font-medium 
-    text-white dark:text-blue-200
-    hover:text-blue-300 dark:hover:text-white
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
     after:absolute after:-bottom-1 after:left-0 after:h-[2px]
     after:w-full after:scale-x-0 after:bg-gradient-to-r
     after:from-[#7b3df8] after:to-[#00d4ff]
@@ -257,24 +224,12 @@ export default function PageShell({
                 >
                   Διακυβέρνηση DAO
                 </a>
-                {isAdmin && (
-                  <a
-                    href="/#/admin"
-                    className="relative font-semibold text-red-200 hover:text-red-100
-                      after:absolute after:-bottom-1 after:left-0 after:h-[2px]
-                      after:w-full after:scale-x-0 after:bg-gradient-to-r
-                      after:from-red-400 after:to-pink-500
-                      after:transition-transform hover:after:scale-x-100"
-                  >
-                    Admin
-                  </a>
-                )}
               </>
             ) : (
               <>
                 <a href="/#/" className="relative font-medium 
-  text-white dark:text-blue-200
-  hover:text-blue-300 dark:hover:text-white
+  text-slate-800 dark:text-slate-100
+  hover:text-indigo-700 dark:hover:text-white
   after:absolute after:-bottom-1 after:left-0 after:h-[2px]
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
@@ -282,8 +237,8 @@ export default function PageShell({
                 <a
                   href="/#/start-here"
                   className="relative font-medium 
-    text-white dark:text-blue-200
-    hover:text-blue-300 dark:hover:text-white
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
     after:absolute after:-bottom-1 after:left-0 after:h-[2px]
     after:w-full after:scale-x-0 after:bg-gradient-to-r
     after:from-[#7b3df8] after:to-[#00d4ff]
@@ -294,8 +249,8 @@ export default function PageShell({
                 <a
                   href="/#/labs"
                   className="relative font-medium 
-    text-white dark:text-blue-200
-    hover:text-blue-300 dark:hover:text-white
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
     after:absolute after:-bottom-1 after:left-0 after:h-[2px]
     after:w-full after:scale-x-0 after:bg-gradient-to-r
     after:from-[#7b3df8] after:to-[#00d4ff]
@@ -304,8 +259,8 @@ export default function PageShell({
                   Labs
                 </a>
                 <a href="/#/team" className="relative font-medium 
-  text-white dark:text-blue-200
-  hover:text-blue-300 dark:hover:text-white
+  text-slate-800 dark:text-slate-100
+  hover:text-indigo-700 dark:hover:text-white
   after:absolute after:-bottom-1 after:left-0 after:h-[2px]
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
@@ -313,8 +268,8 @@ export default function PageShell({
                 <a
                   href="/#/dao-info"
                   className="relative font-medium 
-    text-white dark:text-blue-200
-    hover:text-blue-300 dark:hover:text-white
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
     after:absolute after:-bottom-1 after:left-0 after:h-[2px]
     after:w-full after:scale-x-0 after:bg-gradient-to-r
     after:from-[#7b3df8] after:to-[#00d4ff]
@@ -322,74 +277,14 @@ export default function PageShell({
                 >
                   DAO Governance
                 </a>
-                {isAdmin && (
-                  <a
-                    href="/#/admin"
-                    className="relative font-semibold text-red-200 hover:text-red-100
-                      after:absolute after:-bottom-1 after:left-0 after:h-[2px]
-                      after:w-full after:scale-x-0 after:bg-gradient-to-r
-                      after:from-red-400 after:to-pink-500
-                      after:transition-transform hover:after:scale-x-100"
-                  >
-                    Admin
-                  </a>
-                )}
               </>
             )}
           </div>
 
           {/* Action buttons */}
           <div className="hidden md:flex items-center gap-4">
-
-            {/* Identity avatar OR Join button */}
-            {showIdentityAvatar ? (
-              <>
-                <button
-                  onClick={() => {
-                    window.location.hash = isGR ? "#/dashboard-gr" : "#/dashboard";
-                  }}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full
-                    bg-slate-900/80 dark:bg-slate-900/80
-                    text-slate-100 border border-white/20 shadow-lg
-                    hover:bg-slate-800/90 transition-colors"
-                >
-                  <div
-                    className={
-                      "w-7 h-7 rounded-full flex items-center justify-center shadow-md " +
-                      (
-                        savedTier === "Architect"
-                          ? "ring-2 ring-yellow-400/80"
-                          : savedTier === "Builder"
-                            ? "ring-2 ring-blue-400/80"
-                            : "ring-2 ring-purple-400/80"
-                      )
-                    }
-                    style={generateAvatarStyle(address, savedTier)}
-                  >
-                    <AddressIdenticon address={address} />
-                  </div>
-                  <div className="flex flex-col items-start">
-                    <span className="text-[11px] font-mono tracking-wide hidden sm:inline">
-                      {shortAddr}
-                    </span>
-                    <span className="block text-[10px] text-white/70 leading-tight">
-                      {isGR ? "Προφίλ" : "Profile"}
-                    </span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => disconnect()}
-                  className="px-3 py-1.5 rounded-full text-[11px] font-semibold
-                    bg-gradient-to-r from-red-500/25 via-rose-500/25 to-pink-500/25
-                    text-white border border-white/20 shadow-lg shadow-pink-500/15
-                    hover:from-red-500/35 hover:to-pink-500/35 hover:shadow-pink-500/25
-                    transition-colors transition-shadow"
-                >
-                  {isGR ? "Αποσύνδεση" : "Disconnect"}
-                </button>
-              </>
-            ) : (
-              !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
+            {!currentHash.startsWith("#/join") &&
+              !currentHash.startsWith("#/join-gr") && (
                 <button
                   onClick={() => {
                     window.location.hash = isGR ? "#/join-gr" : "#/join";
@@ -400,8 +295,7 @@ export default function PageShell({
                 >
                   {isGR ? "Σύνδεση" : "Join"}
                 </button>
-              )
-            )}
+              )}
 
             {/* Theme toggle (moved outside language toggle group) */}
             <button
@@ -477,16 +371,6 @@ export default function PageShell({
                     >
                       Διακυβέρνηση DAO
                     </a>
-                    {isAdmin && (
-                      <button
-                        onClick={() => navigateTo("#/admin")}
-                        className="w-full rounded-xl border border-red-400/40
-                          bg-red-500/15 py-3 text-sm font-semibold text-red-200
-                          hover:bg-red-500/25 transition"
-                      >
-                        Admin
-                      </button>
-                    )}
                   </>
                 ) : (
                   <>
@@ -527,70 +411,19 @@ export default function PageShell({
                     >
                       DAO Governance
                     </a>
-                    {isAdmin && (
-                      <button
-                        onClick={() => navigateTo("#/admin")}
-                        className="w-full rounded-xl border border-red-400/40
-                          bg-red-500/15 py-3 text-sm font-semibold text-red-200
-                          hover:bg-red-500/25 transition"
-                      >
-                        Admin
-                      </button>
-                    )}
                   </>
                 )}
               </div>
 
-              {showIdentityAvatar ? (
-                <div className="space-y-2">
-                  <button
-                    onClick={() => navigateTo(isGR ? "#/dashboard-gr" : "#/dashboard")}
-                    className="w-full flex items-center justify-between gap-3 rounded-xl bg-slate-900 text-white py-3 px-4 text-sm font-semibold shadow-lg shadow-indigo-500/20"
-                  >
-                    <div
-                      className={
-                        "w-10 h-10 rounded-full flex items-center justify-center shadow-md " +
-                        (
-                          savedTier === "Architect"
-                            ? "ring-2 ring-yellow-400/80"
-                            : savedTier === "Builder"
-                              ? "ring-2 ring-blue-400/80"
-                              : "ring-2 ring-purple-400/80"
-                        )
-                      }
-                      style={generateAvatarStyle(address, savedTier)}
-                    >
-                      <AddressIdenticon address={address} />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="text-xs text-white/70">{isGR ? "Ταυτότητα" : "Identity"}</p>
-                      <p className="font-mono text-sm">{shortAddr}</p>
-                      <p className="text-[11px] text-white/70">{isGR ? "Άνοιγμα Προφίλ" : "Open Profile"}</p>
-                    </div>
-                    <span className="text-[10px] rounded-full bg-white/15 px-3 py-1">
-                      {savedTier}
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      disconnect();
-                      setMobileOpen(false);
-                    }}
-                    className="w-full rounded-xl border border-red-400/40 bg-red-500/15 py-3 text-sm font-semibold text-red-100 hover:bg-red-500/25 transition"
-                  >
-                    {isGR ? "Αποσύνδεση" : "Disconnect"}
-                  </button>
-                </div>
-              ) : (
-                !currentHash.startsWith("#/join") && !currentHash.startsWith("#/join-gr") && (
+              {!currentHash.startsWith("#/join") &&
+                !currentHash.startsWith("#/join-gr") && (
                   <button
                     onClick={() => navigateTo(isGR ? "#/join-gr" : "#/join")}
                     className="w-full rounded-xl bg-gradient-to-r from-pink-500/60 to-blue-500/60 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:from-pink-500/70 hover:to-blue-500/70 transition"
                   >
                     {isGR ? "Σύνδεση" : "Join"}
                   </button>
-                )
-              )}
+                )}
 
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <button
