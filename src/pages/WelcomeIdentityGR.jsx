@@ -1,14 +1,35 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAccount } from "wagmi";
 import PageShell from "../components/PageShell.jsx";
 import web3eduLogoDark from "../assets/web3edu_logo.png";
 import web3eduLogoLight from "../assets/web3edu_logo_light.png";
 
 const WelcomeIdentityGR = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { address } = useAccount();
 
     const [isDark, setIsDark] = useState(false);
-    const [txHash] = useState("0xYOUR_TRANSACTION_HASH_HERE"); // replace dynamically later
+    const txHashRaw = new URLSearchParams(location.search).get("tx");
+    const [tokenId, setTokenId] = useState(null);
+    const [tokenIdError, setTokenIdError] = useState(null);
+
+    useEffect(() => {
+        if (!address) return;
+        const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+        fetch(`${BACKEND}/web3sbt/resolve/${address}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setTokenId(data?.tokenId ?? null);
+                setTokenIdError(null);
+            })
+            .catch((err) => {
+                console.error("Failed to resolve tokenId", err);
+                setTokenId(null);
+                setTokenIdError("Αδυναμία ανάκτησης Token ID.");
+            });
+    }, [address]);
 
     useEffect(() => {
         const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -153,18 +174,22 @@ const WelcomeIdentityGR = () => {
                         μάθησης στο Web3Edu.
                     </p>
 
-                    {txHash && (
+                    {tokenId !== null ? (
                         <div className="animate-[fadeIn_1.15s_ease-out] mb-6 w-full max-w-md mx-auto p-4 
         rounded-xl border border-slate-300/60 dark:border-white/10 
         bg-white/60 dark:bg-white/5 backdrop-blur-md 
         shadow-[0_4px_18px_rgba(0,0,0,0.08)]">
 
                             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                                <strong>Hash Συναλλαγής</strong>
+                                <strong>Token ID</strong>
+                            </p>
+
+                            <p className="text-sm text-slate-700 dark:text-slate-200 mb-2">
+                                #{tokenId}
                             </p>
 
                             <a
-                                href={`https://blockexplorer.dimikog.org/tx/${txHash}`}
+                                href={`https://blockexplorer.dimikog.org/token/0xdde6a59445538ea146a17dd8745e7ea5288b1a31/instance/${tokenId}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-sm font-semibold text-[#8A57FF] dark:text-purple-300 underline hover:opacity-80"
@@ -172,6 +197,17 @@ const WelcomeIdentityGR = () => {
                                 Δείτε στο Blockscout ↗
                             </a>
                         </div>
+                    ) : (
+                        (tokenIdError || txHashRaw) && (
+                            <div className="animate-[fadeIn_1.15s_ease-out] mb-6 w-full max-w-md mx-auto p-4 
+            rounded-xl border border-amber-300/60 dark:border-amber-500/40 
+            bg-amber-50/80 dark:bg-amber-900/20 backdrop-blur-md 
+            shadow-[0_4px_18px_rgba(0,0,0,0.08)]">
+                                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                                    {tokenIdError ?? "Το Token ID δεν είναι διαθέσιμο ακόμη. Δοκίμασε ξανά σε λίγο."}
+                                </p>
+                            </div>
+                        )
                     )}
 
                     {/* Bottom: Primary button */}

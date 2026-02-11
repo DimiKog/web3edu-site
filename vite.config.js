@@ -28,6 +28,14 @@ export default defineConfig({
         "**/dao-invite/**",
         "**/dist/**"
       ]
+    },
+    proxy: {
+      "/api": {
+        target: "http://localhost:8092",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, "")
+      }
     }
   },
 

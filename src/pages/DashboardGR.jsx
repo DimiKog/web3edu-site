@@ -256,6 +256,7 @@ export default function Dashboard() {
         }
     }, [metadata?.tier]);
 
+    // Always provide a recommendation (backend-driven or fallback)
     const fallbackRecommendation = {
         type: "guide",
         title: "Ξεκίνα εδώ — Οδηγός Web3Edu",
@@ -274,10 +275,17 @@ export default function Dashboard() {
         ? recommendedFromBackend
         : fallbackRecommendation;
     const isFallbackRecommendation = !hasBackendRecommendation;
+    const isBuilderRequired = !!recommended?.builderRequired;
+    const builderStepIndex = recommended?.builderStepIndex ?? null;
     const recommendedLabSlug =
         recommended?.slug?.endsWith("-gr")
             ? recommended.slug.replace(/-gr$/, "")
             : recommended?.slug;
+
+    const builderChecklist = metadata?.builderChecklist || null;
+    const [showBuilderPath, setShowBuilderPath] = useState(
+        metadata?.tier && metadata.tier !== "Explorer"
+    );
 
     return (
         <PageShell>
@@ -668,9 +676,99 @@ export default function Dashboard() {
             "
                             icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
                         >
+                            {builderChecklist && (
+                                <div className="mb-4 rounded-xl border border-purple-300/30 dark:border-purple-700/40 
+                                                bg-purple-50/70 dark:bg-purple-900/20 p-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs font-semibold uppercase tracking-wide text-purple-700 dark:text-purple-300">
+                                            🏗 Διαδρομή Builder
+                                        </span>
+
+                                        {metadata?.tier === "Explorer" && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShowBuilderPath(prev => !prev);
+                                                }}
+                                                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                            >
+                                                {showBuilderPath ? "Απόκρυψη λεπτομερειών" : "Δες απαιτήσεις"}
+                                            </button>
+                                        )}
+
+                                        {metadata?.tier !== "Explorer" && (
+                                            builderChecklist.coreLabs?.done &&
+                                                builderChecklist.daoLabs?.done &&
+                                                builderChecklist.proofOfEscape?.done &&
+                                                builderChecklist.xpRequirement?.done ? (
+                                                <span className="text-green-600 dark:text-green-400 text-xs font-semibold">
+                                                    ✔ Builder Ξεκλειδώθηκε
+                                                </span>
+                                            ) : (
+                                                <span className="text-xs text-slate-500 dark:text-slate-400">
+                                                    Σε εξέλιξη
+                                                </span>
+                                            )
+                                        )}
+                                    </div>
+
+                                    {showBuilderPath && (
+                                        <>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                                <div>
+                                                    {builderChecklist.coreLabs?.done ? "✔" : "⏳"} Core Labs
+                                                    ({builderChecklist.coreLabs?.completed}/{builderChecklist.coreLabs?.required})
+                                                </div>
+                                                <div>
+                                                    {builderChecklist.daoLabs?.done ? "✔" : "⏳"} DAO Labs
+                                                    ({builderChecklist.daoLabs?.completed}/{builderChecklist.daoLabs?.required})
+                                                </div>
+                                                <div>
+                                                    {builderChecklist.proofOfEscape?.done ? "✔" : "⏳"} Proof of Escape
+                                                </div>
+                                                <div>
+                                                    {builderChecklist.xpRequirement?.done ? "✔" : "⏳"} XP
+                                                    ({builderChecklist.xpRequirement?.current}/{builderChecklist.xpRequirement?.required})
+                                                </div>
+                                            </div>
+                                            {(() => {
+                                                // XP is naturally achieved by completing the labs,
+                                                // so we treat Builder as 3 structural requirements.
+                                                const total = 3;
+
+                                                const completed =
+                                                    (builderChecklist.coreLabs?.done ? 1 : 0) +
+                                                    (builderChecklist.daoLabs?.done ? 1 : 0) +
+                                                    (builderChecklist.proofOfEscape?.done ? 1 : 0);
+
+                                                const percent = Math.round((completed / total) * 100);
+
+                                                return (
+                                                    <div className="mt-4">
+                                                        <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 mb-1">
+                                                            <span>Πρόοδος Builder</span>
+                                                            <span>{completed}/{total} απαιτήσεις</span>
+                                                        </div>
+                                                        <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-500"
+                                                                style={{ width: `${percent}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </>
+                                    )}
+                                </div>
+                            )}
                             <div
                                 className="space-y-3 cursor-pointer"
                                 onClick={() => {
+                                    if (recommended.type === "guide" && recommended.slug) {
+                                        navigate(`/${recommended.slug}`);
+                                        return;
+                                    }
                                     if (recommended.type === "lab" && recommendedLabSlug) {
                                         navigate(`/labs-gr/${recommendedLabSlug}`);
                                         return;
@@ -679,16 +777,33 @@ export default function Dashboard() {
                                         navigate(`/lessons/${recommended.slug}`);
                                         return;
                                     }
-                                    if (recommended.type === "guide" && recommended.slug) {
-                                        navigate(`/${recommended.slug}`);
-                                        return;
-                                    }
-                                    navigate("/start-here-gr");
+                                    navigate("/education-gr");
                                 }}
                             >
-                                <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
-                                    {isFallbackRecommendation ? "Ξεκίνα από εδώ" : "Προτείνεται για εσένα"}
-                                </p>
+                                <div className="flex items-center gap-3">
+                                    <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
+                                        {isFallbackRecommendation ? "Ξεκίνα από εδώ" : "Προτείνεται για εσένα"}
+                                    </p>
+
+                                    {isBuilderRequired && (
+                                        <span className="
+                                            inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold
+                                            bg-purple-100/80 dark:bg-purple-900/40
+                                            border border-purple-300/40 dark:border-purple-600/60
+                                            text-purple-700 dark:text-purple-300
+                                        ">
+                                            🏗 Διαδρομή Builder
+                                        </span>
+                                    )}
+
+                                    {isBuilderRequired && (
+                                        <span className="
+                                            text-[10px] font-medium text-slate-500 dark:text-slate-400
+                                        ">
+                                            Τελική απαίτηση Builder
+                                        </span>
+                                    )}
+                                </div>
 
                                 <p className="text-xl font-bold text-slate-900 dark:text-white leading-snug">
                                     {typeof recommended.title === "object"
@@ -710,12 +825,10 @@ export default function Dashboard() {
                                 )}
 
                                 <div className="flex flex-wrap items-center gap-6 pt-1 text-sm text-slate-600 dark:text-slate-400">
-                                    {!isFallbackRecommendation && recommended.estimatedTime && (
+                                    {recommended.estimatedTime && (
                                         <span>⏱ {recommended.estimatedTime} λεπτά</span>
                                     )}
-                                    {!isFallbackRecommendation && recommended.xp && (
-                                        <span>🏅 +{recommended.xp} XP</span>
-                                    )}
+                                    {recommended.xp && <span>🏅 +{recommended.xp} XP</span>}
                                 </div>
 
                                 <div className="pt-2">

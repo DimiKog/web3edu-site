@@ -598,6 +598,96 @@ const LabsGR = () => {
                     </div>
                 </section>
 
+                {/* DAO & Governance Labs */}
+                <section className="mb-16">
+                    <h2 className="text-2xl font-semibold mb-6">
+                        Εργαστήρια DAO & Διακυβέρνησης
+                    </h2>
+
+                    <p className="max-w-3xl mb-8 text-slate-600 dark:text-slate-300">
+                        Εξερευνήστε την αποκεντρωμένη διακυβέρνηση, τη συλλογική λήψη αποφάσεων
+                        και τους μηχανισμούς DAO μέσω καθοδηγούμενων προσομοιώσεων και πραγματικών
+                        κρυπτογραφικών ενεργειών.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* DAO Lab 01 */}
+                        <div
+                            className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
+                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm
+                                        hover:shadow-lg hover:-translate-y-1 transition-all"
+                        >
+                            <div className="flex items-center justify-between mb-3 gap-2">
+                                <h3 className="text-lg font-semibold">
+                                    DAO Lab 01 — 🗳️ Διακυβέρνηση & Ψηφοφορία
+                                </h3>
+                                <BadgeWithTooltip
+                                    label="Διαθέσιμο"
+                                    variant="success"
+                                    tooltip="Προσομοίωση διακυβέρνησης DAO"
+                                    className="rounded-full text-xs whitespace-nowrap"
+                                />
+                            </div>
+
+                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
+                                Συμμετέχετε σε μια προσομοιωμένη διαδικασία διακυβέρνησης DAO και
+                                καταθέστε πραγματική ψήφο μέσω υπογραφής wallet. Μάθετε πώς λειτουργούν
+                                οι προτάσεις, η ισχύς ψήφου και η συλλογική λήψη αποφάσεων στα DAO —
+                                χωρίς ανάπτυξη παραγωγικού συστήματος.
+                            </p>
+
+                            <div className="flex items-center justify-between mt-auto">
+                                <span className="text-xs font-medium px-2 py-1 rounded
+    bg-slate-200/70 dark:bg-slate-700/60">
+                                    Αρχάριο
+                                </span>
+                                <Link
+                                    to="/labs-gr/dao-01"
+                                    className="text-sm font-semibold text-indigo-600 hover:underline"
+                                >
+                                    Άνοιγμα Εργαστηρίου →
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* DAO Lab 02 placeholder */}
+                        <div
+                            className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
+                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70"
+                        >
+                            <div className="flex items-center justify-between mb-3 gap-2">
+                                <h3 className="text-lg font-semibold">
+                                    DAO Lab 02 — 🏛️ Κύκλος Ζωής DAO & Προτάσεις
+                                </h3>
+                                <span
+                                    className="rounded-full text-xs whitespace-nowrap px-3 py-1
+                                                 bg-yellow-100 text-yellow-700
+                                                 dark:bg-yellow-900/40 dark:text-yellow-300
+                                                 font-semibold"
+                                >
+                                    Σύντομα
+                                </span>
+                            </div>
+
+                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
+                                Δείτε πώς εξελίσσονται οι αποφάσεις πέρα από την ψηφοφορία. Δημιουργήστε
+                                προτάσεις, κατανοήστε κανόνες απαρτίας και ακολουθήστε τον πλήρη κύκλο
+                                διακυβέρνησης από την ιδέα έως την εκτέλεση σε μια ελεγχόμενη προσομοίωση.
+                            </p>
+
+                            <div className="flex items-center justify-between mt-auto">
+                                <span className="text-xs font-medium px-2 py-1 rounded
+                                                 bg-slate-200/70 dark:bg-slate-700/60">
+                                    Builder Track
+                                </span>
+                                <span className="text-sm text-slate-400">
+                                    Σύντομα
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Applied Labs */}
                 <section>
                     <h2 className="text-2xl font-semibold mb-6">
@@ -609,7 +699,7 @@ const LabsGR = () => {
                         {/* 🧠 Proof of Escape */}
                         <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
                             <div className="flex items-center justify-between mb-3 gap-2">
-                                <h3 className="text-lg font-semibold">Lab 07 — 🧠 Proof of Escape</h3>
+                                <h3 className="text-lg font-semibold">Lab 01 — 🧠 Proof of Escape</h3>
                                 <div className="flex items-center gap-2 flex-nowrap">
                                     {/* 1. Διαθέσιμο */}
                                     <BadgeWithTooltip
@@ -653,7 +743,7 @@ const LabsGR = () => {
                         {/* 🖼 NFT Marketplace Lab */}
                         <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                             <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-semibold">Lab 08 — 🖼 Εργαστήριο NFT Marketplace</h3>
+                                <h3 className="text-lg font-semibold">Lab 02 — 🖼 Εργαστήριο NFT Marketplace</h3>
                                 <span className="rounded-full text-xs whitespace-nowrap px-3 py-1 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300 font-semibold">
                                     Σύντομα
                                 </span>

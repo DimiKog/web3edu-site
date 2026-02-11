@@ -14,6 +14,17 @@ import { useAccount } from "wagmi";
 import { useDisconnect } from "wagmi";
 import { AddressIdenticon, generateAvatarStyle, shortAddress } from "./identity-ui.jsx";
 
+const ADMIN_WALLETS = (
+  import.meta.env.VITE_ADMIN_WALLETS ??
+  "0x0e66db7d115b8f392eb7dfb8bacb23675daeb59e"
+)
+  .split(",")
+  .map((a) => a.trim().toLowerCase())
+  .filter(Boolean);
+
+const isAdminWallet = (address) =>
+  Boolean(address && ADMIN_WALLETS.includes(address.toLowerCase()));
+
 const getLangFromHash = (hash) => {
   if (!hash) return null;
   if (hash.includes("-gr") || hash.startsWith("#/gr")) return "gr";
@@ -65,6 +76,7 @@ export default function PageShell({
   const [showJoin, setShowJoin] = React.useState(false);
 
   const { address, isConnected } = useAccount();
+  const isAdmin = isConnected && isAdminWallet(address);
   const { disconnect } = useDisconnect();
 
   const [currentHash, setCurrentHash] = React.useState(
@@ -250,6 +262,18 @@ export default function PageShell({
                 >
                   Διακυβέρνηση DAO
                 </a>
+                {isAdmin && (
+                  <a
+                    href="/#/admin"
+                    className="relative font-semibold text-red-200 hover:text-red-100
+                      after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+                      after:w-full after:scale-x-0 after:bg-gradient-to-r
+                      after:from-red-400 after:to-pink-500
+                      after:transition-transform hover:after:scale-x-100"
+                  >
+                    Admin
+                  </a>
+                )}
               </>
             ) : (
               <>
@@ -303,6 +327,18 @@ export default function PageShell({
                 >
                   DAO Governance
                 </a>
+                {isAdmin && (
+                  <a
+                    href="/#/admin"
+                    className="relative font-semibold text-red-200 hover:text-red-100
+                      after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+                      after:w-full after:scale-x-0 after:bg-gradient-to-r
+                      after:from-red-400 after:to-pink-500
+                      after:transition-transform hover:after:scale-x-100"
+                  >
+                    Admin
+                  </a>
+                )}
               </>
             )}
           </div>
@@ -446,6 +482,16 @@ export default function PageShell({
                     >
                       Διακυβέρνηση DAO
                     </a>
+                    {isAdmin && (
+                      <button
+                        onClick={() => navigateTo("#/admin")}
+                        className="w-full rounded-xl border border-red-400/40
+                          bg-red-500/15 py-3 text-sm font-semibold text-red-200
+                          hover:bg-red-500/25 transition"
+                      >
+                        Admin
+                      </button>
+                    )}
                   </>
                 ) : (
                   <>
@@ -486,6 +532,16 @@ export default function PageShell({
                     >
                       DAO Governance
                     </a>
+                    {isAdmin && (
+                      <button
+                        onClick={() => navigateTo("#/admin")}
+                        className="w-full rounded-xl border border-red-400/40
+                          bg-red-500/15 py-3 text-sm font-semibold text-red-200
+                          hover:bg-red-500/25 transition"
+                      >
+                        Admin
+                      </button>
+                    )}
                   </>
                 )}
               </div>

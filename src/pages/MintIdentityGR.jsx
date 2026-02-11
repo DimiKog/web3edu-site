@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import PageShell from "../components/PageShell.jsx";
 import identityIcon from "../assets/icons/identity-icon.png";
+import { extractTxHash } from "../utils/txHash.js";
 
 export default function MintIdentity() {
     const { address, isConnected } = useAccount();
@@ -24,7 +25,20 @@ export default function MintIdentity() {
             if (!data.ok) {
                 throw new Error(data.error || "Minting failed");
             }
-            navigate("/welcome-gr");
+            const rawTxHash =
+                data?.txHash ??
+                data?.transactionHash ??
+                data?.hash ??
+                data?.tx ??
+                data?.result?.txHash ??
+                data?.result?.transactionHash ??
+                data?.result?.hash ??
+                null;
+            const txHash = extractTxHash(rawTxHash);
+            const nextPath = txHash
+                ? `/welcome-gr?tx=${encodeURIComponent(txHash)}`
+                : "/welcome-gr";
+            navigate(nextPath);
         } catch (err) {
             console.error(err);
             setError(err.message || "Minting failed.");

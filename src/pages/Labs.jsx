@@ -586,6 +586,94 @@ const Labs = () => {
                     </div>
                 </section>
 
+                {/* DAO & Governance Labs */}
+                <section className="mb-16">
+                    <h2 className="text-2xl font-semibold mb-6">
+                        DAO & Governance Labs
+                    </h2>
+
+                    <p className="max-w-3xl mb-8 text-slate-600 dark:text-slate-300">
+                        Explore decentralized governance, collective decision-making,
+                        and DAO mechanics through guided simulations and real cryptographic actions.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* DAO Lab 01 */}
+                        <div
+                            className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
+                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm
+                                        hover:shadow-lg hover:-translate-y-1 transition-all"
+                        >
+                            <div className="flex items-center justify-between mb-3 gap-2">
+                                <h3 className="text-lg font-semibold">
+                                    DAO Lab 01 — 🗳️ Governance & Voting
+                                </h3>
+                                <BadgeWithTooltip
+                                    label="Available"
+                                    variant="success"
+                                    tooltip="Governance simulation lab"
+                                    className="rounded-full text-xs whitespace-nowrap"
+                                />
+                            </div>
+
+                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
+                                Participate in a simulated DAO governance process and cast a real vote using your
+                                wallet signature. Learn how proposals, voting power, and collective decision-making
+                                work in DAOs — without deploying a production system.
+                            </p>
+
+                            <div className="flex items-center justify-between mt-auto">
+                                <span className="text-xs font-medium px-2 py-1 rounded
+    bg-slate-200/70 dark:bg-slate-700/60">
+                                    Beginner
+                                </span>
+                                <Link
+                                    to="/labs/dao-01"
+                                    className="text-sm font-semibold text-indigo-600 hover:underline"
+                                >
+                                    Open Lab →
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* DAO Lab 02 placeholder */}
+                        <div
+                            className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
+                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70"
+                        >
+                            <div className="flex items-center justify-between mb-3 gap-2">
+                                <h3 className="text-lg font-semibold">
+                                    DAO Lab 02 — 🏛️ DAO Lifecycle & Proposals
+                                </h3>
+                                <span
+                                    className="rounded-full text-xs whitespace-nowrap px-3 py-1
+                                                 bg-yellow-100 text-yellow-700
+                                                 dark:bg-yellow-900/40 dark:text-yellow-300
+                                                 font-semibold"
+                                >
+                                    Coming Soon
+                                </span>
+                            </div>
+
+                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
+                                Explore how DAO decisions evolve beyond voting. Create proposals, understand quorum
+                                rules, and follow the full governance lifecycle from idea to execution in a
+                                controlled simulation.
+                            </p>
+
+                            <div className="flex items-center justify-between mt-auto">
+                                <span className="text-xs font-medium px-2 py-1 rounded
+                                                 bg-slate-200/70 dark:bg-slate-700/60">
+                                    Builder Track
+                                </span>
+                                <span className="text-sm text-slate-400">
+                                    Coming Soon
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 {/* Applied & Project Labs */}
                 <section>
                     <h2 className="text-2xl font-semibold mb-6">
@@ -597,7 +685,7 @@ const Labs = () => {
                         {/* 🧠 Proof of Escape */}
                         <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
                             <div className="flex items-center justify-between mb-3 gap-2">
-                                <h3 className="text-lg font-semibold">Lab 07 — 🧠 Proof of Escape</h3>
+                                <h3 className="text-lg font-semibold">Lab 01 — 🧠 Proof of Escape</h3>
                                 <div className="flex items-center gap-2 flex-nowrap">
                                     {/* 1. Available (always shown, matches Foundational Labs) */}
                                     <BadgeWithTooltip
@@ -641,7 +729,7 @@ const Labs = () => {
                         {/* 🖼 NFT Marketplace Lab */}
                         <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
                             <div className="flex items-center justify-between mb-3 gap-2">
-                                <h3 className="text-lg font-semibold">Lab 08 — 🖼 NFT Marketplace Lab</h3>
+                                <h3 className="text-lg font-semibold">Lab 02 — 🖼 NFT Marketplace Lab</h3>
                                 <span className="rounded-full text-xs whitespace-nowrap px-3 py-1 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300 font-semibold">
                                     Coming Soon
                                 </span>

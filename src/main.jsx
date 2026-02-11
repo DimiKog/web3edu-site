@@ -41,6 +41,8 @@ import DaoPreview from './pages/dao-preview/DaoPreview.jsx';
 import DaoPreviewGR from './pages/dao-preview/DaoPreviewGR.jsx';
 import DaoGovernance from './pages/dao-preview/DaoGovernance.jsx';
 import DaoGovernanceGR from './pages/dao-preview/DaoGovernanceGR.jsx';
+import AdminPage from './pages/AdminPage.jsx';
+
 
 //Labs
 import Labs from "./pages/Labs.jsx";
@@ -69,6 +71,10 @@ import Lab06 from './pages/labs/Lab06.jsx';
 import Lab06GR from './pages/labs/Lab06GR.jsx';
 import Lab06Interaction from './pages/labs/Lab06Interaction.jsx';
 import Lab06InteractionGR from './pages/labs/Lab06InteractionGR.jsx';
+import DaoLab01 from './pages/labs/DaoLab01.jsx';
+import DaoLab01GR from './pages/labs/DaoLab01GR.jsx';
+import DaoLab01Interaction from './pages/labs/DaoLab01Interaction.jsx';
+import DaoLab01InteractionGR from './pages/labs/DaoLab01InteractionGR.jsx';
 
 //Project Labs
 import PoELab from './pages/labs/PoELab.jsx';
@@ -171,8 +177,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs-gr/lab06" element={<Lab06GR />} />
               <Route path="/labs/lab06/interaction" element={<Lab06Interaction />} />
               <Route path="/labs-gr/lab06/interaction" element={<Lab06InteractionGR />} />
+              <Route path="/labs/dao-01" element={<DaoLab01 />} />
+              <Route path="/labs-gr/dao-01" element={<DaoLab01GR />} />
+              <Route path="/labs/dao-01/interaction" element={<DaoLab01Interaction />} />
+              <Route path="/labs-gr/dao-01/interaction" element={<DaoLab01InteractionGR />} />
               <Route path="/labs/proof-of-escape" element={<PoELab />} />
               <Route path="/labs-gr/proof-of-escape" element={<PoELabGR />} />
+              <Route path="/admin" element={<AdminPage />} />
             </Routes>
           </HashRouter>
         </RainbowKitProvider>

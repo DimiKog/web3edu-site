@@ -1,19 +1,36 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAccount } from "wagmi";
 import PageShell from "../components/PageShell.jsx";
 import web3eduLogoDark from "../assets/web3edu_logo.png";
 import web3eduLogoLight from "../assets/web3edu_logo_light.png";
 
 const WelcomeIdentity = () => {
     const navigate = useNavigate();
-    const [txHash, setTxHash] = useState(null);
+    const location = useLocation();
+    const { address } = useAccount();
+    const txHashRaw = new URLSearchParams(location.search).get("tx");
+    const [tokenId, setTokenId] = useState(null);
+    const [tokenIdError, setTokenIdError] = useState(null);
+
+    useEffect(() => {
+        if (!address) return;
+        const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+        fetch(`${BACKEND}/web3sbt/resolve/${address}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setTokenId(data?.tokenId ?? null);
+                setTokenIdError(null);
+            })
+            .catch((err) => {
+                console.error("Failed to resolve tokenId", err);
+                setTokenId(null);
+                setTokenIdError("Unable to resolve token ID.");
+            });
+    }, [address]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
-
-        // Example: Set txHash here or fetch it from props/context/state as needed
-        // For demonstration, setting a dummy txHash
-        setTxHash("0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef");
 
         // Confetti animation
         const canvas = document.getElementById("confetti-canvas");
@@ -164,19 +181,18 @@ const WelcomeIdentity = () => {
                     </p>
 
                     {/* Transaction Hash Display */}
-                    {txHash && (
+                    {tokenId !== null ? (
                         <div className="animate-[fadeIn_1.15s_ease-out] mb-6 w-full max-w-md mx-auto p-4 
                         rounded-xl border border-slate-300/60 dark:border-white/10 
                         bg-white/60 dark:bg-white/5 backdrop-blur-md 
                         shadow-[0_4px_18px_rgba(0,0,0,0.08)]">
 
                             <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">
-                                <strong>Transaction Hash</strong>
+                                <strong>Token ID</strong>
                             </p>
 
-
                             <a
-                                href={`https://blockexplorer.dimikog.org/tx/${txHash}`}
+                                href={`https://blockexplorer.dimikog.org/token/0xdde6a59445538ea146a17dd8745e7ea5288b1a31/instance/${tokenId}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-sm font-semibold text-[#8A57FF] dark:text-purple-300 underline hover:opacity-80"
@@ -184,6 +200,17 @@ const WelcomeIdentity = () => {
                                 View on Blockscout ↗
                             </a>
                         </div>
+                    ) : (
+                        (tokenIdError || txHashRaw) && (
+                            <div className="animate-[fadeIn_1.15s_ease-out] mb-6 w-full max-w-md mx-auto p-4 
+                            rounded-xl border border-amber-300/60 dark:border-amber-500/40 
+                            bg-amber-50/80 dark:bg-amber-900/20 backdrop-blur-md 
+                            shadow-[0_4px_18px_rgba(0,0,0,0.08)]">
+                                <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                                    {tokenIdError ?? "Token ID not available yet. Try again in a moment."}
+                                </p>
+                            </div>
+                        )
                     )}
 
                     {/* Bottom: Primary button */}
