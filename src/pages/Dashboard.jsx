@@ -34,6 +34,14 @@ export default function Dashboard() {
     const [profile, setProfile] = useState(null);
     const [lastSyncTime, setLastSyncTime] = useState(null);
 
+    // Builder unlock promo state
+    const [showBuilderUnlock, setShowBuilderUnlock] = useState(false);
+    const [builderRewardClaimed, setBuilderRewardClaimed] = useState(
+        localStorage.getItem("web3edu-builder-claimed") === "true"
+    );
+    const [builderJustClaimed, setBuilderJustClaimed] = useState(false);
+    const prevTierRef = useRef(null);
+
     const fallbackMetadata = {
         tier: "Explorer",
         xp: 0,
@@ -257,6 +265,22 @@ export default function Dashboard() {
         }
     }, [metadata?.tier]);
 
+    // Builder unlock promo effect
+    useEffect(() => {
+        if (!metadata?.tier) return;
+
+        // If user is Builder and has NOT claimed reward yet,
+        // always show unlock promo (even on first load)
+        if (
+            metadata.tier === "Builder" &&
+            !builderRewardClaimed
+        ) {
+            setShowBuilderUnlock(true);
+        }
+
+        prevTierRef.current = metadata.tier;
+    }, [metadata?.tier, builderRewardClaimed]);
+
     // Always provide a recommendation (backend-driven or fallback)
     const fallbackRecommendation = {
         type: "guide",
@@ -418,6 +442,67 @@ export default function Dashboard() {
                 {/* Pilot User Banner */}
                 <PilotBanner lang={document.documentElement.lang === "gr" ? "gr" : "en"} />
 
+                {/* Builder Unlock Promotion */}
+                {showBuilderUnlock && (
+                    <div className="relative z-10 w-full max-w-4xl mx-auto mb-10 px-4">
+                        <div className="
+                            rounded-3xl border border-purple-400/40
+                            bg-gradient-to-br from-purple-600/20 via-indigo-600/20 to-fuchsia-600/20
+                            backdrop-blur-xl shadow-2xl p-8 text-center
+                            animate-[xpBurst_1.2s_ease-out]
+                        ">
+                            <h2 className="text-2xl font-extrabold text-white mb-3">
+                                🏗️ Builder Level Unlocked
+                            </h2>
+
+                            <p className="text-sm text-slate-200 mb-6">
+                                You have completed the core requirements and unlocked
+                                <span className="font-semibold text-purple-300"> Builder </span>
+                                status.
+                                You are now eligible to participate in advanced governance tracks.
+                            </p>
+
+                            {builderJustClaimed ? (
+                                <div
+                                    className="
+                                        px-6 py-3 rounded-xl
+                                        bg-green-600/90 text-white font-semibold
+                                        shadow-lg animate-[xpBurst_1.2s_ease-out]
+                                        flex flex-col items-center gap-1
+                                    "
+                                >
+                                    <span>✅ Builder Badge Claimed</span>
+                                    <span className="text-[11px] opacity-90">
+                                        Next milestone: Architect Tier
+                                    </span>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => {
+                                        localStorage.setItem("web3edu-builder-claimed", "true");
+                                        setBuilderRewardClaimed(true);
+                                        setBuilderJustClaimed(true);
+
+                                        // Show claimed state briefly before hiding
+                                        setTimeout(() => {
+                                            setShowBuilderUnlock(false);
+                                            setBuilderJustClaimed(false);
+                                        }, 1400);
+                                    }}
+                                    className="
+                                        px-6 py-3 rounded-xl
+                                        bg-gradient-to-r from-purple-500 to-indigo-500
+                                        text-white font-semibold
+                                        hover:scale-105 transition shadow-lg
+                                    "
+                                >
+                                    Claim Builder Badge
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* 2-Column Premium Layout */}
                 <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 px-2 md:px-0">
                     {/* Left Column — IdentityCard */}
@@ -486,7 +571,10 @@ export default function Dashboard() {
                             "
                             icon={<UserIcon className="w-5 h-5 text-white" />}
                         >
-                            <div className="flex flex-col items-start gap-3">
+                            <div
+                                className="flex flex-col items-start gap-3 cursor-pointer"
+                                onClick={() => setShowTierPopup(true)}
+                            >
                                 {/* Tier label pill */}
                                 <div
                                     className="
@@ -505,7 +593,12 @@ export default function Dashboard() {
                                 {/* Tier value + subtle helper text */}
                                 <div className="flex flex-col gap-1">
                                     <div className="flex items-baseline gap-2">
-                                        <p className="text-2xl font-extrabold text-purple-700 dark:text-purple-200">
+                                        <p
+                                            className={`
+                                                text-2xl font-extrabold text-purple-700 dark:text-purple-200
+                                                ${metadata?.tier === "Builder" ? "animate-[xpBurst_1.2s_ease-out]" : ""}
+                                            `}
+                                        >
                                             {metadata?.tier ?? "Explorer"}
                                         </p>
                                         {metadata?.tier && metadata.tier !== "Explorer" && (
@@ -516,6 +609,28 @@ export default function Dashboard() {
                                             </span>
                                         )}
                                     </div>
+                                    {/* Next Tier Hint */}
+                                    {metadata?.tier && metadata.tier !== "Architect" && (
+                                        <div className="mt-2 text-xs text-slate-600/90 dark:text-slate-400/90">
+                                            {(() => {
+                                                const currentTier = metadata.tier;
+                                                const remainingXp = metadata?.remainingXp ?? 0;
+
+                                                let nextTier = "Builder";
+                                                if (currentTier === "Builder") nextTier = "Architect";
+
+                                                return (
+                                                    <span>
+                                                        Next Tier:{" "}
+                                                        <span className="font-semibold text-purple-600 dark:text-purple-300">
+                                                            {nextTier}
+                                                        </span>{" "}
+                                                        • {remainingXp} XP remaining
+                                                    </span>
+                                                );
+                                            })()}
+                                        </div>
+                                    )}
                                     <p className="text-xs text-slate-600/90 dark:text-slate-400/90">
                                         Earn XP from lessons and quizzes to upgrade your tier.
                                     </p>
@@ -524,6 +639,22 @@ export default function Dashboard() {
                                             ? "DAO governance access unlocked at your current tier."
                                             : "Reach Builder tier to unlock DAO governance access."}
                                     </p>
+                                    <div className="mt-2 text-xs font-semibold">
+                                        {metadata?.tier === "Builder" || metadata?.tier === "Architect" ? (
+                                            <span className="text-green-600 dark:text-green-400">
+                                                🟢 Governance Access: Active
+                                            </span>
+                                        ) : (
+                                            <span className="text-slate-500 dark:text-slate-400">
+                                                🔒 Governance Access: Locked
+                                            </span>
+                                        )}
+                                    </div>
+                                    {metadata?.tier === "Builder" && (
+                                        <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
+                                            Architect tier unlocks proposal publishing & advanced governance tools.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </DashboardCard>

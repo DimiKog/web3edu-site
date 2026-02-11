@@ -17,6 +17,8 @@ const Labs = () => {
     const [lab05Completed, setLab05Completed] = useState(false);
     const [lab06Completed, setLab06Completed] = useState(false);
     const [poeCompleted, setPoeCompleted] = useState(false);
+    const [dao01Completed, setDao01Completed] = useState(false);
+    const [dao02Completed, setDao02Completed] = useState(false);
     useEffect(() => {
         if (!address) {
             setPoeCompleted(false);
@@ -184,8 +186,60 @@ const Labs = () => {
 
         return () => controller.abort();
     }, [address]);
+
+    useEffect(() => {
+        if (!address) {
+            setDao01Completed(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=dao01`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setDao01Completed(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Failed to load DAO Lab 01 status", err);
+                }
+            });
+
+        return () => controller.abort();
+    }, [address]);
+
+    useEffect(() => {
+        if (!address) {
+            setDao02Completed(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=dao02`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setDao02Completed(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Failed to load DAO Lab 02 status", err);
+                }
+            });
+
+        return () => controller.abort();
+    }, [address]);
     const showLab02Next =
         Boolean(lab01Completed && !lab02Completed);
+
+    const showDao02Next = Boolean(dao01Completed && !dao02Completed);
 
     return (
         <PageShell title="Web3Edu Labs">
@@ -608,12 +662,21 @@ const Labs = () => {
                                 <h3 className="text-lg font-semibold">
                                     DAO Lab 01 — 🗳️ Governance & Voting
                                 </h3>
-                                <BadgeWithTooltip
-                                    label="Available"
-                                    variant="success"
-                                    tooltip="Governance simulation lab"
-                                    className="rounded-full text-xs whitespace-nowrap"
-                                />
+                                <div className="flex items-center gap-2 flex-nowrap">
+                                    <BadgeWithTooltip
+                                        label="Available"
+                                        variant="success"
+                                        tooltip="Governance simulation lab"
+                                        className="rounded-full text-xs whitespace-nowrap"
+                                    />
+                                    {dao01Completed && (
+                                        <span
+                                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
+                                        >
+                                            ✓ Completed
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
@@ -625,7 +688,7 @@ const Labs = () => {
                             <div className="flex items-center justify-between mt-auto">
                                 <span className="text-xs font-medium px-2 py-1 rounded
     bg-slate-200/70 dark:bg-slate-700/60">
-                                    Beginner
+                                    Intermediate
                                 </span>
                                 <Link
                                     to="/labs/dao-01"
@@ -636,39 +699,59 @@ const Labs = () => {
                             </div>
                         </div>
 
-                        {/* DAO Lab 02 placeholder */}
+                        {/* DAO Lab 02 */}
                         <div
                             className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70"
+                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm
+                                        hover:shadow-lg hover:-translate-y-1 transition-all"
                         >
                             <div className="flex items-center justify-between mb-3 gap-2">
                                 <h3 className="text-lg font-semibold">
-                                    DAO Lab 02 — 🏛️ DAO Lifecycle & Proposals
+                                    DAO Lab 02 — 🏛 Governance Models & Power Dynamics
                                 </h3>
-                                <span
-                                    className="rounded-full text-xs whitespace-nowrap px-3 py-1
-                                                 bg-yellow-100 text-yellow-700
-                                                 dark:bg-yellow-900/40 dark:text-yellow-300
-                                                 font-semibold"
-                                >
-                                    Coming Soon
-                                </span>
+                                <div className="flex items-center gap-2 flex-nowrap">
+                                    <BadgeWithTooltip
+                                        label="Available"
+                                        variant="success"
+                                        tooltip="DAO lifecycle simulation lab"
+                                        className="rounded-full text-xs whitespace-nowrap"
+                                    />
+                                    {dao02Completed && (
+                                        <span
+                                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
+                                        >
+                                            ✓ Completed
+                                        </span>
+                                    )}
+                                    {showDao02Next && (
+                                        <span
+                                            title="Recommended next DAO lab after completing DAO Lab 01"
+                                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap uppercase tracking-wide bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 ring-1 ring-indigo-400/30 font-semibold"
+                                        >
+                                            ⭐ NEXT
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
-                                Explore how DAO decisions evolve beyond voting. Create proposals, understand quorum
-                                rules, and follow the full governance lifecycle from idea to execution in a
-                                controlled simulation.
+                                Explore how governance outcomes depend on rule design.
+                                Select different voting models, adjust quorum and approval thresholds,
+                                and observe how identical community intent can lead to different results
+                                depending on how voting power is distributed.
                             </p>
 
                             <div className="flex items-center justify-between mt-auto">
                                 <span className="text-xs font-medium px-2 py-1 rounded
                                                  bg-slate-200/70 dark:bg-slate-700/60">
-                                    Builder Track
+                                    Advanced
                                 </span>
-                                <span className="text-sm text-slate-400">
-                                    Coming Soon
-                                </span>
+                                <Link
+                                    to="/labs/dao-02"
+                                    className="text-sm font-semibold text-indigo-600 hover:underline"
+                                >
+                                    Open Lab →
+                                </Link>
                             </div>
                         </div>
                     </div>

@@ -17,6 +17,8 @@ const LabsGR = () => {
     const [lab05Completed, setLab05Completed] = useState(false);
     const [lab06Completed, setLab06Completed] = useState(false);
     const [poeCompleted, setPoeCompleted] = useState(false);
+    const [dao01Completed, setDao01Completed] = useState(false);
+    const [dao02Completed, setDao02Completed] = useState(false);
     useEffect(() => {
         if (!address) {
             setPoeCompleted(false);
@@ -181,6 +183,56 @@ const LabsGR = () => {
             .catch(err => {
                 if (err.name !== "AbortError") {
                     console.error("Αποτυχία φόρτωσης κατάστασης Lab 04", err);
+                }
+            });
+
+        return () => controller.abort();
+    }, [address]);
+
+    useEffect(() => {
+        if (!address) {
+            setDao01Completed(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=dao01`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setDao01Completed(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Αποτυχία φόρτωσης κατάστασης DAO Lab 01", err);
+                }
+            });
+
+        return () => controller.abort();
+    }, [address]);
+
+    useEffect(() => {
+        if (!address) {
+            setDao02Completed(false);
+            return;
+        }
+
+        const controller = new AbortController();
+
+        fetch(
+            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=dao02`,
+            { signal: controller.signal }
+        )
+            .then(res => res.json())
+            .then(data => {
+                setDao02Completed(Boolean(data?.completed));
+            })
+            .catch(err => {
+                if (err.name !== "AbortError") {
+                    console.error("Αποτυχία φόρτωσης κατάστασης DAO Lab 02", err);
                 }
             });
 
@@ -621,12 +673,21 @@ const LabsGR = () => {
                                 <h3 className="text-lg font-semibold">
                                     DAO Lab 01 — 🗳️ Διακυβέρνηση & Ψηφοφορία
                                 </h3>
-                                <BadgeWithTooltip
-                                    label="Διαθέσιμο"
-                                    variant="success"
-                                    tooltip="Προσομοίωση διακυβέρνησης DAO"
-                                    className="rounded-full text-xs whitespace-nowrap"
-                                />
+                                <div className="flex items-center gap-2 flex-nowrap">
+                                    <BadgeWithTooltip
+                                        label="Διαθέσιμο"
+                                        variant="success"
+                                        tooltip="Προσομοίωση διακυβέρνησης DAO"
+                                        className="rounded-full text-xs whitespace-nowrap"
+                                    />
+                                    {dao01Completed && (
+                                        <span
+                                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
+                                        >
+                                            ✓ Ολοκληρώθηκε
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
@@ -650,39 +711,50 @@ const LabsGR = () => {
                             </div>
                         </div>
 
-                        {/* DAO Lab 02 placeholder */}
+                        {/* DAO Lab 02 */}
                         <div
                             className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70"
+                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm
+                                        hover:shadow-lg hover:-translate-y-1 transition-all"
                         >
                             <div className="flex items-center justify-between mb-3 gap-2">
                                 <h3 className="text-lg font-semibold">
-                                    DAO Lab 02 — 🏛️ Κύκλος Ζωής DAO & Προτάσεις
+                                    DAO Lab 02 — 🏛️ Μοντέλα Διακυβέρνησης & Δυναμικές Ισχύος
                                 </h3>
-                                <span
-                                    className="rounded-full text-xs whitespace-nowrap px-3 py-1
-                                                 bg-yellow-100 text-yellow-700
-                                                 dark:bg-yellow-900/40 dark:text-yellow-300
-                                                 font-semibold"
-                                >
-                                    Σύντομα
-                                </span>
+                                <div className="flex items-center gap-2 flex-nowrap">
+                                    <BadgeWithTooltip
+                                        label="Διαθέσιμο"
+                                        variant="success"
+                                        tooltip="Σχεδιασμός κανόνων διακυβέρνησης και προσομοίωση αποτελεσμάτων"
+                                        className="rounded-full text-xs whitespace-nowrap"
+                                    />
+                                    {dao02Completed && (
+                                        <span
+                                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
+                                        >
+                                            ✓ Ολοκληρώθηκε
+                                        </span>
+                                    )}
+                                </div>
                             </div>
 
                             <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
-                                Δείτε πώς εξελίσσονται οι αποφάσεις πέρα από την ψηφοφορία. Δημιουργήστε
-                                προτάσεις, κατανοήστε κανόνες απαρτίας και ακολουθήστε τον πλήρη κύκλο
-                                διακυβέρνησης από την ιδέα έως την εκτέλεση σε μια ελεγχόμενη προσομοίωση.
+                                Σχεδιάστε κανόνες ψηφοφορίας, ρυθμίστε quorum και approval thresholds
+                                και δείτε πώς το ίδιο σύνολο ψήφων οδηγεί σε διαφορετικά αποτελέσματα
+                                ανάλογα με το μοντέλο διακυβέρνησης.
                             </p>
 
                             <div className="flex items-center justify-between mt-auto">
                                 <span className="text-xs font-medium px-2 py-1 rounded
                                                  bg-slate-200/70 dark:bg-slate-700/60">
-                                    Builder Track
+                                    Προχωρημένο
                                 </span>
-                                <span className="text-sm text-slate-400">
-                                    Σύντομα
-                                </span>
+                                <Link
+                                    to="/labs-gr/dao-02"
+                                    className="text-sm font-semibold text-indigo-600 hover:underline"
+                                >
+                                    Άνοιγμα Εργαστηρίου →
+                                </Link>
                             </div>
                         </div>
                     </div>

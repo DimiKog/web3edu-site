@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
 import DashboardCard from "../components/DashboardCard.jsx";
 import XPProgressCard from "../components/XPProgressCard.jsx";
-import LearningTimeline from "../components/LearningTimeline.jsx";
-import PilotBanner from "../components/PilotBanner.jsx";
 
-import { UserIcon, AcademicCapIcon, StarIcon } from "@heroicons/react/24/solid";
+import { UserIcon, AcademicCapIcon, StarIcon, ShieldCheckIcon } from "@heroicons/react/24/solid";
 import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
+import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
+import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
+import PilotBanner from "../components/PilotBanner.jsx";
 import {
     ExplorerIcon,
     BuilderIcon,
@@ -32,6 +33,14 @@ export default function Dashboard() {
     const [lessonsPulse, setLessonsPulse] = useState(false);
     const [profile, setProfile] = useState(null);
     const [lastSyncTime, setLastSyncTime] = useState(null);
+
+    // Builder unlock promo state
+    const [showBuilderUnlock, setShowBuilderUnlock] = useState(false);
+    const [builderRewardClaimed, setBuilderRewardClaimed] = useState(
+        localStorage.getItem("web3edu-builder-claimed") === "true"
+    );
+    const [builderJustClaimed, setBuilderJustClaimed] = useState(false);
+    const prevTierRef = useRef(null);
 
     const fallbackMetadata = {
         tier: "Explorer",
@@ -256,6 +265,22 @@ export default function Dashboard() {
         }
     }, [metadata?.tier]);
 
+    // Builder unlock promo effect
+    useEffect(() => {
+        if (!metadata?.tier) return;
+
+        // If user is Builder and has NOT claimed reward yet,
+        // always show unlock promo (even on first load)
+        if (
+            metadata.tier === "Builder" &&
+            !builderRewardClaimed
+        ) {
+            setShowBuilderUnlock(true);
+        }
+
+        prevTierRef.current = metadata.tier;
+    }, [metadata?.tier, builderRewardClaimed]);
+
     // Always provide a recommendation (backend-driven or fallback)
     const fallbackRecommendation = {
         type: "guide",
@@ -281,6 +306,45 @@ export default function Dashboard() {
         recommended?.slug?.endsWith("-gr")
             ? recommended.slug.replace(/-gr$/, "")
             : recommended?.slug;
+
+    const greekLabTitlesById = {
+        lab01: "Lab 01 — Πορτοφόλια & Web3 Ταυτότητες",
+        "wallets-keys": "Lab 01 — Πορτοφόλια & Web3 Ταυτότητες",
+        lab02: "Lab 02 — Κρυπτογραφημένα Μηνύματα",
+        lab03: "Lab 03 — Υπογραφή Μηνυμάτων & Ιδιοκτησία",
+        lab04: "Lab 04 — Συναλλαγές & Gas",
+        lab05: "Lab 05 — Έξυπνα Συμβόλαια & Κατάσταση",
+        lab06: "Lab 06 — Συναίνεση & Οριστικότητα",
+        dao01: "DAO Lab 01 — Διακυβέρνηση & Ψηφοφορία",
+        "dao-01": "DAO Lab 01 — Διακυβέρνηση & Ψηφοφορία",
+        dao02: "DAO Lab 02 — Μοντέλα Διακυβέρνησης & Δυναμικές Ισχύος",
+        "dao-02": "DAO Lab 02 — Μοντέλα Διακυβέρνησης & Δυναμικές Ισχύος",
+        "proof-of-escape": "Lab 01 — Proof of Escape",
+        poe: "Lab 01 — Proof of Escape"
+    };
+
+    const timelineForGr = (metadata?.timeline || []).map(item => {
+        if (!item || item.type !== "lab") return item;
+
+        const itemId = String(item.id || item.slug || "").toLowerCase();
+        const mappedTitle = greekLabTitlesById[itemId];
+        if (!mappedTitle) return item;
+
+        if (typeof item.title === "object" && item.title !== null) {
+            return {
+                ...item,
+                title: {
+                    ...item.title,
+                    gr: item.title.gr || mappedTitle
+                }
+            };
+        }
+
+        return {
+            ...item,
+            title: mappedTitle
+        };
+    });
 
     const builderChecklist = metadata?.builderChecklist || null;
     const [showBuilderPath, setShowBuilderPath] = useState(
@@ -413,12 +477,68 @@ export default function Dashboard() {
                 )}
 
                 {/* Pilot User Banner */}
-                <div className="relative z-20 w-full max-w-6xl mx-auto mb-8 px-2 md:px-0">
-                    <PilotBanner
-                        lang="gr"
-                        teamsLink="https://teams.microsoft.com/l/team/19%3Apwj5b5f8p7xMSvMQLth7ewFU5-aSEeowtClTZHt9Zqg1%40thread.tacv2/conversations?groupId=e5ff2c9e-34e6-4d42-9246-88b9de4fd760&tenantId=0c8943ee-c370-4bb3-ba51-321f406f32ec"
-                    />
-                </div>
+                <PilotBanner lang={document.documentElement.lang === "gr" ? "gr" : "en"} />
+
+                {/* Builder Unlock Promotion */}
+                {showBuilderUnlock && (
+                    <div className="relative z-10 w-full max-w-4xl mx-auto mb-10 px-4">
+                        <div className="
+                            rounded-3xl border border-purple-400/40
+                            bg-gradient-to-br from-purple-600/20 via-indigo-600/20 to-fuchsia-600/20
+                            backdrop-blur-xl shadow-2xl p-8 text-center
+                            animate-[xpBurst_1.2s_ease-out]
+                        ">
+                            <h2 className="text-2xl font-extrabold text-white mb-3">
+                                🏗️ Ξεκλειδώθηκε το επίπεδο Builder
+                            </h2>
+
+                            <p className="text-sm text-slate-200 mb-6">
+                                Ολοκλήρωσες τις βασικές απαιτήσεις και ξεκλείδωσες το επίπεδο
+                                <span className="font-semibold text-purple-300"> Builder </span>
+                                .
+                                Πλέον μπορείς να συμμετέχεις σε προχωρημένες διαδρομές διακυβέρνησης.
+                            </p>
+
+                            {builderJustClaimed ? (
+                                <div
+                                    className="
+                                        px-6 py-3 rounded-xl
+                                        bg-green-600/90 text-white font-semibold
+                                        shadow-lg animate-[xpBurst_1.2s_ease-out]
+                                        flex flex-col items-center gap-1
+                                    "
+                                >
+                                    <span>✅ Το Builder Badge κατοχυρώθηκε</span>
+                                    <span className="text-[11px] opacity-90">
+                                        Επόμενος στόχος: Βαθμίδα Architect
+                                    </span>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => {
+                                        localStorage.setItem("web3edu-builder-claimed", "true");
+                                        setBuilderRewardClaimed(true);
+                                        setBuilderJustClaimed(true);
+
+                                        // Show claimed state briefly before hiding
+                                        setTimeout(() => {
+                                            setShowBuilderUnlock(false);
+                                            setBuilderJustClaimed(false);
+                                        }, 1400);
+                                    }}
+                                    className="
+                                        px-6 py-3 rounded-xl
+                                        bg-gradient-to-r from-purple-500 to-indigo-500
+                                        text-white font-semibold
+                                        hover:scale-105 transition shadow-lg
+                                    "
+                                >
+                                    Διεκδίκησε το Builder Badge
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* 2-Column Premium Layout */}
                 <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 px-2 md:px-0">
@@ -430,7 +550,6 @@ export default function Dashboard() {
                                 metadata={profile}
                                 wallet={address}
                                 tokenId={displayedMetadata.tokenId}
-                                lang="gr"
                             />
                         )}
                     </div>
@@ -489,7 +608,10 @@ export default function Dashboard() {
                             "
                             icon={<UserIcon className="w-5 h-5 text-white" />}
                         >
-                            <div className="flex flex-col items-start gap-3">
+                            <div
+                                className="flex flex-col items-start gap-3 cursor-pointer"
+                                onClick={() => setShowTierPopup(true)}
+                            >
                                 {/* Tier label pill */}
                                 <div
                                     className="
@@ -508,7 +630,12 @@ export default function Dashboard() {
                                 {/* Tier value + subtle helper text */}
                                 <div className="flex flex-col gap-1">
                                     <div className="flex items-baseline gap-2">
-                                        <p className="text-2xl font-extrabold text-purple-700 dark:text-purple-200">
+                                        <p
+                                            className={`
+                                                text-2xl font-extrabold text-purple-700 dark:text-purple-200
+                                                ${metadata?.tier === "Builder" ? "animate-[xpBurst_1.2s_ease-out]" : ""}
+                                            `}
+                                        >
                                             {metadata?.tier ?? "Explorer"}
                                         </p>
                                         {metadata?.tier && metadata.tier !== "Explorer" && (
@@ -519,6 +646,28 @@ export default function Dashboard() {
                                             </span>
                                         )}
                                     </div>
+                                    {/* Υπόδειξη επόμενης βαθμίδας */}
+                                    {metadata?.tier && metadata.tier !== "Architect" && (
+                                        <div className="mt-2 text-xs text-slate-600/90 dark:text-slate-400/90">
+                                            {(() => {
+                                                const currentTier = metadata.tier;
+                                                const remainingXp = metadata?.remainingXp ?? 0;
+
+                                                let nextTier = "Builder";
+                                                if (currentTier === "Builder") nextTier = "Architect";
+
+                                                return (
+                                                    <span>
+                                                        Επόμενη βαθμίδα:{" "}
+                                                        <span className="font-semibold text-purple-600 dark:text-purple-300">
+                                                            {nextTier}
+                                                        </span>{" "}
+                                                        • απομένουν {remainingXp} XP
+                                                    </span>
+                                                );
+                                            })()}
+                                        </div>
+                                    )}
                                     <p className="text-xs text-slate-600/90 dark:text-slate-400/90">
                                         Κέρδισε XP από μαθήματα και κουίζ για να αναβαθμίσεις τη βαθμίδα σου.
                                     </p>
@@ -527,6 +676,22 @@ export default function Dashboard() {
                                             ? "Η πρόσβαση στη διακυβέρνηση DAO είναι ξεκλειδωμένη στη βαθμίδα σου."
                                             : "Φτάσε τη βαθμίδα Builder για να ξεκλειδώσεις πρόσβαση στη διακυβέρνηση DAO."}
                                     </p>
+                                    <div className="mt-2 text-xs font-semibold">
+                                        {metadata?.tier === "Builder" || metadata?.tier === "Architect" ? (
+                                            <span className="text-green-600 dark:text-green-400">
+                                                🟢 Πρόσβαση Διακυβέρνησης: Ενεργή
+                                            </span>
+                                        ) : (
+                                            <span className="text-slate-500 dark:text-slate-400">
+                                                🔒 Πρόσβαση Διακυβέρνησης: Κλειδωμένη
+                                            </span>
+                                        )}
+                                    </div>
+                                    {metadata?.tier === "Builder" && (
+                                        <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
+                                            Η βαθμίδα Architect ξεκλειδώνει δημοσίευση προτάσεων και προχωρημένα εργαλεία διακυβέρνησης.
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </DashboardCard>
@@ -843,7 +1008,7 @@ export default function Dashboard() {
 
                 {/* Full-width Learning Timeline */}
                 <div className="relative z-10 w-full max-w-6xl mx-auto mt-12 px-2 md:px-0">
-                    <LearningTimeline timeline={metadata?.timeline || []} lang="gr" />
+                    <LearningTimeline timeline={timelineForGr} lang="gr" />
                 </div>
 
                 {/* Side Gradient Glow */}

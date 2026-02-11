@@ -75,6 +75,10 @@ import DaoLab01 from './pages/labs/DaoLab01.jsx';
 import DaoLab01GR from './pages/labs/DaoLab01GR.jsx';
 import DaoLab01Interaction from './pages/labs/DaoLab01Interaction.jsx';
 import DaoLab01InteractionGR from './pages/labs/DaoLab01InteractionGR.jsx';
+import DaoLab02 from './pages/labs/DaoLab02.jsx';
+import DaoLab02GR from './pages/labs/DaoLab02GR.jsx';
+import DaoLab02Interaction from './pages/labs/DaoLab02Interaction.jsx';
+import DaoLab02InteractionGR from './pages/labs/DaoLab02InteractionGR.jsx';
 
 //Project Labs
 import PoELab from './pages/labs/PoELab.jsx';
@@ -181,6 +185,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/labs-gr/dao-01" element={<DaoLab01GR />} />
               <Route path="/labs/dao-01/interaction" element={<DaoLab01Interaction />} />
               <Route path="/labs-gr/dao-01/interaction" element={<DaoLab01InteractionGR />} />
+              <Route path="/labs/dao-02" element={<DaoLab02 />} />
+              <Route path="/labs-gr/dao-02" element={<DaoLab02GR />} />
+              <Route path="/labs/dao-02/interaction" element={<DaoLab02Interaction />} />
+              <Route path="/labs-gr/dao-02/interaction" element={<DaoLab02InteractionGR />} />
               <Route path="/labs/proof-of-escape" element={<PoELab />} />
               <Route path="/labs-gr/proof-of-escape" element={<PoELabGR />} />
               <Route path="/admin" element={<AdminPage />} />
