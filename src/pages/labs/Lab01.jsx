@@ -1,6 +1,6 @@
 import React from "react";
 import LabTemplate from "./LabTemplate";
-import lab01HeroImg from "../../assets/labs/lab01-identity-diagram.png";
+import lab01HeroImg from "../../assets/labs/lab01-identity-diagram.webp";
 
 const Lab01 = () => {
     return (

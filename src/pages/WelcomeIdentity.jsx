@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 import PageShell from "../components/PageShell.jsx";
-import web3eduLogoDark from "../assets/web3edu_logo.png";
-import web3eduLogoLight from "../assets/web3edu_logo_light.png";
+import web3eduLogoDark from "../assets/web3edu_logo.svg";
+import web3eduLogoLight from "../assets/web3edu_logo_light.svg";
 
 const WelcomeIdentity = () => {
     const navigate = useNavigate();

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import PageShell from "../components/PageShell.jsx";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import joinHero from "../assets/join-hero.png";
+import joinHero from "../assets/join-hero.webp";
 
 export default function JoinGR() {
     const { address, isConnected } = useAccount();

@@ -9,7 +9,7 @@ import {
     shortAddress
 } from "../components/identity-ui.jsx";
 import { QRCodeSVG } from "qrcode.react";
-import identityIcon from "../assets/icons/identity-icon.png";
+import identityIcon from "../assets/icons/identity-icon.webp";
 
 export default function SbtView() {
     const { address, isConnected } = useAccount();

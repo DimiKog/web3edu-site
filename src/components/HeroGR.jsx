@@ -1,10 +1,6 @@
 import { useState, useEffect } from "react";
-import web3EduLogoLightWebp from "../assets/web3edu_logo_light.webp";
-import web3EduLogoDarkWebp from "../assets/web3edu_logo.webp";
 import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
-import web3EduLogoLightPng from "../assets/web3edu_logo_light.png";
-import web3EduLogoDarkPng from "../assets/web3edu_logo.png";
 const HeroGR = ({ content, ctaHref = "/#/start-here-gr", ctaLabel: ctaOverride }) => {
 
     const [isDark, setIsDark] = useState(
@@ -49,10 +45,9 @@ const HeroGR = ({ content, ctaHref = "/#/start-here-gr", ctaLabel: ctaOverride }
                     <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10 hover:shadow-[0_0_28px_rgba(74,203,255,0.28)] transition duration-300 [perspective:1000px] relative">
                         <div className="transition-transform duration-500 sm:hover:[transform:rotateX(6deg)_rotateY(-6deg)_scale(1.05)]">
                             <picture>
-                                <source srcSet={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp} type="image/webp" />
                                 <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
                                 <img
-                                    src={isDark ? web3EduLogoDarkPng : web3EduLogoLightPng}
+                                    src={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg}
                                     alt="Web3Edu"
                                     className="h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(74,203,255,0.55)] transition-opacity duration-500"
                                 />

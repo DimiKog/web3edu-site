@@ -3,7 +3,7 @@
 // Έτσι δηλώνεται οπτικά η ολοκλήρωση χωρίς να επηρεάζεται το layout ή η λογική.
 import PageShell from "../components/PageShell.jsx";
 import { Link } from "react-router-dom";
-import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.png";
+import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.webp";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import BadgeWithTooltip from "../components/BadgeWithTooltip.jsx";

@@ -3,7 +3,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import PageShell from "../components/PageShell.jsx";
-import identityIcon from "../assets/icons/identity-icon.png";
+import identityIcon from "../assets/icons/identity-icon.webp";
 import { extractTxHash } from "../utils/txHash.js";
 
 export default function MintIdentity() {

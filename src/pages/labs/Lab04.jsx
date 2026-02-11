@@ -1,7 +1,7 @@
 import React from "react";
 import LabTemplate from "./LabTemplate";
 
-import lab04HeroImg from "../../assets/labs/lab04-transactions-gas-diagram.jpg";
+import lab04HeroImg from "../../assets/labs/lab04-transactions-gas-diagram.webp";
 
 const Lab04 = () => {
     return (

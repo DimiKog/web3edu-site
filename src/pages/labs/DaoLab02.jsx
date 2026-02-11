@@ -2,7 +2,7 @@
 
 import React from "react";
 import LabTemplate from "./LabTemplate";
-import daoLab02HeroImg from "../../assets/labs/daolab02.png";
+import daoLab02HeroImg from "../../assets/labs/daolab02.webp";
 
 const DaoLab02 = () => {
     return (

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import SectionBadge from "./SectionBadge.jsx";
-import daoHolo from "../assets/dao-holo.png";
+import daoHolo from "../assets/dao-holo.webp";
 
 const DEFAULT_CAPTION = "Ένα ζωντανό επίπεδο διακυβέρνησης όπου μαθητές, μέντορες και συνεργάτες ψηφίζουν για την εξέλιξη του οικοσυστήματος Web3Edu.";
 

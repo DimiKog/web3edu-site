@@ -1,7 +1,7 @@
 import dimi from "../assets/team/dimi.webp";
 import nellyImg from "../assets/team/nelly.jpg";
-import toniaImg from "../assets/team/tonia.jpg";
-import michaelImg from "../assets/team/michael.jpg";
+import toniaImg from "../assets/team/tonia.webp";
+import michaelImg from "../assets/team/michael.webp";
 
 export const teamCardsEn = [
     {

@@ -1,6 +1,6 @@
 import React from "react";
 import ProjectLabTemplate from "./ProjectLabTemplate";
-import poeLogo from "../../assets/labs/poe_logo.jpeg";
+import poeLogo from "../../assets/labs/poe_logo.webp";
 
 const PoELab = () => {
     return (

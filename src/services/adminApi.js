@@ -1,4 +1,4 @@
-const API_BASE = "/api";
+const API_BASE = import.meta.env.VITE_API_URL || "https://web3edu-api.dimikog.org";
 
 export async function fetchAdminOverview(wallet) {
     const res = await fetch(

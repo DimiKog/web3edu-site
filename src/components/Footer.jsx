@@ -1,9 +1,5 @@
-import web3EduLogoLightWebp from "../assets/web3edu_logo_light.webp";
-import web3EduLogoDarkWebp from "../assets/web3edu_logo.webp";
 import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
-import web3EduLogoLightPng from "../assets/web3edu_logo_light.png";
-import web3EduLogoDarkPng from "../assets/web3edu_logo.png";
 import { FaGithub, FaDiscord, FaLinkedin } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
@@ -76,10 +72,9 @@ const Footer = ({ content }) => {
                 {/* Left: Logo + Info */}
                 <div className="flex flex-col items-center text-center gap-3">
                     <picture>
-                        <source srcSet={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp} type="image/webp" />
                         <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
                         <img
-                            src={isDark ? web3EduLogoDarkPng : web3EduLogoLightPng}
+                            src={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg}
                             className="h-12 w-auto drop-shadow-[0_0_15px_rgba(138,87,255,0.35)] hover:scale-105 transition-transform duration-500"
                             alt="Web3Edu Logo"
                         />

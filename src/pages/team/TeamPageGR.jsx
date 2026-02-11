@@ -5,8 +5,8 @@ import TeamMemberCard from "../../components/TeamMemberCard.jsx";
 
 import dimi from "../../assets/team/dimi.webp";
 import nelly from "../../assets/team/nelly.jpg";
-import tonia from "../../assets/team/tonia.jpg";
-import michael from "../../assets/team/michael.jpg";
+import tonia from "../../assets/team/tonia.webp";
+import michael from "../../assets/team/michael.webp";
 
 export default function TeamPageGR() {
     return (

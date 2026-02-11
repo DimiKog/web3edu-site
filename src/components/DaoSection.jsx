@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import SectionBadge from "./SectionBadge.jsx";
-import daoHolo from "../assets/dao-holo.png";
+import daoHolo from "../assets/dao-holo.webp";
 
 const DEFAULT_CAPTION = "A living governance layer where students, mentors and partners vote on the evolution of the Web3Edu ecosystem.";
 

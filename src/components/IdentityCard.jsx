@@ -1,7 +1,7 @@
 import { LockClosedIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
-import identityFallback from "../assets/icons/identity-icon.png";
+import identityFallback from "../assets/icons/identity-icon.webp";
 
 <style jsx>{`
 @keyframes slideDownFade {

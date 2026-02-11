@@ -1,5 +1,5 @@
 import { useRef, useLayoutEffect, useState, useCallback } from "react";
-import holoImg from "../assets/holo.png";
+import holoImg from "../assets/holo.webp";
 import SectionBadge from "./SectionBadge.jsx";
 
 const DEFAULT_STEPS = [

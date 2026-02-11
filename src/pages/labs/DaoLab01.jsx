@@ -1,6 +1,6 @@
 import React from "react";
 import LabTemplate from "./LabTemplate";
-import daoLab01HeroImg from "../../assets/labs/daolab01.png";
+import daoLab01HeroImg from "../../assets/labs/daolab01.webp";
 
 const DaoLab01 = () => {
     return (

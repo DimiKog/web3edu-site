@@ -2,7 +2,7 @@ import HomePageLayout from "../components/HomePageLayout.jsx";
 
 import gr from "../content/gr.js";
 
-import motivationCubes from "../assets/motivation-cubes.png";
+import motivationCubes from "../assets/motivation-cubes.webp";
 import { teamCardsGr } from "../content/teamCards.js";
 
 const featureCardsGR = [

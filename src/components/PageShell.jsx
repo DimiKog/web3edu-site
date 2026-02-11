@@ -3,12 +3,8 @@
 import React from "react";
 import Footer from "./Footer.jsx";
 import FooterGr from "./FooterGR.jsx";
-import web3EduLogoLight from "../assets/web3edu_logo_light.webp";
-import web3EduLogoDark from "../assets/web3edu_logo.webp";
-import web3EduLogoLightPng from "../assets/web3edu_logo_light.png";
-import web3EduLogoDarkPng from "../assets/web3edu_logo.png";
-import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
-import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
+import web3EduLogoLight from "../assets/web3edu_logo_light.svg";
+import web3EduLogoDark from "../assets/web3edu_logo.svg";
 import { ACCENT_PRIMARY } from "../design/theme.js";
 import { useAccount } from "wagmi";
 import { useDisconnect } from "wagmi";
@@ -196,10 +192,9 @@ export default function PageShell({
           {/* Logo */}
           <div className="flex items-center gap-3">
             <picture>
-              <source srcSet={isDark ? web3EduLogoDark : web3EduLogoLight} type="image/webp" />
-              <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
+              <source srcSet={isDark ? web3EduLogoDark : web3EduLogoLight} type="image/svg+xml" />
               <img
-                src={isDark ? web3EduLogoDarkPng : web3EduLogoLightPng}
+                src={isDark ? web3EduLogoDark : web3EduLogoLight}
                 alt="Web3Edu"
                 className="h-10 w-auto drop-shadow-[0_0_12px_rgba(120,60,255,0.45)]
                   transition-opacity duration-500

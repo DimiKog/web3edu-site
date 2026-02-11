@@ -1,7 +1,7 @@
 import React from "react";
 import LabTemplate from "./LabTemplate";
 
-import lab03HeroImg from "../../assets/labs/lab03-message-signing-diagram.jpg";
+import lab03HeroImg from "../../assets/labs/lab03-message-signing-diagram.webp";
 
 const Lab03 = () => {
     return (
