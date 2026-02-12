@@ -1,0 +1,1 @@
+import{j as o}from"./react-vendor-C3nCzrQE.js";import{P as r}from"./Poe-0oI1e11R.js";import"./index-oI7KmkbM.js";import"./ui-vendor-CsLUdq9X.js";import"./web3-vendor-DxqyInks.js";function a(){return o.jsx(r,{language:"GR"})}export{a as default};
