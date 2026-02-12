@@ -1,0 +1,1 @@
+import{j as o}from"./vendor-web3-D4o-zrKd.js";import{P as r}from"./Poe-DfE3S7w8.js";import"./vendor-react-BB8kI09H.js";import"./index-Dsk-GOBi.js";function i(){return o.jsx(r,{language:"EN"})}export{i as default};

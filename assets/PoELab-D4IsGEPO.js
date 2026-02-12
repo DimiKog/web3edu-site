@@ -1,7 +1,0 @@
-import{j as e}from"./react-vendor-C3nCzrQE.js";import{P as o,p as t}from"./poe_logo-DjMg-vYG.js";import"./index-grxjZXWT.js";import"./ui-vendor-CsLUdq9X.js";import"./web3-vendor-DxqyInks.js";import"./FeedbackModal-CJmrX7ud.js";const l=()=>e.jsx(o,{projectId:"proof-of-escape",title:"Proof of Escape (PoE)",subtitle:"A gamified Web3 challenge that proves learning on-chain",heroImage:t,heroImageWrapperClass:"mb-14 rounded-3xl overflow-hidden border bg-slate-50 w-fit mx-auto",heroImageClass:"w-full max-w-xs h-auto object-contain",level:"Applied · Project Lab",estimatedTime:"15–20 minutes",difficulty:"Medium",missionText:`
-Proof of Escape is not a tutorial — it is a challenge.
-
-You will explore a live Web3 environment, solve cryptographic and blockchain-based
-tasks, and leave behind a verifiable on-chain trace of your participation.
-There are no certificates here — only proof.
-            `,whatYouDo:["Explore the Proof of Escape challenge environment","Interact with wallets, messages, and smart contracts","Solve the required quizzes to unlock the final step","Mint an on-chain proof of completion (NFT)"],unlocks:["Proof of Escape on-chain NFT","Eligibility for Web3Edu DAO access","Verifiable project completion on your Web3 profile","Access to future Applied & Project Labs"],primaryCta:{label:"Begin Proof of Escape →",href:"https://dimikog.github.io/proof-of-escape/"},completionType:"onchain",verifyEndpoint:"https://web3edu-api.dimikog.org/projects/poe/status"});export{l as default};
