@@ -41,7 +41,7 @@ export default function Web3RouteControls() {
   if (!isConnected && isJoinRoute) return null;
 
   return (
-    <div className="fixed right-4 top-4 z-[70] flex items-center gap-2">
+    <div className="fixed top-6 right-4 md:right-[9.5rem] lg:right-[11rem] z-[60] flex items-center gap-2">
       {isConnected && address ? (
         <>
           <button
@@ -76,7 +76,7 @@ export default function Web3RouteControls() {
               to="/admin"
               className="rounded-full border border-red-400/40 bg-red-500/25 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-red-500/40"
             >
-              Admin
+              {isGreek ? "Διαχείριση" : "Admin"}
             </Link>
           ) : null}
         </>

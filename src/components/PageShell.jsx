@@ -5,6 +5,7 @@ import Footer from "./Footer.jsx";
 import FooterGr from "./FooterGR.jsx";
 import web3EduLogoLight from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDark from "../assets/web3edu_logo.svg";
+import { useAccount } from "wagmi";
 
 const getLangFromHash = (hash) => {
   if (!hash) return null;
@@ -51,6 +52,7 @@ export default function PageShell({
   children,
   footerContent,
 }) {
+  const { isConnected } = useAccount();
   const [isShrunk, setIsShrunk] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -103,8 +105,21 @@ export default function PageShell({
 
   // Navbar shrink effect
   React.useEffect(() => {
-    const onScroll = () => setIsShrunk(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
+    let ticking = false;
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsShrunk(prev => {
+            const next = window.scrollY > 20;
+            return prev !== next ? next : prev;
+          });
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -132,6 +147,29 @@ export default function PageShell({
     setMobileOpen(false);
   };
 
+  const normalizedHash = currentHash.split("?")[0];
+  const isJoinPage =
+    normalizedHash.startsWith("#/join") || normalizedHash.startsWith("#/join-gr");
+  const isLabsLandingPage =
+    normalizedHash === "#/labs" ||
+    normalizedHash === "#/labs/" ||
+    normalizedHash === "#/labs-gr" ||
+    normalizedHash === "#/labs-gr/";
+
+  // Hide Join button on pages with Web3RouteControls (to avoid duplicates)
+  const isWeb3ProtectedRoute =
+    normalizedHash.startsWith("#/labs/") ||
+    normalizedHash.startsWith("#/labs-gr/") ||
+    normalizedHash.startsWith("#/mint-identity") ||
+    normalizedHash.startsWith("#/welcome") ||
+    normalizedHash.startsWith("#/dashboard") ||
+    normalizedHash.startsWith("#/sbt-view") ||
+    normalizedHash.startsWith("#/verify") ||
+    normalizedHash.startsWith("#/admin");
+
+  const showJoinCta =
+    !isConnected && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
+
   return (
     <main
       style={{
@@ -158,16 +196,17 @@ export default function PageShell({
         >
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <picture>
-              <source srcSet={isDark ? web3EduLogoDark : web3EduLogoLight} type="image/svg+xml" />
-              <img
-                src={isDark ? web3EduLogoDark : web3EduLogoLight}
-                alt="Web3Edu"
-                className="h-10 w-auto drop-shadow-[0_0_12px_rgba(120,60,255,0.45)]
-                  transition-opacity duration-500
-                  group-hover:scale-110 group-hover:rotate-1"
-              />
-            </picture>
+            <a href={isGR ? "/#/gr" : "/#/"} aria-label={isGR ? "Αρχική" : "Home"}>
+              <picture>
+                <source srcSet={isDark ? web3EduLogoDark : web3EduLogoLight} type="image/svg+xml" />
+                <img
+                  src={isDark ? web3EduLogoDark : web3EduLogoLight}
+                  alt="Web3Edu"
+                  className="h-10 w-auto drop-shadow-[0_0_12px_rgba(120,60,255,0.45)]
+                  transition-opacity duration-500"
+                />
+              </picture>
+            </a>
           </div>
 
           {/* Main nav */}
@@ -283,8 +322,7 @@ export default function PageShell({
 
           {/* Action buttons */}
           <div className="hidden md:flex items-center gap-4">
-            {!currentHash.startsWith("#/join") &&
-              !currentHash.startsWith("#/join-gr") && (
+            {showJoinCta && (
                 <button
                   onClick={() => {
                     window.location.hash = isGR ? "#/join-gr" : "#/join";
@@ -415,8 +453,7 @@ export default function PageShell({
                 )}
               </div>
 
-              {!currentHash.startsWith("#/join") &&
-                !currentHash.startsWith("#/join-gr") && (
+              {showJoinCta && (
                   <button
                     onClick={() => navigateTo(isGR ? "#/join-gr" : "#/join")}
                     className="w-full rounded-xl bg-gradient-to-r from-pink-500/60 to-blue-500/60 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:from-pink-500/70 hover:to-blue-500/70 transition"

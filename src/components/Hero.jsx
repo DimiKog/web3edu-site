@@ -16,14 +16,6 @@ const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => 
         return () => observer.disconnect();
     }, []);
 
-    useEffect(() => {
-        const h = () => {
-            document.documentElement.style.setProperty("--scrollPos", window.scrollY);
-        };
-        window.addEventListener("scroll", h);
-        return () => window.removeEventListener("scroll", h);
-    }, []);
-
     const ctaLabel = ctaOverride ?? content.cta ?? "Start Learning";
     const headline = content.headline ?? "A Web3-native learning identity\nthat grows with the ecosystem";
     const headlineLines = headline.split("\n");
@@ -37,7 +29,7 @@ const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => 
             </div>
 
             {/* FLOATING PARTICLES */}
-            <div className="pointer-events-none absolute inset-0 opacity-55 [transform:translateY(calc(var(--scrollPos)*0.15))] transition-transform duration-75">
+            <div className="pointer-events-none absolute inset-0 opacity-55">
                 <div className="absolute w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-[#FF67D2]/10 blur-3xl animate-pulse-slow top-10 left-10"></div>
                 <div className="absolute w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-[#4ACBFF]/20 blur-2xl animate-pulse-slow2 bottom-10 right-20"></div>
             </div>
@@ -48,14 +40,16 @@ const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => 
 
                 {/* LEFT SIDE — Logo + Tagline */}
                 <div className="flex flex-col items-center lg:items-center text-center lg:text-center gap-4">
-                    <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10 hover:shadow-[0_0_28px_rgba(74,203,255,0.28)] transition duration-300 [perspective:1000px] relative">
+                    <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10 hover:shadow-[0_0_28px_rgba(74,203,255,0.28)] transition duration-300 [perspective:1000px] relative min-w-[160px] min-h-[160px]">
                         <div className="transition-transform duration-500 sm:hover:[transform:rotateX(6deg)_rotateY(-6deg)_scale(1.05)]">
                             <picture>
                                 <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
                                 <img
                                     src={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg}
                                     alt="Web3Edu"
-                                    className="h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(74,203,255,0.55)]
+                                    loading="eager"
+                                    fetchPriority="high"
+                                    className="h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 min-w-[160px] min-h-[160px] rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(74,203,255,0.55)]
                                         transition-opacity duration-500"
                                 />
                             </picture>

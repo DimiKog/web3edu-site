@@ -16,15 +16,9 @@ const HeroGR = ({ content, ctaHref = "/#/start-here-gr", ctaLabel: ctaOverride }
         return () => observer.disconnect();
     }, []);
 
-    useEffect(() => {
-        const h = () => {
-            document.documentElement.style.setProperty("--scrollPos", window.scrollY);
-        };
-        window.addEventListener("scroll", h);
-        return () => window.removeEventListener("scroll", h);
-    }, []);
-
     const ctaLabel = ctaOverride ?? content.cta ?? "Ξεκίνα τη Μάθηση";
+    const headline = content.headline ?? "Ένα Web3-native μαθησιακό identity\nπου εξελίσσεται με το οικοσύστημα";
+    const headlineLines = headline.split("\n");
 
     return (
         <header className="w-full py-20 sm:py-28 px-4 sm:px-6 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#081018] overflow-hidden rounded-b-[80px] lg:rounded-b-[120px] relative z-10">
@@ -34,22 +28,25 @@ const HeroGR = ({ content, ctaHref = "/#/start-here-gr", ctaLabel: ctaOverride }
                 <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] sm:w-[420px] sm:h-[420px] bg-[#FF67D2]/20 blur-[160px] rounded-full"></div>
             </div>
 
-            <div className="pointer-events-none absolute inset-0 opacity-55 [transform:translateY(calc(var(--scrollPos)*0.15))] transition-transform duration-75">
+            <div className="pointer-events-none absolute inset-0 opacity-55">
                 <div className="absolute w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-[#FF67D2]/10 blur-3xl animate-pulse-slow top-10 left-10"></div>
                 <div className="absolute w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-[#4ACBFF]/20 blur-2xl animate-pulse-slow2 bottom-10 right-20"></div>
             </div>
 
-            <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-between gap-20">
+            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-between gap-16">
 
                 <div className="flex flex-col items-center lg:items-center text-center lg:text-center gap-4">
-                    <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10 hover:shadow-[0_0_28px_rgba(74,203,255,0.28)] transition duration-300 [perspective:1000px] relative">
+                    <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10 hover:shadow-[0_0_28px_rgba(74,203,255,0.28)] transition duration-300 [perspective:1000px] relative min-w-[160px] min-h-[160px]">
                         <div className="transition-transform duration-500 sm:hover:[transform:rotateX(6deg)_rotateY(-6deg)_scale(1.05)]">
                             <picture>
                                 <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
                                 <img
                                     src={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg}
                                     alt="Web3Edu"
-                                    className="h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(74,203,255,0.55)] transition-opacity duration-500"
+                                    loading="eager"
+                                    fetchPriority="high"
+                                    className="h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 min-w-[160px] min-h-[160px] rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(74,203,255,0.55)]
+                                        transition-opacity duration-500"
                                 />
                             </picture>
                         </div>
@@ -61,14 +58,19 @@ const HeroGR = ({ content, ctaHref = "/#/start-here-gr", ctaLabel: ctaOverride }
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-3xl relative">
+                <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-2xl relative">
                     <div className="absolute -z-10 -top-10 left-1/2 -translate-x-1/2 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-[#4ACBFF]/10 to-[#8A57FF]/10 rounded-full blur-3xl opacity-40 animate-pulse-slow"></div>
 
                     <p className="text-sm uppercase tracking-widest text-slate-200/80 animate-fade-up">
                         {content.welcome}
                     </p>
-                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight lg:leading-[1.05] bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(74,203,255,.28)] animate-fade-up delay-150 pr-4 lg:pr-0">
-                        {content.headline}
+                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight lg:leading-[1.05] bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(74,203,255,.28)] animate-fade-up delay-150">
+                        {headlineLines.map((line, idx) => (
+                            <span key={`${line}-${idx}`}>
+                                {line}
+                                {idx < headlineLines.length - 1 && <br />}
+                            </span>
+                        ))}
                     </h1>
 
                     <p className="text-base sm:text-lg text-slate-200/90 leading-relaxed max-w-xl animate-fade-up delay-150">

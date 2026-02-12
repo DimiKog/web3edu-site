@@ -67,3 +67,26 @@ h1, h2, h3, h4 {
   border: 3px solid transparent;
   background-clip: content-box;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes holoShimmer {
+  0% {
+    opacity: 0;
+    transform: translateX(-20%);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translateX(20%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(60%);
+  }
+}
+
+.animate-holoShimmer {
+  animation: holoShimmer 4s linear infinite;
+}

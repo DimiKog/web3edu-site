@@ -4,12 +4,17 @@ import { HashRouter } from "react-router-dom";
 import "./index.css";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import AppRoutes from "./routes/AppRoutes.jsx";
+import Web3Providers from "./providers/Web3Providers.jsx";
+import Web3RouteControls from "./routes/Web3RouteControls.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <HashRouter>
-      <ScrollToTop />
-      <AppRoutes />
-    </HashRouter>
+    <Web3Providers>
+      <HashRouter>
+        <ScrollToTop />
+        <Web3RouteControls />
+        <AppRoutes />
+      </HashRouter>
+    </Web3Providers>
   </React.StrictMode>
 );

@@ -1,8 +1,8 @@
 import React, { Suspense, lazy } from "react";
 import { Route, Routes } from "react-router-dom";
 
-const AppEN = lazy(() => import("../pages/appEN.jsx"));
-const AppGR = lazy(() => import("../pages/appGR.jsx"));
+import AppEN from "../pages/appEN.jsx";
+import AppGR from "../pages/appGR.jsx";
 const Poe = lazy(() => import("../pages/poe/index.jsx"));
 const PoeGR = lazy(() => import("../pages/poe/index-gr.jsx"));
 const Education = lazy(() => import("../pages/education/index.jsx"));
