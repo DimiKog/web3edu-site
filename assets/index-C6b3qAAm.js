@@ -1,1 +1,0 @@
-import{j as o}from"./react-vendor-B6F11S4b.js";import{P as r}from"./Poe-D5YVY4Aq.js";import"./PageShell-DmAWanav.js";import"./ui-vendor-DM_ubCw2.js";import"./theme-D-Zi6Jem.js";function a(){return o.jsx(r,{language:"EN"})}export{a as default};
