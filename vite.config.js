@@ -1,9 +1,33 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import viteCompression from "vite-plugin-compression";
+import { visualizer } from "rollup-plugin-visualizer";
+
+const shouldAnalyze = process.env.ANALYZE === "true";
 
 export default defineConfig({
   base: "/",
-  plugins: [react()],
+  plugins: [
+    react(),
+    viteCompression({
+      algorithm: "gzip",
+      ext: ".gz",
+      deleteOriginFile: false,
+    }),
+    viteCompression({
+      algorithm: "brotliCompress",
+      ext: ".br",
+      deleteOriginFile: false,
+    }),
+    shouldAnalyze &&
+      visualizer({
+        filename: "dist/stats.html",
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+        template: "treemap",
+      }),
+  ].filter(Boolean),
 
   // Stop dependency optimizer from touching dao-invite or dist
   optimizeDeps: {
@@ -16,6 +40,15 @@ export default defineConfig({
 
   // Rollup cannot use wildcards → Just ignore the folder name
   build: {
+    // Keep warning signal useful: still warns on large chunks, but avoids noise
+    chunkSizeWarningLimit: 700,
+
+    // Use esbuild to strip console statements in production (faster than terser)
+    minify: 'esbuild',
+    esbuild: {
+      drop: ['console', 'debugger'],  // Remove console.* and debugger statements
+    },
+
     modulePreload: {
       resolveDependencies: (_filename, deps) =>
         deps.filter((dep) => !dep.includes("web3-vendor"))
@@ -23,42 +56,14 @@ export default defineConfig({
     rollupOptions: {
       external: ["dao-invite"],
       output: {
-        manualChunks(id) {
-          if (
-            id.includes("vite/preload-helper") ||
-            id.includes("modulepreload-polyfill")
-          ) {
-            return "react-vendor";
-          }
-
-          if (!id.includes("node_modules")) return;
-
-          if (
-            id.includes("/react/") ||
-            id.includes("/react-dom/") ||
-            id.includes("/react-router/") ||
-            id.includes("/react-router-dom/")
-          ) {
-            return "react-vendor";
-          }
-
-          if (
-            id.includes("/wagmi/") ||
-            id.includes("/viem/") ||
-            id.includes("/ethers/") ||
-            id.includes("/@rainbow-me/")
-          ) {
-            return "web3-vendor";
-          }
-
-          if (
-            id.includes("/react-icons/") ||
-            id.includes("/lucide-react/") ||
-            id.includes("/qrcode.react/") ||
-            id.includes("/react-qr-code/")
-          ) {
-            return "ui-vendor";
-          }
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-web3": [
+            "wagmi",
+            "viem",
+            "ethers",
+            "@rainbow-me/rainbowkit"
+          ]
         }
       }
     }

@@ -62,11 +62,7 @@ export default function SbtViewGR() {
     };
 
     const tier = profile?.metadata?.tier;
-    const xpPercent = profile?.metadata?.xpPercent ?? 0;
-    const remainingXp = profile?.metadata?.remainingXp ?? 0;
-    const lessonsCompleted = profile?.metadata?.lessonsCompleted ?? 0;
     const badges = profile?.metadata?.badges ?? [];
-    const lessons = profile?.metadata?.lessons ?? {};
 
     const PUBLIC_SITE = import.meta.env.VITE_PUBLIC_SITE_URL
         ?? "https://web3edu.dimikog.org";

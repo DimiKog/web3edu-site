@@ -29,14 +29,12 @@ const ProjectLabTemplate = ({
     },
 
     // Completion / verification
-    completionType = "onchain", // "onchain" | "backend" | "external"
     verifyEndpoint = null,      // optional backend verification
 }) => {
     const { address, isConnected } = useAccount();
 
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completed, setCompleted] = useState(false);
-    const [completionData, setCompletionData] = useState(null);
     const [showFeedback, setShowFeedback] = useState(false);
     const wasCompletedRef = useRef(false);
 
@@ -74,7 +72,6 @@ const ProjectLabTemplate = ({
                 const data = await res.json();
                 if (data.completed) {
                     setCompleted(true);
-                    setCompletionData(data);
 
                     if (!wasCompletedRef.current) {
                         setShowFeedback(true);
@@ -84,9 +81,6 @@ const ProjectLabTemplate = ({
             } catch (err) {
                 console.warn("Project completion check failed", err);
             } finally {
-                if (completed) {
-                    wasCompletedRef.current = true;
-                }
                 setCheckingStatus(false);
             }
         };
@@ -189,7 +183,7 @@ const ProjectLabTemplate = ({
                     <div className="max-w-3xl mx-auto text-center">
                         <a
                             href={primaryCta.href}
-                            target="_blank"
+                            target="_blank" rel="noopener noreferrer"
                             rel="noopener noreferrer"
                             className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
                         >

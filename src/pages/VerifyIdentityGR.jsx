@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
 
 import {
@@ -13,7 +13,6 @@ import {
 
 export default function VerifyIdentityGR() {
     const { address } = useParams();
-    const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -61,10 +60,7 @@ export default function VerifyIdentityGR() {
 
     const tier = meta.tier ?? info.tier ?? "Explorer";
     const xpPercent = meta.xpPercent ?? 0;
-    const remainingXp = meta.remainingXp ?? 0;
     const lessonsCompleted = meta.lessonsCompleted ?? 0;
-    const rawBadges = meta.badges ?? [];
-    const displayBadges = Array.isArray(rawBadges) ? [...rawBadges] : [];
     // The verification URL is always the current page URL (public verification link)
     const verifyUrl = window.location.href;
 

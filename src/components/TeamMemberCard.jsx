@@ -65,7 +65,7 @@ export default function TeamMemberCard({
                     <div className={`flex gap-4 mt-3 justify-center ${isHorizontal ? "" : "mb-2"}`}>
                         <a
                             href={socials.github || "#"}
-                            target="_blank"
+                            target="_blank" rel="noopener noreferrer"
                             rel="noreferrer"
                             className={`${socials.github
                                 ? "text-slate-700 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF]"
@@ -77,7 +77,7 @@ export default function TeamMemberCard({
 
                         <a
                             href={socials.linkedin || "#"}
-                            target="_blank"
+                            target="_blank" rel="noopener noreferrer"
                             rel="noreferrer"
                             className={`${socials.linkedin
                                 ? "text-slate-700 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF]"
@@ -89,7 +89,7 @@ export default function TeamMemberCard({
 
                         <a
                             href={socials.discord || "#"}
-                            target="_blank"
+                            target="_blank" rel="noopener noreferrer"
                             rel="noreferrer"
                             className={`${socials.discord
                                 ? "text-slate-700 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF]"

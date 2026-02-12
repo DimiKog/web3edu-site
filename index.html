@@ -4,7 +4,47 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>web3edu-site</title>
+
+    <!-- Security Headers -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: https:;
+        font-src 'self' data:;
+        connect-src 'self'
+          https://rpc.dimikog.org
+          https://blockexplorer.dimikog.org
+          https://web3edu-api.dimikog.org
+          https://faucet.dimikog.org
+          wss://rpc.dimikog.org;
+        frame-ancestors 'none';
+        base-uri 'self';
+        form-action 'self';
+        upgrade-insecure-requests;
+      "
+    />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
+
+    <title>Web3Edu — Web3 Learning Identity</title>
+    <meta
+      name="description"
+      content="Web3Edu is a Web3-native learning identity layer for earning verifiable skills through hands-on labs, governance, and onchain credentials."
+    />
+    <meta property="og:title" content="Web3Edu — Web3 Learning Identity" />
+    <meta
+      property="og:description"
+      content="Earn verifiable Web3 skills through practical labs, DAO participation, and credential-based learning."
+    />
+    <meta property="og:image" content="https://web3edu.dimikog.org/og-image.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#0B0F1A" />
   </head>
   <body>
     <div id="root"></div>

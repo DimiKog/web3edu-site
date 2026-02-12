@@ -190,7 +190,7 @@ const WelcomeIdentityGR = () => {
 
                             <a
                                 href={`https://blockexplorer.dimikog.org/token/0xdde6a59445538ea146a17dd8745e7ea5288b1a31/instance/${tokenId}`}
-                                target="_blank"
+                                target="_blank" rel="noopener noreferrer"
                                 rel="noopener noreferrer"
                                 className="text-sm font-semibold text-[#8A57FF] dark:text-purple-300 underline hover:opacity-80"
                             >

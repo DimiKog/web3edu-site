@@ -193,7 +193,7 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
 
                     <a
                         href={`https://blockexplorer.dimikog.org/token/0xdde6a59445538ea146a17dd8745e7ea5288b1a31/instance/${tokenId}`}
-                        target="_blank"
+                        target="_blank" rel="noopener noreferrer"
                         rel="noopener noreferrer"
                         className="
                             text-purple-600 dark:text-purple-400 

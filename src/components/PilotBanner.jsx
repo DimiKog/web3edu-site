@@ -13,7 +13,9 @@ export default function PilotBanner({ lang = "en" }) {
         setCollapsed(true);
         try {
             localStorage.setItem("web3edu-pilot-banner-collapsed", "true");
-        } catch { }
+        } catch {
+            // Ignore storage write failures (e.g. private mode restrictions).
+        }
     };
 
     return (
@@ -55,7 +57,7 @@ export default function PilotBanner({ lang = "en" }) {
 
                                 <a
                                     href="https://teams.microsoft.com/l/team/19%3Apwj5b5f8p7xMSvMQLth7ewFU5-aSEeowtClTZHt9Zqg1%40thread.tacv2/conversations?groupId=e5ff2c9e-34e6-4d42-9246-88b9de4fd760&tenantId=0c8943ee-c370-4bb3-ba51-321f406f32ec"
-                                    target="_blank"
+                                    target="_blank" rel="noopener noreferrer"
                                     rel="noreferrer"
                                     className="inline-flex items-center gap-2 text-sm font-semibold
                     text-fuchsia-600 dark:text-fuchsia-400
@@ -95,7 +97,7 @@ export default function PilotBanner({ lang = "en" }) {
 
                     <a
                         href="https://teams.microsoft.com/l/team/19%3Apwj5b5f8p7xMSvMQLth7ewFU5-aSEeowtClTZHt9Zqg1%40thread.tacv2/conversations?groupId=e5ff2c9e-34e6-4d42-9246-88b9de4fd760&tenantId=0c8943ee-c370-4bb3-ba51-321f406f32ec"
-                        target="_blank"
+                        target="_blank" rel="noopener noreferrer"
                         rel="noreferrer"
                         className="text-sm font-semibold text-fuchsia-600 dark:text-fuchsia-400 hover:underline"
                     >

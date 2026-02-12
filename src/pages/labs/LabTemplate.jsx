@@ -373,7 +373,7 @@ Timestamp: ${timestamp}`;
                     ) : (
                         <a
                             href={readmeUrl}
-                            target="_blank"
+                            target="_blank" rel="noopener noreferrer"
                             rel="noopener noreferrer"
                             className="inline-flex flex-col items-center gap-1 px-8 py-4 rounded-xl
                             bg-gradient-to-r from-indigo-600 to-violet-600

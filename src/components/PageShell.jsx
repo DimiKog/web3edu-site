@@ -191,7 +191,7 @@ export default function PageShell({
     text-slate-900 dark:text-slate-100
     border border-white/10 shadow-xl backdrop-blur-xl
     transition-all duration-500 group
-    ${isShrunk ? "scale-[0.94] py-2 shadow-2xl" : "scale-100"}
+    ${isShrunk ? "py-2 shadow-2xl" : ""}
   `}
         >
           {/* Logo */}
@@ -210,7 +210,7 @@ export default function PageShell({
           </div>
 
           {/* Main nav */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
             {isGR ? (
               <>
                 <a href="/#/gr" className="relative font-medium 
@@ -321,7 +321,7 @@ export default function PageShell({
           </div>
 
           {/* Action buttons */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
             {showJoinCta && (
                 <button
                   onClick={() => {
@@ -329,7 +329,7 @@ export default function PageShell({
                   }}
                   className="px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/40 to-blue-500/40
                  hover:from-pink-500/60 hover:to-blue-500/60
-                 text-white shadow-lg shadow-indigo-500/20 border border-white/10"
+                 text-white shadow-lg shadow-indigo-500/20 border border-white/10 cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40"
                 >
                   {isGR ? "Σύνδεση" : "Join"}
                 </button>
@@ -338,7 +338,7 @@ export default function PageShell({
             {/* Theme toggle (moved outside language toggle group) */}
             <button
               onClick={() => setIsDark((prev) => !prev)}
-              className="px-3 py-1.5 rounded-full bg-slate-200/70 hover:bg-slate-300/70 text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white border border-white/10 backdrop-blur-md"
+              className="px-3 py-1.5 rounded-full bg-slate-200/70 hover:bg-slate-300/70 text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg"
             >
               {isDark ? "🌞" : "🌙"}
             </button>
@@ -346,7 +346,7 @@ export default function PageShell({
             {/* Language toggle (clean, separate, no interaction with theme) */}
             <button
               onClick={toggleLanguage}
-              className="px-3 py-1.5 rounded-full bg-slate-200/70 hover:bg-slate-300/70 text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white border border-white/10 backdrop-blur-md"
+              className="px-3 py-1.5 rounded-full bg-slate-200/70 hover:bg-slate-300/70 text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg"
             >
               {isGR ? "EN" : "GR"}
             </button>
@@ -354,7 +354,7 @@ export default function PageShell({
 
           {/* Mobile */}
           <button
-            className="md:hidden text-xl"
+            className="lg:hidden text-xl"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             ☰
@@ -367,7 +367,7 @@ export default function PageShell({
 
         {/* MOBILE MENU */}
         {mobileOpen && (
-          <div className="fixed inset-0 md:hidden z-40 px-4 pt-24 pb-8 bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-xl">
+          <div className="fixed inset-0 lg:hidden z-40 px-4 pt-24 pb-8 bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-xl">
             <div className="h-full w-full overflow-y-auto rounded-2xl border border-white/10 bg-white/80 dark:bg-slate-900/85 shadow-2xl shadow-indigo-500/10 p-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {isGR ? (

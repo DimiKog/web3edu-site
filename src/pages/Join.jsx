@@ -1,6 +1,6 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import PageShell from "../components/PageShell.jsx";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +14,7 @@ export default function Join() {
     const [checkingSBT, setCheckingSBT] = useState(false);
 
     // Check if user is connected to Web3Edu Besu Edu-Net (chainId 424242)
-    const checkNetwork = async () => {
+    const checkNetwork = useCallback(async () => {
         if (!window.ethereum) return;
         setLoadingNetwork(true);
 
@@ -28,17 +28,17 @@ export default function Join() {
             } else {
                 setNetworkOK(true);
             }
-        } catch (err) {
+        } catch {
             setNetworkOK(false);
         }
         setLoadingNetwork(false);
-    };
+    }, [navigate]);
 
     useEffect(() => {
         if (isConnected) {
             checkNetwork();
         }
-    }, [isConnected]);
+    }, [isConnected, checkNetwork]);
 
     const handleContinue = async () => {
         const BACKEND = "https://web3edu-api.dimikog.org";

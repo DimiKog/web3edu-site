@@ -94,26 +94,4 @@ const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => 
     );
 };
 
-<style jsx>{`
-    @keyframes holo-shimmer {
-        0% { opacity: .2; transform: translateX(-20%); }
-        50% { opacity: 1; transform: translateX(20%); }
-        100% { opacity: .2; transform: translateX(-20%); }
-    }
-    .animate-holo-shimmer { animation: holo-shimmer 3.2s ease-in-out infinite; }
-
-    @keyframes pulse-slow { 0%, 100% { opacity: .3; } 50% { opacity: .6; } }
-    @keyframes pulse-slow2 { 0%, 100% { opacity: .25; } 50% { opacity: .55; } }
-    .animate-pulse-slow { animation: pulse-slow 6s ease-in-out infinite; }
-    .animate-pulse-slow2 { animation: pulse-slow2 9s ease-in-out infinite; }
-
-    @keyframes fade-up {
-        0% { opacity: 0; transform: translateY(20px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-up { animation: fade-up .8s ease-out forwards; }
-    .delay-150 { animation-delay: .15s; }
-    .delay-300 { animation-delay: .3s; }
-`}</style>
-
 export default Hero;

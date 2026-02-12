@@ -307,7 +307,9 @@ export default function DaoGovernance() {
 /* COMPONENTS */
 /* ================================= */
 
-function GovernanceCard({ icon: Icon, title, children, color = "#8A57FF" }) {
+function GovernanceCard({ icon, title, children, color = "#8A57FF" }) {
+    const IconComponent = icon;
+
     return (
         <section className="relative group rounded-3xl bg-gradient-to-br from-[#0A0F1A]/80 via-[#111626]/80 to-[#131B2D]/80 border border-[#8A57FF]/20 backdrop-blur-xl shadow-[0_0_40px_rgba(138,87,255,0.1)] p-8 transition-all duration-500 hover:border-[#8A57FF]/40 hover:shadow-[0_0_60px_rgba(138,87,255,0.2)]">
             <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: `linear-gradient(to bottom right, ${color}08, transparent)` }} />
@@ -322,7 +324,7 @@ function GovernanceCard({ icon: Icon, title, children, color = "#8A57FF" }) {
                             boxShadow: `0 0 20px ${color}30`
                         }}
                     >
-                        <Icon className="w-6 h-6" style={{ color }} />
+                        {IconComponent && <IconComponent className="w-6 h-6" style={{ color }} />}
                     </div>
                     <h2 className="text-2xl font-bold text-white">{title}</h2>
                 </div>

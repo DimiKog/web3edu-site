@@ -76,7 +76,7 @@ const Lab04Interaction = () => {
 
         try {
             const provider = new BrowserProvider(window.ethereum);
-            const accounts = await provider.send("eth_requestAccounts", []);
+            await provider.send("eth_requestAccounts", []);
             const signer = await provider.getSigner();
             const address = await signer.getAddress();
             const network = await provider.getNetwork();
@@ -456,7 +456,7 @@ const Lab04Interaction = () => {
 
                                     <a
                                         href={BLOCK_EXPLORER_TX_URL}
-                                        target="_blank"
+                                        target="_blank" rel="noopener noreferrer"
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                                     >
@@ -734,7 +734,7 @@ const Lab04Interaction = () => {
 
                             <a
                                 href="https://faucet.dimikog.org/"
-                                target="_blank"
+                                target="_blank" rel="noopener noreferrer"
                                 rel="noopener noreferrer"
                                 className="inline-block px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
                             >
@@ -903,7 +903,7 @@ const Lab04Interaction = () => {
 
                     <a
                         href="https://github.com/DimiKog/web3edu-labs/tree/main/lab-04-transactions-gas"
-                        target="_blank"
+                        target="_blank" rel="noopener noreferrer"
                         rel="noopener noreferrer"
                         className="text-sm text-slate-600 dark:text-slate-300 hover:underline"
                     >

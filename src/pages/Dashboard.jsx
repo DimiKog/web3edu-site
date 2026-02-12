@@ -12,11 +12,6 @@ import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
 import PilotBanner from "../components/PilotBanner.jsx";
 import {
-    ExplorerIcon,
-    BuilderIcon,
-    ArchitectIcon,
-    AddressIdenticon,
-    generateAvatarStyle,
     shortAddress
 } from "../components/identity-ui.jsx";
 
@@ -24,13 +19,9 @@ export default function Dashboard() {
     const { address, isConnected } = useAccount();
     const navigate = useNavigate();
     const [metadata, setMetadata] = useState(null);
-    const [isMetadataLoading, setIsMetadataLoading] = useState(false);
-    const [metadataError, setMetadataError] = useState(null);
     const [showTierPopup, setShowTierPopup] = useState(false);
     const [xpLeveledUp, setXpLeveledUp] = useState(false);
     const prevXpRef = useRef(null);
-    const prevLessonsRef = useRef(null);
-    const [lessonsPulse, setLessonsPulse] = useState(false);
     const [profile, setProfile] = useState(null);
     const [lastSyncTime, setLastSyncTime] = useState(null);
 
@@ -89,8 +80,6 @@ export default function Dashboard() {
     useEffect(() => {
         if (!address) return;
         const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
-        setIsMetadataLoading(true);
-        setMetadataError(null);
         fetch(`${BACKEND}/web3sbt/resolve/${address}`)
             .then(res => {
                 if (!res.ok) {
@@ -214,9 +203,7 @@ export default function Dashboard() {
             })
             .catch(err => {
                 console.error("Failed to fetch metadata:", err);
-                setMetadataError("Unable to load live progress — showing defaults.");
-            })
-            .finally(() => setIsMetadataLoading(false));
+            });
     }, [address, formattedAddress]);
 
     useEffect(() => {
@@ -239,27 +226,10 @@ export default function Dashboard() {
     }, [metadata]);
 
     useEffect(() => {
-        if (!metadata || typeof metadata.lessonsCompleted !== "number") return;
-
-        let timeoutId;
-
-        if (prevLessonsRef.current == null) {
-            prevLessonsRef.current = metadata.lessonsCompleted;
-        } else {
-            if (metadata.lessonsCompleted > prevLessonsRef.current) {
-                setLessonsPulse(true);
-                timeoutId = setTimeout(() => setLessonsPulse(false), 900);
-            }
-            prevLessonsRef.current = metadata.lessonsCompleted;
-        }
-
-        return () => timeoutId && clearTimeout(timeoutId);
-    }, [metadata]);
-
-    useEffect(() => {
-        if (!metadata || !metadata.tier) return;
+        const tier = metadata?.tier;
+        if (!tier) return;
         try {
-            localStorage.setItem("web3edu-tier", metadata.tier);
+            localStorage.setItem("web3edu-tier", tier);
         } catch (err) {
             console.error("Failed to persist tier in localStorage:", err);
         }
@@ -302,8 +272,6 @@ export default function Dashboard() {
         : fallbackRecommendation;
     const isFallbackRecommendation = !hasBackendRecommendation;
     const isBuilderRequired = !!recommended?.builderRequired;
-    const builderStepIndex = recommended?.builderStepIndex ?? null;
-
     const recommendedLabSlug =
         recommended?.slug?.endsWith("-gr")
             ? recommended.slug.replace(/-gr$/, "")

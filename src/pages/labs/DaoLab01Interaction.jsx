@@ -30,7 +30,6 @@ export default function DaoLab01Interaction() {
 
     const [proposalUnfolded, setProposalUnfolded] = useState(false);
 
-    const [showPayload, setShowPayload] = useState(false);
     const [selectedChoice, setSelectedChoice] = useState(null);
 
     const handleVote = async () => {
@@ -63,7 +62,7 @@ This vote is part of a Web3Edu governance simulation.
             // Later:
             // POST to backend → record vote
             // mark lab as completed
-        } catch (err) {
+        } catch {
             setError("Signature rejected or failed.");
         }
     };

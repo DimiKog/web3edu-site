@@ -6,7 +6,6 @@ const XPProgressCard = ({
     xpPercent,
     remainingXp,
     nextTierPercent,
-    leveledUp,
     lang = "en",
 }) => {
     // Tier segmentation logic (Explorer → Builder → Architect)

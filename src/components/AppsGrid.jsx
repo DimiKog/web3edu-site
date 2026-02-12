@@ -67,12 +67,13 @@ const AppsGrid = ({ content, badgeLabel = "Ecosystem Overview" }) => (
                             null;
 
                 const wrapperClassName = `group relative rounded-3xl p-[2px] shadow-xl transition-all
-                       hover:-translate-y-2 hover:scale-[1.02]
-                       hover:shadow-[0_16px_40px_rgba(138,87,255,0.25)]
+                       hover:scale-[1.02]
                        hover:[transform:perspective(900px)_rotateX(4deg)_rotateY(-4deg)]
                        bg-gradient-to-br from-white/40 to-white/10 
                        dark:from-slate-800/30 dark:to-slate-900/40 
-                       backdrop-blur-xl border border-white/20` + (linkTarget === null ? " opacity-80 cursor-not-allowed" : "");
+                       backdrop-blur-xl border border-white/20` + (linkTarget === null
+                        ? " opacity-80 cursor-not-allowed"
+                        : " cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:shadow-[0_16px_40px_rgba(138,87,255,0.25)]");
 
                 const cardContent = (
                     <>
@@ -92,6 +93,11 @@ const AppsGrid = ({ content, badgeLabel = "Ecosystem Overview" }) => (
                             />
 
                             <div className="relative z-10">
+                                {linkTarget && (
+                                    <span className="absolute -top-1 -right-1 text-xs text-slate-700/80 dark:text-white/70 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                                        ↗
+                                    </span>
+                                )}
                                 {/* Icon */}
                                 <div className="relative mb-6 h-20 w-20 animate-[float_4s_ease-in-out_infinite]">
                                     <div

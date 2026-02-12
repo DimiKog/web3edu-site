@@ -15,7 +15,9 @@ function InfoLine({ label, value, mono = false }) {
     );
 }
 
-function GettingStartedCard({ icon: Icon, title, children, color = "#8A57FF" }) {
+function GettingStartedCard({ icon, title, children, color = "#8A57FF" }) {
+    const IconComponent = icon;
+
     return (
         <section className="relative group rounded-3xl bg-gradient-to-br from-[#0A0F1A]/80 via-[#111626]/80 to-[#131B2D]/80 border border-[#8A57FF]/20 backdrop-blur-xl shadow-[0_0_40px_rgba(138,87,255,0.1)] p-8 transition-all duration-500 hover:border-[#8A57FF]/40 hover:shadow-[0_0_60px_rgba(138,87,255,0.2)]">
             <div
@@ -33,7 +35,7 @@ function GettingStartedCard({ icon: Icon, title, children, color = "#8A57FF" }) 
                             boxShadow: `0 0 20px ${color}30`,
                         }}
                     >
-                        <Icon className="w-6 h-6" style={{ color }} />
+                        {IconComponent && <IconComponent className="w-6 h-6" style={{ color }} />}
                     </div>
                     <h2 className="text-2xl font-bold text-white">{title}</h2>
                 </div>
@@ -109,7 +111,7 @@ export default function GettingStarted() {
                         <a
                             href="https://web3edu.dimikog.org"
                             className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 bg-white/5 border border-white/10 text-white/70 font-semibold hover:text-white hover:border-white/30 transition"
-                            target="_blank"
+                            target="_blank" rel="noopener noreferrer"
                             rel="noreferrer"
                         >
                             Open live site <ExternalLink className="h-4 w-4" />

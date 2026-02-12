@@ -212,7 +212,7 @@ const HomePageLayout = ({
 
                             <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
                             <div className="flex justify-center mt-12">
-                                <a href={teamCtaHref} className="text-base font-semibold px-6 py-2 rounded-full bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] text-white shadow-md hover:opacity-90 transition-all duration-300">
+                                <a href={teamCtaHref} className="text-base font-semibold px-6 py-2 rounded-full bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] text-white shadow-md hover:opacity-90 transition-all duration-300 cursor-pointer">
                                     {teamCtaLabel}
                                 </a>
                             </div>

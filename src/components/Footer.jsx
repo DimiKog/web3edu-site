@@ -109,7 +109,7 @@ const Footer = ({ content }) => {
                 <div className="flex gap-6 text-lg">
                     <a
                         href="https://github.com/DimiKog"
-                        target="_blank"
+                        target="_blank" rel="noopener noreferrer"
                         className="relative hover:scale-110 transition-transform group"
                     >
                         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8A57FF]/20 to-[#4ACBFF]/20 blur-xl opacity-0
@@ -119,7 +119,7 @@ const Footer = ({ content }) => {
 
                     <a
                         href="#"
-                        target="_blank"
+                        target="_blank" rel="noopener noreferrer"
                         className="relative opacity-60 cursor-not-allowed"
                         title="Community Discord (Coming Soon)"
                     >
@@ -128,7 +128,7 @@ const Footer = ({ content }) => {
 
                     <a
                         href="#"
-                        target="_blank"
+                        target="_blank" rel="noopener noreferrer"
                         className="relative opacity-60 cursor-not-allowed"
                         title="LinkedIn Page (Coming Soon)"
                     >

@@ -55,16 +55,16 @@ const Lab03Interaction = () => {
             labState.signing.signed &&
             labState.verification.verified;
 
-        if (
-            ownershipProven &&
-            !labState.ownership.proven
-        ) {
-            setLabState((prev) => ({
+        if (!ownershipProven) return;
+
+        setLabState((prev) => {
+            if (prev.ownership.proven) return prev;
+            return {
                 ...prev,
                 ownership: { proven: true },
                 explanationUnlocked: true,
-            }));
-        }
+            };
+        });
     }, [labState.signing.signed, labState.verification.verified]);
 
     // ─────────────────────────────
@@ -536,4 +536,3 @@ const Lab03Interaction = () => {
 };
 
 export default Lab03Interaction;
-
