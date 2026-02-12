@@ -1,0 +1,24 @@
+# Security Headers for Netlify / Cloudflare Pages
+# This file is automatically read by Netlify and Cloudflare Pages
+
+/*
+  # Content Security Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://rpc.dimikog.org https://blockexplorer.dimikog.org https://web3edu-api.dimikog.org https://faucet.dimikog.org wss://rpc.dimikog.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+
+  # Clickjacking protection
+  X-Frame-Options: DENY
+
+  # Referrer policy
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Permissions policy (disable unnecessary features)
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=()
+
+  # HSTS - Force HTTPS (31536000 seconds = 1 year)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+  # XSS Protection (legacy browsers)
+  X-XSS-Protection: 1; mode=block
