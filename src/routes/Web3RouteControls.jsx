@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAccount, useDisconnect } from "wagmi";
 import {
@@ -19,6 +19,8 @@ function isAdminWallet(address) {
   return Boolean(address && ADMIN_WALLETS.includes(address.toLowerCase()));
 }
 
+const WALLET_SESSION_KEY = "web3edu-wallet-connected";
+
 export default function Web3RouteControls() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -37,6 +39,16 @@ export default function Web3RouteControls() {
         : "Explorer",
     []
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isConnected && address) {
+      localStorage.setItem(WALLET_SESSION_KEY, "true");
+    } else {
+      localStorage.removeItem(WALLET_SESSION_KEY);
+    }
+    window.dispatchEvent(new Event("web3edu-wallet-state"));
+  }, [address, isConnected]);
 
   if (!isConnected && isJoinRoute) return null;
 
@@ -66,7 +78,13 @@ export default function Web3RouteControls() {
             </span>
           </button>
           <button
-            onClick={() => disconnect()}
+            onClick={() => {
+              disconnect();
+              if (typeof window !== "undefined") {
+                localStorage.removeItem(WALLET_SESSION_KEY);
+                window.dispatchEvent(new Event("web3edu-wallet-state"));
+              }
+            }}
             className="rounded-full border border-red-400/30 bg-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-50 cursor-pointer transition-all duration-200 hover:bg-red-500/40 hover:scale-105 hover:border-red-400/50 hover:shadow-lg"
           >
             {isGreek ? "Αποσύνδεση" : "Disconnect"}

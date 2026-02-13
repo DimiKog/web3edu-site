@@ -614,7 +614,6 @@ const Lab01Interaction = () => {
                     <a
                         href="https://github.com/dimikog/web3edu-labs/tree/main/lab-01-wallets-identity"
                         target="_blank" rel="noopener noreferrer"
-                        rel="noopener noreferrer"
                         className="text-sm text-slate-600 dark:text-slate-300 hover:underline"
                     >
                         📚 View Details (GitHub)

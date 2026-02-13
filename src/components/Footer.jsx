@@ -73,11 +73,9 @@ const Footer = ({ content }) => {
                 <div className="flex flex-col items-center text-center gap-3">
                     <picture>
                         <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
-                        <img
-                            src={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg}
+                        <img src={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg}
                             className="h-12 w-auto drop-shadow-[0_0_15px_rgba(138,87,255,0.35)] hover:scale-105 transition-transform duration-500"
-                            alt="Web3Edu Logo"
-                        />
+                            alt="Web3Edu Logo" loading="lazy" />
                     </picture>
                     <div className="text-center">
                         <div className="font-semibold text-slate-700 dark:text-white tracking-wide text-sm">
@@ -98,7 +96,7 @@ const Footer = ({ content }) => {
                 </div>
 
                 {/* Middle Nav */}
-                <nav className="flex gap-6 text-slate-600 dark:text-white/80 text-[11px] tracking-wide">
+                <nav className="flex gap-6 text-slate-800 dark:text-slate-100 text-xs tracking-wide">
                     <a href="/#/" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">{nav.home ?? "Home"}</a>
                     <a href="/#/team" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">{nav.team ?? "Team"}</a>
                     <a href="/#/start-here" className="hover:text-[#8A57FF] dark:hover:text-[#8A57FF] transition">{nav.startHere ?? "Start Here"}</a>
@@ -110,6 +108,7 @@ const Footer = ({ content }) => {
                     <a
                         href="https://github.com/DimiKog"
                         target="_blank" rel="noopener noreferrer"
+                        aria-label="Open Web3Edu GitHub profile"
                         className="relative hover:scale-110 transition-transform group"
                     >
                         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8A57FF]/20 to-[#4ACBFF]/20 blur-xl opacity-0
@@ -117,23 +116,25 @@ const Footer = ({ content }) => {
                         <FaGithub className="relative" />
                     </a>
 
-                    <a
-                        href="#"
-                        target="_blank" rel="noopener noreferrer"
-                        className="relative opacity-60 cursor-not-allowed"
+                    <button
+                        type="button"
+                        disabled
+                        aria-label="Community Discord (coming soon)"
                         title="Community Discord (Coming Soon)"
-                    >
-                        <FaDiscord className="relative" />
-                    </a>
-
-                    <a
-                        href="#"
-                        target="_blank" rel="noopener noreferrer"
                         className="relative opacity-60 cursor-not-allowed"
-                        title="LinkedIn Page (Coming Soon)"
                     >
-                        <FaLinkedin className="relative" />
-                    </a>
+                        <FaDiscord className="relative" aria-hidden="true" />
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled
+                        aria-label="LinkedIn page (coming soon)"
+                        title="LinkedIn Page (Coming Soon)"
+                        className="relative opacity-60 cursor-not-allowed"
+                    >
+                        <FaLinkedin className="relative" aria-hidden="true" />
+                    </button>
                 </div>
             </div>
 
@@ -156,6 +157,7 @@ const Footer = ({ content }) => {
             {showBackToTop && (
                 <button
                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    aria-label="Back to top"
                     className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-[#8A57FF] to-[#4ACBFF] text-white shadow-xl hover:scale-[1.015] transition-transform"
                 >
                     ↑

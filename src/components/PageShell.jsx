@@ -5,7 +5,6 @@ import Footer from "./Footer.jsx";
 import FooterGr from "./FooterGR.jsx";
 import web3EduLogoLight from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDark from "../assets/web3edu_logo.svg";
-import { useAccount } from "wagmi";
 
 const getLangFromHash = (hash) => {
   if (!hash) return null;
@@ -52,9 +51,12 @@ export default function PageShell({
   children,
   footerContent,
 }) {
-  const { isConnected } = useAccount();
   const [isShrunk, setIsShrunk] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [hasWalletSession, setHasWalletSession] = React.useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("web3edu-wallet-connected") === "true";
+  });
 
   const [currentHash, setCurrentHash] = React.useState(
     typeof window !== "undefined" ? window.location.hash || "#/" : "#/"
@@ -134,6 +136,43 @@ export default function PageShell({
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
+  React.useEffect(() => {
+    const syncWalletState = () => {
+      const fromStorage = localStorage.getItem("web3edu-wallet-connected") === "true";
+      setHasWalletSession(fromStorage);
+    };
+
+    syncWalletState();
+    window.addEventListener("storage", syncWalletState);
+    window.addEventListener("focus", syncWalletState);
+    window.addEventListener("web3edu-wallet-state", syncWalletState);
+
+    return () => {
+      window.removeEventListener("storage", syncWalletState);
+      window.removeEventListener("focus", syncWalletState);
+      window.removeEventListener("web3edu-wallet-state", syncWalletState);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const revalidateWalletSession = async () => {
+      if (!hasWalletSession) return;
+      if (!window.ethereum?.request) return;
+
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (!Array.isArray(accounts) || accounts.length === 0) {
+          localStorage.removeItem("web3edu-wallet-connected");
+          setHasWalletSession(false);
+        }
+      } catch {
+        // Keep stored state if provider check fails.
+      }
+    };
+
+    revalidateWalletSession();
+  }, [hasWalletSession]);
+
   // Handle language toggle
   const toggleLanguage = () => {
     const newLang = lang === "gr" ? "en" : "gr";
@@ -168,7 +207,7 @@ export default function PageShell({
     normalizedHash.startsWith("#/admin");
 
   const showJoinCta =
-    !isConnected && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
+    !hasWalletSession && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
 
   return (
     <main
@@ -199,11 +238,11 @@ export default function PageShell({
             <a href={isGR ? "/#/gr" : "/#/"} aria-label={isGR ? "Αρχική" : "Home"}>
               <picture>
                 <source srcSet={isDark ? web3EduLogoDark : web3EduLogoLight} type="image/svg+xml" />
-                <img
-                  src={isDark ? web3EduLogoDark : web3EduLogoLight}
+                <img src={isDark ? web3EduLogoDark : web3EduLogoLight}
                   alt="Web3Edu"
                   className="h-10 w-auto drop-shadow-[0_0_12px_rgba(120,60,255,0.45)]
                   transition-opacity duration-500"
+                  loading="eager"
                 />
               </picture>
             </a>
@@ -338,6 +377,8 @@ export default function PageShell({
             {/* Theme toggle (moved outside language toggle group) */}
             <button
               onClick={() => setIsDark((prev) => !prev)}
+              aria-label={isDark ? (isGR ? "Εναλλαγή σε φωτεινό θέμα" : "Switch to light theme") : (isGR ? "Εναλλαγή σε σκοτεινό θέμα" : "Switch to dark theme")}
+              title={isDark ? (isGR ? "Φωτεινό θέμα" : "Light theme") : (isGR ? "Σκοτεινό θέμα" : "Dark theme")}
               className="px-3 py-1.5 rounded-full bg-slate-200/70 hover:bg-slate-300/70 text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg"
             >
               {isDark ? "🌞" : "🌙"}
@@ -346,6 +387,8 @@ export default function PageShell({
             {/* Language toggle (clean, separate, no interaction with theme) */}
             <button
               onClick={toggleLanguage}
+              aria-label={isGR ? "Switch language to English" : "Αλλαγή γλώσσας στα Ελληνικά"}
+              title={isGR ? "Switch to English" : "Αλλαγή σε Ελληνικά"}
               className="px-3 py-1.5 rounded-full bg-slate-200/70 hover:bg-slate-300/70 text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg"
             >
               {isGR ? "EN" : "GR"}
@@ -356,6 +399,9 @@ export default function PageShell({
           <button
             className="lg:hidden text-xl"
             onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? (isGR ? "Κλείσιμο μενού" : "Close menu") : (isGR ? "Άνοιγμα μενού" : "Open menu")}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation-menu"
           >
             ☰
           </button>
@@ -367,7 +413,7 @@ export default function PageShell({
 
         {/* MOBILE MENU */}
         {mobileOpen && (
-          <div className="fixed inset-0 lg:hidden z-40 px-4 pt-24 pb-8 bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-xl">
+          <div id="mobile-navigation-menu" className="fixed inset-0 lg:hidden z-40 px-4 pt-24 pb-8 bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-xl">
             <div className="h-full w-full overflow-y-auto rounded-2xl border border-white/10 bg-white/80 dark:bg-slate-900/85 shadow-2xl shadow-indigo-500/10 p-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {isGR ? (
@@ -468,6 +514,7 @@ export default function PageShell({
                     toggleLanguage();
                     setMobileOpen(false);
                   }}
+                  aria-label={isGR ? "Switch language to English" : "Αλλαγή γλώσσας στα Ελληνικά"}
                   className="w-full rounded-xl border border-white/20 bg-white/80 dark:bg-slate-800/80 py-2.5 text-sm font-semibold text-slate-800 dark:text-white"
                 >
                   {isGR ? "EN" : "GR"}
@@ -477,6 +524,7 @@ export default function PageShell({
                     setIsDark((prev) => !prev);
                     setMobileOpen(false);
                   }}
+                  aria-label={isDark ? (isGR ? "Εναλλαγή σε φωτεινό θέμα" : "Switch to light theme") : (isGR ? "Εναλλαγή σε σκοτεινό θέμα" : "Switch to dark theme")}
                   className="w-full rounded-xl border border-white/20 bg-slate-900 text-white py-2.5 text-sm font-semibold"
                 >
                   {isDark ? "🌞" : "🌙"}

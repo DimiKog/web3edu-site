@@ -105,8 +105,7 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                         }
 
                         return (
-                            <img
-                                src={normalized}
+                            <img src={normalized}
                                 alt={lang === "gr" ? "Avatar Ιδρυτή" : "Founder Avatar"}
                                 className="
                                     w-32 h-32 rounded-full object-cover
@@ -115,6 +114,7 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                                     transition-all duration-500
                                     hover:shadow-[0_0_8px_rgba(168,85,247,0.28)]
                                 "
+                                loading="lazy"
                                 onError={(e) => {
                                     e.target.src = identityFallback;
                                 }}
@@ -194,7 +194,6 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                     <a
                         href={`https://blockexplorer.dimikog.org/token/0xdde6a59445538ea146a17dd8745e7ea5288b1a31/instance/${tokenId}`}
                         target="_blank" rel="noopener noreferrer"
-                        rel="noopener noreferrer"
                         className="
                             text-purple-600 dark:text-purple-400 
                             underline text-sm hover:text-purple-300 

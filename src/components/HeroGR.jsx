@@ -61,7 +61,7 @@ const HeroGR = ({ content, ctaHref = "/#/start-here-gr", ctaLabel: ctaOverride }
                 <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-2xl relative">
                     <div className="absolute -z-10 -top-10 left-1/2 -translate-x-1/2 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-[#4ACBFF]/10 to-[#8A57FF]/10 rounded-full blur-3xl opacity-40 animate-pulse-slow"></div>
 
-                    <p className="text-sm uppercase tracking-widest text-slate-200/80 animate-fade-up">
+                    <p className="text-sm uppercase tracking-widest text-slate-100 animate-fade-up">
                         {content.welcome}
                     </p>
                     <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight lg:leading-[1.05] bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(74,203,255,.28)] animate-fade-up delay-150">
@@ -73,12 +73,13 @@ const HeroGR = ({ content, ctaHref = "/#/start-here-gr", ctaLabel: ctaOverride }
                         ))}
                     </h1>
 
-                    <p className="text-base sm:text-lg text-slate-200/90 leading-relaxed max-w-xl animate-fade-up delay-150">
+                    <p className="text-base sm:text-lg text-slate-100 leading-relaxed max-w-xl animate-fade-up delay-150">
                         {content.desc}
                     </p>
 
                     <a
                         href={ctaHref}
+                        aria-label={ctaLabel}
                         className="inline-flex items-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300 animate-fade-up delay-300"
                     >
                         🚀 {ctaLabel}

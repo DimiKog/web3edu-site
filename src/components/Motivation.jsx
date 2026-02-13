@@ -110,6 +110,11 @@ const Motivation = ({ content }) => {
                     {content.detailHeading || content.heading || "Our Mission"}
                 </h3>
 
+                {/* SECURITY: Safe to use dangerouslySetInnerHTML here because:
+                    1. Content source: Hardcoded strings from src/content/en.js (developer-controlled)
+                    2. Processing: Only wraps known phrases with <span> tags
+                    3. No user input: All content is static and trusted
+                    See: dangerouslySetInnerHTML-security-report.md for full audit */}
                 <p
                     className="text-lg sm:text-xl leading-relaxed text-slate-800 dark:text-slate-100 max-w-3xl animate-slideUp tracking-wide space-y-3"
                     dangerouslySetInnerHTML={{

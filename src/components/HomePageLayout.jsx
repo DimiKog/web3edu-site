@@ -113,13 +113,11 @@ const HomePageLayout = ({
                             </div>
                             <div className="relative flex-1 flex lg:flex items-center justify-center mt-4 max-w-[85%] sm:max-w-[70%] mx-auto mb-6 lg:mb-0 overflow-hidden">
                                 <div className="absolute w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-full bg-gradient-to-br from-[#8A57FF]/30 via-[#4ACBFF]/20 to-[#FF67D2]/20 blur-3xl"></div>
-                                <img
-                                    src={motivationImage}
+                                <img src={motivationImage}
                                     alt={motivationImageAlt}
                                     width="256"
                                     height="256"
-                                    className="relative z-10 w-52 sm:w-64 opacity-90 animate-subtleFloat transition-transform duration-500"
-                                />
+                                    className="relative z-10 w-52 sm:w-64 opacity-90 animate-subtleFloat transition-transform duration-500" loading="lazy" />
                             </div>
                         </div>
                     </div>
@@ -196,13 +194,11 @@ const HomePageLayout = ({
     sm:hover:scale-[1.03]
     min-h-[400px] sm:min-h-[440px] lg:min-h-[500px]
   ">
-                                        <img
-                                            src={card.img}
+                                        <img src={card.img}
                                             alt={card.alt}
                                             width="160"
                                             height="160"
-                                            className="h-32 w-32 sm:h-36 sm:w-36 lg:h-40 lg:w-40 rounded-full object-cover ring-[10px] ring-[#8A57FF]/30 dark:ring-[#8A57FF]/50 shadow-[0_0_25px_rgba(138,87,255,0.35)]"
-                                        />
+                                            className="h-32 w-32 sm:h-36 sm:w-36 lg:h-40 lg:w-40 rounded-full object-cover ring-[10px] ring-[#8A57FF]/30 dark:ring-[#8A57FF]/50 shadow-[0_0_25px_rgba(138,87,255,0.35)]" loading="lazy" />
                                         <h3 className="text-lg font-semibold text-slate-800 dark:text-white">{card.name}</h3>
                                         <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed">{card.role}</p>
                                         <p className="text-xs italic text-slate-700 dark:text-slate-400 mt-2">{card.quote}</p>

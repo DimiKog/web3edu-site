@@ -146,12 +146,10 @@ const LearningPath = ({ content, badgeLabel = "Learning Journey", ctaHref = "/#/
                         style={{ pointerEvents: "none" }}
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent animate-holoShimmer rounded-2xl pointer-events-none"></div>
-                        <img
-                            src={holoImg}
+                        <img src={holoImg}
                             alt="Hologram Projector"
                             className="object-contain opacity-90 drop-shadow-[0_0_20px_rgba(74,203,255,0.55)]"
-                            draggable="false"
-                        />
+                            draggable="false" loading="lazy" />
                     </div>
                 </div>
 

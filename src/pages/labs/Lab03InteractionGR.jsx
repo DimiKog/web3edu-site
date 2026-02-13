@@ -441,12 +441,10 @@ const Lab03InteractionGR = () => {
                                                 bg-indigo-50 dark:bg-indigo-900/40 p-4">
                                     {INCOMING_MESSAGE.sbtImage && (
                                         <div className="mb-3 flex justify-center">
-                                            <img
-                                                src={INCOMING_MESSAGE.sbtImage}
+                                            <img src={INCOMING_MESSAGE.sbtImage}
                                                 alt="Sender SBT"
                                                 className="w-24 h-24 rounded-full border border-indigo-400 dark:border-indigo-600
-                                                           shadow-md bg-white dark:bg-slate-800"
-                                            />
+                                                           shadow-md bg-white dark:bg-slate-800" loading="lazy" />
                                         </div>
                                     )}
                                     <p className="text-sm font-semibold">🎓 Web3Edu Founder SBT</p>

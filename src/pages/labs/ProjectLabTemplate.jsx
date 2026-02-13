@@ -122,11 +122,9 @@ const ProjectLabTemplate = ({
                 {/* Hero */}
                 {heroImage && (
                     <div className={heroImageWrapperClass}>
-                        <img
-                            src={heroImage}
+                        <img src={heroImage}
                             alt={`${title} hero`}
-                            className={heroImageClass}
-                        />
+                            className={heroImageClass} loading="eager" fetchpriority="high" />
                     </div>
                 )}
 
@@ -184,7 +182,6 @@ const ProjectLabTemplate = ({
                         <a
                             href={primaryCta.href}
                             target="_blank" rel="noopener noreferrer"
-                            rel="noopener noreferrer"
                             className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
                         >
                             {primaryCta.label}

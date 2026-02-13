@@ -5,6 +5,31 @@ import { visualizer } from "rollup-plugin-visualizer";
 
 const shouldAnalyze = process.env.ANALYZE === "true";
 
+const REACT_VENDOR_PACKAGES = new Set([
+  "react",
+  "react-dom",
+  "react-router",
+  "react-router-dom",
+  "scheduler",
+]);
+
+const WEB3_VENDOR_PACKAGES = new Set([
+  "wagmi",
+  "viem",
+  "ethers",
+  "@rainbow-me/rainbowkit",
+]);
+
+const getPackageName = (id) => {
+  const parts = id.split("node_modules/");
+  if (parts.length < 2) return null;
+  const pkgPath = parts[parts.length - 1];
+  const segments = pkgPath.split("/");
+  if (!segments[0]) return null;
+  if (segments[0].startsWith("@") && segments[1]) return `${segments[0]}/${segments[1]}`;
+  return segments[0];
+};
+
 export default defineConfig({
   base: "/",
   plugins: [
@@ -51,19 +76,22 @@ export default defineConfig({
 
     modulePreload: {
       resolveDependencies: (_filename, deps) =>
-        deps.filter((dep) => !dep.includes("web3-vendor"))
+        deps.filter((dep) => !dep.includes("vendor-web3"))
     },
     rollupOptions: {
       external: ["dao-invite"],
       output: {
-        manualChunks: {
-          "vendor-react": ["react", "react-dom", "react-router-dom"],
-          "vendor-web3": [
-            "wagmi",
-            "viem",
-            "ethers",
-            "@rainbow-me/rainbowkit"
-          ]
+        manualChunks(id) {
+          if (id.includes("vite/preload-helper")) return "vendor-react";
+          if (!id.includes("node_modules")) return;
+          const pkg = getPackageName(id);
+          if (!pkg) return;
+
+          // Keep React/runtime internals in the public entry vendor chunk.
+          if (REACT_VENDOR_PACKAGES.has(pkg)) return "vendor-react";
+
+          // Keep wallet/web3 dependencies split so only web3 routes request them.
+          if (WEB3_VENDOR_PACKAGES.has(pkg)) return "vendor-web3";
         }
       }
     }

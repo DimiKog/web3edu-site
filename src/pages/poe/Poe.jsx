@@ -108,7 +108,6 @@ export default function Poe({ language = 'EN' }) {
                                 key={exp.key}
                                 href={exp.link}
                                 target="_blank" rel="noopener noreferrer"
-                                rel="noopener noreferrer"
                                 className={`group flex h-full flex-col justify-between rounded-2xl border p-6 text-left shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${accentClasses}`}
                             >
                                 <div className="space-y-3">

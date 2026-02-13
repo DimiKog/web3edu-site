@@ -162,11 +162,9 @@ const WelcomeIdentityGR = () => {
                     </div>
 
                     {/* Image */}
-                    <img
-                        src={isDark ? web3eduLogoDark : web3eduLogoLight}
+                    <img src={isDark ? web3eduLogoDark : web3eduLogoLight}
                         alt="Web3Edu Identity Badge"
-                        className="w-32 h-32 sm:w-40 sm:h-40 mb-8 rounded-full drop-shadow-xl mx-auto transition-all duration-300"
-                    />
+                        className="w-32 h-32 sm:w-40 sm:h-40 mb-8 rounded-full drop-shadow-xl mx-auto transition-all duration-300" loading="eager" fetchpriority="high" />
 
                     <p className="animate-[fadeIn_1.1s_ease-out] text-sm text-slate-700 dark:text-slate-300 mb-6 max-w-md leading-relaxed dark:leading-loose">
                         Επόμενο βήμα: Μπες στο Dashboard για να δεις τα XP σου, να παρακολουθήσεις τα
@@ -191,7 +189,6 @@ const WelcomeIdentityGR = () => {
                             <a
                                 href={`https://blockexplorer.dimikog.org/token/0xdde6a59445538ea146a17dd8745e7ea5288b1a31/instance/${tokenId}`}
                                 target="_blank" rel="noopener noreferrer"
-                                rel="noopener noreferrer"
                                 className="text-sm font-semibold text-[#8A57FF] dark:text-purple-300 underline hover:opacity-80"
                             >
                                 Δείτε στο Blockscout ↗

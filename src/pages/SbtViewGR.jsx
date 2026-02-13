@@ -155,8 +155,7 @@ export default function SbtViewGR() {
 
                                 <div className="relative w-24 h-24 rounded-full overflow-hidden shadow-xl 
             ring-2 ring-indigo-300/60 dark:ring-indigo-700/60 bg-black/10">
-                                    <img
-                                        src={
+                                    <img src={
                                             profile?.profile?.avatar && profile.profile.avatar.trim() !== ""
                                                 ? profile.profile.avatar
                                                 : profile?.profile?.image && profile.profile.image.trim() !== ""
@@ -164,8 +163,7 @@ export default function SbtViewGR() {
                                                     : profile?.metadata?.image
                                         }
                                         alt="Avatar ταυτότητας"
-                                        className="w-full h-full object-cover"
-                                    />
+                                        className="w-full h-full object-cover" loading="lazy" />
                                 </div>
                             </div>
 

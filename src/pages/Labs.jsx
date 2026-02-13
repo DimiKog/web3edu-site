@@ -340,11 +340,9 @@ const Labs = () => {
                                         <div className="relative flex items-center justify-center
      bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-blue-500/10
      p-6 lg:p-8">
-                                            <img
-                                                src={lab01IdentityImg}
+                                            <img src={lab01IdentityImg}
                                                 alt="Web3 identity flow: wallet to address to identity"
-                                                className="w-full h-auto rounded-2xl shadow-2xl ring-1 ring-white/30"
-                                            />
+                                                className="w-full h-auto rounded-2xl shadow-2xl ring-1 ring-white/30" loading="lazy" />
                                         </div>
                                         {/* Content */}
                                         <div className="p-10 flex flex-col justify-between">

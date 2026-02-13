@@ -119,7 +119,6 @@ const Lab05Interaction = () => {
                             <a
                                 href={`https://blockexplorer.dimikog.org/address/${demoContractAddress}`}
                                 target="_blank" rel="noopener noreferrer"
-                                rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 px-4 py-2 mt-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition"
                             >
                                 🔍 Open Contract in Block Explorer
@@ -408,7 +407,6 @@ const Lab05Interaction = () => {
                                 <a
                                     href="https://faucet.dimikog.org/"
                                     target="_blank" rel="noopener noreferrer"
-                                    rel="noopener noreferrer"
                                     className="ml-1 font-semibold text-indigo-700 dark:text-indigo-300 hover:underline"
                                 >
                                     Open the Besu Edu‑Net Faucet

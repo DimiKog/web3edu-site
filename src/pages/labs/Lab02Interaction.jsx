@@ -307,6 +307,11 @@ const Lab02Interaction = () => {
                                             <div className="p-2 rounded-md bg-slate-100 dark:bg-slate-800 font-mono text-xs break-all">
                                                 {labState.identity.address}
                                             </div>
+                                            {/* SECURITY: Safe to use dangerouslySetInnerHTML here because:
+                                                1. Function generates SVG programmatically (no user HTML)
+                                                2. Address is validated Ethereum address format
+                                                3. Address only used in math operations for colors/patterns
+                                                See: dangerouslySetInnerHTML-security-report.md */}
                                             <div
                                                 className="w-10 h-10 rounded-md border border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-900"
                                                 title="Address visual fingerprint (Blockie)"

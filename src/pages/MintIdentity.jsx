@@ -143,12 +143,10 @@ max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] tra
                         <div className="absolute w-44 h-44 rounded-full bg-[#33D6FF]/20 blur-[45px]"></div>
 
                         {/* Icon */}
-                        <img
-                            src={identityIcon}
+                        <img src={identityIcon}
                             alt="Identity Icon"
                             className="w-28 h-28 opacity-95 drop-shadow-[0_0_14px_rgba(255,255,255,0.55)]
-                                       animate-[pulse_4s_ease-in-out_infinite]"
-                        />
+                                       animate-[pulse_4s_ease-in-out_infinite]" loading="lazy" />
                     </div>
 
                     <h1 className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight mt-4 mb-5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.40)] relative z-10">
@@ -214,7 +212,7 @@ ${isMinting ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:scale-[1
                     <div className="relative flex items-center justify-center mb-6">
                         <div className="absolute w-40 h-40 rounded-full border-4 border-[#8A57FF]/40 animate-ping"></div>
                         <div className="absolute w-48 h-48 rounded-full bg-gradient-to-br from-[#8A57FF]/30 via-[#4ACBFF]/25 to-[#FF67D2]/30 blur-2xl"></div>
-                        <img src={identityIcon} className="w-28 h-28 relative z-10 animate-pulse" />
+                        <img src={identityIcon} className="w-28 h-28 relative z-10 animate-pulse" loading="lazy" />
                     </div>
 
                     <p className="text-white text-xl font-semibold tracking-wide animate-pulse">

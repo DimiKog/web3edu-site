@@ -85,11 +85,9 @@ const FooterGr = ({ content }) => {
                 <div className="flex flex-col items-center text-center gap-3">
                     <picture>
                         <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
-                        <img
-                            src={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg}
+                        <img src={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg}
                             className="h-12 w-auto drop-shadow-[0_0_15px_rgba(138,87,255,0.35)] hover:scale-105 transition-transform duration-500"
-                            alt="Web3Edu Logo"
-                        />
+                            alt="Web3Edu Logo" loading="lazy" />
                     </picture>
                     <div className="text-center">
                         <div className="font-semibold tracking-wide text-sm text-slate-700 dark:text-white">
@@ -107,7 +105,7 @@ const FooterGr = ({ content }) => {
                     </div>
                 </div>
 
-                <nav className="flex gap-6 text-white/80 text-[11px] tracking-wide">
+                <nav className="flex gap-6 text-slate-800 dark:text-white/85 text-xs tracking-wide">
                     <a href="/#/gr" className="hover:text-[#8A57FF] transition">{nav.home ?? "Αρχική"}</a>
                     <a href="/#/team-gr" className="hover:text-[#8A57FF] transition">{nav.team ?? "Ομάδα"}</a>
                     <a href="/#/start-here-gr" className="hover:text-[#8A57FF] transition">{nav.startHere ?? "Ξεκίνα Εδώ"}</a>
@@ -120,6 +118,7 @@ const FooterGr = ({ content }) => {
                     <a
                         href="https://github.com/DimiKog"
                         target="_blank" rel="noopener noreferrer"
+                        aria-label="Άνοιγμα προφίλ Web3Edu στο GitHub"
                         className="relative hover:scale-110 transition-transform group"
                     >
                         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8A57FF]/20 to-[#4ACBFF]/20 blur-xl opacity-0
@@ -127,21 +126,25 @@ const FooterGr = ({ content }) => {
                         <FaGithub className="relative" />
                     </a>
 
-                    <a
-                        href="#"
-                        target="_blank" rel="noopener noreferrer"
+                    <button
+                        type="button"
+                        disabled
+                        aria-label="Discord κοινότητα (έρχεται σύντομα)"
+                        title="Discord κοινότητα (έρχεται σύντομα)"
                         className="relative opacity-60 cursor-not-allowed"
                     >
-                        <FaDiscord className="relative" />
-                    </a>
+                        <FaDiscord className="relative" aria-hidden="true" />
+                    </button>
 
-                    <a
-                        href="#"
-                        target="_blank" rel="noopener noreferrer"
+                    <button
+                        type="button"
+                        disabled
+                        aria-label="Σελίδα LinkedIn (έρχεται σύντομα)"
+                        title="Σελίδα LinkedIn (έρχεται σύντομα)"
                         className="relative opacity-60 cursor-not-allowed"
                     >
-                        <FaLinkedin className="relative" />
-                    </a>
+                        <FaLinkedin className="relative" aria-hidden="true" />
+                    </button>
                 </div>
             </div>
 
@@ -161,6 +164,7 @@ const FooterGr = ({ content }) => {
             {showBackToTop && (
                 <button
                     onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    aria-label="Επιστροφή στην κορυφή"
                     className="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-gradient-to-r from-[#8A57FF] to-[#4ACBFF] text-white shadow-xl hover:scale-[1.015] transition-transform"
                 >
                     ↑

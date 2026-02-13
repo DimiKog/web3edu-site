@@ -112,7 +112,6 @@ export default function GettingStarted() {
                             href="https://web3edu.dimikog.org"
                             className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 bg-white/5 border border-white/10 text-white/70 font-semibold hover:text-white hover:border-white/30 transition"
                             target="_blank" rel="noopener noreferrer"
-                            rel="noreferrer"
                         >
                             Open live site <ExternalLink className="h-4 w-4" />
                         </a>

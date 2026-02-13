@@ -49,8 +49,7 @@ export default function TeamMemberCard({
             >
 
                 <div className={`${isHorizontal ? "flex flex-col items-center w-full md:w-auto" : "flex flex-col items-center w-full"}`}>
-                    <img
-                        src={avatar}
+                    <img src={avatar}
                         alt={name}
                         className={`
                             h-40 w-40 sm:h-48 sm:w-48 md:h-56 md:w-56 lg:h-64 lg:w-64
@@ -58,15 +57,13 @@ export default function TeamMemberCard({
                             shadow-[0_0_35px_rgba(138,87,255,0.45)] 
                             ring-4 ring-[#8A57FF]/40 dark:ring-[#8A57FF]/60
                             animate-avatarGlow
-                        `}
-                    />
+                        `} loading="lazy" />
 
                     {/* Socials Under Avatar */}
                     <div className={`flex gap-4 mt-3 justify-center ${isHorizontal ? "" : "mb-2"}`}>
                         <a
                             href={socials.github || "#"}
                             target="_blank" rel="noopener noreferrer"
-                            rel="noreferrer"
                             className={`${socials.github
                                 ? "text-slate-700 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF]"
                                 : "opacity-30 cursor-not-allowed text-slate-500 dark:text-slate-600"
@@ -78,7 +75,6 @@ export default function TeamMemberCard({
                         <a
                             href={socials.linkedin || "#"}
                             target="_blank" rel="noopener noreferrer"
-                            rel="noreferrer"
                             className={`${socials.linkedin
                                 ? "text-slate-700 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF]"
                                 : "opacity-30 cursor-not-allowed text-slate-500 dark:text-slate-600"
@@ -90,7 +86,6 @@ export default function TeamMemberCard({
                         <a
                             href={socials.discord || "#"}
                             target="_blank" rel="noopener noreferrer"
-                            rel="noreferrer"
                             className={`${socials.discord
                                 ? "text-slate-700 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF]"
                                 : "opacity-30 cursor-not-allowed text-slate-500 dark:text-slate-600"

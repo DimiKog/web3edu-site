@@ -223,12 +223,10 @@ Timestamp: ${timestamp}`;
                         shadow-xl"
                     >
                         <div className="max-w-3xl mx-auto">
-                            <img
-                                src={heroImage}
+                            <img src={heroImage}
                                 alt={`${title} visual overview`}
                                 className="mx-auto max-w-3xl w-full h-auto object-contain
-                                   drop-shadow-[0_20px_40px_rgba(80,60,200,0.35)]"
-                            />
+                                   drop-shadow-[0_20px_40px_rgba(80,60,200,0.35)]" loading="eager" fetchpriority="high" />
                             <p className="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">
                                 {mergedLabels.heroCaption}
                             </p>
@@ -374,7 +372,6 @@ Timestamp: ${timestamp}`;
                         <a
                             href={readmeUrl}
                             target="_blank" rel="noopener noreferrer"
-                            rel="noopener noreferrer"
                             className="inline-flex flex-col items-center gap-1 px-8 py-4 rounded-xl
                             bg-gradient-to-r from-indigo-600 to-violet-600
                             text-white font-semibold text-lg

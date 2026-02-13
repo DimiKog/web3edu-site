@@ -155,10 +155,10 @@ max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] tra
                         bg-gradient-to-br from-sky-300/20 via-purple-300/20 to-pink-300/20
                         dark:from-[#8A57FF]/25 dark:via-[#4ACBFF]/20 dark:to-[#FF67D2]/20
                         rounded-2xl"></div>
-                        <img
-                            src={joinHero}
+                        <img src={joinHero}
                             alt="Web3Edu Identity Illustration"
                             className="relative w-full max-w-lg sm:max-w-xl rounded-2xl shadow-lg shadow-black/30 opacity-95 animate-fadeIn mx-auto"
+                            loading="eager" fetchpriority="high"
                         />
                     </div>
 

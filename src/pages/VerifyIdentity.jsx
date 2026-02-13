@@ -267,13 +267,11 @@ export default function VerifyIdentity() {
                             <div className="mt-4">
                                 {verifyUrl && (
                                     <>
-                                        <img
-                                            src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+                                        <img src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
                                                 verifyUrl
                                             )}&size=100x100`}
                                             alt="QR"
-                                            className="rounded-lg border border-white/20 bg-white/5 p-1 mx-auto"
-                                        />
+                                            className="rounded-lg border border-white/20 bg-white/5 p-1 mx-auto" loading="lazy" />
                                         <p className="text-center text-[10px] text-white/50 mt-2">
                                             Scan to verify
                                         </p>
@@ -534,8 +532,7 @@ export default function VerifyIdentity() {
                                             {/* QR (lowered slightly, premium styling) */}
                                             {verifyUrl && (
                                                 <div className="flex flex-col items-center mt-4 space-y-3">
-                                                    <img
-                                                        src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
+                                                    <img src={`https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
                                                             verifyUrl
                                                         )}&size=120x120`}
                                                         alt="QR"
@@ -548,8 +545,7 @@ export default function VerifyIdentity() {
                     backdrop-blur-md
                     transition-transform duration-300 
                     hover:scale-[1.06] hover:brightness-110
-                "
-                                                    />
+                " loading="lazy" />
 
                                                     <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight text-center">
                                                         Issued in Web3Edu Edu-Net

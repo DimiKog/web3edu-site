@@ -39,11 +39,9 @@ const DaoSection = ({
                         <div className="pointer-events-none absolute -inset-6 rounded-3xl bg-gradient-to-br from-[#8A57FF]/40 via-[#FF67D2]/25 to-[#4ACBFF]/30 opacity-80 blur-2xl"></div>
 
                         <div className="relative rounded-3xl border border-white/25 bg-white/10 dark:bg-slate-900/35 p-6 shadow-xl backdrop-blur-2xl animate-[float_6s_ease-in-out_infinite]">
-                            <img
-                                src={daoHolo}
+                            <img src={daoHolo}
                                 alt="DAO Governance Hologram"
-                                className="h-52 w-52 md:h-60 md:w-60 object-contain drop-shadow-[0_0_32px_rgba(138,87,255,0.85)]"
-                            />
+                                className="h-52 w-52 md:h-60 md:w-60 object-contain drop-shadow-[0_0_32px_rgba(138,87,255,0.85)]" loading="lazy" />
                             <p className="mt-4 text-xs md:text-sm text-[#CBB2FF]/90 max-w-[14rem] leading-snug text-center mx-auto">
                                 {content.imageCaption || DEFAULT_CAPTION}
                             </p>

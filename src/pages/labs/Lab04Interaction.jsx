@@ -457,7 +457,6 @@ const Lab04Interaction = () => {
                                     <a
                                         href={BLOCK_EXPLORER_TX_URL}
                                         target="_blank" rel="noopener noreferrer"
-                                        rel="noopener noreferrer"
                                         className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                                     >
                                         🔗 View this transaction in the Block Explorer
@@ -735,7 +734,6 @@ const Lab04Interaction = () => {
                             <a
                                 href="https://faucet.dimikog.org/"
                                 target="_blank" rel="noopener noreferrer"
-                                rel="noopener noreferrer"
                                 className="inline-block px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
                             >
                                 💧 Open Faucet (New Tab)
@@ -904,7 +902,6 @@ const Lab04Interaction = () => {
                     <a
                         href="https://github.com/DimiKog/web3edu-labs/tree/main/lab-04-transactions-gas"
                         target="_blank" rel="noopener noreferrer"
-                        rel="noopener noreferrer"
                         className="text-sm text-slate-600 dark:text-slate-300 hover:underline"
                     >
                         📚 View Details (GitHub)

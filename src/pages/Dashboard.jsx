@@ -332,16 +332,14 @@ export default function Dashboard() {
                         {/* Mini Avatar + Shine */}
                         <div className="flex justify-center mb-3">
                             <div className="relative">
-                                <img
-                                    src={profile.image || "/icons/web3edu-identity.png"}
+                                <img src={profile.image || "/icons/web3edu-identity.png"}
                                     alt="avatar"
                                     className="
                         w-14 h-14 rounded-full object-cover shadow-md 
                         border border-white/20 dark:border-white/10 
                         transition-all duration-700
                         dark:animate-[shine_3.4s_ease-in-out_infinite]
-                    "
-                                />
+                    " loading="lazy" />
 
                                 {/* Subtle highlight ring */}
                                 <div

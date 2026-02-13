@@ -342,11 +342,9 @@ const LabsGR = () => {
                                         <div className="relative flex items-center justify-center
                               bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-blue-500/10
                               p-6 lg:p-8">
-                                            <img
-                                                src={lab01IdentityImg}
+                                            <img src={lab01IdentityImg}
                                                 alt="Ροή Web3 ταυτότητας: πορτοφόλι προς διεύθυνση"
-                                                className="w-full h-auto rounded-2xl shadow-2xl ring-1 ring-white/30"
-                                            />
+                                                className="w-full h-auto rounded-2xl shadow-2xl ring-1 ring-white/30" loading="lazy" />
                                         </div>
 
                                         {/* Content */}
