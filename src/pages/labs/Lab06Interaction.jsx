@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 
 /**
  * Lab 06 — Consensus & Finality
@@ -628,12 +629,12 @@ const Lab06Interaction = () => {
                                 You now understand how decentralized agreement and finality
                                 form the backbone of blockchain trust.
                             </p>
-                            <a
-                                href="/#/labs/lab06"
-                                className="inline-block px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-                            >
-                                ⬅ Return to Lab Overview & Claim Rewards
-                            </a>
+                            <LabCompletionClaim
+                                labId="lab06"
+                                language="en"
+                                backHref="/#/labs/lab06"
+                                backLabel="⬅ Return to Lab Overview"
+                            />
                         </section>
                     )}
 

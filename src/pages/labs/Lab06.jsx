@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useAccount } from "wagmi";
 import LabTemplate from "./LabTemplate";
 
 import lab06HeroImg from "../../assets/labs/lab06-consensus-finality-diagram.webp";
 
 const Lab06 = () => {
+    const { address } = useAccount();
+
+    useEffect(() => {
+        if (!address) return;
+
+        let cancelled = false;
+
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/labs/start`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                wallet: address,
+                labId: "lab06"
+            })
+        }).catch(() => { });
+
+        return () => { cancelled = true; };
+    }, [address]);
+
     return (
         <LabTemplate
             labId="lab06"

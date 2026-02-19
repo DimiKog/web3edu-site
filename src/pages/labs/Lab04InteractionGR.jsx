@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BrowserProvider, formatEther } from "ethers";
 import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import "../../styles/animations.css";
 
 const initialLab04State = {
@@ -875,14 +876,14 @@ const Lab04InteractionGR = () => {
                         </h2>
                         <p className="text-slate-700 dark:text-slate-200 mb-4">
                             Ολοκληρώσατε το <strong>Lab 04 — Συναλλαγές &amp; Gas</strong>.
-                            Επιστρέψτε στη σύνοψη εργαστηρίων για να το σημειώσετε ως ολοκληρωμένο και να λάβετε τις ανταμοιβές σας.
+                            Δηλώστε την ολοκλήρωση παρακάτω.
                         </p>
-                        <a
-                            href="/#/labs-gr/lab04"
-                            className="inline-block px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-                        >
-                            ⬅ Επιστροφή στη Σύνοψη Εργαστηρίου &amp; Λήψη Ανταμοιβών
-                        </a>
+                        <LabCompletionClaim
+                            labId="lab04"
+                            language="gr"
+                            backHref="/#/labs-gr/lab04"
+                            backLabel="⬅ Επιστροφή στη σύνοψη εργαστηρίου"
+                        />
                     </section>
                 )}
 

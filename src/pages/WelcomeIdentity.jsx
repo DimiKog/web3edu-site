@@ -170,7 +170,7 @@ const WelcomeIdentity = () => {
                     {/* Image */}
                     <img src={isDark ? web3eduLogoDark : web3eduLogoLight}
                         alt="Web3Edu Identity Badge"
-                        className="w-32 h-32 sm:w-40 sm:h-40 mb-8 rounded-full drop-shadow-xl mx-auto transition-all duration-300" loading="eager" fetchpriority="high" />
+                        className="w-32 h-32 sm:w-40 sm:h-40 mb-8 rounded-full drop-shadow-xl mx-auto transition-all duration-300" loading="eager" fetchPriority="high" />
 
                     <p className="animate-[fadeIn_1.1s_ease-out] text-sm text-slate-700 dark:text-slate-300 mb-6 max-w-md leading-relaxed dark:leading-loose">
                         Next steps: Explore your <strong>Dashboard</strong> to view your XP,

@@ -1,4 +1,5 @@
-import PageShell from "../../components/PageShell.jsx";
+import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 
@@ -353,14 +354,14 @@ Timestamp: ${new Date().toISOString()}`}
                         </h2>
                         <p className="text-slate-700 dark:text-slate-200">
                             Συμμετείχες επιτυχώς σε διαδικασία διακυβέρνησης τύπου DAO.
-                            Επιστροφή στην επισκόπηση του DAO Lab για συνέχεια.
+                            Δηλώστε την ολοκλήρωση παρακάτω.
                         </p>
-                        <a
-                            href="/#/labs-gr/dao-01"
-                            className="inline-block mt-4 px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
-                        >
-                            ⬅ Επιστροφή στα DAO Labs
-                        </a>
+                        <LabCompletionClaim
+                            labId="dao01"
+                            language="gr"
+                            backHref="/#/labs-gr/dao-01"
+                            backLabel="⬅ Επιστροφή στα DAO Labs"
+                        />
                     </section>
                 )}
             </div>

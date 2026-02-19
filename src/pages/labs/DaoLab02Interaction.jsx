@@ -1,4 +1,5 @@
-import PageShell from "../../components/PageShell.jsx";
+import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 
@@ -505,12 +506,12 @@ export default function DaoLab02Interaction({ backToLabPath = "/#/labs/dao-02" }
                             Understanding how <strong>quorum</strong>, <strong>thresholds</strong>, and <strong>voting power</strong>
                             interact will help you design stronger proposals for the community.
                         </p>
-                        <a
-                            href={backToLabPath}
-                            className="inline-block mt-4 px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
-                        >
-                            ⬅ Back to DAO Labs
-                        </a>
+                        <LabCompletionClaim
+                            labId="dao02"
+                            language="en"
+                            backHref={backToLabPath}
+                            backLabel="⬅ Back to DAO Labs"
+                        />
                     </section>
                 )}
 

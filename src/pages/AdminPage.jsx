@@ -9,6 +9,7 @@ export default function AdminPage() {
     const [overview, setOverview] = useState(null);
     const [error, setError] = useState(null);
     const [labs, setLabs] = useState(null);
+    const [platform, setPlatform] = useState(null);
 
     useEffect(() => {
         if (!address) return;
@@ -22,8 +23,16 @@ export default function AdminPage() {
         if (!address) return;
 
         fetchLabsSummary(address)
-            .then(setLabs)
-            .catch(() => setLabs([]));
+            .then((data) => {
+                if (data?.platform) {
+                    setPlatform(data.platform);
+                }
+                setLabs(data?.labs || []);
+            })
+            .catch(() => {
+                setLabs([]);
+                setPlatform(null);
+            });
     }, [address]);
 
     if (error) {
@@ -75,9 +84,8 @@ export default function AdminPage() {
                     </div>
 
                     {/* KPI Section */}
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <Kpi label="Total Users" value={overview.totalUsers} />
-                        <Kpi label="Labs Started" value={overview.usersWithLabsStarted} />
                         <Kpi label="1 Lab" value={overview.usersWith1Lab} />
                         <Kpi label="2 Labs" value={overview.usersWith2Labs} />
                         <Kpi label="3+ Labs" value={overview.usersWith3PlusLabs} />
@@ -107,13 +115,37 @@ export default function AdminPage() {
                         />
                     </div>
 
+                    {/* Platform Analytics */}
+                    {platform && (
+                        <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-6">
+                            <h2 className="text-xl font-semibold mb-6 text-slate-900 dark:text-slate-100">
+                                Platform Analytics
+                            </h2>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <Kpi label="Started Any Lab" value={platform.usersStartedAnyLab} />
+                                <Kpi label="Completed Any Lab" value={platform.usersCompletedAnyLab} />
+                                <Kpi
+                                    label="Completion (Started → Completed)"
+                                    value={`${platform.usersStartedAnyLab > 0
+                                            ? Math.round(
+                                                (platform.usersCompletedAnyLab /
+                                                    platform.usersStartedAnyLab) *
+                                                100
+                                            )
+                                            : 0
+                                        }%`}
+                                />
+                            </div>
+                        </div>
+                    )}
+
                     {/* Default: Labs Table */}
                     <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-6">
                         <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-slate-100">
                             Labs Summary
                         </h2>
                         <div className="mb-4 rounded-xl border border-yellow-400/50 bg-yellow-50/80 p-4 text-yellow-900 dark:border-yellow-600/40 dark:bg-yellow-950/30 dark:text-yellow-200" role="alert">
-                            <strong className="font-semibold">Notice:</strong> Lab completion is currently inferred from lab start, and analytics are provisional.
+                            <strong className="font-semibold">Notice:</strong> Lab start and completion are tracked separately. Drop-off reflects users who started but did not complete a lab.
                         </div>
                         <AdminLabsTable labs={labs} />
                     </div>

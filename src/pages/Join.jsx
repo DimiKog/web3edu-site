@@ -158,7 +158,7 @@ max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] tra
                         <img src={joinHero}
                             alt="Web3Edu Identity Illustration"
                             className="relative w-full max-w-lg sm:max-w-xl rounded-2xl shadow-lg shadow-black/30 opacity-95 animate-fadeIn mx-auto"
-                            loading="eager" fetchpriority="high"
+                            loading="eager" fetchPriority="high"
                         />
                     </div>
 

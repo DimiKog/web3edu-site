@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { keccak_256 } from "@noble/hashes/sha3";
 import { secp256k1 } from "@noble/curves/secp256k1";
 
@@ -678,18 +679,14 @@ const Lab02Interaction = () => {
                             </p>
 
                             <p className="text-slate-700 dark:text-slate-300 mb-4">
-                                Return to the lab overview to mark this lab as completed and
-                                claim your rewards.
+                                Claim your completion below.
                             </p>
-
-                            <a
-                                href="/#/labs/lab02"
-                                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl
-                            bg-green-600 hover:bg-green-700
-                            text-white font-semibold transition"
-                            >
-                                ← Return to Lab Overview & Claim Rewards
-                            </a>
+                            <LabCompletionClaim
+                                labId="lab02"
+                                language="en"
+                                backHref="/#/labs/lab02"
+                                backLabel="⬅ Return to Lab Overview"
+                            />
                         </section>
                     )}
             </div>

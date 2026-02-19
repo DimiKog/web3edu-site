@@ -13,7 +13,17 @@ export default function AdminLabsPage() {
         if (!address) return;
 
         fetchLabsSummary(address)
-            .then(setLabs)
+            .then((data) => {
+                // Handle both old and new backend shapes
+                if (Array.isArray(data)) {
+                    setLabs(data);
+                } else if (data?.labs && Array.isArray(data.labs)) {
+                    setLabs(data.labs);
+                } else {
+                    console.log("Unexpected labs response shape:", data);
+                    setLabs([]);
+                }
+            })
             .catch(() => setError("Not authorized"));
     }, [address]);
 

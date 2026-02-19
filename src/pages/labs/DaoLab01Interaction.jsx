@@ -1,4 +1,5 @@
-import PageShell from "../../components/PageShell.jsx";
+import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 
@@ -348,14 +349,14 @@ Timestamp: ${new Date().toISOString()}`}
                         </h2>
                         <p className="text-slate-700 dark:text-slate-200">
                             You have successfully participated in a DAO-style governance vote.
-                            Return to the DAO Lab overview to continue.
+                            Claim your completion below.
                         </p>
-                        <a
-                            href="/#/labs/dao-01"
-                            className="inline-block mt-4 px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
-                        >
-                            ⬅ Return to DAO Labs & Claim Completion
-                        </a>
+                        <LabCompletionClaim
+                            labId="dao01"
+                            language="en"
+                            backHref="/#/labs/dao-01"
+                            backLabel="⬅ Return to DAO Labs"
+                        />
                     </section>
                 )}
             </div>

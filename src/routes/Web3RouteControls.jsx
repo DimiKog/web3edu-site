@@ -20,6 +20,7 @@ function isAdminWallet(address) {
 }
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
+const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
 
 export default function Web3RouteControls() {
   const location = useLocation();
@@ -44,8 +45,10 @@ export default function Web3RouteControls() {
     if (typeof window === "undefined") return;
     if (isConnected && address) {
       localStorage.setItem(WALLET_SESSION_KEY, "true");
+      localStorage.setItem(WALLET_ADDRESS_KEY, address);
     } else {
       localStorage.removeItem(WALLET_SESSION_KEY);
+      localStorage.removeItem(WALLET_ADDRESS_KEY);
     }
     window.dispatchEvent(new Event("web3edu-wallet-state"));
   }, [address, isConnected]);
@@ -82,6 +85,7 @@ export default function Web3RouteControls() {
               disconnect();
               if (typeof window !== "undefined") {
                 localStorage.removeItem(WALLET_SESSION_KEY);
+                localStorage.removeItem(WALLET_ADDRESS_KEY);
                 window.dispatchEvent(new Event("web3edu-wallet-state"));
               }
             }}
@@ -101,7 +105,7 @@ export default function Web3RouteControls() {
       ) : (
         <Link
           to={isGreek ? "/join-gr" : "/join"}
-          className="hidden lg:inline-flex rounded-full border border-white/20 bg-gradient-to-r from-pink-500/70 to-blue-500/70 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 cursor-pointer transition-all duration-200 hover:scale-105 hover:from-pink-500/80 hover:to-blue-500/80 hover:shadow-xl hover:shadow-indigo-500/40 hover:border-white/40"
+          className="inline-flex rounded-full border border-white/20 bg-gradient-to-r from-pink-500/70 to-blue-500/70 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 cursor-pointer transition-all duration-200 hover:scale-105 hover:from-pink-500/80 hover:to-blue-500/80 hover:shadow-xl hover:shadow-indigo-500/40 hover:border-white/40"
         >
           {isGreek ? "Σύνδεση" : "Join"}
         </Link>

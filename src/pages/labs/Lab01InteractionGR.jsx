@@ -1,5 +1,6 @@
 import { useState } from "react";
-import PageShell from "../../components/PageShell.jsx";
+import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 
 const Lab01InteractionGR = () => {
     // Βοηθητικό: ανίχνευση δικτύου από το πορτοφόλι (window.ethereum)
@@ -577,14 +578,14 @@ const Lab01InteractionGR = () => {
                         </h2>
                         <p className="text-slate-700 dark:text-slate-200 mb-4">
                             Ολοκληρώσατε το <strong>Lab 01 — Πορτοφόλια & Web3 Ταυτότητες</strong>.
-                            Επιστρέψτε στην επισκόπηση του εργαστηρίου για να το επισημάνετε ως ολοκληρωμένο και να λάβετε τις ανταμοιβές σας.
+                            Δηλώστε την ολοκλήρωση παρακάτω.
                         </p>
-                        <a
-                            href="/#/labs-gr/wallets-keys"
-                            className="inline-block px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-                        >
-                            ⬅ Επιστροφή στην Επισκόπηση & Δήλωση Ανταμοιβών
-                        </a>
+                        <LabCompletionClaim
+                            labId="lab01"
+                            language="gr"
+                            backHref="/#/labs-gr/wallets-keys"
+                            backLabel="⬅ Επιστροφή στην επισκόπηση"
+                        />
                     </section>
                 )}
 

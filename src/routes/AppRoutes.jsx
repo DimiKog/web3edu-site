@@ -69,6 +69,7 @@ const DaoLab02InteractionGR = lazy(() => import("../pages/labs/DaoLab02Interacti
 const PoELab = lazy(() => import("../pages/labs/PoELab.jsx"));
 const PoELabGR = lazy(() => import("../pages/labs/PoELabGR.jsx"));
 const AdminPage = lazy(() => import("../pages/AdminPage.jsx"));
+const AdminLabDetails = lazy(() => import("../pages/admin/AdminLabDetails.jsx"));
 const Web3Layout = lazy(() => import("./Web3Layout.jsx"));
 
 function RouteLoader() {
@@ -152,6 +153,7 @@ export default function AppRoutes() {
         <Route path="/labs/proof-of-escape" element={withSuspense(<PoELab />)} />
         <Route path="/labs-gr/proof-of-escape" element={withSuspense(<PoELabGR />)} />
         <Route path="/admin" element={withSuspense(<AdminPage />)} />
+        <Route path="/admin/labs/:labId" element={withSuspense(<AdminLabDetails />)} />
       </Route>
     </Routes>
   );

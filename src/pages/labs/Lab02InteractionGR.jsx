@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { keccak_256 } from "@noble/hashes/sha3";
 import { secp256k1 } from "@noble/curves/secp256k1";
 
@@ -678,18 +679,14 @@ const Lab02InteractionGR = () => {
                             </p>
 
                             <p className="text-slate-700 dark:text-slate-300 mb-4">
-                                Επιστρέψτε στην επισκόπηση του εργαστηρίου για να το επισημάνετε ως ολοκληρωμένο και
-                                να λάβετε τις ανταμοιβές σας.
+                                Δηλώστε την ολοκλήρωση παρακάτω.
                             </p>
-
-                            <a
-                                href="/#/labs-gr/lab02"
-                                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl
-                            bg-green-600 hover:bg-green-700
-                            text-white font-semibold transition"
-                            >
-                                ← Επιστροφή στην Επισκόπηση & Δήλωση Ανταμοιβών
-                            </a>
+                            <LabCompletionClaim
+                                labId="lab02"
+                                language="gr"
+                                backHref="/#/labs-gr/lab02"
+                                backLabel="⬅ Επιστροφή στην επισκόπηση"
+                            />
                         </section>
                     )}
             </div>

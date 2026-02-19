@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BrowserProvider, formatEther } from "ethers";
 import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import "../../styles/animations.css";
 
 const initialLab04State = {
@@ -875,14 +876,14 @@ const Lab04Interaction = () => {
                         </h2>
                         <p className="text-slate-700 dark:text-slate-200 mb-4">
                             You have completed <strong>Lab 04 — Transactions &amp; Gas</strong>.
-                            Return to the lab overview to mark this lab as completed and claim your rewards.
+                            Claim your completion below.
                         </p>
-                        <a
-                            href="/#/labs/lab04"
-                            className="inline-block px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-                        >
-                            ⬅ Return to Lab Overview &amp; Claim Rewards
-                        </a>
+                        <LabCompletionClaim
+                            labId="lab04"
+                            language="en"
+                            backHref="/#/labs/lab04"
+                            backLabel="⬅ Return to Lab Overview"
+                        />
                     </section>
                 )}
 

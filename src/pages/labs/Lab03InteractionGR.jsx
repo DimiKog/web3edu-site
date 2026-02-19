@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 import { ethers } from "ethers";
 import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 
 /**
  * Lab 03 — Message Signing & Ownership
@@ -517,12 +518,12 @@ const Lab03InteractionGR = () => {
                             <p className="mb-4 text-slate-800 dark:text-slate-200 text-sm max-w-lg">
                                 Επαληθεύσατε επιτυχώς την ιδιοκτησία ενός Web3 address και εμπιστευθήκατε ένα υπογεγραμμένο μήνυμα από άλλο μέρος — όλα χωρίς καμία συναλλαγή στο blockchain ή αποκάλυψη του ιδιωτικού σας κλειδιού. Αυτό είναι το θεμέλιο του Web3 authentication!
                             </p>
-                            <a
-                                href="/#/labs-gr/lab03"
-                                className="inline-block px-5 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white font-semibold transition"
-                            >
-                                ← Επιστροφή στην επισκόπηση του Lab &amp; παραλαβή ανταμοιβών
-                            </a>
+                            <LabCompletionClaim
+                                labId="lab03"
+                                language="gr"
+                                backHref="/#/labs-gr/lab03"
+                                backLabel="⬅ Επιστροφή στην επισκόπηση του Lab"
+                            />
                         </section>
                     )
                 }

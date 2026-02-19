@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 
 function completionColor(rate) {
     if (rate >= 0.8) return "text-green-600 dark:text-green-400";
@@ -17,6 +18,8 @@ function dropOffRowClass(value) {
 }
 
 export default function AdminLabsTable({ labs }) {
+    const navigate = useNavigate();
+
     if (!labs || labs.length === 0) {
         return (
             <div className="mt-8 text-slate-500 dark:text-slate-300">
@@ -72,7 +75,8 @@ export default function AdminLabsTable({ labs }) {
                                     return (
                                         <tr
                                             key={lab.labId}
-                                            className={`border-t border-white/10 hover:bg-white/60 dark:hover:bg-white/5 ${dropOffRowClass(d)}`}
+                                            onClick={() => navigate(`/admin/labs/${lab.labId}`)}
+                                            className={`cursor-pointer border-t border-white/10 hover:bg-white/60 dark:hover:bg-white/5 transition ${dropOffRowClass(d)}`}
                                         >
                                             <td className="p-3 text-slate-900 dark:text-slate-100">
                                                 {lab.title?.en || lab.labId}

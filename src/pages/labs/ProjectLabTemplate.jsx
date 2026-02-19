@@ -124,7 +124,7 @@ const ProjectLabTemplate = ({
                     <div className={heroImageWrapperClass}>
                         <img src={heroImage}
                             alt={`${title} hero`}
-                            className={heroImageClass} loading="eager" fetchpriority="high" />
+                            className={heroImageClass} loading="eager" fetchPriority="high" />
                     </div>
                 )}
 

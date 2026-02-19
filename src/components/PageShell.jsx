@@ -5,6 +5,24 @@ import Footer from "./Footer.jsx";
 import FooterGr from "./FooterGR.jsx";
 import web3EduLogoLight from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDark from "../assets/web3edu_logo.svg";
+import {
+  AddressIdenticon,
+  generateAvatarStyle,
+  shortAddress,
+} from "./identity-ui.jsx";
+
+const WALLET_SESSION_KEY = "web3edu-wallet-connected";
+const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
+const ADMIN_WALLETS = (
+  import.meta.env.VITE_ADMIN_WALLETS ??
+  "0x0e66db7d115b8f392eb7dfb8bacb23675daeb59e"
+)
+  .split(",")
+  .map((address) => address.trim().toLowerCase())
+  .filter(Boolean);
+
+const isAdminWallet = (address) =>
+  Boolean(address && ADMIN_WALLETS.includes(address.toLowerCase()));
 
 const getLangFromHash = (hash) => {
   if (!hash) return null;
@@ -55,7 +73,11 @@ export default function PageShell({
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [hasWalletSession, setHasWalletSession] = React.useState(() => {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem("web3edu-wallet-connected") === "true";
+    return localStorage.getItem(WALLET_SESSION_KEY) === "true";
+  });
+  const [walletAddress, setWalletAddress] = React.useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem(WALLET_ADDRESS_KEY) || "";
   });
 
   const [currentHash, setCurrentHash] = React.useState(
@@ -138,8 +160,10 @@ export default function PageShell({
 
   React.useEffect(() => {
     const syncWalletState = () => {
-      const fromStorage = localStorage.getItem("web3edu-wallet-connected") === "true";
+      const fromStorage = localStorage.getItem(WALLET_SESSION_KEY) === "true";
+      const storedAddress = localStorage.getItem(WALLET_ADDRESS_KEY) || "";
       setHasWalletSession(fromStorage);
+      setWalletAddress(storedAddress);
     };
 
     syncWalletState();
@@ -162,8 +186,13 @@ export default function PageShell({
       try {
         const accounts = await window.ethereum.request({ method: "eth_accounts" });
         if (!Array.isArray(accounts) || accounts.length === 0) {
-          localStorage.removeItem("web3edu-wallet-connected");
+          localStorage.removeItem(WALLET_SESSION_KEY);
+          localStorage.removeItem(WALLET_ADDRESS_KEY);
           setHasWalletSession(false);
+          setWalletAddress("");
+        } else {
+          localStorage.setItem(WALLET_ADDRESS_KEY, accounts[0]);
+          setWalletAddress(accounts[0]);
         }
       } catch {
         // Keep stored state if provider check fails.
@@ -208,6 +237,8 @@ export default function PageShell({
 
   const showJoinCta =
     !hasWalletSession && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
+  const showWalletSessionCta =
+    hasWalletSession && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
 
   return (
     <main
@@ -373,6 +404,47 @@ export default function PageShell({
                   {isGR ? "Σύνδεση" : "Join"}
                 </button>
               )}
+            {showWalletSessionCta && walletAddress && (
+              <>
+                <button
+                  onClick={() => {
+                    window.location.hash = isGR ? "#/dashboard-gr" : "#/dashboard";
+                  }}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-900/85 px-2 py-1.5 text-white shadow-lg shadow-indigo-500/25 backdrop-blur cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40 hover:border-white/40"
+                >
+                  <span
+                    className="flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-purple-400/80"
+                    style={generateAvatarStyle(walletAddress, "Explorer")}
+                  >
+                    <AddressIdenticon address={walletAddress} />
+                  </span>
+                  <span className="hidden text-xs font-mono sm:inline">
+                    {shortAddress(walletAddress)}
+                  </span>
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem(WALLET_SESSION_KEY);
+                    localStorage.removeItem(WALLET_ADDRESS_KEY);
+                    window.dispatchEvent(new Event("web3edu-wallet-state"));
+                    window.location.hash = isGR ? "#/join-gr" : "#/join";
+                  }}
+                  className="px-4 py-1.5 rounded-full bg-red-500/20 hover:bg-red-500/35 text-white shadow-lg shadow-red-500/20 border border-red-300/25 cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl"
+                >
+                  {isGR ? "Αποσύνδεση" : "Disconnect"}
+                </button>
+                {isAdminWallet(walletAddress) ? (
+                  <button
+                    onClick={() => {
+                      window.location.hash = "#/admin";
+                    }}
+                    className="rounded-full border border-red-400/40 bg-red-500/25 px-3 py-1.5 text-xs font-semibold text-white cursor-pointer transition-all duration-200 hover:bg-red-500/50 hover:scale-105 hover:border-red-400/60 hover:shadow-lg"
+                  >
+                    {isGR ? "Διαχείριση" : "Admin"}
+                  </button>
+                ) : null}
+              </>
+            )}
 
             {/* Theme toggle (moved outside language toggle group) */}
             <button
@@ -507,6 +579,41 @@ export default function PageShell({
                     {isGR ? "Σύνδεση" : "Join"}
                   </button>
                 )}
+              {showWalletSessionCta && walletAddress && (
+                <>
+                  <button
+                    onClick={() => navigateTo(isGR ? "#/dashboard-gr" : "#/dashboard")}
+                    className="w-full rounded-xl bg-slate-900 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/25 transition inline-flex items-center justify-center gap-2"
+                  >
+                    <span
+                      className="flex h-7 w-7 items-center justify-center rounded-full ring-2 ring-purple-400/80"
+                      style={generateAvatarStyle(walletAddress, "Explorer")}
+                    >
+                      <AddressIdenticon address={walletAddress} />
+                    </span>
+                    <span className="font-mono">{shortAddress(walletAddress)}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem(WALLET_SESSION_KEY);
+                      localStorage.removeItem(WALLET_ADDRESS_KEY);
+                      window.dispatchEvent(new Event("web3edu-wallet-state"));
+                      navigateTo(isGR ? "#/join-gr" : "#/join");
+                    }}
+                    className="w-full rounded-xl bg-red-500/35 text-white py-3 text-sm font-semibold shadow-lg shadow-red-500/25 hover:bg-red-500/45 transition"
+                  >
+                    {isGR ? "Αποσύνδεση" : "Disconnect"}
+                  </button>
+                  {isAdminWallet(walletAddress) ? (
+                    <button
+                      onClick={() => navigateTo("#/admin")}
+                      className="w-full rounded-xl bg-red-500/30 text-white py-3 text-sm font-semibold shadow-lg shadow-red-500/25 hover:bg-red-500/45 transition"
+                    >
+                      {isGR ? "Διαχείριση" : "Admin"}
+                    </button>
+                  ) : null}
+                </>
+              )}
 
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <button

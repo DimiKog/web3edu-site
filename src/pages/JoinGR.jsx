@@ -160,7 +160,7 @@ rounded-3xl dark:hidden"></div>
                       rounded-2xl"></div>
                         <img src={joinHero}
                             alt="Web3Edu Identity Illustration"
-                            className="relative w-full max-w-lg sm:max-w-xl rounded-2xl shadow-lg shadow-black/30 opacity-95 animate-fadeIn mx-auto" loading="eager" fetchpriority="high" />
+                            className="relative w-full max-w-lg sm:max-w-xl rounded-2xl shadow-lg shadow-black/30 opacity-95 animate-fadeIn mx-auto" loading="eager" fetchPriority="high" />
                     </div>
 
                     {/* Connect Button */}

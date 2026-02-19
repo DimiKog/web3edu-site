@@ -1,9 +1,7 @@
 import React from "react";
 import PageShell from "../../components/PageShell";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount } from "wagmi";
 import { useEffect, useState } from "react";
-
-import FeedbackModal from "../../components/FeedbackModal";
 
 const DEFAULT_LABELS = {
     breadcrumbLabs: "Labs",
@@ -25,10 +23,9 @@ const DEFAULT_LABELS = {
     // Completion / Claim section
     completionTitle: "Lab completion",
     completionDescription:
-        "After completing the lab, sign a message to record your progress on Web3Edu.",
-    claimButton: "✅ Claim completion",
-    claimingButton: "Signing…",
+        "After completing the interaction, claim completion inside the interactive lab page.",
     successMessage: "✔ Completion recorded successfully",
+    completeInsideInteraction: "Complete the interaction and claim completion there.",
     walletNotConnectedError: "Wallet not connected",
     labIdMissingError: "Lab ID missing",
     backendError: "Failed to record completion",
@@ -61,19 +58,32 @@ const LabTemplate = ({
 
     const mergedLabels = { ...DEFAULT_LABELS, ...labels };
 
-    // Detect language from route (labs / labs-gr)
-    const isGreekRoute = window.location.hash.includes("/labs-gr/");
-    const lang = isGreekRoute ? "gr" : "en";
-
     const { address, isConnected } = useAccount();
-    const { signMessageAsync } = useSignMessage();
 
-    const [claiming, setClaiming] = useState(false);
     const [claimed, setClaimed] = useState(false);
-    const [error, setError] = useState(null);
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completedAt, setCompletedAt] = useState(null);
-    const [showFeedback, setShowFeedback] = useState(false);
+
+    const API_BASE = import.meta.env.VITE_BACKEND_URL;
+
+    const handleStartLab = async () => {
+        if (!isConnected || !address || !labId) return;
+
+        try {
+            await fetch(`${API_BASE}/labs/start`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    address,
+                    labId,
+                }),
+            });
+        } catch (err) {
+            console.warn("Failed to record lab start", err);
+        }
+    };
 
     useEffect(() => {
         if (!isConnected || !address || !labId) {
@@ -84,7 +94,7 @@ const LabTemplate = ({
         const checkCompletion = async () => {
             try {
                 const res = await fetch(
-                    `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=${labId}`
+                    `${API_BASE}/labs/status?address=${address}&labId=${labId}`
                 );
 
                 if (!res.ok) {
@@ -106,64 +116,6 @@ const LabTemplate = ({
 
         checkCompletion();
     }, [isConnected, address, labId]);
-
-    const handleClaimCompletion = async () => {
-        if (claimed) return;
-        if (!isConnected || !address) {
-            setError(mergedLabels.walletNotConnectedError);
-            return;
-        }
-
-        if (!labId) {
-            setError(mergedLabels.labIdMissingError);
-            return;
-        }
-
-        setClaiming(true);
-        setError(null);
-
-        try {
-            const timestamp = new Date().toISOString();
-
-            const message = `I confirm completion of Web3Edu Lab
-Lab ID: ${labId}
-Address: ${address}
-Timestamp: ${timestamp}`;
-
-            const signature = await signMessageAsync({ message });
-
-            const res = await fetch(
-                "https://web3edu-api.dimikog.org/labs/complete",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        address,
-                        labId,
-                        message,
-                        signature,
-                    }),
-                }
-            );
-
-            if (!res.ok) {
-                throw new Error("Backend rejected completion");
-            }
-
-            setClaimed(true);
-            setShowFeedback(true);
-            setTimeout(() => {
-                document
-                    .getElementById("lab-completion")
-                    ?.scrollIntoView({ behavior: "smooth", block: "center" });
-            }, 200);
-        } catch (err) {
-            console.error(err);
-            setError(mergedLabels.backendError);
-        } finally {
-            setClaiming(false);
-        }
-    };
 
     return (
         <PageShell>
@@ -226,7 +178,7 @@ Timestamp: ${timestamp}`;
                             <img src={heroImage}
                                 alt={`${title} visual overview`}
                                 className="mx-auto max-w-3xl w-full h-auto object-contain
-                                   drop-shadow-[0_20px_40px_rgba(80,60,200,0.35)]" loading="eager" fetchpriority="high" />
+                                   drop-shadow-[0_20px_40px_rgba(80,60,200,0.35)]" loading="eager" fetchPriority="high" />
                             <p className="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">
                                 {mergedLabels.heroCaption}
                             </p>
@@ -243,25 +195,6 @@ Timestamp: ${timestamp}`;
                         🧠 <span className="font-semibold">{mergedLabels.conceptualFocus}:</span>{" "}
                         {conceptualFocusText}
                     </p>
-                    <FeedbackModal
-                        isOpen={showFeedback}
-                        onClose={() => setShowFeedback(false)}
-                        labId={labId}
-                        labTitle={title}
-                        labType="foundation"
-                        language={lang}
-                        onSubmit={async (feedback) => {
-                            try {
-                                await fetch("https://web3edu-api.dimikog.org/feedback", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify(feedback),
-                                });
-                            } catch (e) {
-                                console.warn("Feedback submission failed", e);
-                            }
-                        }}
-                    />
                 </section>
 
                 {/* Meta info */}
@@ -356,6 +289,7 @@ Timestamp: ${timestamp}`;
                     {interactionPath ? (
                         <a
                             href={`/#${interactionPath}`}
+                            onClick={handleStartLab}
                             className="inline-flex flex-col items-center gap-1 px-8 py-4 rounded-xl
                             bg-gradient-to-r from-indigo-600 to-violet-600
                             text-white font-semibold text-lg
@@ -371,6 +305,7 @@ Timestamp: ${timestamp}`;
                     ) : (
                         <a
                             href={readmeUrl}
+                            onClick={handleStartLab}
                             target="_blank" rel="noopener noreferrer"
                             className="inline-flex flex-col items-center gap-1 px-8 py-4 rounded-xl
                             bg-gradient-to-r from-indigo-600 to-violet-600
@@ -403,19 +338,9 @@ Timestamp: ${timestamp}`;
                         </p>
                     )}
                     {!claimed && !checkingStatus ? (
-                        <div className="flex justify-center">
-                            <button
-                                onClick={handleClaimCompletion}
-                                disabled={claiming}
-                                className={`px-6 py-3 rounded-xl font-semibold text-white
-                                ${claiming
-                                        ? "bg-slate-400 cursor-not-allowed"
-                                        : "bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500"
-                                    }`}
-                            >
-                                {claiming ? mergedLabels.claimingButton : mergedLabels.claimButton}
-                            </button>
-                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-300">
+                            {mergedLabels.completeInsideInteraction}
+                        </p>
                     ) : claimed ? (
                         <div
                             id="lab-completion"
@@ -443,12 +368,6 @@ Timestamp: ${timestamp}`;
                             )}
                         </div>
                     ) : null}
-
-                    {error && (
-                        <p className="mt-3 text-sm text-red-600 dark:text-red-400">
-                            {error}
-                        </p>
-                    )}
                 </section>
             </div>
         </PageShell>

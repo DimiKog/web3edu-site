@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useAccount } from "wagmi";
 import LabTemplate from "./LabTemplate";
 
 import lab02HeroImg from "../../assets/labs/lab02-encrypted-messages-diagram.webp";
 
 const Lab02GR = () => {
+    const { address } = useAccount();
+
+    useEffect(() => {
+        if (!address) return;
+
+        let cancelled = false;
+
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/labs/start`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                wallet: address,
+                labId: "lab02"
+            })
+        }).catch(() => { });
+
+        return () => { cancelled = true; };
+    }, [address]);
+
     return (
         <LabTemplate
             labId="lab02"

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import PageShell from "../../components/PageShell.jsx";
+import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 
 const Lab01Interaction = () => {
     // Helper: detect network from wallet (window.ethereum)
@@ -587,14 +588,14 @@ const Lab01Interaction = () => {
                         </h2>
                         <p className="text-slate-700 dark:text-slate-200 mb-4">
                             You have completed <strong>Lab 01 — Wallets & Web3 Identity</strong>.
-                            Return to the lab overview to mark this lab as completed and claim your rewards.
+                            Claim your completion below.
                         </p>
-                        <a
-                            href="/#/labs/wallets-keys"
-                            className="inline-block px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-                        >
-                            ⬅ Return to Lab Overview & Claim Rewards
-                        </a>
+                        <LabCompletionClaim
+                            labId="lab01"
+                            language="en"
+                            backHref="/#/labs/wallets-keys"
+                            backLabel="⬅ Return to Lab Overview"
+                        />
                     </section>
                 )}
 

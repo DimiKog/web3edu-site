@@ -1,4 +1,5 @@
-import PageShell from "../../components/PageShell.jsx";
+import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 
@@ -507,12 +508,12 @@ export default function DaoLab02InteractionGR({ backToLabPath = "/#/labs-gr/dao-
                             Η κατανόηση της <strong>απαρτίας</strong>, των <strong>κατωφλιών</strong> και της <strong>ισχύος ψήφου</strong>
                             θα σε βοηθήσει να σχεδιάζεις ισχυρότερες προτάσεις για την κοινότητα.
                         </p>
-                        <a
-                            href={backToLabPath}
-                            className="inline-block mt-4 px-4 py-2 rounded bg-green-600 hover:bg-green-700 text-white"
-                        >
-                            ⬅ Πίσω στα DAO Labs
-                        </a>
+                        <LabCompletionClaim
+                            labId="dao02"
+                            language="gr"
+                            backHref={backToLabPath}
+                            backLabel="⬅ Πίσω στα DAO Labs"
+                        />
                     </section>
                 )}
 

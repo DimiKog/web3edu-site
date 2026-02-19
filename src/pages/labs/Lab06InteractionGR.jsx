@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 
 /**
  * Lab 06 — Συναίνεση & Οριστικότητα
@@ -632,12 +633,12 @@ const Lab06InteractionGR = () => {
                                 Πλέον κατανοείτε πώς η αποκεντρωμένη συμφωνία και η οριστικότητα
                                 αποτελούν τη βάση της εμπιστοσύνης στο blockchain.
                             </p>
-                            <a
-                                href="/#/labs-gr/lab06"
-                                className="inline-block px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-                            >
-                                ⬅ Επιστροφή στην Επισκόπηση & Δήλωση Ανταμοιβών
-                            </a>
+                            <LabCompletionClaim
+                                labId="lab06"
+                                language="gr"
+                                backHref="/#/labs-gr/lab06"
+                                backLabel="⬅ Επιστροφή στην επισκόπηση"
+                            />
                         </section>
                     )}
 

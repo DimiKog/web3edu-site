@@ -1,10 +1,30 @@
 
 
-import React from "react";
+import React, { useEffect } from "react";
+import { useAccount } from "wagmi";
 import LabTemplate from "./LabTemplate";
 import daoLab02HeroImg from "../../assets/labs/daolab02.webp";
 
 const DaoLab02GR = () => {
+    const { address } = useAccount();
+
+    useEffect(() => {
+        if (!address) return;
+
+        let cancelled = false;
+
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/labs/start`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                wallet: address,
+                labId: "dao02"
+            })
+        }).catch(() => { });
+
+        return () => { cancelled = true; };
+    }, [address]);
+
     return (
         <LabTemplate
             labId="dao02"

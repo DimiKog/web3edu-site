@@ -21,6 +21,6 @@ export async function fetchLabsSummary(wallet) {
         throw new Error("Not authorized");
     }
 
-    const data = await res.json();
-    return data.labs || [];
+    // Return full response so caller can access both platform and labs
+    return res.json();
 }

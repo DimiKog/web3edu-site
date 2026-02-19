@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 import { ethers } from "ethers";
 import PageShell from "../../components/PageShell";
+import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 
 /**
  * Lab 03 — Message Signing & Ownership
@@ -518,12 +519,12 @@ const Lab03Interaction = () => {
                             <p className="mb-4 text-slate-800 dark:text-slate-200 text-sm max-w-lg">
                                 You have successfully verified your ownership of a Web3 address and trusted a signed message from another party — all without any blockchain transaction or revealing your private key. This is the foundation of Web3 authentication!
                             </p>
-                            <a
-                                href="/#/labs/lab03"
-                                className="inline-block px-5 py-2 rounded-md bg-green-600 hover:bg-green-700 text-white font-semibold transition"
-                            >
-                                ← Return to Lab Overview &amp; Claim Rewards
-                            </a>
+                            <LabCompletionClaim
+                                labId="lab03"
+                                language="en"
+                                backHref="/#/labs/lab03"
+                                backLabel="⬅ Return to Lab Overview"
+                            />
                         </section>
                     )
                 }
