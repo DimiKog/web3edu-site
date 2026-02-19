@@ -3,7 +3,7 @@
 
 /*
   # Content Security Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://rpc.dimikog.org https://blockexplorer.dimikog.org https://web3edu-api.dimikog.org https://faucet.dimikog.org wss://rpc.dimikog.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' http://localhost:8092 https://rpc.dimikog.org https://blockexplorer.dimikog.org https://web3edu-api.dimikog.org https://faucet.dimikog.org wss://rpc.dimikog.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 
   # Prevent MIME type sniffing
   X-Content-Type-Options: nosniff
