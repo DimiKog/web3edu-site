@@ -1,40 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
+import AdminBackButton from "../../components/admin/AdminBackButton";
 
 const API_BASE = import.meta.env.VITE_BACKEND_URL;
 
-function toArray(value) {
-    return Array.isArray(value) ? value : [];
-}
-
-function pickArray(obj, keys) {
-    for (const key of keys) {
-        if (Array.isArray(obj?.[key])) return obj[key];
-    }
-    return [];
-}
-
-function pickObject(obj, keys) {
-    for (const key of keys) {
-        if (obj?.[key] && typeof obj[key] === "object" && !Array.isArray(obj[key])) return obj[key];
-    }
-    return null;
-}
-
-function normalizeTimeline(entries) {
-    return toArray(entries)
-        .map((item) => ({
-            label: item?.label || item?.event || item?.type || "Activity",
-            when: item?.timestamp || item?.date || item?.at || null,
-        }))
-        .filter((i) => i.label)
-        .slice(0, 20);
-}
-
 export default function AdminUserDetailsPage() {
-    const navigate = useNavigate();
-    const location = useLocation();
     const { address } = useAccount();
     const { wallet } = useParams();
 
@@ -129,7 +100,16 @@ export default function AdminUserDetailsPage() {
 
     const timeline = useMemo(() => {
         if (!data?.timeline) return [];
-        return data.timeline;
+
+        return data.timeline.map((item) => ({
+            label:
+                item?.title?.en ||
+                item?.id ||
+                item?.type ||
+                "Activity",
+            when: item?.completedAt || "—",
+            xp: item?.xp ?? null,
+        }));
     }, [data]);
 
     if (loading) {
@@ -165,13 +145,7 @@ export default function AdminUserDetailsPage() {
                         {targetWallet}
                     </p>
                 </div>
-                <button
-                    type="button"
-                    onClick={() => navigate("/admin/users")}
-                    className="rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
-                >
-                    Back to Users
-                </button>
+                <AdminBackButton to="/admin/users" label="Back to Users" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -185,13 +159,48 @@ export default function AdminUserDetailsPage() {
 
                 <Panel title="XP Breakdown">
                     {xpBreakdownObj ? (
-                        <div className="space-y-2">
-                            {Object.entries(xpBreakdownObj).map(([key, value]) => (
-                                <div key={key} className="flex justify-between text-sm">
-                                    <span className="text-slate-600 dark:text-slate-300">{key}</span>
-                                    <span className="font-semibold text-slate-900 dark:text-slate-100">{String(value)}</span>
+                        <div className="space-y-4 text-sm">
+                            {xpBreakdownObj.labs?.length > 0 && (
+                                <div>
+                                    <p className="font-semibold mb-2">Labs</p>
+                                    <ul className="space-y-1">
+                                        {xpBreakdownObj.labs.map((lab, idx) => (
+                                            <li key={`lab-${idx}`} className="flex justify-between">
+                                                <span>{lab.labId}</span>
+                                                <span className="font-medium">{lab.xp} XP</span>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
-                            ))}
+                            )}
+
+                            {xpBreakdownObj.lessons?.length > 0 && (
+                                <div>
+                                    <p className="font-semibold mb-2">Lessons</p>
+                                    <ul className="space-y-1">
+                                        {xpBreakdownObj.lessons.map((lesson, idx) => (
+                                            <li key={`lesson-${idx}`} className="flex justify-between">
+                                                <span>{lesson.lessonId || "Lesson"}</span>
+                                                <span className="font-medium">{lesson.xp} XP</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {xpBreakdownObj.projects?.length > 0 && (
+                                <div>
+                                    <p className="font-semibold mb-2">Projects</p>
+                                    <ul className="space-y-1">
+                                        {xpBreakdownObj.projects.map((project, idx) => (
+                                            <li key={`project-${idx}`} className="flex justify-between">
+                                                <span>{project.projectId}</span>
+                                                <span className="font-medium">Completed</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <p className="text-sm text-slate-500 dark:text-slate-400">No XP breakdown available.</p>
@@ -203,8 +212,19 @@ export default function AdminUserDetailsPage() {
                         <div className="space-y-2">
                             {timeline.map((item, idx) => (
                                 <div key={`${item.label}-${idx}`} className="rounded-lg border border-white/10 bg-white/60 dark:bg-slate-900/40 px-3 py-2">
-                                    <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{item.label}</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">{item.when || "—"}</p>
+                                    <div className="flex justify-between">
+                                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                                            {item.label}
+                                        </p>
+                                        {item.xp !== null && (
+                                            <p className="text-xs font-medium text-emerald-400">
+                                                {item.xp} XP
+                                            </p>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        {item.when}
+                                    </p>
                                 </div>
                             ))}
                         </div>

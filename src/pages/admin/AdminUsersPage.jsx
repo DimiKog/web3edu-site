@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAccount } from "wagmi";
+import UserDistributionChart from "../../components/admin/UserDistributionChart";
 
 const API_BASE = import.meta.env.VITE_BACKEND_URL;
 
@@ -41,15 +42,16 @@ function engagementClass(score) {
 
 export default function AdminUsersPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { address } = useAccount();
 
     const [users, setUsers] = useState(null);
     const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [sortKey, setSortKey] = useState("xp");
-    const [sortDir, setSortDir] = useState("desc");
+    const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
+    const [sortKey, setSortKey] = useState(searchParams.get("sort") || "xp");
+    const [sortDir, setSortDir] = useState(searchParams.get("dir") || "desc");
 
-    useEffect(() => {
+    const loadUsers = () => {
         const adminWallet =
             localStorage.getItem("adminWallet") ||
             localStorage.getItem("web3edu-wallet-address") ||
@@ -85,12 +87,23 @@ export default function AdminUsersPage() {
                 setError("Could not load users analytics.");
                 setUsers([]);
             });
+    };
+
+    useEffect(() => {
+        loadUsers();
     }, [address]);
 
     if (error) {
         return (
-            <div className="max-w-4xl rounded-2xl border border-red-500/30 bg-red-500/10 text-red-200 px-6 py-4">
-                {error}
+            <div className="max-w-4xl rounded-2xl border border-red-500/30 bg-red-500/10 text-red-200 px-6 py-4 space-y-3">
+                <div>{error}</div>
+                <button
+                    type="button"
+                    onClick={loadUsers}
+                    className="rounded-lg border border-red-300/40 bg-red-500/20 px-3 py-1.5 text-sm"
+                >
+                    Retry
+                </button>
             </div>
         );
     }
@@ -113,8 +126,10 @@ export default function AdminUsersPage() {
     const filteredUsers = normalizedUsers.filter((u) =>
         String(u.wallet).toLowerCase().includes(searchTerm.trim().toLowerCase())
     );
+    const dropoffOnly = searchParams.get("dropoffOnly") === "1";
+    const scopedUsers = dropoffOnly ? filteredUsers.filter((u) => u.isDropOff) : filteredUsers;
 
-    const sortedUsers = [...filteredUsers].sort((a, b) => {
+    const sortedUsers = [...scopedUsers].sort((a, b) => {
         const factor = sortDir === "asc" ? 1 : -1;
 
         if (sortKey === "xp") return factor * (a.xp - b.xp);
@@ -169,10 +184,25 @@ export default function AdminUsersPage() {
                 <KpiCard label="Drop-off Users" value={dropOffUsers} />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-5">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                        User Tiers
+                    </h3>
+                    <UserDistributionChart data={normalizedUsers} type="tier" />
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-5">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                        Engagement Level
+                    </h3>
+                    <UserDistributionChart data={normalizedUsers} type="engagement" />
+                </div>
+            </div>
+
             <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-6">
                 <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div className="text-sm text-slate-600 dark:text-slate-300">
-                        Click a row for user drill-down.
+                        Click a row for user drill-down. {dropoffOnly ? "Showing drop-off users only." : ""}
                     </div>
                     <input
                         value={searchTerm}
@@ -245,6 +275,11 @@ export default function AdminUsersPage() {
                         </tbody>
                     </table>
                 </div>
+                {sortedUsers.length === 0 && (
+                    <div className="mt-4 rounded-xl border border-amber-300/40 bg-amber-50/70 dark:bg-amber-900/10 p-4 text-amber-900 dark:text-amber-200">
+                        No users matched the current filter. Try adjusting search or clearing drop-off scope.
+                    </div>
+                )}
             </div>
         </div>
     );

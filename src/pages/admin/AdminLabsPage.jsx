@@ -1,36 +1,50 @@
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
+import { useSearchParams } from "react-router-dom";
 import { fetchLabsSummary } from "../../services/adminApi";
 import AdminLabsTable from "../../components/admin/AdminLabsTable";
+import LabsCompletionChart from "../../components/admin/LabsCompletionChart";
 
 export default function AdminLabsPage() {
     const { address } = useAccount();
+    const [searchParams] = useSearchParams();
     const [labs, setLabs] = useState(null);
     const [error, setError] = useState(null);
-    const [sortBy, setSortBy] = useState("dropoff");
+    const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dropoff");
+    const [sortDir, setSortDir] = useState(searchParams.get("dir") || "desc");
 
-    useEffect(() => {
+    const loadLabs = () => {
         if (!address) return;
 
         fetchLabsSummary(address)
             .then((data) => {
-                // Handle both old and new backend shapes
                 if (Array.isArray(data)) {
                     setLabs(data);
                 } else if (data?.labs && Array.isArray(data.labs)) {
                     setLabs(data.labs);
                 } else {
-                    console.log("Unexpected labs response shape:", data);
                     setLabs([]);
                 }
+                setError(null);
             })
             .catch(() => setError("Not authorized"));
+    };
+
+    useEffect(() => {
+        loadLabs();
     }, [address]);
 
     if (error) {
         return (
-            <div className="max-w-4xl rounded-2xl border border-red-500/30 bg-red-500/10 text-red-200 px-6 py-4">
-                {error}
+            <div className="max-w-4xl rounded-2xl border border-red-500/30 bg-red-500/10 text-red-200 px-6 py-4 space-y-3">
+                <div>{error}</div>
+                <button
+                    type="button"
+                    onClick={loadLabs}
+                    className="rounded-lg border border-red-300/40 bg-red-500/20 px-3 py-1.5 text-sm"
+                >
+                    Retry
+                </button>
             </div>
         );
     }
@@ -63,18 +77,23 @@ export default function AdminLabsPage() {
         return Number.isFinite(value) ? value : -1;
     };
 
-    const sortedLabs = [...labs].sort((a, b) => {
+    const filteredLabs = searchParams.get("risk") === "dropoff"
+        ? labs.filter((lab) => dropOffPercent(lab) > 0.15)
+        : labs;
+
+    const sortedLabs = [...filteredLabs].sort((a, b) => {
+        const factor = sortDir === "asc" ? 1 : -1;
         if (sortBy === "completion") {
-            return completionRate(b) - completionRate(a);
+            return factor * (completionRate(a) - completionRate(b));
         }
         if (sortBy === "dropoff") {
-            return dropOffPercent(b) - dropOffPercent(a);
+            return factor * (dropOffPercent(a) - dropOffPercent(b));
         }
         if (sortBy === "avgDuration") {
-            return avgDuration(b) - avgDuration(a);
+            return factor * (avgDuration(a) - avgDuration(b));
         }
         if (sortBy === "started") {
-            return (b?.started || 0) - (a?.started || 0);
+            return factor * ((a?.started || 0) - (b?.started || 0));
         }
         return 0;
     });
@@ -155,7 +174,21 @@ export default function AdminLabsPage() {
                         />
                     </div>
 
+                    <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">
+                            Completion vs Drop-off (Top 10 Labs)
+                        </h3>
+                        <div className="rounded-xl border border-white/10 bg-white/60 dark:bg-[#111827]/60 p-4">
+                            <LabsCompletionChart labs={sortedLabs} />
+                        </div>
+                    </div>
+
                     <AdminLabsTable labs={sortedLabs} />
+                    {sortedLabs.length === 0 && (
+                        <div className="mt-4 rounded-xl border border-amber-300/40 bg-amber-50/70 dark:bg-amber-900/10 p-4 text-amber-900 dark:text-amber-200">
+                            No labs matched this filter. Try refreshing or removing risk-only scope.
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

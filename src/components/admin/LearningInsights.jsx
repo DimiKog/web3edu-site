@@ -1,4 +1,7 @@
+import { useNavigate } from "react-router-dom";
+
 export default function LearningInsights({ labs }) {
+    const navigate = useNavigate();
     if (!labs || labs.length === 0) return null;
 
     const sortedByCompletion = [...labs].sort(
@@ -31,39 +34,48 @@ export default function LearningInsights({ labs }) {
                     value={`${best?.title?.en || best?.labId} (${Math.round(
                         best?.completionRate * 100
                     )}%)`}
+                    onClick={() => navigate(best?.labId ? `/admin/labs/${best.labId}` : "/admin/labs")}
                 />
                 <InsightCard
                     label="Lowest Completion"
                     value={`${worst?.title?.en || worst?.labId} (${Math.round(
                         worst?.completionRate * 100
                     )}%)`}
+                    onClick={() => navigate(worst?.labId ? `/admin/labs/${worst.labId}` : "/admin/labs")}
                 />
                 <InsightCard
                     label="Highest Drop-off"
                     value={`${highestDrop?.title?.en || highestDrop?.labId} (${highestDrop?.dropOff})`}
+                    onClick={() => navigate(highestDrop?.labId ? `/admin/labs/${highestDrop.labId}` : "/admin/labs")}
                 />
                 <InsightCard
                     label="Most Engaged Lab"
                     value={`${mostStarted?.title?.en || mostStarted?.labId} (${mostStarted?.started} starts)`}
+                    onClick={() => navigate(mostStarted?.labId ? `/admin/labs/${mostStarted.labId}` : "/admin/labs")}
                 />
                 <InsightCard
                     label="Lowest Engagement"
                     value={`${leastStarted?.title?.en || leastStarted?.labId} (${leastStarted?.started} starts)`}
+                    onClick={() => navigate(leastStarted?.labId ? `/admin/labs/${leastStarted.labId}` : "/admin/labs")}
                 />
             </div>
         </div>
     );
 }
 
-function InsightCard({ label, value }) {
+function InsightCard({ label, value, onClick }) {
     return (
-        <div className="rounded-xl border border-white/10 bg-white/60 dark:bg-[#111827]/60 p-4">
+        <button
+            type="button"
+            onClick={onClick}
+            className="text-left rounded-xl border border-white/10 bg-white/60 dark:bg-[#111827]/60 p-4 hover:bg-white/80 dark:hover:bg-[#111827]/80 transition"
+        >
             <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 {label}
             </div>
             <div className="mt-1 font-medium text-slate-900 dark:text-slate-100">
                 {value}
             </div>
-        </div>
+        </button>
     );
 }

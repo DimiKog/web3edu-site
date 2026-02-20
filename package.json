@@ -25,6 +25,7 @@
     "react-qr-code": "^2.0.18",
     "react-router": "^7.9.6",
     "react-router-dom": "^7.9.4",
+    "recharts": "^3.7.0",
     "viem": "^2.39.3",
     "wagmi": "^2.19.5"
   },
