@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import PageShell from "../../components/PageShell.jsx";
@@ -7,10 +7,12 @@ const API_BASE = import.meta.env.VITE_BACKEND_URL;
 
 export default function AdminLabDetails() {
     const { labId } = useParams();
+    const navigate = useNavigate();
     const { address } = useAccount();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [copiedWallet, setCopiedWallet] = useState(null);
 
     const sortedEntries = data?.entries
         ? [...data.entries].sort((a, b) => {
@@ -53,6 +55,12 @@ export default function AdminLabDetails() {
         <PageShell>
             <div className="min-h-screen px-6 py-20">
                 <div className="max-w-5xl mx-auto space-y-8">
+                    <button
+                        onClick={() => navigate("/admin")}
+                        className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition mb-2"
+                    >
+                        ← Back to Dashboard
+                    </button>
                     <h1 className="text-3xl font-bold">
                         Lab Details: {labId}
                     </h1>
@@ -105,16 +113,48 @@ export default function AdminLabDetails() {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {sortedEntries.map((entry) => (
-                                                <tr key={entry.wallet} className="border-t border-slate-800 hover:bg-slate-800/40">
-                                                    <td className="p-3 font-mono text-xs">{entry.wallet}</td>
-                                                    <td className="p-3">{entry.started ? "✔" : "✖"}</td>
-                                                    <td className="p-3">{entry.completed ? "✔" : "✖"}</td>
-                                                    <td className="p-3">{entry.startedAt || "-"}</td>
-                                                    <td className="p-3">{entry.completedAt || "-"}</td>
-                                                    <td className="p-3">{entry.xp}</td>
-                                                </tr>
-                                            ))}
+                                            {sortedEntries.map((entry) => {
+                                                const short = entry.wallet
+                                                    ? `${entry.wallet.slice(0, 6)}...${entry.wallet.slice(-4)}`
+                                                    : "-";
+                                                const isCopied = copiedWallet === entry.wallet;
+
+                                                function handleCopy() {
+                                                    navigator.clipboard.writeText(entry.wallet);
+                                                    setCopiedWallet(entry.wallet);
+                                                    setTimeout(() => setCopiedWallet(null), 1500);
+                                                }
+
+                                                return (
+                                                    <tr key={entry.wallet} className="border-t border-slate-800 hover:bg-slate-800/40">
+                                                        <td className="p-3 font-mono text-xs">
+                                                            <span className="inline-flex items-center gap-2">
+                                                                {short}
+                                                                <button
+                                                                    onClick={handleCopy}
+                                                                    title={entry.wallet}
+                                                                    className="text-slate-500 hover:text-slate-200 transition text-[10px]"
+                                                                >
+                                                                    {isCopied ? "✓" : "⎘"}
+                                                                </button>
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3 font-semibold">
+                                                            {entry.started
+                                                                ? <span className="text-green-500">✔</span>
+                                                                : <span className="text-red-500">✖</span>}
+                                                        </td>
+                                                        <td className="p-3 font-semibold">
+                                                            {entry.completed
+                                                                ? <span className="text-green-500">✔</span>
+                                                                : <span className="text-red-500">✖</span>}
+                                                        </td>
+                                                        <td className="p-3">{entry.startedAt || "-"}</td>
+                                                        <td className="p-3">{entry.completedAt || "-"}</td>
+                                                        <td className="p-3">{entry.xp}</td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>
