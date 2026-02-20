@@ -16,7 +16,7 @@ const HeroGR = ({ content, ctaHref = "/#/start-here-gr", ctaLabel: ctaOverride }
         return () => observer.disconnect();
     }, []);
 
-    const ctaLabel = ctaOverride ?? content.cta ?? "Ξεκίνα τη Μάθηση";
+    const ctaLabel = ctaOverride ?? content.cta ?? "Απέκτησε την Ταυτότητα σου στο Web3Edu";
     const headline = content.headline ?? "Ένα Web3-native μαθησιακό identity\nπου εξελίσσεται με το οικοσύστημα";
     const headlineLines = headline.split("\n");
 

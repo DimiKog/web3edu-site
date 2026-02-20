@@ -10,7 +10,6 @@ import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
 import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
 import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
-import PilotBanner from "../components/PilotBanner.jsx";
 import {
     shortAddress
 } from "../components/identity-ui.jsx";
@@ -77,6 +76,30 @@ export default function Dashboard() {
 
     const formattedAddress = shortAddress(address);
 
+    const resolveTokenId = payload => {
+        const candidates = [
+            payload?.tokenId,
+            payload?.token_id,
+            payload?.tokenID,
+            payload?.metadata?.tokenId,
+            payload?.metadata?.token_id,
+            payload?.profile?.tokenId,
+            payload?.profile?.token_id,
+            payload?.metadata?.metadata?.tokenId,
+            payload?.metadata?.metadata?.token_id,
+            payload?.profile?.metadata?.tokenId,
+            payload?.profile?.metadata?.token_id
+        ];
+
+        for (const candidate of candidates) {
+            if (candidate !== null && candidate !== undefined && candidate !== "") {
+                return candidate;
+            }
+        }
+
+        return null;
+    };
+
     useEffect(() => {
         if (!address) return;
         const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
@@ -102,7 +125,7 @@ export default function Dashboard() {
                             ? data.profile
                             : {};
 
-                setMetadata({ ...apiMetadata, tokenId: data?.tokenId });
+                setMetadata({ ...apiMetadata, tokenId: resolveTokenId(data) });
 
                 const parseMaybeJson = value => {
                     if (typeof value === "string") {
@@ -442,9 +465,6 @@ export default function Dashboard() {
                         </style>
                     </div>
                 )}
-
-                {/* Pilot User Banner */}
-                <PilotBanner lang={document.documentElement.lang === "gr" ? "gr" : "en"} />
 
                 {/* Builder Unlock Promotion */}
                 {showBuilderUnlock && (

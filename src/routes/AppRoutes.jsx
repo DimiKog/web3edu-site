@@ -68,7 +68,11 @@ const DaoLab02Interaction = lazy(() => import("../pages/labs/DaoLab02Interaction
 const DaoLab02InteractionGR = lazy(() => import("../pages/labs/DaoLab02InteractionGR.jsx"));
 const PoELab = lazy(() => import("../pages/labs/PoELab.jsx"));
 const PoELabGR = lazy(() => import("../pages/labs/PoELabGR.jsx"));
-const AdminPage = lazy(() => import("../pages/AdminPage.jsx"));
+const AdminDashboard = lazy(() => import("../pages/AdminDashboard.jsx"));
+const AdminLayout = lazy(() => import("../pages/admin/AdminLayout.jsx"));
+const AdminLabsPage = lazy(() => import("../pages/admin/AdminLabsPage.jsx"));
+const AdminUsersPage = lazy(() => import("../pages/admin/AdminUsersPage.jsx"));
+const AdminUserDetailsPage = lazy(() => import("../pages/admin/AdminUserDetailsPage.jsx"));
 const AdminLabDetails = lazy(() => import("../pages/admin/AdminLabDetails.jsx"));
 const Web3Layout = lazy(() => import("./Web3Layout.jsx"));
 
@@ -152,8 +156,13 @@ export default function AppRoutes() {
         <Route path="/labs-gr/dao-02/interaction" element={withSuspense(<DaoLab02InteractionGR />)} />
         <Route path="/labs/proof-of-escape" element={withSuspense(<PoELab />)} />
         <Route path="/labs-gr/proof-of-escape" element={withSuspense(<PoELabGR />)} />
-        <Route path="/admin" element={withSuspense(<AdminPage />)} />
-        <Route path="/admin/labs/:labId" element={withSuspense(<AdminLabDetails />)} />
+        <Route path="/admin" element={withSuspense(<AdminLayout />)}>
+          <Route index element={withSuspense(<AdminDashboard />)} />
+          <Route path="labs" element={withSuspense(<AdminLabsPage />)} />
+          <Route path="users" element={withSuspense(<AdminUsersPage />)} />
+          <Route path="users/:wallet" element={withSuspense(<AdminUserDetailsPage />)} />
+          <Route path="labs/:labId" element={withSuspense(<AdminLabDetails />)} />
+        </Route>
       </Route>
     </Routes>
   );

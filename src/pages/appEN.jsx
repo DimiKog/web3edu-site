@@ -32,7 +32,7 @@ const AppEN = () => (
     <HomePageLayout
         heroContent={en.hero}
         heroCtaHref="/#/join"
-        heroCtaLabel="Start Learning"
+        heroCtaLabel="Get Your Web3Edu Identity"
         motivationContent={en.motivation}
         motivationHeading="Why Web3Edu"
         motivationImage={motivationCubes}

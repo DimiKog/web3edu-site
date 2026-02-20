@@ -32,7 +32,7 @@ const AppGR = () => (
     <HomePageLayout
         heroContent={gr.hero}
         heroCtaHref="/#/join-gr"
-        heroCtaLabel="Ξεκίνα την Μάθηση"
+        heroCtaLabel="Απέκτησε την Ταυτότητα σου στο Web3Edu"
         motivationContent={gr.motivation}
         motivationHeading="Γιατί Web3Edu"
         motivationImage={motivationCubes}

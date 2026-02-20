@@ -34,13 +34,60 @@ export default function VerifyIdentity() {
         setLoading(true);
         setError("");
 
-        fetch(`${BACKEND}/web3sbt/verify/${address}`)
-            .then((res) => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            })
-            .then((data) => {
-                setProfile(data);
+        const fetchJson = async url => {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+        };
+
+        Promise.allSettled([
+            fetchJson(`${BACKEND}/web3sbt/verify/${address}`),
+            fetchJson(`${BACKEND}/web3sbt/resolve/${address}`)
+        ])
+            .then(([verifyResult, resolveResult]) => {
+                const verifyData =
+                    verifyResult.status === "fulfilled" ? verifyResult.value : null;
+                const resolveData =
+                    resolveResult.status === "fulfilled" ? resolveResult.value : null;
+
+                if (!verifyData && !resolveData) {
+                    throw new Error("Both verify and resolve failed.");
+                }
+
+                const extractMeta = data =>
+                    data?.metadata?.metadata && typeof data.metadata.metadata === "object"
+                        ? data.metadata.metadata
+                        : data?.metadata && typeof data.metadata === "object"
+                            ? data.metadata
+                            : {};
+
+                const extractInfo = data =>
+                    data?.profile?.metadata && typeof data.profile.metadata === "object"
+                        ? data.profile.metadata
+                        : data?.profile && typeof data.profile === "object"
+                            ? data.profile
+                            : {};
+
+                const merged = {
+                    ...(verifyData || {}),
+                    ...(resolveData || {}),
+                    metadata: {
+                        ...extractMeta(verifyData),
+                        ...extractMeta(resolveData)
+                    },
+                    profile: {
+                        ...extractInfo(verifyData),
+                        ...extractInfo(resolveData)
+                    },
+                    tokenId:
+                        verifyData?.tokenId ??
+                        verifyData?.token_id ??
+                        resolveData?.tokenId ??
+                        resolveData?.token_id ??
+                        null
+                };
+
+                setProfile(merged);
                 setLoading(false);
             })
             .catch((err) => {
@@ -50,17 +97,178 @@ export default function VerifyIdentity() {
             });
     }, [address]);
 
-    // Normalized identity meta
-    const meta = profile?.metadata ?? {};
-    const info = profile?.profile ?? {};
+    // Normalize nested payload shapes (verify endpoint can return metadata/profile wrappers)
+    const rawMeta = profile?.metadata ?? {};
+    const rawInfo = profile?.profile ?? {};
+    const meta =
+        rawMeta?.metadata && typeof rawMeta.metadata === "object"
+            ? rawMeta.metadata
+            : rawMeta;
+    const info =
+        rawInfo?.metadata && typeof rawInfo.metadata === "object"
+            ? rawInfo.metadata
+            : rawInfo;
+    const pickFirst = (...values) => {
+        for (const value of values) {
+            if (value !== null && value !== undefined && value !== "") return value;
+        }
+        return null;
+    };
+    const toNumber = value => {
+        if (typeof value === "number" && Number.isFinite(value)) return value;
+        if (typeof value === "string") {
+            const parsed = Number.parseFloat(value.replace(/[^\d.-]/g, ""));
+            if (Number.isFinite(parsed)) return parsed;
+        }
+        return null;
+    };
 
     // Founder/Edition logic
     const isFounder = (meta.founder ?? info.founder) || false;
     const edition = meta.edition ?? info.edition ?? (isFounder ? "Founder Edition" : null);
 
     const tier = meta.tier ?? info.tier ?? "Explorer";
-    const xpPercent = meta.xpPercent ?? 0;
-    const lessonsCompleted = meta.lessonsCompleted ?? 0;
+    const totalXp = toNumber(
+        pickFirst(
+            meta.xp,
+            meta.xp_total,
+            meta.totalXp,
+            meta.total_xp,
+            info.xp,
+            info.xp_total,
+            info.totalXp,
+            info.total_xp,
+            profile?.xp,
+            profile?.xp_total,
+            profile?.totalXp,
+            profile?.total_xp,
+            profile?.metadata?.xp,
+            profile?.metadata?.xp_total,
+            profile?.metadata?.totalXp,
+            profile?.metadata?.total_xp,
+            profile?.profile?.xp,
+            profile?.profile?.xp_total,
+            profile?.profile?.totalXp,
+            profile?.profile?.total_xp
+        )
+    ) ?? 0;
+    const xpPercentRaw = toNumber(
+        pickFirst(
+            meta.xpPercent,
+            meta.xp_percent,
+            meta.progress,
+            meta.progressPercent,
+            meta.progress_percent,
+            meta.nextTierPercent,
+            meta.next_tier_percent,
+            meta.completionPercent,
+            meta.completion_percent,
+            info.xpPercent,
+            info.xp_percent,
+            info.progress,
+            info.progressPercent,
+            info.progress_percent,
+            info.nextTierPercent,
+            info.next_tier_percent,
+            info.completionPercent,
+            info.completion_percent,
+            profile?.xpPercent,
+            profile?.xp_percent,
+            profile?.progress,
+            profile?.progressPercent,
+            profile?.progress_percent,
+            profile?.nextTierPercent,
+            profile?.next_tier_percent,
+            profile?.completionPercent,
+            profile?.completion_percent
+        )
+    ) ?? 0;
+    const remainingXp = toNumber(
+        pickFirst(
+            meta.remainingXp,
+            meta.remaining_xp,
+            info.remainingXp,
+            info.remaining_xp,
+            profile?.remainingXp,
+            profile?.remaining_xp,
+            profile?.metadata?.remainingXp,
+            profile?.metadata?.remaining_xp
+        )
+    );
+    const xpPercentNormalized =
+        xpPercentRaw > 0 && xpPercentRaw <= 1 ? xpPercentRaw * 100 : xpPercentRaw;
+    let xpPercent = Math.max(0, Math.min(100, xpPercentNormalized));
+    if (xpPercent <= 0 && totalXp > 0) {
+        if (remainingXp !== null && remainingXp >= 0) {
+            xpPercent = Math.max(1, Math.min(100, (totalXp / (totalXp + remainingXp)) * 100));
+        } else {
+            // Fallback when backend omits percentage fields.
+            xpPercent = Math.max(1, Math.min(100, (totalXp / 6000) * 100));
+            if (tier === "Architect") xpPercent = Math.max(xpPercent, 85);
+        }
+    }
+    // Visual progress should move clearly with total XP, not only within current tier.
+    const overallXpPercent = Math.max(0, Math.min(100, (totalXp / 7000) * 100));
+    const xpBarPercent = Math.max(xpPercent, overallXpPercent);
+    const timeline = pickFirst(
+        meta.timeline,
+        info.timeline,
+        profile?.timeline,
+        profile?.metadata?.timeline,
+        profile?.profile?.timeline
+    );
+    const derivedLessonsFromTimeline = Array.isArray(timeline)
+        ? timeline.filter(item => {
+            const status = String(item?.status || "").toLowerCase();
+            const progress = toNumber(item?.progress) ?? 0;
+            return (
+                item?.type === "lab" &&
+                (
+                    item?.completed === true ||
+                    item?.done === true ||
+                    item?.verified === true ||
+                    !!item?.completedAt ||
+                    ["completed", "done", "claimed", "verified"].includes(status) ||
+                    progress >= 100
+                )
+            );
+        }).length
+        : null;
+    const builderChecklist = pickFirst(
+        meta.builderChecklist,
+        info.builderChecklist,
+        profile?.builderChecklist,
+        profile?.metadata?.builderChecklist
+    );
+    const derivedLessonsFromChecklist = builderChecklist
+        ? (
+            (toNumber(builderChecklist?.coreLabs?.completed) ?? 0) +
+            (toNumber(builderChecklist?.daoLabs?.completed) ?? 0) +
+            ((builderChecklist?.proofOfEscape?.done || builderChecklist?.proofOfEscape?.completed) ? 1 : 0)
+        )
+        : null;
+    const lessonsCompleted = toNumber(
+        pickFirst(
+            meta.lessonsCompleted,
+            meta.lessons_completed,
+            meta.completedLessons,
+            meta.completed_lessons,
+            info.lessonsCompleted,
+            info.lessons_completed,
+            info.completedLessons,
+            info.completed_lessons,
+            profile?.lessonsCompleted,
+            profile?.lessons_completed,
+            profile?.completedLessons,
+            profile?.completed_lessons,
+            profile?.metadata?.lessonsCompleted,
+            profile?.metadata?.lessons_completed,
+            profile?.profile?.lessonsCompleted,
+            profile?.profile?.lessons_completed,
+            derivedLessonsFromChecklist,
+            derivedLessonsFromTimeline
+        )
+    ) ?? 0;
     // The verification URL is always the current page URL (public verification link)
     // Normalized verification URL — stable, not dependent on SPA hash position
     const VERIFY_BASE =
@@ -254,7 +462,7 @@ export default function VerifyIdentity() {
                                 <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
                                     <div
                                         className="h-full bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF]"
-                                        style={{ width: `${xpPercent}%` }}
+                                        style={{ width: `${xpBarPercent}%` }}
                                     ></div>
                                 </div>
                             </div>
@@ -357,7 +565,7 @@ export default function VerifyIdentity() {
                                         </span>
 
                                         <p className="text-xs text-slate-500 dark:text-white/60">
-                                            XP: {meta.xp ?? 0} • Lessons: {lessonsCompleted}
+                                            XP: {totalXp} • Lessons: {lessonsCompleted}
                                         </p>
                                     </div>
                                 )}
@@ -449,11 +657,11 @@ export default function VerifyIdentity() {
                                                 <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                                                     <div
                                                         className="h-full bg-gradient-to-r from-[#7F3DF1] to-[#33D6FF]"
-                                                        style={{ width: `${xpPercent}%` }}
+                                                        style={{ width: `${xpBarPercent}%` }}
                                                     ></div>
                                                 </div>
                                                 <p className="text-sm mt-1">
-                                                    {profile.profile?.xp ?? 0} XP
+                                                    {totalXp} XP
                                                 </p>
                                             </div>
                                         </div>

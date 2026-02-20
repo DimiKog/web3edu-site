@@ -64,6 +64,27 @@ export default function SbtView() {
 
     const tier = profile?.metadata?.tier;
     const badges = profile?.metadata?.badges ?? [];
+    const tokenId = (() => {
+        const candidates = [
+            profile?.tokenId,
+            profile?.token_id,
+            profile?.tokenID,
+            profile?.metadata?.tokenId,
+            profile?.metadata?.token_id,
+            profile?.profile?.tokenId,
+            profile?.profile?.token_id,
+            profile?.metadata?.metadata?.tokenId,
+            profile?.metadata?.metadata?.token_id,
+            profile?.profile?.metadata?.tokenId,
+            profile?.profile?.metadata?.token_id
+        ];
+        for (const candidate of candidates) {
+            if (candidate !== null && candidate !== undefined && candidate !== "") {
+                return candidate;
+            }
+        }
+        return null;
+    })();
 
     const PUBLIC_SITE = import.meta.env.VITE_PUBLIC_SITE_URL
         ?? "https://web3edu.dimikog.org";
@@ -230,7 +251,7 @@ export default function SbtView() {
                                 <div>
                                     <p className="text-[11px] uppercase tracking-wide text-indigo-700 dark:text-indigo-300">Token ID</p>
                                     <p className="font-mono text-xs text-slate-900 dark:text-slate-100">
-                                        {profile.tokenId ?? "Not assigned"}
+                                        {tokenId ?? "Not assigned"}
                                         {profile?.profile?.edition && (
                                             <span
                                                 className="
@@ -244,15 +265,6 @@ export default function SbtView() {
                                                 {profile.profile.edition}
                                             </span>
                                         )}
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <p className="text-[11px] uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
-                                        Mint Block
-                                    </p>
-                                    <p className="font-mono text-xs text-slate-900 dark:text-slate-100">
-                                        {profile?.mintBlock ?? "Unknown"}
                                     </p>
                                 </div>
 

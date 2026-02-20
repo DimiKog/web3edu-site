@@ -16,7 +16,7 @@ const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => 
         return () => observer.disconnect();
     }, []);
 
-    const ctaLabel = ctaOverride ?? content.cta ?? "Start Learning";
+    const ctaLabel = ctaOverride ?? content.cta ?? "Get Your Web3Edu Identity";
     const headline = content.headline ?? "A Web3-native learning identity\nthat grows with the ecosystem";
     const headlineLines = headline.split("\n");
 

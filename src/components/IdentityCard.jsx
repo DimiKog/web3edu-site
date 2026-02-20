@@ -40,6 +40,32 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
         ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}`
         : "";
 
+    const resolvedTokenId = (() => {
+        const candidates = [
+            tokenId,
+            metadata?.tokenId,
+            metadata?.token_id,
+            metadata?.tokenID
+        ];
+        for (const candidate of candidates) {
+            if (candidate !== null && candidate !== undefined && candidate !== "") {
+                return candidate;
+            }
+        }
+        return null;
+    })();
+
+    const contractAddress =
+        metadata?.contractAddress ||
+        metadata?.contract_address ||
+        metadata?.contract ||
+        "0xdde6a59445538ea146a17dd8745e7ea5288b1a31";
+
+    const tokenExplorerUrl =
+        resolvedTokenId !== null
+            ? `https://blockexplorer.dimikog.org/token/${contractAddress}/instance/${resolvedTokenId}`
+            : null;
+
     // Neon animation trigger
     const [mounted, setMounted] = useState(false);
     const [showQR, setShowQR] = useState(false);
@@ -188,20 +214,28 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                     </div>
 
                     <div className="text-gray-700 dark:text-gray-300 text-sm">
-                        <strong className="text-purple-500">{lang === "gr" ? "ID Διακριτικού:" : "Token ID:"}</strong> #{tokenId}
+                        <strong className="text-purple-500">{lang === "gr" ? "ID Διακριτικού:" : "Token ID:"}</strong>{" "}
+                        {resolvedTokenId !== null ? `#${resolvedTokenId}` : "—"}
                     </div>
 
-                    <a
-                        href={`https://blockexplorer.dimikog.org/token/0xdde6a59445538ea146a17dd8745e7ea5288b1a31/instance/${tokenId}`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="
-                            text-purple-600 dark:text-purple-400 
-                            underline text-sm hover:text-purple-300 
-                            transition-all
-                        "
-                    >
-                        {lang === "gr" ? "Προβολή στο Blockscout →" : "View on Blockscout →"}
-                    </a>
+                    {tokenExplorerUrl ? (
+                        <a
+                            href={tokenExplorerUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="
+                                text-purple-600 dark:text-purple-400 
+                                underline text-sm hover:text-purple-300 
+                                transition-all
+                            "
+                        >
+                            {lang === "gr" ? "Προβολή στο Blockscout →" : "View on Blockscout →"}
+                        </a>
+                    ) : (
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">
+                            {lang === "gr" ? "Το Token ID δεν είναι διαθέσιμο ακόμη." : "Token ID is not available yet."}
+                        </p>
+                    )}
 
                     <div className="mt-4 flex justify-center">
                         <button
