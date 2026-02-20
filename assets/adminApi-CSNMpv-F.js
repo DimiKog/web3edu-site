@@ -1,0 +1,1 @@
+const o="https://web3edu-api.dimikog.org";async function r(e){const t=await fetch(`${o}/admin/overview?wallet=${e.toLowerCase()}`);if(!t.ok)throw new Error("Not authorized");return t.json()}async function a(e){const t=await fetch(`${o}/admin/labs/summary?wallet=${e.toLowerCase()}`);if(!t.ok)throw new Error("Not authorized");return t.json()}export{a,r as f};
