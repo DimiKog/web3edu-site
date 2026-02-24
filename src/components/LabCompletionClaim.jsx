@@ -43,6 +43,7 @@ export default function LabCompletionClaim({
     const [error, setError] = useState(null);
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completedAt, setCompletedAt] = useState(null);
+    const [showCelebration, setShowCelebration] = useState(false);
 
     useEffect(() => {
         if (!isConnected || !address || !labId) {
@@ -69,6 +70,76 @@ export default function LabCompletionClaim({
 
         checkCompletion();
     }, [BACKEND, isConnected, address, labId]);
+
+    useEffect(() => {
+        if (!showCelebration) return undefined;
+
+        const durationMs = 1800;
+        const pieceCount = 120;
+        const start = Date.now();
+        const colors = ["#22c55e", "#38bdf8", "#a78bfa", "#f59e0b", "#f43f5e"];
+        const particles = Array.from({ length: pieceCount }, () => ({
+            x: Math.random() * window.innerWidth,
+            y: -20 - Math.random() * window.innerHeight * 0.4,
+            r: 2 + Math.random() * 5,
+            vy: 2 + Math.random() * 3,
+            vx: -1.25 + Math.random() * 2.5,
+            tilt: Math.random() * Math.PI * 2,
+            spin: -0.1 + Math.random() * 0.2,
+            color: colors[Math.floor(Math.random() * colors.length)],
+        }));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        canvas.style.position = "fixed";
+        canvas.style.inset = "0";
+        canvas.style.pointerEvents = "none";
+        canvas.style.zIndex = "90";
+        document.body.appendChild(canvas);
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            canvas.remove();
+            setShowCelebration(false);
+            return undefined;
+        }
+
+        const onResize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        window.addEventListener("resize", onResize);
+
+        let rafId = 0;
+        const animate = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p) => {
+                p.x += p.vx + Math.sin(p.tilt) * 0.5;
+                p.y += p.vy;
+                p.tilt += p.spin;
+
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.ellipse(p.x, p.y, p.r, p.r * 0.65, p.tilt, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            if (Date.now() - start < durationMs) {
+                rafId = requestAnimationFrame(animate);
+            } else {
+                setShowCelebration(false);
+            }
+        };
+
+        rafId = requestAnimationFrame(animate);
+
+        return () => {
+            cancelAnimationFrame(rafId);
+            window.removeEventListener("resize", onResize);
+            canvas.remove();
+        };
+    }, [showCelebration]);
 
     const handleClaimCompletion = async () => {
         if (claimed) return;
@@ -109,6 +180,7 @@ export default function LabCompletionClaim({
 
             setClaimed(true);
             setCompletedAt(new Date().toISOString());
+            setShowCelebration(true);
         } catch (err) {
             console.error(err);
             setError(labels.backendError);
