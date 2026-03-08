@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaDiscord } from "react-icons/fa";
 import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
 
@@ -81,13 +82,25 @@ const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => 
                         {content.desc}
                     </p>
 
-                    <a
-                        href={ctaHref}
-                        aria-label={ctaLabel}
-                        className="inline-flex items-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300 animate-fade-up delay-300"
-                    >
-                        🚀 {ctaLabel}
-                    </a>
+                    <div className="flex flex-col sm:flex-row items-center gap-3 animate-fade-up delay-300">
+                        <a
+                            href={ctaHref}
+                            aria-label={ctaLabel}
+                            className="inline-flex items-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300"
+                        >
+                            🚀 {ctaLabel}
+                        </a>
+                        <a
+                            href="https://discord.gg/V3DuwaTUM5"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label="Join the Web3Edu Community"
+                            className="inline-flex items-center gap-2 px-7 py-3 sm:px-8 sm:py-4 rounded-full border border-white/35 bg-white/10 hover:bg-white/15 text-white font-semibold backdrop-blur-md transition duration-300"
+                        >
+                            <FaDiscord className="h-4 w-4" aria-hidden="true" />
+                            Join the Web3Edu Community
+                        </a>
+                    </div>
                 </div>
 
             </div>

@@ -240,14 +240,13 @@ const ProjectLabTemplate = ({
                     labType="project"
                     language={language}
                     onSubmit={async (feedback) => {
-                        try {
-                            await fetch("https://web3edu-api.dimikog.org/feedback", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(feedback),
-                            });
-                        } catch (e) {
-                            console.warn("Feedback submission failed", e);
+                        const res = await fetch("https://web3edu-api.dimikog.org/feedback", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(feedback),
+                        });
+                        if (!res.ok) {
+                            throw new Error(`Feedback request failed with status ${res.status}`);
                         }
                     }}
                 />

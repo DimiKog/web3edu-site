@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
+import FeedbackModal from "./FeedbackModal";
 
 const COPY = {
     en: {
@@ -31,6 +32,7 @@ export default function LabCompletionClaim({
     language = "en",
     backHref = null,
     backLabel = null,
+    labTitle = null,
 }) {
     const labels = COPY[language] || COPY.en;
     const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
@@ -44,6 +46,7 @@ export default function LabCompletionClaim({
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completedAt, setCompletedAt] = useState(null);
     const [showCelebration, setShowCelebration] = useState(false);
+    const [showFeedback, setShowFeedback] = useState(false);
 
     useEffect(() => {
         if (!isConnected || !address || !labId) {
@@ -141,6 +144,16 @@ export default function LabCompletionClaim({
         };
     }, [showCelebration]);
 
+    useEffect(() => {
+        if (checkingStatus || !labId || !address) return;
+
+        const submitted = localStorage.getItem(`feedback_${labId}`) === "true";
+        const prompted = localStorage.getItem(`feedback_prompted_${labId}`) === "true";
+        if (submitted || prompted) return;
+
+        setShowFeedback(true);
+    }, [checkingStatus, labId, address]);
+
     const handleClaimCompletion = async () => {
         if (claimed) return;
 
@@ -231,6 +244,29 @@ export default function LabCompletionClaim({
                     {backLabel || labels.backToOverview}
                 </a>
             )}
+
+            <FeedbackModal
+                isOpen={showFeedback}
+                onClose={() => {
+                    if (labId) {
+                        localStorage.setItem(`feedback_prompted_${labId}`, "true");
+                    }
+                    setShowFeedback(false);
+                }}
+                labId={labId}
+                labTitle={labTitle}
+                language={language}
+                onSubmit={async (feedback) => {
+                    const res = await fetch(`${BACKEND}/feedback`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(feedback),
+                    });
+                    if (!res.ok) {
+                        throw new Error(`Feedback request failed with status ${res.status}`);
+                    }
+                }}
+            />
         </div>
     );
 }

@@ -304,6 +304,16 @@ export default function Dashboard() {
     const [showBuilderPath, setShowBuilderPath] = useState(
         metadata?.tier && metadata.tier !== "Explorer"
     );
+    const eventBadges = Array.isArray(metadata?.eventBadges) ? metadata.eventBadges : [];
+    const hasGenesisBadge = eventBadges.some(b => {
+        if (typeof b === "string") {
+            return b.toLowerCase().includes("genesis");
+        }
+
+        const name = String(b?.name || b?.label || b?.en || b?.gr || "").toLowerCase();
+        const id = String(b?.id || b?.slug || "").toLowerCase();
+        return name.includes("genesis") || id.includes("genesis");
+    });
 
 
     return (
@@ -334,6 +344,12 @@ export default function Dashboard() {
                     0%   { transform: scale(1);   filter: drop-shadow(0 0 0px rgba(138,87,255,0)); }
                     40%  { transform: scale(1.15); filter: drop-shadow(0 0 15px rgba(138,87,255,0.8)); }
                     100% { transform: scale(1);   filter: drop-shadow(0 0 0px rgba(138,87,255,0)); }
+                  }
+
+                  @keyframes genesisPulse {
+                    0% { transform: scale(1); box-shadow: 0 0 0 rgba(168,85,247,0); }
+                    40% { transform: scale(1.08); box-shadow: 0 0 18px rgba(168,85,247,0.7); }
+                    100% { transform: scale(1); box-shadow: 0 0 0 rgba(168,85,247,0); }
                   }
                 `}
                 </style>
@@ -732,46 +748,117 @@ export default function Dashboard() {
                             <p className="text-sm text-slate-700 dark:text-slate-200 mb-4 leading-relaxed">
                                 All your achievements and earned badges will appear here as you progress.
                             </p>
-                            {metadata && metadata.badges?.length > 0 ? (
-                                <div className="flex flex-wrap gap-2">
-                                    {metadata.badges.map((b, i) => {
-                                        let Icon = StarIcon;
-                                        // Defensive: handle b possibly not being a string
-                                        const lower =
-                                            typeof b === "string"
-                                                ? b.toLowerCase()
-                                                : (b?.label?.toLowerCase?.() ||
-                                                    b?.en?.toLowerCase?.() ||
-                                                    b?.gr?.toLowerCase?.() ||
-                                                    "");
-                                        if (lower.includes("wallet")) Icon = KeyIcon;
-                                        if (lower.includes("lesson")) Icon = BookOpenIcon;
-                                        if (lower.includes("quiz")) Icon = TrophyIcon;
+                            {(metadata?.badges?.length > 0 || eventBadges.length > 0) ? (
+                                <>
+                                    <div className="flex flex-wrap gap-2">
+                                        {/* Standard achievement badges */}
+                                        {metadata?.badges?.map((b, i) => {
+                                            let Icon = StarIcon;
+                                            const lower =
+                                                typeof b === "string"
+                                                    ? b.toLowerCase()
+                                                    : (b?.label?.toLowerCase?.() ||
+                                                        b?.en?.toLowerCase?.() ||
+                                                        b?.gr?.toLowerCase?.() ||
+                                                        "");
 
-                                        return (
-                                            <span
-                                                key={`${i}-${typeof b === "string" ? b : b?.id || "badge"}`}
-                                                className="
-                                                inline-flex items-center gap-2 
-                                                px-3 py-1 rounded-full 
-                                                text-xs font-semibold
-                                                bg-indigo-200/60 dark:bg-indigo-900/40
-                                                border border-indigo-300/30 dark:border-indigo-700/30
-                                                text-slate-900 dark:text-slate-100
-                                            "
-                                            >
-                                                <Icon className="w-4 h-4 text-white/90" />
-                                                {typeof b === "string"
-                                                    ? b
-                                                    : b?.en || b?.gr || b?.label || JSON.stringify(b)}
-                                            </span>
-                                        );
-                                    })}
-                                </div>
+                                            if (lower.includes("wallet")) Icon = KeyIcon;
+                                            if (lower.includes("lesson")) Icon = BookOpenIcon;
+                                            if (lower.includes("quiz")) Icon = TrophyIcon;
+
+                                            return (
+                                                <span
+                                                    key={`badge-${i}-${typeof b === "string" ? b : b?.id || "badge"}`}
+                                                    className="
+                            inline-flex items-center gap-2 
+                            px-3 py-1 rounded-full 
+                            text-xs font-semibold
+                            bg-indigo-200/60 dark:bg-indigo-900/40
+                            border border-indigo-300/30 dark:border-indigo-700/30
+                            text-slate-900 dark:text-slate-100
+                        "
+                                                >
+                                                    <Icon className="w-4 h-4 text-white/90" />
+                                                    {typeof b === "string"
+                                                        ? b
+                                                        : b?.en || b?.gr || b?.label || JSON.stringify(b)}
+                                                </span>
+                                            );
+                                        })}
+
+                                        {/* Event badges (e.g. Genesis) */}
+                                        {eventBadges.map((b, i) => {
+                                            const label = typeof b === "string" ? b : b?.name || "Event Badge";
+                                            const lower = String(label).toLowerCase();
+                                            const isGenesis = lower.includes("genesis");
+
+                                            return (
+                                                <span
+                                                    key={`event-badge-${i}`}
+                                                    className={`
+                                                        inline-flex items-center gap-2
+                                                        px-3 py-1 rounded-full
+                                                        text-xs font-semibold
+                                                        ${isGenesis
+                                                            ? "bg-gradient-to-r from-purple-500/80 to-fuchsia-500/80 text-white border border-purple-300/40 shadow-[0_0_10px_rgba(168,85,247,0.6)] animate-[genesisPulse_0.9s_ease-out]"
+                                                            : "bg-purple-200/70 dark:bg-purple-900/40 border border-purple-300/40 dark:border-purple-700/40 text-slate-900 dark:text-slate-100"
+                                                        }
+                                                    `}
+                                                >
+                                                    <StarIcon className={`w-4 h-4 ${isGenesis ? "text-yellow-300" : "text-white/90"}`} />
+                                                    {label}
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+
+                                    <div className="w-full mt-4">
+                                        <button
+                                            disabled={hasGenesisBadge}
+                                            onClick={() => {
+                                                if (hasGenesisBadge) return;
+                                                navigate("/events/genesis");
+                                            }}
+                                            className={`
+                                                w-full py-2 px-4 rounded-lg
+                                                text-xs font-semibold transition shadow-md
+                                                ${hasGenesisBadge
+                                                    ? "bg-green-500 text-white cursor-default"
+                                                    : "bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:scale-[1.02]"}
+                                            `}
+                                        >
+                                            {hasGenesisBadge
+                                                ? "Genesis Badge Minted ✓"
+                                                : "Mint Genesis Event Badge"}
+                                        </button>
+                                    </div>
+                                </>
                             ) : (
-                                <p className="text-slate-600 dark:text-slate-300">
-                                    No badges yet…
-                                </p>
+                                <>
+                                    <p className="text-slate-600 dark:text-slate-300">
+                                        No badges yet…
+                                    </p>
+                                    <div className="w-full mt-4">
+                                        <button
+                                            disabled={hasGenesisBadge}
+                                            onClick={() => {
+                                                if (hasGenesisBadge) return;
+                                                navigate("/events/genesis");
+                                            }}
+                                            className={`
+                                                w-full py-2 px-4 rounded-lg
+                                                text-xs font-semibold transition shadow-md
+                                                ${hasGenesisBadge
+                                                    ? "bg-green-500 text-white cursor-default"
+                                                    : "bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:scale-[1.02]"}
+                                            `}
+                                        >
+                                            {hasGenesisBadge
+                                                ? "Genesis Badge Minted ✓"
+                                                : "Mint Genesis Event Badge"}
+                                        </button>
+                                    </div>
+                                </>
                             )}
                         </DashboardCard>
 

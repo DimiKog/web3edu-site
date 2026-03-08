@@ -116,15 +116,17 @@ const Footer = ({ content }) => {
                         <FaGithub className="relative" />
                     </a>
 
-                    <button
-                        type="button"
-                        disabled
-                        aria-label="Community Discord (coming soon)"
-                        title="Community Discord (Coming Soon)"
-                        className="relative opacity-60 cursor-not-allowed"
+                    <a
+                        href="https://discord.gg/V3DuwaTUM5"
+                        target="_blank" rel="noopener noreferrer"
+                        aria-label="Join the Web3Edu Discord community"
+                        title="Join our Discord community"
+                        className="relative hover:scale-110 transition-transform group"
                     >
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8A57FF]/20 to-[#4ACBFF]/20 blur-xl opacity-0
+                                group-hover:opacity-100 transition"></div>
                         <FaDiscord className="relative" aria-hidden="true" />
-                    </button>
+                    </a>
 
                     <button
                         type="button"

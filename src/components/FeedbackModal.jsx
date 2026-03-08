@@ -86,12 +86,14 @@ export default function FeedbackModal({
     const [issues, setIssues] = useState("");
     const [recommend, setRecommend] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!address) return;
 
         setSubmitting(true);
+        setSubmitError("");
 
         const payload = {
             labId,
@@ -109,11 +111,16 @@ export default function FeedbackModal({
         try {
             await onSubmit(payload);
             localStorage.setItem(`feedback_${labId}`, "true");
+            onClose();
         } catch (err) {
             console.error("Feedback submit failed:", err);
+            setSubmitError(
+                lang === "gr"
+                    ? "Η υποβολή απέτυχε. Δοκιμάστε ξανά."
+                    : "Submission failed. Please try again."
+            );
         } finally {
             setSubmitting(false);
-            onClose();
         }
     };
 
@@ -243,6 +250,11 @@ export default function FeedbackModal({
                             {t.skip}
                         </button>
                     </div>
+                    {submitError && (
+                        <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                            {submitError}
+                        </p>
+                    )}
                 </form>
             </div>
         </div>

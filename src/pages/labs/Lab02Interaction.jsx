@@ -75,6 +75,33 @@ const isLikelyPrivateKey = (value) => {
     return /^0x[a-fA-F0-9]{64}$/.test(value);
 };
 
+const normalizeHex = (value) => value.trim().toLowerCase();
+
+const derivePublicKeyFromPrivateKey = (privateKey) => {
+    const normalizedPrivateKey = privateKey.trim().replace(/^0x/i, "");
+    const privateKeyBytes = Uint8Array.from(
+        normalizedPrivateKey.match(/.{1,2}/g).map((hexByte) => parseInt(hexByte, 16))
+    );
+    const publicKeyBytes = secp256k1.getPublicKey(privateKeyBytes, false);
+    const publicKeyHex =
+        "0x" +
+        Array.from(publicKeyBytes)
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+    return publicKeyHex;
+};
+
+const bytesToHex = (bytes) =>
+    Array.from(bytes)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+const computePayloadIntegrity = ({ receiverPublicKey, nonce, ciphertext }) => {
+    const normalizedReceiverPublicKey = receiverPublicKey.trim().toLowerCase();
+    const integrityInput = `${normalizedReceiverPublicKey}|${nonce}|${ciphertext}`;
+    return `0x${bytesToHex(keccak_256(new TextEncoder().encode(integrityInput)))}`;
+};
+
 const copyToClipboard = async (text) => {
     try {
         await navigator.clipboard.writeText(text);
@@ -155,12 +182,15 @@ const Lab02Interaction = () => {
 
     const handleEncryptClick = () => {
         // Simulate encryption
+        const receiverPublicKeyNormalized = labState.encryption.receiverPublicKey.trim();
         const fakePayload = {
             version: 1,
             nonce: "randomNonce123",
-            ephemPublicKey: labState.encryption.receiverPublicKey.slice(0, 20),
+            receiverPublicKey: receiverPublicKeyNormalized,
+            ephemPublicKey: receiverPublicKeyNormalized.slice(0, 20),
             ciphertext: btoa(labState.encryption.messagePlaintext),
         };
+        fakePayload.integrity = computePayloadIntegrity(fakePayload);
         const fakePayloadText = JSON.stringify(fakePayload, null, 2);
 
         setLabState((s) => ({
@@ -175,6 +205,11 @@ const Lab02Interaction = () => {
                 ...s.discoveredData,
                 "Encryption used the receiver’s public key and occurred entirely off‑chain.",
             ],
+            errors: {
+                ...s.errors,
+                encrypt: null,
+                decrypt: null,
+            },
         }));
     };
 
@@ -502,6 +537,12 @@ const Lab02Interaction = () => {
                                         decryption: {
                                             ...s.decryption,
                                             receiverPrivateKey: e.target.value,
+                                            decryptedMessage: null,
+                                            decryptionComplete: false,
+                                        },
+                                        errors: {
+                                            ...s.errors,
+                                            decrypt: null,
                                         },
                                     }))
                                 }
@@ -533,6 +574,12 @@ const Lab02Interaction = () => {
                                         decryption: {
                                             ...s.decryption,
                                             payloadInputText: e.target.value,
+                                            decryptedMessage: null,
+                                            decryptionComplete: false,
+                                        },
+                                        errors: {
+                                            ...s.errors,
+                                            decrypt: null,
                                         },
                                     }))
                                 }
@@ -550,22 +597,90 @@ const Lab02Interaction = () => {
                                     labState.decryption.payloadInputText.trim() === ""
                                 }
                                 onClick={() => {
-                                    // Simulated decryption
-                                    setLabState((s) => ({
-                                        ...s,
-                                        decryption: {
-                                            ...s.decryption,
-                                            decryptedMessage: atob(
-                                                JSON.parse(s.decryption.payloadInputText).ciphertext
-                                            ),
-                                            decryptionComplete: true,
-                                        },
-                                        discoveredData: [
-                                            ...s.discoveredData,
-                                            "Only the holder of the corresponding private key can decrypt the message.",
-                                        ],
-                                        explanationUnlocked: true,
-                                    }));
+                                    // Simulated decryption with keypair validation
+                                    setLabState((s) => {
+                                        try {
+                                            const payload = JSON.parse(s.decryption.payloadInputText);
+
+                                            if (!payload || typeof payload !== "object") {
+                                                throw new Error("Invalid payload JSON.");
+                                            }
+                                            if (typeof payload.ciphertext !== "string") {
+                                                throw new Error("Payload is missing a valid ciphertext.");
+                                            }
+                                            if (typeof payload.nonce !== "string") {
+                                                throw new Error("Payload is missing a valid nonce.");
+                                            }
+                                            if (
+                                                typeof payload.receiverPublicKey !== "string" ||
+                                                payload.receiverPublicKey.trim() === ""
+                                            ) {
+                                                throw new Error("Payload is missing receiverPublicKey.");
+                                            }
+                                            if (
+                                                typeof payload.integrity !== "string" ||
+                                                payload.integrity.trim() === ""
+                                            ) {
+                                                throw new Error("Payload is missing integrity.");
+                                            }
+
+                                            const derivedPublicKey = derivePublicKeyFromPrivateKey(
+                                                s.decryption.receiverPrivateKey
+                                            );
+
+                                            if (
+                                                normalizeHex(derivedPublicKey) !==
+                                                normalizeHex(payload.receiverPublicKey)
+                                            ) {
+                                                throw new Error(
+                                                    "Private key does not match this payload's receiver public key."
+                                                );
+                                            }
+
+                                            const expectedIntegrity = computePayloadIntegrity(payload);
+                                            if (normalizeHex(expectedIntegrity) !== normalizeHex(payload.integrity)) {
+                                                throw new Error(
+                                                    "Payload integrity check failed. Data may have been modified."
+                                                );
+                                            }
+
+                                            const decryptedMessage = atob(payload.ciphertext);
+
+                                            return {
+                                                ...s,
+                                                decryption: {
+                                                    ...s.decryption,
+                                                    decryptedMessage,
+                                                    decryptionComplete: true,
+                                                },
+                                                discoveredData: [
+                                                    ...s.discoveredData,
+                                                    "Only the holder of the corresponding private key can decrypt the message.",
+                                                ],
+                                                explanationUnlocked: true,
+                                                errors: {
+                                                    ...s.errors,
+                                                    decrypt: null,
+                                                },
+                                            };
+                                        } catch (error) {
+                                            return {
+                                                ...s,
+                                                decryption: {
+                                                    ...s.decryption,
+                                                    decryptedMessage: null,
+                                                    decryptionComplete: false,
+                                                },
+                                                errors: {
+                                                    ...s.errors,
+                                                    decrypt:
+                                                        error instanceof Error
+                                                            ? error.message
+                                                            : "Decryption failed. Check your key and payload.",
+                                                },
+                                            };
+                                        }
+                                    });
                                 }}
                                 className={`mt-4 px-4 py-2 rounded-md font-semibold text-white ${isLikelyPrivateKey(labState.decryption.receiverPrivateKey) &&
                                     labState.decryption.payloadInputText.trim() !== ""
@@ -575,6 +690,12 @@ const Lab02Interaction = () => {
                             >
                                 Decrypt
                             </button>
+
+                            {labState.errors.decrypt && (
+                                <div className="mt-3 p-2 rounded-md bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300 text-sm font-semibold">
+                                    {labState.errors.decrypt}
+                                </div>
+                            )}
 
                             {labState.decryption.decryptionComplete && (
                                 <div className="mt-4 p-3 rounded-md bg-green-100 dark:bg-green-900

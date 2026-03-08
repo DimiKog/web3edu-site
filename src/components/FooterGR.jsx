@@ -126,15 +126,17 @@ const FooterGr = ({ content }) => {
                         <FaGithub className="relative" />
                     </a>
 
-                    <button
-                        type="button"
-                        disabled
-                        aria-label="Discord κοινότητα (έρχεται σύντομα)"
-                        title="Discord κοινότητα (έρχεται σύντομα)"
-                        className="relative opacity-60 cursor-not-allowed"
+                    <a
+                        href="https://discord.gg/V3DuwaTUM5"
+                        target="_blank" rel="noopener noreferrer"
+                        aria-label="Είσοδος στην κοινότητα Discord του Web3Edu"
+                        title="Μπείτε στην κοινότητα Discord"
+                        className="relative hover:scale-110 transition-transform group"
                     >
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8A57FF]/20 to-[#4ACBFF]/20 blur-xl opacity-0
+                                group-hover:opacity-100 transition"></div>
                         <FaDiscord className="relative" aria-hidden="true" />
-                    </button>
+                    </a>
 
                     <button
                         type="button"
