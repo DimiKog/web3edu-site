@@ -79,13 +79,13 @@ const StartHereGR = () => {
                             {/* Simple Checklist */}
                             <div className="grid md:grid-cols-3 gap-4">
                                 <SetupStep number="1" title="Εγκατάσταση MetaMask">
-                                    Επέκταση browser (Chrome, Brave, Firefox)
+                                    Επέκταση browser ή εφαρμογή MetaMask σε κινητό
                                 </SetupStep>
                                 <SetupStep number="2" title="Σύνδεση πορτοφολιού">
-                                    Πατήστε "Σύνδεση Πορτοφολιού" όταν ζητηθεί
+                                    Desktop: "Σύνδεση Πορτοφολιού". Mobile: ανοίξτε το Web3Edu από το MetaMask Browser.
                                 </SetupStep>
                                 <SetupStep number="3" title="Έγκριση δικτύου">
-                                    Αποδεχτείτε το Besu Edu‑Net όταν σας ζητηθεί
+                                    Αποδεχτείτε το Besu Edu‑Net. Αν δεν εμφανιστεί prompt, προσθέστε το χειροκίνητα.
                                 </SetupStep>
                             </div>
 
@@ -164,6 +164,7 @@ const StartHereGR = () => {
                                                 icon="1️⃣"
                                             >
                                                 <p>Εγκαταστήστε το MetaMask ως επέκταση browser από το <a href="https://metamask.io" target="_blank" rel="noopener noreferrer" className="text-[#4ACBFF] hover:underline">metamask.io</a>.</p>
+                                                <p>Αν χρησιμοποιείτε κινητό ή tablet, εγκαταστήστε την <strong>εφαρμογή MetaMask</strong> αντί για extension.</p>
                                                 <p>Δημιουργήστε νέο πορτοφόλι ή εισάγετε ένα υπάρχον. <strong>Αποθηκεύστε τη φράση ανάκτησης εκτός διαδικτύου</strong> — ποτέ ως screenshot ή ψηφιακό αρχείο.</p>
                                                 <p className="text-sm text-white/60">Υποστηριζόμενοι browsers: Chrome, Brave, Firefox, Edge</p>
                                             </DetailedStep>
@@ -174,6 +175,7 @@ const StartHereGR = () => {
                                             >
                                                 <p>Όταν ανοίξετε το Web3Edu, θα δείτε ένα κουμπί <strong>"Σύνδεση Πορτοφολιού"</strong> πάνω δεξιά.</p>
                                                 <p>Πατήστε το και εγκρίνετε τη σύνδεση στο MetaMask. Αυτό δημιουργεί τη μαθησιακή σας ταυτότητα.</p>
+                                                <p>Σε κινητό, ανοίξτε το Web3Edu από <strong>MetaMask App → Browser</strong>. Αν μείνετε σε Safari/Chrome κινητού, συνήθως δεν ανιχνεύεται πορτοφόλι.</p>
                                                 <p className="text-sm text-white/60">Η διεύθυνσή σας εμφανίζεται, αλλά παραμένει ψευδωνυμική.</p>
                                             </DetailedStep>
 
@@ -183,6 +185,13 @@ const StartHereGR = () => {
                                             >
                                                 <p>Κατά το πρώτο σας εργαστήριο, το MetaMask θα ζητήσει να προσθέσει νέο δίκτυο: <strong>Web3Edu Besu Edu‑Net</strong>.</p>
                                                 <p>Πατήστε "Approve" — έτσι συνδέεστε στο εκπαιδευτικό μας blockchain.</p>
+                                                <p>Αν στο MetaMask Mobile δεν εμφανίζεται αίτημα προσθήκης δικτύου, προσθέστε το χειροκίνητα από <strong>Settings → Networks → Add Network</strong> με:
+                                                    <br />Chain Name: <strong>Besu EduNet</strong>
+                                                    <br />RPC URL: <strong>https://rpc.dimikog.org/rpc/</strong>
+                                                    <br />Chain ID: <strong>424242</strong>
+                                                    <br />Currency Symbol: <strong>EDU-D</strong>
+                                                    <br />Block Explorer: <strong>https://blockexplorer.dimikog.org</strong>
+                                                </p>
                                                 <p className="text-sm text-white/60">Το δίκτυο αυτό δεν χρησιμοποιεί πραγματικό ETH. Όλες οι συναλλαγές είναι μόνο για μάθηση.</p>
                                             </DetailedStep>
 
@@ -211,6 +220,10 @@ const StartHereGR = () => {
                                                 <TroubleshootItem
                                                     issue="Το δίκτυο δεν εμφανίζεται"
                                                     solution="Βεβαιωθείτε ότι πατήσατε 'Approve' όταν σας ζητήθηκε. Μπορείτε να το προσθέσετε χειροκίνητα: Settings → Networks → Add Network."
+                                                />
+                                                <TroubleshootItem
+                                                    issue="Στο MetaMask Mobile δεν εμφανίζεται prompt δικτύου"
+                                                    solution="Ανοίξτε το Web3Edu μέσα από το MetaMask App Browser και τρέξτε Network Check. Αν ακόμη δεν εμφανίζεται prompt, προσθέστε χειροκίνητα το Besu EduNet (Chain ID 424242, RPC https://rpc.dimikog.org/rpc/, Symbol EDU-D)."
                                                 />
                                                 <TroubleshootItem
                                                     issue="Οι συναλλαγές αποτυγχάνουν"
@@ -251,6 +264,10 @@ const StartHereGR = () => {
                                                 <FAQItem
                                                     question="Μπορώ να χρησιμοποιήσω άλλο πορτοφόλι;"
                                                     answer="Το MetaMask απαιτείται για την καλύτερη εμπειρία. Άλλα Web3 πορτοφόλια ίσως λειτουργούν, αλλά δεν υποστηρίζονται επίσημα."
+                                                />
+                                                <FAQItem
+                                                    question="Μπορώ να συμμετέχω από κινητό;"
+                                                    answer="Ναι. Χρησιμοποιήστε την εφαρμογή MetaMask και ανοίξτε το Web3Edu από τον in-app Browser. Αν το Besu Edu‑Net δεν προστεθεί αυτόματα, προσθέστε το χειροκίνητα από τις ρυθμίσεις δικτύου."
                                                 />
                                                 <FAQItem
                                                     question="Τι γίνεται αν χάσω την πρόσβαση στο πορτοφόλι μου;"

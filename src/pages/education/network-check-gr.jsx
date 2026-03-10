@@ -102,7 +102,7 @@ export default function NetworkCheckGR() {
     async function connectWallet() {
         try {
             if (!window.ethereum) {
-                setError("Δεν εντοπίστηκε MetaMask. Εγκαταστήστε το πρώτα.");
+                setError("Δεν εντοπίστηκε MetaMask. Σε κινητό, ανοίξτε αυτή τη σελίδα μέσα από το MetaMask App Browser και δοκιμάστε ξανά.");
                 return;
             }
 
@@ -180,7 +180,18 @@ export default function NetworkCheckGR() {
                             στο <strong>Besu EduNet</strong> και για να ελέγξετε το υπόλοιπό σας σε <strong>{NATIVE_SYMBOL}</strong>.
                         </p>
                         <p>
+                            Σε κινητό, βεβαιωθείτε ότι η σελίδα ανοίγει από <strong>MetaMask App → Browser</strong> (όχι από Safari/Chrome).
+                        </p>
+                        <p>
                             Αν μόλις λάβατε tokens από το faucet, πατήστε <em>↻ Ανανέωση</em> για ενημέρωση.
+                        </p>
+                        <p>
+                            Αν το MetaMask δεν εμφανίζει αίτημα προσθήκης δικτύου, προσθέστε το Besu χειροκίνητα:
+                            <br />Chain Name: <strong>{CHAIN_NAME}</strong>
+                            <br />RPC URL: <strong>{BESU_RPC_URL}</strong>
+                            <br />Chain ID: <strong>{CHAIN_ID_DEC}</strong> ({CHAIN_ID_HEX})
+                            <br />Currency Symbol: <strong>{NATIVE_SYMBOL}</strong>
+                            <br />Block Explorer: <strong>https://blockexplorer.dimikog.org</strong>
                         </p>
                     </section>
 

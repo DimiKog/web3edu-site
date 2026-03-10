@@ -102,7 +102,7 @@ export default function NetworkCheck() {
     async function connectWallet() {
         try {
             if (!window.ethereum) {
-                setError("MetaMask not detected. Please install it first.");
+                setError("MetaMask not detected. On mobile, open this page inside MetaMask App Browser, then try again.");
                 return;
             }
 
@@ -180,7 +180,18 @@ export default function NetworkCheck() {
                             check your balance in <strong>{NATIVE_SYMBOL}</strong>.
                         </p>
                         <p>
+                            On mobile, make sure this page is opened from <strong>MetaMask App → Browser</strong> (not Safari/Chrome).
+                        </p>
+                        <p>
                             If you just received tokens from the faucet, press <em>↻ Refresh</em> to update.
+                        </p>
+                        <p>
+                            If MetaMask does not show a network prompt, add Besu manually:
+                            <br />Chain Name: <strong>{CHAIN_NAME}</strong>
+                            <br />RPC URL: <strong>{BESU_RPC_URL}</strong>
+                            <br />Chain ID: <strong>{CHAIN_ID_DEC}</strong> ({CHAIN_ID_HEX})
+                            <br />Currency Symbol: <strong>{NATIVE_SYMBOL}</strong>
+                            <br />Block Explorer: <strong>https://blockexplorer.dimikog.org</strong>
                         </p>
                     </section>
 

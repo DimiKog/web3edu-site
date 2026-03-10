@@ -79,13 +79,13 @@ const StartHere = () => {
                             {/* Simple Checklist */}
                             <div className="grid md:grid-cols-3 gap-4">
                                 <SetupStep number="1" title="Install MetaMask">
-                                    Browser extension (Chrome, Brave, Firefox)
+                                    Browser extension or MetaMask mobile app
                                 </SetupStep>
                                 <SetupStep number="2" title="Connect Wallet">
-                                    Click "Connect Wallet" when prompted
+                                    Desktop: click "Connect Wallet". Mobile: open Web3Edu inside MetaMask Browser first.
                                 </SetupStep>
                                 <SetupStep number="3" title="Approve Network">
-                                    Accept the Besu Edu‑Net when asked
+                                    Accept Besu Edu‑Net. If no prompt appears, add it manually.
                                 </SetupStep>
                             </div>
 
@@ -165,6 +165,7 @@ const StartHere = () => {
                                                 icon="1️⃣"
                                             >
                                                 <p>Install MetaMask as a browser extension from <a href="https://metamask.io" target="_blank" rel="noopener noreferrer" className="text-[#4ACBFF] hover:underline">metamask.io</a>.</p>
+                                                <p>If you are on phone or tablet, install the <strong>MetaMask mobile app</strong> instead of the extension.</p>
                                                 <p>Create a new wallet or import an existing one. <strong>Store your recovery phrase offline</strong> — never as a screenshot or digital file.</p>
                                                 <p className="text-sm text-white/60">Supported browsers: Chrome, Brave, Firefox, Edge</p>
                                             </DetailedStep>
@@ -175,6 +176,7 @@ const StartHere = () => {
                                             >
                                                 <p>When you navigate to Web3Edu, you'll see a <strong>"Connect Wallet"</strong> button in the top right.</p>
                                                 <p>Click it and approve the connection in MetaMask. This establishes your learning identity.</p>
+                                                <p>On mobile, open Web3Edu from <strong>MetaMask App → Browser</strong>. If you stay in Safari/Chrome mobile, wallet detection usually fails.</p>
                                                 <p className="text-sm text-white/60">Your address will be displayed but remains pseudonymous.</p>
                                             </DetailedStep>
 
@@ -184,6 +186,13 @@ const StartHere = () => {
                                             >
                                                 <p>During your first lab, MetaMask will ask to add a new network: <strong>Web3Edu Besu Edu‑Net</strong>.</p>
                                                 <p>Click "Approve" — this connects you to our educational blockchain.</p>
+                                                <p>If MetaMask Mobile does not show the network request, add it manually from <strong>Settings → Networks → Add Network</strong> using:
+                                                    <br />Chain Name: <strong>Besu EduNet</strong>
+                                                    <br />RPC URL: <strong>https://rpc.dimikog.org/rpc/</strong>
+                                                    <br />Chain ID: <strong>424242</strong>
+                                                    <br />Currency Symbol: <strong>EDU-D</strong>
+                                                    <br />Block Explorer: <strong>https://blockexplorer.dimikog.org</strong>
+                                                </p>
                                                 <p className="text-sm text-white/60">This network uses no real ETH. All transactions are for learning only.</p>
                                             </DetailedStep>
 
@@ -212,6 +221,10 @@ const StartHere = () => {
                                                 <TroubleshootItem
                                                     issue="Network not appearing"
                                                     solution="Make sure you clicked 'Approve' when MetaMask asked. You can manually add it: Settings → Networks → Add Network."
+                                                />
+                                                <TroubleshootItem
+                                                    issue="MetaMask Mobile shows no network prompt"
+                                                    solution="Open Web3Edu inside MetaMask App Browser, then run Network Check. If prompt still does not appear, add Besu EduNet manually (Chain ID 424242, RPC https://rpc.dimikog.org/rpc/, Symbol EDU-D)."
                                                 />
                                                 <TroubleshootItem
                                                     issue="Transactions failing"
@@ -252,6 +265,10 @@ const StartHere = () => {
                                                 <FAQItem
                                                     question="Can I use a different wallet?"
                                                     answer="MetaMask is required for the best experience. Other Web3 wallets may work but aren't officially supported."
+                                                />
+                                                <FAQItem
+                                                    question="Can I join from mobile?"
+                                                    answer="Yes. Use the MetaMask app and open Web3Edu through its in-app Browser. If Besu Edu-Net is not auto-added, add it manually in MetaMask network settings."
                                                 />
                                                 <FAQItem
                                                     question="What if I lose access to my wallet?"
