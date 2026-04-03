@@ -14,6 +14,7 @@ const PoELabGR = () => {
             level="Εφαρμοσμένο · Project Lab"
             estimatedTime="15–20 λεπτά"
             difficulty="Μέτριο"
+            xp={500}
             missionText={`
 Το Proof of Escape δεν είναι tutorial — είναι πρόκληση.
 

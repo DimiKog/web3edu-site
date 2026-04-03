@@ -145,14 +145,14 @@ export default function LabCompletionClaim({
     }, [showCelebration]);
 
     useEffect(() => {
-        if (checkingStatus || !labId || !address) return;
+        if (checkingStatus || !claimed || !labId || !address) return;
 
         const submitted = localStorage.getItem(`feedback_${labId}`) === "true";
         const prompted = localStorage.getItem(`feedback_prompted_${labId}`) === "true";
         if (submitted || prompted) return;
 
         setShowFeedback(true);
-    }, [checkingStatus, labId, address]);
+    }, [checkingStatus, claimed, labId, address]);
 
     const handleClaimCompletion = async () => {
         if (claimed) return;
@@ -194,6 +194,7 @@ export default function LabCompletionClaim({
             setClaimed(true);
             setCompletedAt(new Date().toISOString());
             setShowCelebration(true);
+            setShowFeedback(true);
         } catch (err) {
             console.error(err);
             setError(labels.backendError);

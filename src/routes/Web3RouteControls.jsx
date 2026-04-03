@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAccount, useDisconnect } from "wagmi";
 import {
@@ -6,6 +6,12 @@ import {
   generateAvatarStyle,
   shortAddress,
 } from "../components/identity-ui.jsx";
+import {
+  createBackendError,
+  getRoleFromXpTotal,
+  getXpTotalFromBackend,
+  isUserStateUnavailableError,
+} from "../utils/progression.js";
 
 const ADMIN_WALLETS = (
   import.meta.env.VITE_ADMIN_WALLETS ??
@@ -32,14 +38,7 @@ export default function Web3RouteControls() {
   const isGreek = currentPath.includes("-gr") || currentPath === "/gr";
   const isJoinRoute = currentPath.startsWith("/join");
   const dashboardPath = isGreek ? "/dashboard-gr" : "/dashboard";
-
-  const savedTier = useMemo(
-    () =>
-      typeof window !== "undefined"
-        ? localStorage.getItem("web3edu-tier") || "Explorer"
-        : "Explorer",
-    []
-  );
+  const [savedTier, setSavedTier] = useState("Explorer");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -51,6 +50,38 @@ export default function Web3RouteControls() {
       localStorage.removeItem(WALLET_ADDRESS_KEY);
     }
     window.dispatchEvent(new Event("web3edu-wallet-state"));
+  }, [address, isConnected]);
+
+  useEffect(() => {
+    if (!isConnected || !address) {
+      setSavedTier("Explorer");
+      return;
+    }
+
+    const controller = new AbortController();
+    const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+
+    fetch(`${BACKEND}/web3sbt/resolve/${address}`, { signal: controller.signal })
+      .then((res) => {
+        if (res.ok) return res.json();
+        return res.json().catch(() => ({})).then((payload) => {
+          throw createBackendError(res.status, payload);
+        });
+      })
+      .then((data) => {
+        const xpTotal = getXpTotalFromBackend(data);
+        console.log("XP from backend:", xpTotal);
+        setSavedTier(getRoleFromXpTotal(xpTotal));
+      })
+      .catch((err) => {
+        if (isUserStateUnavailableError(err)) {
+          console.warn("Backend user state temporarily unavailable; preserving saved tier.");
+          return;
+        }
+        setSavedTier("Explorer");
+      });
+
+    return () => controller.abort();
   }, [address, isConnected]);
 
   if (!isConnected && isJoinRoute) return null;
@@ -89,14 +120,14 @@ export default function Web3RouteControls() {
                 window.dispatchEvent(new Event("web3edu-wallet-state"));
               }
             }}
-            className="rounded-full border border-red-400/30 bg-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-50 cursor-pointer transition-all duration-200 hover:bg-red-500/40 hover:scale-105 hover:border-red-400/50 hover:shadow-lg"
+            className="hidden sm:inline-flex rounded-full border border-red-400/30 bg-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-50 cursor-pointer transition-all duration-200 hover:bg-red-500/40 hover:scale-105 hover:border-red-400/50 hover:shadow-lg"
           >
             {isGreek ? "Αποσύνδεση" : "Disconnect"}
           </button>
           {isAdminWallet(address) ? (
             <Link
               to="/admin"
-              className="rounded-full border border-red-400/40 bg-red-500/25 px-3 py-1.5 text-xs font-semibold text-white cursor-pointer transition-all duration-200 hover:bg-red-500/50 hover:scale-105 hover:border-red-400/60 hover:shadow-lg"
+              className="hidden sm:inline-flex rounded-full border border-red-400/40 bg-red-500/25 px-3 py-1.5 text-xs font-semibold text-white cursor-pointer transition-all duration-200 hover:bg-red-500/50 hover:scale-105 hover:border-red-400/60 hover:shadow-lg"
             >
               {isGreek ? "Διαχείριση" : "Admin"}
             </Link>

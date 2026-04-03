@@ -14,6 +14,7 @@ const PoELab = () => {
             level="Applied · Project Lab"
             estimatedTime="15–20 minutes"
             difficulty="Medium"
+            xp={500}
             missionText={`
 Proof of Escape is not a tutorial — it is a challenge.
 

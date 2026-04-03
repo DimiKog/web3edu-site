@@ -10,6 +10,12 @@ import {
 } from "../components/identity-ui.jsx";
 import { QRCodeSVG } from "qrcode.react";
 import identityIcon from "../assets/icons/identity-icon.webp";
+import {
+    createBackendError,
+    getRoleFromXpTotal,
+    getXpTotalFromBackend,
+    isUserStateUnavailableError,
+} from "../utils/progression.js";
 
 export default function SbtView() {
     const { address, isConnected } = useAccount();
@@ -35,18 +41,25 @@ export default function SbtView() {
         setError("");
         fetch(`${BACKEND}/web3sbt/resolve/${address}`)
             .then(res => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) {
+                    return res.json().catch(() => ({})).then((payload) => {
+                        throw createBackendError(res.status, payload);
+                    });
+                }
                 return res.json();
             })
             .then(data => {
                 setProfile(data);
-                // Store tier for navbar avatar
-                if (data?.metadata?.tier) {
-                    localStorage.setItem("web3edu_tier", data.metadata.tier);
-                }
+                console.log("XP from backend:", getXpTotalFromBackend(data));
                 setLoading(false);
             })
             .catch(err => {
+                if (isUserStateUnavailableError(err)) {
+                    console.warn("Backend user state temporarily unavailable; preserving SBT view state.");
+                    setError("Your profile is temporarily unavailable. Please try again.");
+                    setLoading(false);
+                    return;
+                }
                 console.error("Failed to fetch SBT profile:", err);
                 setError("Could not load your SBT passport.");
                 setLoading(false);
@@ -62,7 +75,7 @@ export default function SbtView() {
             .catch(err => console.error("Clipboard error:", err));
     };
 
-    const tier = profile?.metadata?.tier;
+    const tier = getRoleFromXpTotal(getXpTotalFromBackend(profile));
     const badges = profile?.metadata?.badges ?? [];
     const tokenId = (() => {
         const candidates = [

@@ -2,6 +2,7 @@ import { LockClosedIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import identityFallback from "../assets/icons/identity-icon.webp";
+import { getRoleFromXpTotal, getXpTotalFromBackend } from "../utils/progression.js";
 
 <style jsx>{`
 @keyframes slideDownFade {
@@ -71,7 +72,8 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
     const [showQR, setShowQR] = useState(false);
     useEffect(() => setMounted(true), []);
 
-    const tier = metadata?.tier || "Explorer";
+    const xpTotal = getXpTotalFromBackend(metadata);
+    const tier = getRoleFromXpTotal(xpTotal);
     const tierGlow =
         tier === "Architect"
             ? "shadow-[0_0_25px_rgba(255,215,0,0.35)]"
@@ -180,14 +182,14 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                         {name || metadata?.name || metadata?.displayName || wallet || "Web3Edu Identity"}
                     </h2>
                     <div className="mt-3 flex flex-wrap justify-center gap-2">
-                        {metadata?.xp !== undefined && (
+                        {xpTotal !== undefined && (
                             <span className="px-3 py-1 text-xs rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-semibold">
-                                XP: {metadata.xp}
+                                XP: {xpTotal}
                             </span>
                         )}
-                        {metadata?.tier && (
+                        {tier && (
                             <span className="px-3 py-1 text-xs rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-semibold">
-                                {lang === "gr" ? `Επίπεδο: ${metadata.tier}` : `Tier: ${metadata.tier}`}
+                                {lang === "gr" ? `Επίπεδο: ${tier}` : `Tier: ${tier}`}
                             </span>
                         )}
                         {metadata?.edition && (

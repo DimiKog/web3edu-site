@@ -8,20 +8,15 @@ const XPProgressCard = ({
     nextTierPercent,
     lang = "en",
 }) => {
-    // Tier segmentation logic (Explorer → Builder → Architect)
     const tierOrder = ["Explorer", "Builder", "Architect"];
     const tierIndex = tierOrder.indexOf(tier);
     const safeTierIndex = tierIndex === -1 ? 0 : tierIndex;
-
-    // nextTierPercent represents progress within the current tier (0–100)
-    const intraTierPercent = nextTierPercent ?? 0;
-
-    // Divide progress bar into 3 equal segments
+    const intraTierPercent = nextTierPercent ?? xpPercent ?? 0;
     const segmentSize = 100 / 3;
 
     const computedOverallPercent =
         safeTierIndex >= 2
-            ? 100 // Architect = full bar
+            ? 100
             : safeTierIndex * segmentSize + (intraTierPercent / 100) * segmentSize;
 
     return (

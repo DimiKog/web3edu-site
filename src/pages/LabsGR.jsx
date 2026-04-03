@@ -1,841 +1,659 @@
-// Animation: Όταν ένα εργαστήριο επισημαίνεται ως ολοκληρωμένο, το badge "✓ Ολοκληρώθηκε" εμφανίζεται
-// με ένα διακριτικό fade και scale χρησιμοποιώντας το Tailwind: animate-[fadeInScale_300ms_ease-out].
-// Έτσι δηλώνεται οπτικά η ολοκλήρωση χωρίς να επηρεάζεται το layout ή η λογική.
-import PageShell from "../components/PageShell.jsx";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.webp";
-import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
-import BadgeWithTooltip from "../components/BadgeWithTooltip.jsx";
+import PageShell from "../components/PageShell.jsx";
+import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.webp";
 
-const LabsGR = () => {
+const BACKEND =
+    import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+
+const CATEGORY_LABELS = {
+    foundational: "Θεμελιώδη Labs",
+    dao: "Εργαστήρια DAO & Διακυβέρνησης",
+    project: "Εφαρμοσμένα Εργαστήρια",
+};
+
+const CORE_LAB_IDS = ["lab01", "lab02", "lab03", "lab04", "lab05", "lab06"];
+
+const LAB_ROUTES_GR = {
+    lab01: "/labs-gr/wallets-keys",
+    lab02: "/labs-gr/lab02",
+    lab03: "/labs-gr/lab03",
+    lab04: "/labs-gr/lab04",
+    lab05: "/labs-gr/lab05",
+    lab06: "/labs-gr/lab06",
+    dao01: "/labs-gr/dao-01",
+    dao02: "/labs-gr/dao-02",
+};
+
+const FOUNDATIONAL_COPY_GR = {
+    lab02: {
+        title: "Lab 02 — 🔐 Κρυπτογραφημένα Μηνύματα",
+        hint: "Η ιδιωτικότητα στο Web3 ξεκινά εκτός αλυσίδας με κρυπτογράφηση.",
+        description:
+            "Μάθετε πώς λειτουργεί η κρυπτογραφημένη επικοινωνία στο Web3 με κρυπτογραφία δημοσίου κλειδιού και off-chain κρυπτογράφηση — χωρίς συναλλαγές ή smart contracts.",
+    },
+    lab03: {
+        title: "Lab 03 — ✍️ Υπογραφή Μηνυμάτων & Ιδιοκτησία",
+        hint: "Οι υπογραφές αποδεικνύουν ιδιοκτησία και πρόθεση χωρίς gas.",
+        description:
+            "Μάθετε πώς οι κρυπτογραφικές υπογραφές αποδεικνύουν ιδιοκτησία και πρόθεση — χωρίς αποκάλυψη ιδιωτικών κλειδιών ή on-chain συναλλαγές.",
+    },
+    lab04: {
+        title: "Lab 04 — ⛽ Συναλλαγές & Gas",
+        hint: "Οι on-chain ενέργειες κοστίζουν gas και αλλάζουν μόνιμα την κατάσταση.",
+        description:
+            "Αλληλεπιδράστε με την πρώτη σας on-chain συναλλαγή και μάθετε πώς λειτουργούν το gas, η εκτέλεση και οι αλλαγές κατάστασης.",
+    },
+    lab05: {
+        title: "Lab 05 — 📜 Έξυπνα Συμβόλαια & Κατάσταση",
+        hint: "Το READ είναι δωρεάν, το WRITE είναι συναλλαγή.",
+        description:
+            "Αλληλεπιδράστε με ένα πραγματικό έξυπνο συμβόλαιο και μάθετε πώς λειτουργούν η on-chain κατάσταση, τα reads και τα writes.",
+    },
+    lab06: {
+        title: "Lab 06 — ⚙️ Συναίνεση & Οριστικότητα",
+        hint: "Η συναίνεση επιλέγει μία αλυσίδα, η οριστικότητα την κλειδώνει.",
+        description:
+            "Εξερευνήστε πώς οι validators καταλήγουν σε συμφωνία και πότε τα blocks γίνονται πραγματικά οριστικά.",
+    },
+};
+
+const DAO_COPY_GR = {
+    dao01: {
+        title: "DAO Lab 01 — 🗳️ Διακυβέρνηση & Ψηφοφορία",
+        description:
+            "Συμμετέχετε σε μια προσομοιωμένη διαδικασία διακυβέρνησης DAO και καταθέστε πραγματική ψήφο μέσω υπογραφής wallet. Μάθετε πώς λειτουργούν οι προτάσεις, η ισχύς ψήφου και η συλλογική λήψη αποφάσεων στα DAO — χωρίς ανάπτυξη παραγωγικού συστήματος.",
+        level: "Ενδιάμεσο",
+    },
+    dao02: {
+        title: "DAO Lab 02 — 🏛️ Μοντέλα Διακυβέρνησης & Δυναμικές Ισχύος",
+        description:
+            "Σχεδιάστε κανόνες ψηφοφορίας, ρυθμίστε quorum και approval thresholds και δείτε πώς το ίδιο σύνολο ψήφων οδηγεί σε διαφορετικά αποτελέσματα ανάλογα με το μοντέλο διακυβέρνησης.",
+        level: "Προχωρημένο",
+    },
+};
+
+const PROJECT_COPY_GR = {
+    poe01: {
+        title: "Lab 01 — 🧠 Proof of Escape",
+        description:
+            "Ένα παιγνιοποιημένο Web3 challenge με quizzes, NFTs και on-chain επαλήθευση βασικών εννοιών.",
+        level: "Αρχάριο",
+    },
+    "proof-of-escape": {
+        title: "Lab 01 — 🧠 Proof of Escape",
+        description:
+            "Ένα παιγνιοποιημένο Web3 challenge με quizzes, NFTs και on-chain επαλήθευση βασικών εννοιών.",
+        level: "Αρχάριο",
+    },
+};
+
+const CATEGORY_DESCRIPTIONS = {
+    foundational:
+        "Χτίσε τα βασικά νοητικά μοντέλα του Web3 πριν περάσεις σε governance και βαθύτερους μηχανισμούς πρωτοκόλλου.",
+    dao:
+        "Εξερευνήστε την αποκεντρωμένη διακυβέρνηση, τη συλλογική λήψη αποφάσεων και τους μηχανισμούς DAO μέσω καθοδηγούμενων προσομοιώσεων και πραγματικών κρυπτογραφικών ενεργειών.",
+    project:
+        "Εφαρμοσμένα labs και project-style προκλήσεις που συνδέουν τις βασικές έννοιες με πιο ολοκληρωμένες Web3 ροές.",
+};
+
+const sortLabs = (labs) =>
+    [...labs].sort((a, b) => {
+        const orderDiff = (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
+        if (orderDiff !== 0) return orderDiff;
+        return String(a.id).localeCompare(String(b.id));
+    });
+
+const statusTone = (completed) =>
+    completed
+        ? "bg-green-500/15 text-green-700 dark:text-green-300 border-green-500/30"
+        : "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30";
+
+export default function LabsGR() {
     const { address } = useAccount();
-    const [lab01Completed, setLab01Completed] = useState(false);
-    const [lab02Completed, setLab02Completed] = useState(false);
-    const [lab03Completed, setLab03Completed] = useState(false);
-    const [lab04Completed, setLab04Completed] = useState(false);
-    const [lab05Completed, setLab05Completed] = useState(false);
-    const [lab06Completed, setLab06Completed] = useState(false);
+    const [labsRegistry, setLabsRegistry] = useState([]);
+    const [completionMap, setCompletionMap] = useState({});
     const [poeCompleted, setPoeCompleted] = useState(false);
-    const [dao01Completed, setDao01Completed] = useState(false);
-    const [dao02Completed, setDao02Completed] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [statusLoading, setStatusLoading] = useState(false);
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        setLoading(true);
+        fetch(`${BACKEND}/labs`, { signal: controller.signal })
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then((data) => {
+                const items = Object.entries(data || {}).map(([id, lab]) => ({
+                    id,
+                    ...lab,
+                }));
+                setLabsRegistry(sortLabs(items.filter((lab) => lab.active !== false)));
+            })
+            .catch((err) => {
+                if (err.name !== "AbortError") {
+                    console.error("Αποτυχία φόρτωσης του registry των labs", err);
+                    setLabsRegistry([]);
+                }
+            })
+            .finally(() => {
+                if (!controller.signal.aborted) {
+                    setLoading(false);
+                }
+            });
+
+        return () => controller.abort();
+    }, []);
+
+    useEffect(() => {
+        if (labsRegistry.length === 0) {
+            setCompletionMap({});
+            return;
+        }
+
+        if (!address) {
+            setCompletionMap(
+                Object.fromEntries(labsRegistry.map((lab) => [lab.id, false]))
+            );
+            return;
+        }
+
+        const controller = new AbortController();
+        setStatusLoading(true);
+
+        Promise.all(
+            labsRegistry.map(async (lab) => {
+                const res = await fetch(
+                    `${BACKEND}/labs/status?address=${address}&labId=${lab.id}`,
+                    { signal: controller.signal }
+                );
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                return [lab.id, Boolean(data?.completed)];
+            })
+        )
+            .then((entries) => {
+                setCompletionMap(Object.fromEntries(entries));
+            })
+            .catch((err) => {
+                if (err.name !== "AbortError") {
+                    console.error("Αποτυχία φόρτωσης καταστάσεων ολοκλήρωσης labs", err);
+                }
+            })
+            .finally(() => {
+                if (!controller.signal.aborted) {
+                    setStatusLoading(false);
+                }
+            });
+
+        return () => controller.abort();
+    }, [address, labsRegistry]);
+
     useEffect(() => {
         if (!address) {
             setPoeCompleted(false);
             return;
         }
+
         const controller = new AbortController();
-        fetch(
-            `https://web3edu-api.dimikog.org/projects/poe/status?address=${address}`,
-            { signal: controller.signal }
-        )
-            .then(res => res.json())
-            .then(data => {
+
+        fetch(`${BACKEND}/projects/poe/status?address=${address}`, {
+            signal: controller.signal,
+        })
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then((data) => {
                 setPoeCompleted(Boolean(data?.completed));
             })
-            .catch(err => {
+            .catch((err) => {
                 if (err.name !== "AbortError") {
                     console.error("Αποτυχία φόρτωσης κατάστασης Proof of Escape", err);
                 }
             });
+
         return () => controller.abort();
     }, [address]);
-    useEffect(() => {
-        if (!address) {
-            setLab06Completed(false);
-            return;
+
+    const groupedLabs = useMemo(() => {
+        const groups = new Map();
+        for (const lab of labsRegistry) {
+            const category = lab.category || "other";
+            if (!groups.has(category)) groups.set(category, []);
+            groups.get(category).push(lab);
         }
+        return [...groups.entries()];
+    }, [labsRegistry]);
 
-        const controller = new AbortController();
+    const foundationalLabs = labsRegistry.filter(
+        (lab) => lab.category === "foundational" && CORE_LAB_IDS.includes(lab.id)
+    );
+    const featuredLab = foundationalLabs.find((lab) => lab.id === "lab01") || null;
+    const remainingFoundationalLabs = foundationalLabs.filter((lab) => lab.id !== "lab01");
+    const daoLabs = labsRegistry.filter((lab) => lab.category === "dao");
+    const otherSections = groupedLabs.filter(
+        ([category]) => category !== "foundational" && category !== "dao" && category !== "project"
+    );
 
-        fetch(
-            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab06`,
-            { signal: controller.signal }
-        )
-            .then(res => res.json())
-            .then(data => {
-                setLab06Completed(Boolean(data?.completed));
-            })
-            .catch(err => {
-                if (err.name !== "AbortError") {
-                    console.error("Αποτυχία φόρτωσης κατάστασης Lab 06", err);
-                }
-            });
-
-        return () => controller.abort();
-    }, [address]);
-    useEffect(() => {
-        if (!address) {
-            setLab05Completed(false);
-            return;
-        }
-
-        const controller = new AbortController();
-
-        fetch(
-            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab05`,
-            { signal: controller.signal }
-        )
-            .then(res => res.json())
-            .then(data => {
-                setLab05Completed(Boolean(data?.completed));
-            })
-            .catch(err => {
-                if (err.name !== "AbortError") {
-                    console.error("Αποτυχία φόρτωσης κατάστασης Lab 05", err);
-                }
-            });
-
-        return () => controller.abort();
-    }, [address]);
-
-    useEffect(() => {
-        if (!address) {
-            setLab01Completed(false);
-            return;
-        }
-
-        const controller = new AbortController();
-
-        fetch(
-            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab01`,
-            { signal: controller.signal }
-        )
-            .then(res => res.json())
-            .then(data => {
-                setLab01Completed(Boolean(data?.completed));
-            })
-            .catch(err => {
-                if (err.name !== "AbortError") {
-                    console.error("Αποτυχία φόρτωσης κατάστασης Lab 01", err);
-                }
-            });
-
-        return () => controller.abort();
-    }, [address]);
-
-    useEffect(() => {
-        if (!address) {
-            setLab02Completed(false);
-            return;
-        }
-
-        const controller = new AbortController();
-
-        fetch(
-            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab02`,
-            { signal: controller.signal }
-        )
-            .then(res => res.json())
-            .then(data => {
-                setLab02Completed(Boolean(data?.completed));
-            })
-            .catch(err => {
-                if (err.name !== "AbortError") {
-                    console.error("Αποτυχία φόρτωσης κατάστασης Lab 02", err);
-                }
-            });
-
-        return () => controller.abort();
-    }, [address]);
-
-    useEffect(() => {
-        if (!address) {
-            setLab03Completed(false);
-            return;
-        }
-
-        const controller = new AbortController();
-
-        fetch(
-            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab03`,
-            { signal: controller.signal }
-        )
-            .then(res => res.json())
-            .then(data => {
-                setLab03Completed(Boolean(data?.completed));
-            })
-            .catch(err => {
-                if (err.name !== "AbortError") {
-                    console.error("Αποτυχία φόρτωσης κατάστασης Lab 03", err);
-                }
-            });
-
-        return () => controller.abort();
-    }, [address]);
-
-    useEffect(() => {
-        if (!address) {
-            setLab04Completed(false);
-            return;
-        }
-
-        const controller = new AbortController();
-
-        fetch(
-            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=lab04`,
-            { signal: controller.signal }
-        )
-            .then(res => res.json())
-            .then(data => {
-                setLab04Completed(Boolean(data?.completed));
-            })
-            .catch(err => {
-                if (err.name !== "AbortError") {
-                    console.error("Αποτυχία φόρτωσης κατάστασης Lab 04", err);
-                }
-            });
-
-        return () => controller.abort();
-    }, [address]);
-
-    useEffect(() => {
-        if (!address) {
-            setDao01Completed(false);
-            return;
-        }
-
-        const controller = new AbortController();
-
-        fetch(
-            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=dao01`,
-            { signal: controller.signal }
-        )
-            .then(res => res.json())
-            .then(data => {
-                setDao01Completed(Boolean(data?.completed));
-            })
-            .catch(err => {
-                if (err.name !== "AbortError") {
-                    console.error("Αποτυχία φόρτωσης κατάστασης DAO Lab 01", err);
-                }
-            });
-
-        return () => controller.abort();
-    }, [address]);
-
-    useEffect(() => {
-        if (!address) {
-            setDao02Completed(false);
-            return;
-        }
-
-        const controller = new AbortController();
-
-        fetch(
-            `https://web3edu-api.dimikog.org/labs/status?address=${address}&labId=dao02`,
-            { signal: controller.signal }
-        )
-            .then(res => res.json())
-            .then(data => {
-                setDao02Completed(Boolean(data?.completed));
-            })
-            .catch(err => {
-                if (err.name !== "AbortError") {
-                    console.error("Αποτυχία φόρτωσης κατάστασης DAO Lab 02", err);
-                }
-            });
-
-        return () => controller.abort();
-    }, [address]);
-
-    const showLab02Next =
-        Boolean(lab01Completed && !lab02Completed);
+    const completedCount = foundationalLabs.filter((lab) => Boolean(completionMap[lab.id])).length;
+    const totalCount = CORE_LAB_IDS.length;
+    const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
     return (
-        <PageShell title="Εργαστήρια Web3Edu">
+        <PageShell title="Web3Edu Labs">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-14">
-
-                {/* Page Header */}
                 <header className="mb-12">
                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
                         Εργαστήρια Web3Edu
                     </h1>
                     <p className="max-w-3xl text-lg text-slate-600 dark:text-slate-300">
-                        Μάθετε Web3 αλληλεπιδρώντας με πραγματική υποδομή blockchain,
-                        smart contracts και έννοιες ασφάλειας μέσα από πρακτικά εργαστήρια.
+                        Ο κατάλογος των labs φορτώνεται πλέον απευθείας από το backend registry,
+                        ώστε νέα labs να εμφανίζονται εδώ χωρίς hardcoded frontend λίστα.
                     </p>
                 </header>
 
-                {/* How Labs Work */}
-                <section className="mb-14">
-                    <h2 className="text-xl font-semibold mb-4">
-                        Πώς λειτουργούν τα εργαστήρια
-                    </h2>
-                    <ul className="space-y-2 text-slate-600 dark:text-slate-300">
-                        <li>• Πρακτικές ασκήσεις πάνω σε πραγματική Web3 υποδομή</li>
-                        <li>• Δεν απαιτείται αρχική ρύθμιση για τα περισσότερα εργαστήρια</li>
-                        <li>• Σχεδιασμένα για φοιτητές, εκπαιδευτικούς και builders</li>
-                    </ul>
-                </section>
+                {loading ? (
+                    <p className="text-slate-600 dark:text-slate-300">Φόρτωση labs...</p>
+                ) : groupedLabs.length === 0 ? (
+                    <p className="text-slate-600 dark:text-slate-300">
+                        Δεν επιστράφηκαν labs από το backend registry.
+                    </p>
+                ) : (
+                    <div className="space-y-14">
+                        {foundationalLabs.length > 0 ? (
+                            <section>
+                                <div className="mb-6">
+                                    <h2 className="text-2xl font-semibold">Θεμελιώδη Labs</h2>
+                                    <p className="mt-2 max-w-3xl text-slate-600 dark:text-slate-300">
+                                        Χτίσε την Web3 ταυτότητά σου και τα βασικά νοητικά μοντέλα πριν περάσεις σε συναλλαγές ή smart contracts.
+                                    </p>
+                                </div>
 
-                {/* Foundational Labs */}
-                <section className="mb-16 relative">
-                    <div className="relative -mx-4 sm:-mx-6 lg:-mx-8">
-                        <h2 className="text-2xl font-semibold mb-6">
-                            Θεμελιώδη Εργαστήρια
-                        </h2>
-                        <p className="max-w-3xl mb-8 text-slate-600 dark:text-slate-300">
-                            Χτίστε την Web3 ταυτότητά σας και τα βασικά νοητικά μοντέλα πριν
-                            από συναλλαγές ή smart contracts.
-                        </p>
-
-                        {/* 📊 Πρόοδος Θεμελιωδών Εργαστηρίων */}
-                        <div className="mb-10">
-                            {(() => {
-                                const completedCount = [
-                                    lab01Completed,
-                                    lab02Completed,
-                                    lab03Completed,
-                                    lab04Completed,
-                                    lab05Completed,
-                                    lab06Completed,
-                                ].filter(Boolean).length;
-
-                                const progressPercent = Math.round((completedCount / 6) * 100);
-
-                                return (
-                                    <div className="max-w-xl">
-                                        <div className="flex items-center justify-between mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                            <span>Πρόοδος Θεμελιωδών Εργαστηρίων</span>
-                                            <span>{completedCount} / 6 ολοκληρωμένα</span>
-                                        </div>
-                                        <div className="h-2 w-full rounded-full bg-slate-200/70 dark:bg-slate-700/60 overflow-hidden">
-                                            <div
-                                                className="h-full bg-indigo-500 rounded-full transition-all duration-500 ease-out"
-                                                style={{ width: `${progressPercent}%` }}
-                                            />
-                                        </div>
-                                        {completedCount === 6 && (
-                                            <p className="mt-2 text-xs font-semibold text-green-600 dark:text-green-400">
-                                                🎉 Όλα τα θεμελιώδη εργαστήρια ολοκληρώθηκαν!
-                                            </p>
-                                        )}
+                                <div className="mb-10 max-w-xl">
+                                    <div className="flex items-center justify-between mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                        <span>Πρόοδος Θεμελιωδών Labs</span>
+                                        <span>{completedCount} / {totalCount} ολοκληρωμένα</span>
                                     </div>
-                                );
-                            })()}
-                        </div>
+                                    <div className="h-2 w-full rounded-full bg-slate-200/80 dark:bg-slate-700/60 overflow-hidden">
+                                        <div
+                                            className="h-full bg-indigo-500 rounded-full transition-all duration-500 ease-out"
+                                            style={{ width: `${progressPercent}%` }}
+                                        />
+                                    </div>
+                                </div>
 
-                        <div className="space-y-20">
-                            {/* 👛 Wallets & Web3 Identities — Featured Card */}
-                            <div className="w-full">
-                                <Link
-                                    to="/labs-gr/wallets-keys"
-                                    className="group relative block overflow-hidden rounded-2xl backdrop-blur-sm
-                            bg-gradient-to-br from-indigo-50/90 via-purple-50/80 to-blue-50/90
-                            dark:from-slate-900 dark:via-indigo-950/50 dark:to-slate-900
-                            border border-white/20 dark:border-white/10
-                            shadow-xl hover:shadow-2xl transition-all z-10"
-                                >
-                                    {lab01Completed && (
-                                        <div className="absolute top-4 right-4 z-20">
-                                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full
-                                                bg-green-500/90 text-white text-xs font-semibold
-                                                shadow-lg backdrop-blur
-                                                transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]">
-                                                ✓ Ολοκληρώθηκε
-                                            </span>
-                                        </div>
-                                    )}
-                                    <div className="grid grid-cols-1 lg:grid-cols-[520px_1fr] min-h-[420px]">
-                                        {/* Visual */}
-                                        <div className="relative flex items-center justify-center
-                              bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-blue-500/10
-                              p-6 lg:p-8">
-                                            <img src={lab01IdentityImg}
-                                                alt="Ροή Web3 ταυτότητας: πορτοφόλι προς διεύθυνση"
-                                                className="w-full h-auto rounded-2xl shadow-2xl ring-1 ring-white/30" loading="lazy" />
-                                        </div>
-
-                                        {/* Content */}
-                                        <div className="p-10 flex flex-col justify-between">
-                                            <div>
-                                                <h3 className="text-2xl font-bold mb-3">
-                                                    Lab 01 — Πορτοφόλια & Web3 Ταυτότητες
-                                                </h3>
-                                                <p className="text-xs italic text-slate-600/90 dark:text-slate-300/80 mb-4">
-                                                    Παιδαγωγική ιδέα: <span className="not-italic">Το πορτοφόλι σας είναι η Web3 ταυτότητά σας — πριν από οποιεσδήποτε συναλλαγές.</span>
-                                                </p>
-                                                <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-xl">
-                                                    Κατανοήστε πώς πορτοφόλια και διευθύνσεις θεμελιώνουν την Web3 ταυτότητα
-                                                    σε ένα αδειοδοτημένο Ethereum δίκτυο — πριν από συναλλαγές, gas ή smart contracts.
-                                                </p>
-
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
-                                                    <span>🧭 <strong className="font-semibold text-slate-700 dark:text-slate-200">Επίπεδο:</strong> Αρχάριο</span>
-                                                    <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Διάρκεια:</strong> 15–20 λεπτά</span>
-                                                    <span>🌐 <strong className="font-semibold text-slate-700 dark:text-slate-200">Δίκτυο:</strong> Besu Edu‑Net</span>
-                                                    <span>🚫 <strong className="font-semibold text-slate-700 dark:text-slate-200">Συναλλαγές:</strong> Καμία</span>
-                                                    <span>🛠️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Εργαλεία:</strong> 3 διαδραστικά εργαλεία</span>
-                                                    <span>🏅 <strong className="font-semibold text-slate-700 dark:text-slate-200">Badge:</strong> Εξερευνητής Ταυτότητας</span>
+                                {featuredLab ? (
+                                    <div className="mb-10">
+                                        <Link
+                                            to={LAB_ROUTES_GR[featuredLab.id] || `/labs-gr/${featuredLab.slug || featuredLab.id}`}
+                                            className="group relative block overflow-hidden rounded-2xl backdrop-blur-sm bg-gradient-to-br from-indigo-50/90 via-purple-50/80 to-blue-50/90 dark:from-slate-900 dark:via-indigo-950/50 dark:to-slate-900 border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all"
+                                        >
+                                            {completionMap[featuredLab.id] ? (
+                                                <div className="absolute top-4 right-4 z-20">
+                                                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/90 text-white text-xs font-semibold shadow-lg backdrop-blur">
+                                                        ✓ Ολοκληρώθηκε
+                                                    </span>
+                                                </div>
+                                            ) : null}
+                                            <div className="grid grid-cols-1 lg:grid-cols-[520px_1fr] min-h-[420px]">
+                                                <div className="relative flex items-center justify-center bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-blue-500/10 p-6 lg:p-8">
+                                                    <img
+                                                        src={lab01IdentityImg}
+                                                        alt="Web3 identity flow: wallet to address to identity"
+                                                        className="w-full h-auto rounded-2xl shadow-2xl ring-1 ring-white/30"
+                                                        loading="lazy"
+                                                    />
+                                                </div>
+                                                <div className="p-10 flex flex-col justify-between">
+                                                    <div>
+                                                        <h3 className="text-2xl font-bold mb-3 text-slate-900 dark:text-indigo-300">
+                                                            {featuredLab.title?.gr || featuredLab.title?.en || "Lab 01 — Πορτοφόλια & Web3 Ταυτότητα"}
+                                                        </h3>
+                                                        <p className="text-xs italic text-slate-600/90 dark:text-slate-300/80 mb-4">
+                                                            Παιδαγωγική υπόδειξη: Το wallet σου είναι η Web3 ταυτότητά σου πριν συμβεί οποιαδήποτε συναλλαγή.
+                                                        </p>
+                                                        <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-xl">
+                                                            {featuredLab.description?.gr || featuredLab.description?.en}
+                                                        </p>
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
+                                                            <span>🧭 <strong className="font-semibold text-slate-700 dark:text-slate-200">Επίπεδο:</strong> {featuredLab.level || "Beginner"}</span>
+                                                            <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Χρόνος:</strong> {featuredLab.estimated_time_minutes || "15-20"} λεπτά</span>
+                                                            <span>🌐 <strong className="font-semibold text-slate-700 dark:text-slate-200">Δίκτυο:</strong> Besu Edu-Net</span>
+                                                            <span>🚫 <strong className="font-semibold text-slate-700 dark:text-slate-200">Συναλλαγές:</strong> Καμία</span>
+                                                            <span>🛠️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Εργαλεία:</strong> 3 διαδραστικά εργαλεία</span>
+                                                            <span>🏅 <strong className="font-semibold text-slate-700 dark:text-slate-200">Badge:</strong> {featuredLab.badge?.label?.gr || featuredLab.badge?.label?.en || featuredLab.badge?.id || "Identity Explorer"}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-6 flex items-center justify-between">
+                                                        <span className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold group-hover:translate-x-1 transition">
+                                                            Έναρξη Lab →
+                                                        </span>
+                                                        <span className="text-xs px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                                                            +{featuredLab.xp || 100} XP
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
+                                        </Link>
+                                    </div>
+                                ) : null}
 
-                                            <div className="mt-6 flex items-center justify-between">
-                                                <span className="inline-flex items-center gap-2
-                                  text-indigo-600 dark:text-indigo-400
-                                  font-semibold group-hover:translate-x-1 transition">
-                                                    Άνοιγμα Lab →
+                                {remainingFoundationalLabs.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                                        {remainingFoundationalLabs.map((lab) => {
+                                            const completed = Boolean(completionMap[lab.id]);
+                                            const copy = FOUNDATIONAL_COPY_GR[lab.id] || {};
+                                            const title = copy.title || lab.title?.gr || lab.title?.en || lab.id;
+                                            const description = copy.description || lab.description?.gr || lab.description?.en || "";
+                                            const hint = copy.hint || null;
+                                            const badge = lab.badge?.label?.gr || lab.badge?.label?.en || lab.badge?.id;
+                                            const link = LAB_ROUTES_GR[lab.id] || `/labs-gr/${lab.slug || lab.id}`;
+                                            const showNext =
+                                                lab.id === "lab02" &&
+                                                Boolean(completionMap.lab01) &&
+                                                !Boolean(completionMap.lab02);
+
+                                            return (
+                                                <Link
+                                                    key={lab.id}
+                                                    to={link}
+                                                    className="group rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                                                >
+                                                    <div className="flex items-start justify-between gap-3 mb-4">
+                                                        <div>
+                                                            <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                                                                {lab.id}
+                                                            </p>
+                                                            <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
+                                                                {title}
+                                                            </h3>
+                                                        </div>
+                                                        <span
+                                                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${statusTone(completed)}`}
+                                                        >
+                                                            {completed ? "Ολοκληρώθηκε" : "Διαθέσιμο"}
+                                                        </span>
+                                                        {showNext ? (
+                                                            <span className="inline-flex rounded-full border border-indigo-400/20 bg-indigo-500/15 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
+                                                                ⭐ ΕΠΟΜΕΝΟ
+                                                            </span>
+                                                        ) : null}
+                                                    </div>
+
+                                                    {hint ? (
+                                                        <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
+                                                            Παιδαγωγική ιδέα: <span className="not-italic">{hint}</span>
+                                                        </p>
+                                                    ) : null}
+                                                    <p className="min-h-[72px] text-sm text-slate-600 dark:text-slate-300">
+                                                        {description}
+                                                    </p>
+
+                                                    <div className="mt-5 flex flex-wrap gap-2 text-xs">
+                                                        {lab.level ? (
+                                                            <span className="rounded-full bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-slate-700 dark:text-slate-200">
+                                                                {lab.level}
+                                                            </span>
+                                                        ) : null}
+                                                        {lab.estimated_time_minutes ? (
+                                                            <span className="rounded-full bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-slate-700 dark:text-slate-200">
+                                                                {lab.estimated_time_minutes} λεπτά
+                                                            </span>
+                                                        ) : null}
+                                                        {typeof lab.xp === "number" ? (
+                                                            <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/35 px-3 py-1 text-indigo-700 dark:text-indigo-300">
+                                                                +{lab.xp} XP
+                                                            </span>
+                                                        ) : null}
+                                                    </div>
+
+                                                    {badge ? (
+                                                        <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                                                            Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{badge}</span>
+                                                        </p>
+                                                    ) : null}
+
+                                                    <div className="mt-5 text-sm font-semibold text-indigo-600 dark:text-indigo-300 group-hover:translate-x-1 transition-transform">
+                                                        Άνοιγμα Lab →
+                                                    </div>
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                ) : null}
+                            </section>
+                        ) : null}
+
+                        {daoLabs.length > 0 ? (
+                            <section>
+                                <div className="mb-6">
+                                    <h2 className="text-2xl font-semibold">Εργαστήρια DAO & Διακυβέρνησης</h2>
+                                    <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
+                                        Εξερευνήστε την αποκεντρωμένη διακυβέρνηση, τη συλλογική λήψη αποφάσεων και τους μηχανισμούς DAO μέσω καθοδηγούμενων προσομοιώσεων και πραγματικών κρυπτογραφικών ενεργειών.
+                                    </p>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    {daoLabs.map((lab) => {
+                                        const completed = Boolean(completionMap[lab.id]);
+                                        const showNext =
+                                            lab.id === "dao02" &&
+                                            Boolean(completionMap.dao01) &&
+                                            !Boolean(completionMap.dao02);
+                                        const copy = DAO_COPY_GR[lab.id] || {};
+                                        const title = copy.title || lab.title?.gr || lab.title?.en || lab.id;
+                                        const description = copy.description || lab.description?.gr || lab.description?.en || "";
+                                        const link = LAB_ROUTES_GR[lab.id] || `/labs-gr/${lab.slug || lab.id}`;
+
+                                        return (
+                                            <Link
+                                                key={lab.id}
+                                                to={link}
+                                                className="group rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                                            >
+                                                <div className="flex items-start justify-between gap-3 mb-4">
+                                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                                        {title}
+                                                    </h3>
+                                                    <div className="flex items-center gap-2 shrink-0">
+                                                        <span className="inline-flex rounded-full border border-green-500/20 bg-green-500/15 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300">
+                                                            Διαθέσιμο
+                                                        </span>
+                                                        {completed ? (
+                                                            <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
+                                                                ✓ Ολοκληρώθηκε
+                                                            </span>
+                                                        ) : null}
+                                                        {showNext ? (
+                                                            <span className="inline-flex rounded-full border border-indigo-400/20 bg-indigo-500/15 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
+                                                                ⭐ ΕΠΟΜΕΝΟ
+                                                            </span>
+                                                        ) : null}
+                                                    </div>
+                                                </div>
+
+                                                <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
+                                                    {description}
+                                                </p>
+
+                                                <div className="mt-5 flex items-center justify-between gap-4">
+                                                    <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
+                                                        {copy.level || lab.level || "Ενδιάμεσο"}
+                                                    </span>
+                                                    <div className="flex items-center gap-4">
+                                                        <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/35 px-3 py-1 text-sm text-indigo-700 dark:text-indigo-300">
+                                                            +{lab.xp || 0} XP
+                                                        </span>
+                                                        <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-300 group-hover:translate-x-1 transition-transform">
+                                                            Άνοιγμα Lab →
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        ) : null}
+
+                        <section>
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-semibold">Εφαρμοσμένα Εργαστήρια</h2>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <Link
+                                    to="/labs-gr/proof-of-escape"
+                                    className="group rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                                >
+                                    <div className="flex items-start justify-between gap-3 mb-4">
+                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                            Lab 01 — 🧠 Proof of Escape
+                                        </h3>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            <span className="inline-flex rounded-full border border-green-500/20 bg-green-500/15 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300">
+                                                Διαθέσιμο
+                                            </span>
+                                            {poeCompleted ? (
+                                                <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
+                                                    ✓ Ολοκληρώθηκε
                                                 </span>
-                                                <span className="text-xs px-3 py-1 rounded-full
-                                  bg-indigo-50 dark:bg-indigo-900/30
-                                  text-indigo-600 dark:text-indigo-300">
-                                                    +100 XP
-                                                </span>
-                                            </div>
+                                            ) : null}
+                                        </div>
+                                    </div>
+
+                                    <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
+                                        Ένα παιγνιοποιημένο Web3 challenge με quizzes, NFTs και on-chain επαλήθευση βασικών εννοιών.
+                                    </p>
+
+                                    <div className="mt-5 flex items-center justify-between gap-4">
+                                        <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
+                                            Αρχάριο
+                                        </span>
+                                        <div className="flex items-center gap-4">
+                                            <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/35 px-3 py-1 text-sm text-indigo-700 dark:text-indigo-300">
+                                                +500 XP
+                                            </span>
+                                            <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-300 group-hover:translate-x-1 transition-transform">
+                                                Άνοιγμα Lab →
+                                            </span>
                                         </div>
                                     </div>
                                 </Link>
-                            </div>
-                        </div>
 
-                        <div className="h-8 lg:h-12"></div>
-
-                        {/* Secondary grid of foundational labs */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-
-                            {/* 🔐 Encrypted Messages Lab */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all overflow-visible">
-                                <div className="flex items-center justify-between mb-3 gap-2">
-                                    <h3 className="text-lg font-semibold">
-                                        Lab 02 — 🔐 Κρυπτογραφημένα Μηνύματα
-                                    </h3>
-                                    <div className="flex items-center gap-2 flex-nowrap">
-                                        {/* 1. Διαθέσιμο */}
-                                        <BadgeWithTooltip
-                                            label="Διαθέσιμο"
-                                            variant="success"
-                                            tooltip={
-                                                <>
-                                                    Κρυπτογραφία εκτός blockchain<br />
-                                                    • Καμία συναλλαγή<br />
-                                                    • Κανένα smart contract
-                                                </>
-                                            }
-                                            className="rounded-full text-xs whitespace-nowrap"
-                                        />
-                                        {/* 2. Ολοκληρώθηκε */}
-                                        {lab02Completed && (
-                                            <span
-                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
-                                            >
-                                                ✓ Ολοκληρώθηκε
-                                            </span>
-                                        )}
-                                        {/* 3. ΕΠΟΜΕΝΟ */}
-                                        {showLab02Next && (
-                                            <span
-                                                title="Προτεινόμενο επόμενο εργαστήριο μετά την ολοκλήρωση του Lab 01"
-                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap uppercase tracking-wide bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 ring-1 ring-indigo-400/30 font-semibold"
-                                            >
-                                                ⭐ ΕΠΟΜΕΝΟ
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
-                                    Παιδαγωγική ιδέα: <span className="not-italic">Η ιδιωτικότητα στο Web3 ξεκινά εκτός αλυσίδας με κρυπτογράφηση.</span>
-                                </p>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
-                                    Μάθετε πώς λειτουργεί η κρυπτογραφημένη επικοινωνία στο Web3 με κρυπτογραφία δημοσίου κλειδιού
-                                    και off-chain κρυπτογράφηση — χωρίς συναλλαγές ή smart contracts.
-                                </p>
-                                <div className="flex items-center justify-between mt-auto">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Αρχάριο
-                                    </span>
-                                    <Link
-                                        to="/labs-gr/lab02"
-                                        className="text-sm font-semibold text-indigo-600 hover:underline"
-                                    >
-                                        Άνοιγμα Εργαστηρίου →
-                                    </Link>
-                                </div>
-                            </div>
-
-                            {/* ✍️ Message Signing */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                                <div className="flex items-center justify-between mb-3 gap-2">
-                                    <h3 className="text-lg font-semibold">Lab 03 — ✍️ Υπογραφή Μηνυμάτων & Ιδιοκτησία</h3>
-                                    <div className="flex items-center gap-2 flex-nowrap">
-                                        {/* 1. Διαθέσιμο */}
-                                        <BadgeWithTooltip
-                                            label="Διαθέσιμο"
-                                            variant="success"
-                                            tooltip={
-                                                <>
-                                                    Απόδειξη ιδιοκτησίας & πρόθεσης<br />
-                                                    • Καμία συναλλαγή<br />
-                                                    • Καμία αποκάλυψη ιδιωτικού κλειδιού
-                                                </>
-                                            }
-                                            className="rounded-full text-xs whitespace-nowrap"
-                                        />
-                                        {/* 2. Ολοκληρώθηκε */}
-                                        {lab03Completed && (
-                                            <span
-                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
-                                            >
-                                                ✓ Ολοκληρώθηκε
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
-                                    Παιδαγωγική ιδέα: <span className="not-italic">Οι υπογραφές αποδεικνύουν ιδιοκτησία και πρόθεση χωρίς gas.</span>
-                                </p>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
-                                    Μάθετε πώς οι κρυπτογραφικές υπογραφές αποδεικνύουν ιδιοκτησία και πρόθεση — χωρίς αποκάλυψη ιδιωτικών κλειδιών
-                                    ή on-chain συναλλαγές.
-                                </p>
-                                <div className="flex items-center justify-between mt-auto">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Αρχάριο
-                                    </span>
-                                    <Link
-                                        to="/labs-gr/lab03"
-                                        className="text-sm font-semibold text-indigo-600 hover:underline"
-                                    >
-                                        Άνοιγμα Εργαστηρίου →
-                                    </Link>
-                                </div>
-                            </div>
-
-                            {/* ⛽ Transactions & Gas */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                                <div className="flex items-center justify-between mb-3 gap-2">
-                                    <h3 className="text-lg font-semibold">Lab 04 — ⛽ Συναλλαγές & Gas</h3>
-                                    <div className="flex items-center gap-2 flex-nowrap">
-                                        {/* 1. Διαθέσιμο */}
-                                        <BadgeWithTooltip
-                                            label="Διαθέσιμο"
-                                            variant="success"
-                                            tooltip={
-                                                <>
-                                                    On-chain συναλλαγές<br />
-                                                    • Gas & εκτέλεση<br />
-                                                    • Αλλαγές κατάστασης
-                                                </>
-                                            }
-                                            className="rounded-full text-xs whitespace-nowrap"
-                                        />
-                                        {/* 2. Ολοκληρώθηκε */}
-                                        {lab04Completed && (
-                                            <span
-                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
-                                            >
-                                                ✓ Ολοκληρώθηκε
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
-                                    Παιδαγωγική ιδέα: <span className="not-italic">Οι on-chain ενέργειες κοστίζουν gas και αλλάζουν μόνιμα την κατάσταση.</span>
-                                </p>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
-                                    Αλληλεπιδράστε με την πρώτη σας on-chain συναλλαγή και μάθετε πώς λειτουργούν το gas,
-                                    η εκτέλεση και οι αλλαγές κατάστασης.
-                                </p>
-                                <div className="flex items-center justify-between mt-auto">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Αρχάριο
-                                    </span>
-                                    <Link
-                                        to="/labs-gr/lab04"
-                                        className="text-sm font-semibold text-indigo-600 hover:underline"
-                                    >
-                                        Άνοιγμα Εργαστηρίου →
-                                    </Link>
-                                </div>
-                            </div>
-
-                            {/* 📜 Smart Contracts & State */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                                <div className="flex items-center justify-between mb-3 gap-2">
-                                    <h3 className="text-lg font-semibold">Lab 05 — 📜 Έξυπνα Συμβόλαια &amp; Κατάσταση</h3>
-                                    <div className="flex items-center gap-2 flex-nowrap">
-                                        {/* 1. Διαθέσιμο */}
-                                        <BadgeWithTooltip
-                                            label="Διαθέσιμο"
-                                            variant="success"
-                                            tooltip={
-                                                <>
-                                                    Αλληλεπίδραση με smart contract<br />
-                                                    • On-chain κατάσταση<br />
-                                                    • Read & write calls
-                                                </>
-                                            }
-                                            className="rounded-full text-xs whitespace-nowrap"
-                                        />
-                                        {/* 2. Ολοκληρώθηκε */}
-                                        {lab05Completed && (
-                                            <span
-                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
-                                            >
-                                                ✓ Ολοκληρώθηκε
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
-                                    Παιδαγωγική ιδέα: <span className="not-italic">Το READ είναι δωρεάν, το WRITE είναι συναλλαγή.</span>
-                                </p>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
-                                    Αλληλεπιδράστε με ένα πραγματικό έξυπνο συμβόλαιο και μάθετε πώς λειτουργούν
-                                    η on-chain κατάσταση, τα reads και τα writes.
-                                </p>
-                                <div className="flex items-center justify-between mt-auto">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Αρχάριο
-                                    </span>
-                                    <Link
-                                        to="/labs-gr/lab05"
-                                        className="text-sm font-semibold text-indigo-600 hover:underline"
-                                    >
-                                        Άνοιγμα Εργαστηρίου →
-                                    </Link>
-                                </div>
-                            </div>
-
-                            {/* ⚙️ Consensus & Finality */}
-                            <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                                <div className="flex items-center justify-between mb-3 gap-2">
-                                    <h3 className="text-lg font-semibold">Lab 06 — ⚙️ Συναίνεση & Οριστικότητα</h3>
-                                    <div className="flex items-center gap-2 flex-nowrap">
-                                        {/* 1. Διαθέσιμο */}
-                                        <BadgeWithTooltip
-                                            label="Διαθέσιμο"
-                                            variant="success"
-                                            tooltip={
-                                                <>
-                                                    Συμφωνία validators<br />
-                                                    • Συναίνεση<br />
-                                                    • Οριστικότητα
-                                                </>
-                                            }
-                                            className="rounded-full text-xs whitespace-nowrap"
-                                        />
-                                        {/* 2. Ολοκληρώθηκε */}
-                                        {lab06Completed && (
-                                            <span
-                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
-                                            >
-                                                ✓ Ολοκληρώθηκε
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                                <p className="mb-2 text-xs text-slate-500 dark:text-slate-400 italic">
-                                    Παιδαγωγική ιδέα: <span className="not-italic">Η συναίνεση επιλέγει μία αλυσίδα, η οριστικότητα την κλειδώνει.</span>
-                                </p>
-                                <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 mb-4 min-h-[96px]">
-                                    Εξερευνήστε πώς οι validators καταλήγουν σε συμφωνία και πότε τα blocks γίνονται πραγματικά οριστικά.
-                                </p>
-                                <div className="flex items-center justify-between mt-auto">
-                                    <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                        Αρχάριο
-                                    </span>
-                                    <Link
-                                        to="/labs-gr/lab06"
-                                        className="text-sm font-semibold text-indigo-600 hover:underline"
-                                    >
-                                        Άνοιγμα Εργαστηρίου →
-                                    </Link>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </section>
-
-                {/* DAO & Governance Labs */}
-                <section className="mb-16">
-                    <h2 className="text-2xl font-semibold mb-6">
-                        Εργαστήρια DAO & Διακυβέρνησης
-                    </h2>
-
-                    <p className="max-w-3xl mb-8 text-slate-600 dark:text-slate-300">
-                        Εξερευνήστε την αποκεντρωμένη διακυβέρνηση, τη συλλογική λήψη αποφάσεων
-                        και τους μηχανισμούς DAO μέσω καθοδηγούμενων προσομοιώσεων και πραγματικών
-                        κρυπτογραφικών ενεργειών.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* DAO Lab 01 */}
-                        <div
-                            className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm
-                                        hover:shadow-lg hover:-translate-y-1 transition-all"
-                        >
-                            <div className="flex items-center justify-between mb-3 gap-2">
-                                <h3 className="text-lg font-semibold">
-                                    DAO Lab 01 — 🗳️ Διακυβέρνηση & Ψηφοφορία
-                                </h3>
-                                <div className="flex items-center gap-2 flex-nowrap">
-                                    <BadgeWithTooltip
-                                        label="Διαθέσιμο"
-                                        variant="success"
-                                        tooltip="Προσομοίωση διακυβέρνησης DAO"
-                                        className="rounded-full text-xs whitespace-nowrap"
-                                    />
-                                    {dao01Completed && (
-                                        <span
-                                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
-                                        >
-                                            ✓ Ολοκληρώθηκε
+                                <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm">
+                                    <div className="flex items-start justify-between gap-3 mb-4">
+                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                            Lab 02 — 🖼 Εργαστήριο NFT Marketplace
+                                        </h3>
+                                        <span className="inline-flex rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                                            Coming Soon
                                         </span>
-                                    )}
-                                </div>
-                            </div>
+                                    </div>
 
-                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
-                                Συμμετέχετε σε μια προσομοιωμένη διαδικασία διακυβέρνησης DAO και
-                                καταθέστε πραγματική ψήφο μέσω υπογραφής wallet. Μάθετε πώς λειτουργούν
-                                οι προτάσεις, η ισχύς ψήφου και η συλλογική λήψη αποφάσεων στα DAO —
-                                χωρίς ανάπτυξη παραγωγικού συστήματος.
-                            </p>
+                                    <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
+                                        Δημιουργήστε και αλληλεπιδράστε με μια απλή αγορά NFTs ενώ μαθαίνετε για token standards, ownership και on-chain events.
+                                    </p>
 
-                            <div className="flex items-center justify-between mt-auto">
-                                <span className="text-xs font-medium px-2 py-1 rounded
-    bg-slate-200/70 dark:bg-slate-700/60">
-                                    Αρχάριο
-                                </span>
-                                <Link
-                                    to="/labs-gr/dao-01"
-                                    className="text-sm font-semibold text-indigo-600 hover:underline"
-                                >
-                                    Άνοιγμα Εργαστηρίου →
-                                </Link>
-                            </div>
-                        </div>
-
-                        {/* DAO Lab 02 */}
-                        <div
-                            className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60
-                                        bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm
-                                        hover:shadow-lg hover:-translate-y-1 transition-all"
-                        >
-                            <div className="flex items-center justify-between mb-3 gap-2">
-                                <h3 className="text-lg font-semibold">
-                                    DAO Lab 02 — 🏛️ Μοντέλα Διακυβέρνησης & Δυναμικές Ισχύος
-                                </h3>
-                                <div className="flex items-center gap-2 flex-nowrap">
-                                    <BadgeWithTooltip
-                                        label="Διαθέσιμο"
-                                        variant="success"
-                                        tooltip="Σχεδιασμός κανόνων διακυβέρνησης και προσομοίωση αποτελεσμάτων"
-                                        className="rounded-full text-xs whitespace-nowrap"
-                                    />
-                                    {dao02Completed && (
-                                        <span
-                                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs whitespace-nowrap bg-green-500/90 text-white font-semibold shadow-lg backdrop-blur transition transform motion-safe:animate-[fadeInScale_300ms_ease-out]"
-                                        >
-                                            ✓ Ολοκληρώθηκε
+                                    <div className="mt-5 flex items-center justify-between gap-4">
+                                        <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
+                                            Ενδιάμεσο
                                         </span>
-                                    )}
-                                </div>
-                            </div>
-
-                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
-                                Σχεδιάστε κανόνες ψηφοφορίας, ρυθμίστε quorum και approval thresholds
-                                και δείτε πώς το ίδιο σύνολο ψήφων οδηγεί σε διαφορετικά αποτελέσματα
-                                ανάλογα με το μοντέλο διακυβέρνησης.
-                            </p>
-
-                            <div className="flex items-center justify-between mt-auto">
-                                <span className="text-xs font-medium px-2 py-1 rounded
-                                                 bg-slate-200/70 dark:bg-slate-700/60">
-                                    Προχωρημένο
-                                </span>
-                                <Link
-                                    to="/labs-gr/dao-02"
-                                    className="text-sm font-semibold text-indigo-600 hover:underline"
-                                >
-                                    Άνοιγμα Εργαστηρίου →
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Applied Labs */}
-                <section>
-                    <h2 className="text-2xl font-semibold mb-6">
-                        Εφαρμοσμένα & Project Εργαστήρια
-                    </h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        {/* 🧠 Proof of Escape */}
-                        <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all">
-                            <div className="flex items-center justify-between mb-3 gap-2">
-                                <h3 className="text-lg font-semibold">Lab 01 — 🧠 Proof of Escape</h3>
-                                <div className="flex items-center gap-2 flex-nowrap">
-                                    {/* 1. Διαθέσιμο */}
-                                    <BadgeWithTooltip
-                                        label="Διαθέσιμο"
-                                        variant="success"
-                                        tooltip="On-chain επαληθευμένο project lab"
-                                        className="rounded-full text-xs whitespace-nowrap"
-                                    />
-                                    {/* 2. Ολοκληρώθηκε */}
-                                    {poeCompleted && (
-                                        <span
-                                            title="Ολοκληρώθηκε μέσω on-chain απόδειξης"
-                                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full
-                                                       text-xs whitespace-nowrap bg-green-500/90 text-white
-                                                       font-semibold shadow-lg backdrop-blur
-                                                       transition transform
-                                                       motion-safe:animate-[fadeInScale_300ms_ease-out]"
-                                        >
-                                            ✓ Ολοκληρώθηκε
+                                        <span className="text-sm text-slate-500 dark:text-slate-400">
+                                            Coming Soon
                                         </span>
-                                    )}
+                                    </div>
                                 </div>
                             </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
-                                Ένα παιγνιοποιημένο Web3 challenge με quizzes, NFTs και
-                                on-chain επαλήθευση βασικών εννοιών.
-                            </p>
-                            <div className="flex items-center justify-between mt-auto">
-                                <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                    Αρχάριο
-                                </span>
-                                <Link
-                                    to="/labs-gr/proof-of-escape"
-                                    className="text-sm font-semibold text-indigo-600 hover:underline"
-                                >
-                                    Άνοιγμα Εργαστηρίου
-                                </Link>
-                            </div>
-                        </div>
+                        </section>
 
-                        {/* 🖼 NFT Marketplace Lab */}
-                        <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/60 dark:bg-slate-900/40 p-6 shadow-sm opacity-70">
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-semibold">Lab 02 — 🖼 Εργαστήριο NFT Marketplace</h3>
-                                <span className="rounded-full text-xs whitespace-nowrap px-3 py-1 bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300 font-semibold">
-                                    Σύντομα
-                                </span>
-                            </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 min-h-[96px]">
-                                Δημιουργήστε και αλληλεπιδράστε με ένα απλό NFT marketplace
-                                μαθαίνοντας πρότυπα token, ιδιοκτησία και on-chain γεγονότα.
-                            </p>
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-medium px-2 py-1 rounded bg-slate-200/70 dark:bg-slate-700/60">
-                                    Μεσαίο
-                                </span>
-                                <span className="text-sm text-slate-400">Μη διαθέσιμο</span>
-                            </div>
-                        </div>
+                        {otherSections.map(([category, labs]) => (
+                            <section key={category}>
+                                <div className="mb-6">
+                                    <h2 className="text-2xl font-semibold">
+                                        {CATEGORY_LABELS[category] || category}
+                                    </h2>
+                                    <p className="mt-2 max-w-3xl text-slate-600 dark:text-slate-300">
+                                        {CATEGORY_DESCRIPTIONS[category] || "Labs που εκτίθενται από το backend registry."}
+                                    </p>
+                                </div>
 
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                                    {labs.map((lab) => {
+                                        const completed = Boolean(completionMap[lab.id]);
+                                        const copy = PROJECT_COPY_GR[lab.id] || PROJECT_COPY_GR[lab.slug] || {};
+                                        const title = copy.title || lab.title?.gr || lab.title?.en || lab.id;
+                                        const description = copy.description || lab.description?.gr || lab.description?.en || "";
+                                        const badge = lab.badge?.label?.gr || lab.badge?.label?.en || lab.badge?.id;
+                                        const link = LAB_ROUTES_GR[lab.id] || `/labs-gr/${lab.slug || lab.id}`;
+
+                                        return (
+                                            <Link
+                                                key={lab.id}
+                                                to={link}
+                                                className="group rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                                            >
+                                                <div className="flex items-start justify-between gap-3 mb-4">
+                                                    <div>
+                                                        <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                                                            {lab.id}
+                                                        </p>
+                                                        <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
+                                                            {title}
+                                                        </h3>
+                                                    </div>
+                                                    <span
+                                                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${statusTone(completed)}`}
+                                                    >
+                                                        {completed ? "Ολοκληρώθηκε" : "Διαθέσιμο"}
+                                                    </span>
+                                                </div>
+
+                                                <p className="min-h-[72px] text-sm text-slate-600 dark:text-slate-300">
+                                                    {description}
+                                                </p>
+
+                                                    <div className="mt-5 flex flex-wrap gap-2 text-xs">
+                                                        {copy.level || lab.level ? (
+                                                            <span className="rounded-full bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-slate-700 dark:text-slate-200">
+                                                                {copy.level || lab.level}
+                                                            </span>
+                                                        ) : null}
+                                                    {lab.estimated_time_minutes ? (
+                                                        <span className="rounded-full bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-slate-700 dark:text-slate-200">
+                                                            {lab.estimated_time_minutes} λεπτά
+                                                        </span>
+                                                    ) : null}
+                                                    {typeof lab.xp === "number" ? (
+                                                        <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/35 px-3 py-1 text-indigo-700 dark:text-indigo-300">
+                                                            +{lab.xp} XP
+                                                        </span>
+                                                    ) : null}
+                                                </div>
+
+                                                {badge ? (
+                                                    <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                                                        Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{badge}</span>
+                                                    </p>
+                                                ) : null}
+
+                                                <div className="mt-5 text-sm font-semibold text-indigo-600 dark:text-indigo-300 group-hover:translate-x-1 transition-transform">
+                                                    Άνοιγμα Lab →
+                                                </div>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        ))}
                     </div>
-                </section>
-
+                )}
             </div>
         </PageShell>
     );
-};
-
-export default LabsGR;
+}

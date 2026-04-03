@@ -15,6 +15,8 @@ const TeamPageEN = lazy(() => import("../pages/team/TeamPageEN.jsx"));
 const TeamPageGR = lazy(() => import("../pages/team/TeamPageGR.jsx"));
 const StartHere = lazy(() => import("../pages/StartHere.jsx"));
 const StartHereGR = lazy(() => import("../pages/StartHereGR.jsx"));
+const Projects = lazy(() => import("../pages/Projects.jsx"));
+const ProjectDetail = lazy(() => import("../pages/ProjectDetail.jsx"));
 const DaoPreview = lazy(() => import("../pages/dao-preview/DaoPreview.jsx"));
 const DaoPreviewGR = lazy(() => import("../pages/dao-preview/DaoPreviewGR.jsx"));
 const DaoGovernance = lazy(() => import("../pages/dao-preview/DaoGovernance.jsx"));
@@ -102,6 +104,10 @@ export default function AppRoutes() {
       <Route path="/team-gr" element={withSuspense(<TeamPageGR />)} />
       <Route path="/start-here" element={withSuspense(<StartHere />)} />
       <Route path="/start-here-gr" element={withSuspense(<StartHereGR />)} />
+      <Route path="/projects" element={withSuspense(<Projects />)} />
+      <Route path="/projects-gr" element={withSuspense(<Projects />)} />
+      <Route path="/projects/:id" element={withSuspense(<ProjectDetail />)} />
+      <Route path="/projects-gr/:id" element={withSuspense(<ProjectDetail />)} />
       <Route path="/dao-preview" element={withSuspense(<DaoPreview />)} />
       <Route path="/dao-preview-gr" element={withSuspense(<DaoPreviewGR />)} />
       <Route path="/dao-info" element={withSuspense(<DaoGovernance />)} />

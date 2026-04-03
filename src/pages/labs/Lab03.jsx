@@ -46,7 +46,7 @@ const Lab03 = () => {
             ]}
             interactionPath="/labs/lab03/interaction"
             readmeUrl="https://github.com/DimiKog/web3edu-labs/blob/main/lab-03-message-signing/README.md"
-            xp={150}
+            xp={200}
             badge="Ownership Prover"
             completionMessage="Completed Lab 03 — Message Signing & Ownership"
         />

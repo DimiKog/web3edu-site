@@ -10,6 +10,15 @@ import {
     generateAvatarStyle,
     shortAddress
 } from "../components/identity-ui.jsx";
+import {
+    createBackendError,
+    extractBackendMetadata,
+    extractBackendProfile,
+    getProgressFromXpTotal,
+    getXpTotalFromBackend,
+    isUserStateUnavailableError,
+    parseObjectish
+} from "../utils/progression.js";
 
 export default function VerifyIdentity() {
     const { address } = useParams();
@@ -36,7 +45,10 @@ export default function VerifyIdentity() {
 
         const fetchJson = async url => {
             const res = await fetch(url);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (!res.ok) {
+                const payload = await res.json().catch(() => ({}));
+                throw createBackendError(res.status, payload);
+            }
             return res.json();
         };
 
@@ -54,30 +66,16 @@ export default function VerifyIdentity() {
                     throw new Error("Both verify and resolve failed.");
                 }
 
-                const extractMeta = data =>
-                    data?.metadata?.metadata && typeof data.metadata.metadata === "object"
-                        ? data.metadata.metadata
-                        : data?.metadata && typeof data.metadata === "object"
-                            ? data.metadata
-                            : {};
-
-                const extractInfo = data =>
-                    data?.profile?.metadata && typeof data.profile.metadata === "object"
-                        ? data.profile.metadata
-                        : data?.profile && typeof data.profile === "object"
-                            ? data.profile
-                            : {};
-
                 const merged = {
                     ...(verifyData || {}),
                     ...(resolveData || {}),
                     metadata: {
-                        ...extractMeta(verifyData),
-                        ...extractMeta(resolveData)
+                        ...extractBackendMetadata(verifyData),
+                        ...extractBackendMetadata(resolveData)
                     },
                     profile: {
-                        ...extractInfo(verifyData),
-                        ...extractInfo(resolveData)
+                        ...extractBackendProfile(verifyData),
+                        ...extractBackendProfile(resolveData)
                     },
                     tokenId:
                         verifyData?.tokenId ??
@@ -87,10 +85,18 @@ export default function VerifyIdentity() {
                         null
                 };
 
+                merged.xp_total = getXpTotalFromBackend(merged);
+                console.log("XP from backend:", merged.xp_total);
                 setProfile(merged);
                 setLoading(false);
             })
             .catch((err) => {
+                if (isUserStateUnavailableError(err)) {
+                    console.warn("Backend user state temporarily unavailable during verify.");
+                    setError("Profile data is temporarily unavailable. Please try again.");
+                    setLoading(false);
+                    return;
+                }
                 console.error("Verify page error:", err);
                 setError("Could not load SBT data.");
                 setLoading(false);
@@ -100,14 +106,14 @@ export default function VerifyIdentity() {
     // Normalize nested payload shapes (verify endpoint can return metadata/profile wrappers)
     const rawMeta = profile?.metadata ?? {};
     const rawInfo = profile?.profile ?? {};
-    const meta =
-        rawMeta?.metadata && typeof rawMeta.metadata === "object"
-            ? rawMeta.metadata
-            : rawMeta;
-    const info =
-        rawInfo?.metadata && typeof rawInfo.metadata === "object"
-            ? rawInfo.metadata
-            : rawInfo;
+    const meta = {
+        ...parseObjectish(rawMeta),
+        ...parseObjectish(parseObjectish(rawMeta)?.metadata)
+    };
+    const info = {
+        ...parseObjectish(rawInfo),
+        ...parseObjectish(parseObjectish(rawInfo)?.metadata)
+    };
     const pickFirst = (...values) => {
         for (const value of values) {
             if (value !== null && value !== undefined && value !== "") return value;
@@ -127,89 +133,11 @@ export default function VerifyIdentity() {
     const isFounder = (meta.founder ?? info.founder) || false;
     const edition = meta.edition ?? info.edition ?? (isFounder ? "Founder Edition" : null);
 
-    const tier = meta.tier ?? info.tier ?? "Explorer";
-    const totalXp = toNumber(
-        pickFirst(
-            meta.xp,
-            meta.xp_total,
-            meta.totalXp,
-            meta.total_xp,
-            info.xp,
-            info.xp_total,
-            info.totalXp,
-            info.total_xp,
-            profile?.xp,
-            profile?.xp_total,
-            profile?.totalXp,
-            profile?.total_xp,
-            profile?.metadata?.xp,
-            profile?.metadata?.xp_total,
-            profile?.metadata?.totalXp,
-            profile?.metadata?.total_xp,
-            profile?.profile?.xp,
-            profile?.profile?.xp_total,
-            profile?.profile?.totalXp,
-            profile?.profile?.total_xp
-        )
-    ) ?? 0;
-    const xpPercentRaw = toNumber(
-        pickFirst(
-            meta.xpPercent,
-            meta.xp_percent,
-            meta.progress,
-            meta.progressPercent,
-            meta.progress_percent,
-            meta.nextTierPercent,
-            meta.next_tier_percent,
-            meta.completionPercent,
-            meta.completion_percent,
-            info.xpPercent,
-            info.xp_percent,
-            info.progress,
-            info.progressPercent,
-            info.progress_percent,
-            info.nextTierPercent,
-            info.next_tier_percent,
-            info.completionPercent,
-            info.completion_percent,
-            profile?.xpPercent,
-            profile?.xp_percent,
-            profile?.progress,
-            profile?.progressPercent,
-            profile?.progress_percent,
-            profile?.nextTierPercent,
-            profile?.next_tier_percent,
-            profile?.completionPercent,
-            profile?.completion_percent
-        )
-    ) ?? 0;
-    const remainingXp = toNumber(
-        pickFirst(
-            meta.remainingXp,
-            meta.remaining_xp,
-            info.remainingXp,
-            info.remaining_xp,
-            profile?.remainingXp,
-            profile?.remaining_xp,
-            profile?.metadata?.remainingXp,
-            profile?.metadata?.remaining_xp
-        )
-    );
-    const xpPercentNormalized =
-        xpPercentRaw > 0 && xpPercentRaw <= 1 ? xpPercentRaw * 100 : xpPercentRaw;
-    let xpPercent = Math.max(0, Math.min(100, xpPercentNormalized));
-    if (xpPercent <= 0 && totalXp > 0) {
-        if (remainingXp !== null && remainingXp >= 0) {
-            xpPercent = Math.max(1, Math.min(100, (totalXp / (totalXp + remainingXp)) * 100));
-        } else {
-            // Fallback when backend omits percentage fields.
-            xpPercent = Math.max(1, Math.min(100, (totalXp / 6000) * 100));
-            if (tier === "Architect") xpPercent = Math.max(xpPercent, 85);
-        }
-    }
-    // Visual progress should move clearly with total XP, not only within current tier.
-    const overallXpPercent = Math.max(0, Math.min(100, (totalXp / 7000) * 100));
-    const xpBarPercent = Math.max(xpPercent, overallXpPercent);
+    const totalXp = toNumber(profile?.xp_total) ?? 0;
+    const progress = getProgressFromXpTotal(totalXp);
+    const tier = progress.tier;
+    const remainingXp = progress.remainingXp;
+    const xpBarPercent = progress.overallPercent;
     const timeline = pickFirst(
         meta.timeline,
         info.timeline,

@@ -18,6 +18,7 @@ const ProjectLabTemplate = ({
     level = "Applied",
     estimatedTime = "20-30 minutes",
     difficulty = "Medium",
+    xp = null,
 
     missionText = "",
     whatYouDo = [],
@@ -146,10 +147,11 @@ const ProjectLabTemplate = ({
                 </section>
 
                 {/* Meta */}
-                <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+                <section className={`grid grid-cols-1 ${xp ? "sm:grid-cols-4" : "sm:grid-cols-3"} gap-4 mb-12`}>
                     <MetaCard label="Level" value={level} />
                     <MetaCard label="Estimated Time" value={estimatedTime} />
                     <MetaCard label="Difficulty" value={difficulty} />
+                    {xp ? <MetaCard label={language === "gr" ? "XP Ανταμοιβή" : "XP Reward"} value={`+${xp} XP`} /> : null}
                 </section>
 
                 {/* What You’ll Do */}

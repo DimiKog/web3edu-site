@@ -10,6 +10,12 @@ import {
   generateAvatarStyle,
   shortAddress,
 } from "./identity-ui.jsx";
+import {
+  createBackendError,
+  getRoleFromXpTotal,
+  getXpTotalFromBackend,
+  isUserStateUnavailableError,
+} from "../utils/progression.js";
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
 const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
@@ -79,6 +85,9 @@ export default function PageShell({
     if (typeof window === "undefined") return "";
     return localStorage.getItem(WALLET_ADDRESS_KEY) || "";
   });
+  const [walletTier, setWalletTier] = React.useState("Explorer");
+  const [syncIssueVisible, setSyncIssueVisible] = React.useState(false);
+  const [syncRetryTick, setSyncRetryTick] = React.useState(0);
 
   const [currentHash, setCurrentHash] = React.useState(
     typeof window !== "undefined" ? window.location.hash || "#/" : "#/"
@@ -202,6 +211,54 @@ export default function PageShell({
     revalidateWalletSession();
   }, [hasWalletSession]);
 
+  React.useEffect(() => {
+    if (!walletAddress) {
+      setWalletTier("Explorer");
+      setSyncIssueVisible(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    const BACKEND =
+      import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+
+    fetch(`${BACKEND}/web3sbt/resolve/${walletAddress}`, {
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (res.ok) return res.json();
+        return res.json().catch(() => ({})).then((payload) => {
+          throw createBackendError(res.status, payload);
+        });
+      })
+      .then((data) => {
+        const xpTotal = getXpTotalFromBackend(data);
+        console.log("XP from backend:", xpTotal);
+        setWalletTier(getRoleFromXpTotal(xpTotal));
+        setSyncIssueVisible(false);
+      })
+      .catch((err) => {
+        if (isUserStateUnavailableError(err)) {
+          console.warn("Backend user state temporarily unavailable; preserving wallet tier.");
+          setSyncIssueVisible(true);
+          return;
+        }
+        setSyncIssueVisible(false);
+        setWalletTier("Explorer");
+      });
+
+    return () => controller.abort();
+  }, [walletAddress, syncRetryTick]);
+
+  React.useEffect(() => {
+    if (!syncIssueVisible) return undefined;
+    const timeoutId = window.setTimeout(() => {
+      setSyncRetryTick((value) => value + 1);
+    }, 4000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [syncIssueVisible]);
+
   // Handle language toggle
   const toggleLanguage = () => {
     const newLang = lang === "gr" ? "en" : "gr";
@@ -237,8 +294,10 @@ export default function PageShell({
 
   const showJoinCta =
     !hasWalletSession && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
-  const showWalletSessionCta =
+  const showWalletSessionCtaDesktop =
     hasWalletSession && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
+  const showWalletSessionCtaMobile =
+    hasWalletSession && !isJoinPage && !isLabsLandingPage;
 
   return (
     <main
@@ -314,13 +373,18 @@ export default function PageShell({
                 >
                   Εργαστήρια
                 </a>
-                <a href="/#/team-gr" className="relative font-medium 
-  text-slate-800 dark:text-slate-100
-  hover:text-indigo-700 dark:hover:text-white
-  after:absolute after:-bottom-1 after:left-0 after:h-[2px]
-  after:w-full after:scale-x-0 after:bg-gradient-to-r
-  after:from-[#7b3df8] after:to-[#00d4ff]
-  after:transition-transform hover:after:scale-x-100">Ομάδα</a>
+                <a
+                  href="/#/projects-gr"
+                  className="relative font-medium 
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  Projects
+                </a>
                 <a
                   href="/#/dao-info-gr"
                   className="relative font-medium 
@@ -333,6 +397,13 @@ export default function PageShell({
                 >
                   Διακυβέρνηση DAO
                 </a>
+                <a href="/#/team-gr" className="relative font-medium 
+  text-slate-800 dark:text-slate-100
+  hover:text-indigo-700 dark:hover:text-white
+  after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+  after:w-full after:scale-x-0 after:bg-gradient-to-r
+  after:from-[#7b3df8] after:to-[#00d4ff]
+  after:transition-transform hover:after:scale-x-100">Ομάδα</a>
               </>
             ) : (
               <>
@@ -367,13 +438,18 @@ export default function PageShell({
                 >
                   Labs
                 </a>
-                <a href="/#/team" className="relative font-medium 
-  text-slate-800 dark:text-slate-100
-  hover:text-indigo-700 dark:hover:text-white
-  after:absolute after:-bottom-1 after:left-0 after:h-[2px]
-  after:w-full after:scale-x-0 after:bg-gradient-to-r
-  after:from-[#7b3df8] after:to-[#00d4ff]
-  after:transition-transform hover:after:scale-x-100">Team</a>
+                <a
+                  href="/#/projects"
+                  className="relative font-medium 
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  Projects
+                </a>
                 <a
                   href="/#/dao-info"
                   className="relative font-medium 
@@ -386,6 +462,13 @@ export default function PageShell({
                 >
                   DAO Governance
                 </a>
+                <a href="/#/team" className="relative font-medium 
+  text-slate-800 dark:text-slate-100
+  hover:text-indigo-700 dark:hover:text-white
+  after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+  after:w-full after:scale-x-0 after:bg-gradient-to-r
+  after:from-[#7b3df8] after:to-[#00d4ff]
+  after:transition-transform hover:after:scale-x-100">Team</a>
               </>
             )}
           </div>
@@ -404,7 +487,7 @@ export default function PageShell({
                   {isGR ? "Σύνδεση" : "Join"}
                 </button>
               )}
-            {showWalletSessionCta && walletAddress && (
+            {showWalletSessionCtaDesktop && walletAddress && (
               <>
                 <button
                   onClick={() => {
@@ -414,7 +497,7 @@ export default function PageShell({
                 >
                   <span
                     className="flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-purple-400/80"
-                    style={generateAvatarStyle(walletAddress, "Explorer")}
+                    style={generateAvatarStyle(walletAddress, walletTier)}
                   >
                     <AddressIdenticon address={walletAddress} />
                   </span>
@@ -483,6 +566,24 @@ export default function PageShell({
             opacity-80 blur-[1px] pointer-events-none"></div>
         </nav>
 
+        {syncIssueVisible ? (
+          <div className="mx-auto mt-2 max-w-5xl rounded-2xl border border-amber-400/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 shadow-lg backdrop-blur dark:text-amber-100">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="font-medium">
+                {isGR
+                  ? "⚠ Δυσκολευόμαστε να συγχρονίσουμε την πρόοδό σας. Γίνεται νέα προσπάθεια…"
+                  : "⚠ We’re having trouble syncing your progress. Retrying…"}
+              </p>
+              <button
+                onClick={() => setSyncRetryTick((value) => value + 1)}
+                className="inline-flex items-center justify-center rounded-full border border-amber-400/30 bg-amber-500/15 px-4 py-1.5 font-semibold text-amber-950 transition hover:bg-amber-500/25 dark:text-amber-100"
+              >
+                {isGR ? "Δοκίμασε ξανά" : "Retry now"}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         {/* MOBILE MENU */}
         {mobileOpen && (
           <div id="mobile-navigation-menu" className="fixed inset-0 lg:hidden z-40 px-4 pt-24 pb-8 bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-xl">
@@ -515,18 +616,23 @@ export default function PageShell({
                       Εργαστήρια
                     </button>
                     <button
+                      onClick={() => navigateTo("#/projects-gr")}
+                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
+                    >
+                      Projects
+                    </button>
+                    <button
+                      onClick={() => navigateTo("#/dao-info-gr")}
+                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50 flex items-center justify-center"
+                    >
+                      Διακυβέρνηση DAO
+                    </button>
+                    <button
                       onClick={() => navigateTo("#/team-gr")}
                       className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
                     >
                       Ομάδα
                     </button>
-                    <a
-                      href="/#/dao-info-gr"
-                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50 flex items-center justify-center"
-                      style={{ textAlign: "center" }}
-                    >
-                      Διακυβέρνηση DAO
-                    </a>
                   </>
                 ) : (
                   <>
@@ -555,18 +661,23 @@ export default function PageShell({
                       Labs
                     </button>
                     <button
+                      onClick={() => navigateTo("#/projects")}
+                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
+                    >
+                      Projects
+                    </button>
+                    <button
+                      onClick={() => navigateTo("#/dao-info")}
+                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50 flex items-center justify-center"
+                    >
+                      DAO Governance
+                    </button>
+                    <button
                       onClick={() => navigateTo("#/team")}
                       className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
                     >
                       Team
                     </button>
-                    <a
-                      href="/#/dao-info"
-                      className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50 flex items-center justify-center"
-                      style={{ textAlign: "center" }}
-                    >
-                      DAO Governance
-                    </a>
                   </>
                 )}
               </div>
@@ -579,7 +690,7 @@ export default function PageShell({
                     {isGR ? "Σύνδεση" : "Join"}
                   </button>
                 )}
-              {showWalletSessionCta && walletAddress && (
+              {showWalletSessionCtaMobile && walletAddress && (
                 <>
                   <button
                     onClick={() => navigateTo(isGR ? "#/dashboard-gr" : "#/dashboard")}
@@ -587,7 +698,7 @@ export default function PageShell({
                   >
                     <span
                       className="flex h-7 w-7 items-center justify-center rounded-full ring-2 ring-purple-400/80"
-                      style={generateAvatarStyle(walletAddress, "Explorer")}
+                      style={generateAvatarStyle(walletAddress, walletTier)}
                     >
                       <AddressIdenticon address={walletAddress} />
                     </span>

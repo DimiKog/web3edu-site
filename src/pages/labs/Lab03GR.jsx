@@ -46,7 +46,7 @@ const Lab03GR = () => {
             ]}
             interactionPath="/labs-gr/lab03/interaction"
             readmeUrl="https://github.com/DimiKog/web3edu-labs/blob/main/lab-03-message-signing/README.md"
-            xp={150}
+            xp={200}
             badge="Αποδεικτής Ιδιοκτησίας"
             completionMessage="Ολοκλήρωση Lab 03 — Υπογραφή Μηνυμάτων & Ιδιοκτησία"
             labels={{

@@ -11,8 +11,22 @@ import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, Tro
 import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
 import {
+    createBackendError,
+    extractBackendMetadata,
+    extractBackendProfile,
+    getProgressFromXpTotal,
+    getXpTotalFromBackend,
+    isUserStateUnavailableError,
+} from "../utils/progression.js";
+import {
     shortAddress
 } from "../components/identity-ui.jsx";
+
+const parseCompletedAt = (value) => {
+    if (!value) return 0;
+    const timestamp = Date.parse(value);
+    return Number.isFinite(timestamp) ? timestamp : 0;
+};
 
 export default function Dashboard() {
     const { address, isConnected } = useAccount();
@@ -25,15 +39,20 @@ export default function Dashboard() {
     const [lastSyncTime, setLastSyncTime] = useState(null);
 
     // Builder unlock promo state
+    const builderUnlockStorageKey = "web3edu-builder-unlock-shown";
     const [showBuilderUnlock, setShowBuilderUnlock] = useState(false);
     const [builderRewardClaimed, setBuilderRewardClaimed] = useState(
         localStorage.getItem("web3edu-builder-claimed") === "true"
+    );
+    const [builderUnlockShown, setBuilderUnlockShown] = useState(
+        localStorage.getItem(builderUnlockStorageKey) === "true"
     );
     const [builderJustClaimed, setBuilderJustClaimed] = useState(false);
     const prevTierRef = useRef(null);
 
     const fallbackMetadata = {
         tier: "Explorer",
+        xp_total: 0,
         xp: 0,
         xpPercent: 0,
         remainingXp: 0,
@@ -106,26 +125,36 @@ export default function Dashboard() {
         fetch(`${BACKEND}/web3sbt/resolve/${address}`)
             .then(res => {
                 if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}`);
+                    return res.json().catch(() => ({})).then((payload) => {
+                        throw createBackendError(res.status, payload);
+                    });
                 }
                 return res.json();
             })
             .then(data => {
                 // Normalize metadata/profile and merge the richest info available
-                const apiMetadata =
-                    data?.metadata?.metadata && typeof data.metadata.metadata === "object"
-                        ? data.metadata.metadata
-                        : data?.metadata && typeof data.metadata === "object"
-                            ? data.metadata
-                            : {};
-                const apiProfile =
-                    data?.profile?.metadata && typeof data.profile.metadata === "object"
-                        ? data.profile.metadata
-                        : data?.profile && typeof data.profile === "object"
-                            ? data.profile
-                            : {};
+                const apiMetadata = extractBackendMetadata(data);
+                const apiProfile = extractBackendProfile(data);
 
-                setMetadata({ ...apiMetadata, tokenId: resolveTokenId(data) });
+                const xpTotal = getXpTotalFromBackend(data);
+                const derivedProgress = getProgressFromXpTotal(xpTotal);
+                console.log("XP from backend:", xpTotal);
+
+                const combinedMetadata = {
+                    ...apiMetadata,
+                    ...apiProfile,
+                };
+
+                setMetadata({
+                    ...combinedMetadata,
+                    tokenId: resolveTokenId(data),
+                    xp_total: xpTotal,
+                    xp: xpTotal,
+                    tier: derivedProgress.tier,
+                    xpPercent: derivedProgress.xpPercent,
+                    nextTierPercent: derivedProgress.nextTierPercent,
+                    remainingXp: derivedProgress.remainingXp,
+                });
 
                 const parseMaybeJson = value => {
                     if (typeof value === "string") {
@@ -210,8 +239,10 @@ export default function Dashboard() {
                                     : null;
 
                 const mergedProfile = {
-                    ...apiMetadata,
-                    ...apiProfile,
+                    ...combinedMetadata,
+                    xp_total: xpTotal,
+                    xp: xpTotal,
+                    tier: derivedProgress.tier,
                     name:
                         apiProfile.name ||
                         apiMetadata.name ||
@@ -225,22 +256,26 @@ export default function Dashboard() {
                 setLastSyncTime(new Date());
             })
             .catch(err => {
+                if (isUserStateUnavailableError(err)) {
+                    console.warn("Backend user state temporarily unavailable; preserving dashboard state.");
+                    return;
+                }
                 console.error("Failed to fetch metadata:", err);
             });
     }, [address, formattedAddress]);
 
     useEffect(() => {
-        if (!metadata || typeof metadata.xp !== "number") return;
+        if (!metadata || typeof metadata.xp_total !== "number") return;
 
         let timeoutId;
         if (prevXpRef.current == null) {
-            prevXpRef.current = metadata.xp;
+            prevXpRef.current = metadata.xp_total;
         } else {
-            if (metadata.xp > prevXpRef.current) {
+            if (metadata.xp_total > prevXpRef.current) {
                 setXpLeveledUp(true);
                 timeoutId = setTimeout(() => setXpLeveledUp(false), 1200);
             }
-            prevXpRef.current = metadata.xp;
+            prevXpRef.current = metadata.xp_total;
         }
 
         return () => {
@@ -248,31 +283,21 @@ export default function Dashboard() {
         };
     }, [metadata]);
 
-    useEffect(() => {
-        const tier = metadata?.tier;
-        if (!tier) return;
-        try {
-            localStorage.setItem("web3edu-tier", tier);
-        } catch (err) {
-            console.error("Failed to persist tier in localStorage:", err);
-        }
-    }, [metadata?.tier]);
-
     // Builder unlock promo effect
     useEffect(() => {
         if (!metadata?.tier) return;
 
-        // If user is Builder and has NOT claimed reward yet,
-        // always show unlock promo (even on first load)
         if (
-            metadata.tier === "Builder" &&
-            !builderRewardClaimed
+            (metadata.tier === "Builder" || metadata.tier === "Architect") &&
+            !builderUnlockShown
         ) {
             setShowBuilderUnlock(true);
+            setBuilderUnlockShown(true);
+            localStorage.setItem(builderUnlockStorageKey, "true");
         }
 
         prevTierRef.current = metadata.tier;
-    }, [metadata?.tier, builderRewardClaimed]);
+    }, [metadata?.tier, builderUnlockShown]);
 
     // Always provide a recommendation (backend-driven or fallback)
     const fallbackRecommendation = {
@@ -315,7 +340,56 @@ export default function Dashboard() {
         poe: "Lab 01 — Proof of Escape"
     };
 
-    const timelineForGr = (metadata?.timeline || []).map(item => {
+    const timelineForGr = (() => {
+        const baseTimeline = Array.isArray(metadata?.timeline) ? metadata.timeline : [];
+        const merged = new Map();
+
+        baseTimeline.forEach((item, index) => {
+            if (!item) return;
+            const key = `${item.type || "unknown"}:${item.id || item.slug || index}`;
+            merged.set(key, item);
+        });
+
+        const completedLabs =
+            metadata?.labs_completed && typeof metadata.labs_completed === "object"
+                ? metadata.labs_completed
+                : {};
+        Object.entries(completedLabs).forEach(([labId, entry]) => {
+            merged.set(`lab:${labId}`, {
+                type: "lab",
+                id: labId,
+                title: entry?.title || labId,
+                xp: entry?.xp || 0,
+                badge: entry?.badge,
+                completedAt: entry?.completedAt,
+            });
+        });
+
+        const projectsCompleted =
+            metadata?.projects_completed && typeof metadata.projects_completed === "object"
+                ? metadata.projects_completed
+                : {};
+        const projectGrants =
+            metadata?.projectLabs && typeof metadata.projectLabs === "object"
+                ? metadata.projectLabs
+                : {};
+
+        Object.entries(projectsCompleted).forEach(([projectId, entry]) => {
+            merged.set(`project:${projectId}`, {
+                type: "project",
+                id: projectId,
+                title: entry?.badge || projectId,
+                badge: entry?.badge,
+                xp: projectGrants?.[projectId]?.xp || 0,
+                completedAt: entry?.completedAt,
+            });
+        });
+
+        return [...merged.values()]
+            .sort(
+                (a, b) => parseCompletedAt(b?.completedAt) - parseCompletedAt(a?.completedAt)
+            )
+            .map(item => {
         if (!item || item.type !== "lab") return item;
 
         const itemId = String(item.id || item.slug || "").toLowerCase();
@@ -336,7 +410,8 @@ export default function Dashboard() {
             ...item,
             title: mappedTitle
         };
-    });
+            });
+    })();
 
     const builderChecklist = metadata?.builderChecklist || null;
     const [showBuilderPath, setShowBuilderPath] = useState(
@@ -712,7 +787,7 @@ export default function Dashboard() {
                             icon={<StarIcon className="w-5 h-5 text-white" />}
                         >
                             <XPProgressCard
-                                xp={metadata?.xp ?? 0}
+                                xp={metadata?.xp_total ?? 0}
                                 xpPercent={metadata?.xpPercent ?? 0}
                                 remainingXp={metadata?.remainingXp ?? 0}
                                 nextTierPercent={metadata?.nextTierPercent ?? 0}

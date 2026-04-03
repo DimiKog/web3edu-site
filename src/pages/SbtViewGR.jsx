@@ -9,6 +9,12 @@ import {
     shortAddress
 } from "../components/identity-ui.jsx";
 import { QRCodeSVG } from "qrcode.react";
+import {
+    createBackendError,
+    getRoleFromXpTotal,
+    getXpTotalFromBackend,
+    isUserStateUnavailableError,
+} from "../utils/progression.js";
 
 export default function SbtViewGR() {
     const { address, isConnected } = useAccount();
@@ -34,18 +40,25 @@ export default function SbtViewGR() {
         setError("");
         fetch(`${BACKEND}/web3sbt/resolve/${address}`)
             .then(res => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) {
+                    return res.json().catch(() => ({})).then((payload) => {
+                        throw createBackendError(res.status, payload);
+                    });
+                }
                 return res.json();
             })
             .then(data => {
                 setProfile(data);
-                // Store tier for navbar avatar
-                if (data?.metadata?.tier) {
-                    localStorage.setItem("web3edu_tier", data.metadata.tier);
-                }
+                console.log("XP from backend:", getXpTotalFromBackend(data));
                 setLoading(false);
             })
             .catch(err => {
+                if (isUserStateUnavailableError(err)) {
+                    console.warn("Backend user state temporarily unavailable; preserving SBT view state.");
+                    setError("Το προφίλ σας δεν είναι προσωρινά διαθέσιμο. Δοκιμάστε ξανά.");
+                    setLoading(false);
+                    return;
+                }
                 console.error("Αποτυχία φόρτωσης SBT προφίλ:", err);
                 setError("Δεν ήταν δυνατή η φόρτωση του ψηφιακού διαβατηρίου σας.");
                 setLoading(false);
@@ -61,7 +74,7 @@ export default function SbtViewGR() {
             .catch(err => console.error("Clipboard error:", err));
     };
 
-    const tier = profile?.metadata?.tier;
+    const tier = getRoleFromXpTotal(getXpTotalFromBackend(profile));
     const badges = profile?.metadata?.badges ?? [];
     const tokenId = (() => {
         const candidates = [
