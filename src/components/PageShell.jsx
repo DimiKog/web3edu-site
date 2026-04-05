@@ -233,7 +233,6 @@ export default function PageShell({
       })
       .then((data) => {
         const xpTotal = getXpTotalFromBackend(data);
-        console.log("XP from backend:", xpTotal);
         setWalletTier(getRoleFromXpTotal(xpTotal));
         setSyncIssueVisible(false);
       })

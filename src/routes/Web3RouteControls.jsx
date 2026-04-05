@@ -70,7 +70,6 @@ export default function Web3RouteControls() {
       })
       .then((data) => {
         const xpTotal = getXpTotalFromBackend(data);
-        console.log("XP from backend:", xpTotal);
         setSavedTier(getRoleFromXpTotal(xpTotal));
       })
       .catch((err) => {

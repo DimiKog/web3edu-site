@@ -288,7 +288,6 @@ export default function ProjectDetail() {
             .then(data => {
                 const xpTotal = getXpTotalFromBackend(data);
                 const tier = getRoleFromXpTotal(xpTotal).toLowerCase();
-                console.log("XP from backend:", xpTotal);
                 const role = tier === "builder" ? "builder" : "learner";
 
                 setUserRole(role);

@@ -6,7 +6,6 @@ import {
     Eye,
     ArrowRight
 } from "lucide-react";
-import { CARD_BACKGROUND_MAP } from "../design/theme.js";
 import SectionBadge from "./SectionBadge.jsx";
 import { Link } from "react-router-dom";
 
@@ -15,7 +14,8 @@ const iconMap = {
     education: GraduationCap,
     nft: BadgeCheck,
     dao: Landmark,
-    zkp: Eye
+    zkp: Eye,
+    tools: Puzzle
 };
 
 const COLOR_THEME = {
@@ -23,7 +23,8 @@ const COLOR_THEME = {
     education: { ring: "from-sky-300/50 to-blue-400/60", icon: "text-sky-200" },
     nft: { ring: "from-emerald-300/50 to-green-400/60", icon: "text-emerald-200" },
     dao: { ring: "from-indigo-300/50 to-indigo-500/60", icon: "text-indigo-200" },
-    zkp: { ring: "from-pink-300/50 to-fuchsia-500/60", icon: "text-pink-200" }
+    zkp: { ring: "from-pink-300/50 to-fuchsia-500/60", icon: "text-pink-200" },
+    tools: { ring: "from-orange-300/50 to-amber-500/60", icon: "text-orange-200" }
 };
 
 const AppsGridGR = ({ content, badgeLabel = "Επισκόπηση Οικοσυστήματος" }) => (
@@ -56,13 +57,18 @@ const AppsGridGR = ({ content, badgeLabel = "Επισκόπηση Οικοσυσ
             className="flex flex-col gap-6 px-2 py-6 w-full perspective-[2000px]
                md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:px-0 md:py-10 md:overflow-visible"
         >
-            {["poe", "education", "nft", "dao", "zkp"].map((key) => {
+            {["poe", "education", "nft", "dao", "zkp", "tools"].filter((key) => content?.[key]).map((key) => {
                 const app = content[key];
                 const Icon = iconMap[key];
                 const theme = COLOR_THEME[key];
 
-                const isLink = key === "poe" || key === "education";
-                const linkTo = key === "poe" ? "/labs-gr/proof-of-escape" : "/labs-gr";
+                const isLink = key === "poe" || key === "education" || key === "tools";
+                const linkTo =
+                    key === "poe"
+                        ? "/labs-gr/proof-of-escape"
+                        : key === "education"
+                            ? "/labs-gr"
+                            : "/tools-gr";
 
                 const Wrapper = isLink ? Link : "div";
 
@@ -142,7 +148,7 @@ const AppsGridGR = ({ content, badgeLabel = "Επισκόπηση Οικοσυσ
                                         className={`inline-flex items-center gap-2 text-base font-semibold
                                   text-slate-700 dark:${theme.icon}`}
                                     >
-                                        Διαθέσιμο σύντομα
+                                        {key === "tools" ? content.cta : "Διαθέσιμο σύντομα"}
                                     </div>
                                 )}
                             </div>

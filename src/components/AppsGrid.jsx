@@ -6,7 +6,6 @@ import {
     Eye,
     ArrowRight
 } from "lucide-react";
-import { CARD_BACKGROUND_MAP } from "../design/theme.js";
 import SectionBadge from "./SectionBadge.jsx";
 import { Link } from "react-router-dom";
 
@@ -15,7 +14,16 @@ const iconMap = {
     education: GraduationCap,
     nft: BadgeCheck,
     dao: Landmark,
-    zkp: Eye
+    zkp: Eye,
+    tools: Puzzle,
+};
+
+const APP_ORDER = ["poe", "education", "nft", "dao", "zkp", "tools"];
+
+const LINK_TARGETS = {
+    poe: "/labs/proof-of-escape",
+    education: "/labs",
+    tools: "/tools",
 };
 
 const COLOR_THEME = {
@@ -23,7 +31,8 @@ const COLOR_THEME = {
     education: { ring: "from-sky-300/50 to-blue-400/60", icon: "text-sky-200" },
     nft: { ring: "from-emerald-300/50 to-green-400/60", icon: "text-emerald-200" },
     dao: { ring: "from-indigo-300/50 to-indigo-500/60", icon: "text-indigo-200" },
-    zkp: { ring: "from-pink-300/50 to-fuchsia-500/60", icon: "text-pink-200" }
+    zkp: { ring: "from-pink-300/50 to-fuchsia-500/60", icon: "text-pink-200" },
+    tools: { ring: "from-orange-300/50 to-amber-500/60", icon: "text-orange-200" },
 };
 
 const AppsGrid = ({ content, badgeLabel = "Ecosystem Overview" }) => (
@@ -56,15 +65,11 @@ const AppsGrid = ({ content, badgeLabel = "Ecosystem Overview" }) => (
             className="flex flex-col gap-6 px-2 py-6 w-full perspective-[2000px]
                  md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 md:px-0 md:py-10 md:overflow-visible"
         >
-            {["poe", "education", "nft", "dao", "zkp"].map((key) => {
+            {APP_ORDER.filter((key) => content?.[key]).map((key) => {
                 const app = content[key];
                 const Icon = iconMap[key];
                 const theme = COLOR_THEME[key];
-
-                const linkTarget =
-                    key === "poe" ? "/labs/proof-of-escape" :
-                        key === "education" ? "/labs" :
-                            null;
+                const linkTarget = LINK_TARGETS[key] || null;
 
                 const wrapperClassName = `group relative rounded-3xl p-[2px] shadow-xl transition-all
                        hover:scale-[1.02]
@@ -131,7 +136,7 @@ const AppsGrid = ({ content, badgeLabel = "Ecosystem Overview" }) => (
                               text-slate-700 dark:${theme.icon}`}
                                 >
                                     {(key === "nft" || key === "dao" || key === "zkp") ? "Coming Soon" : content.cta}
-                                    {(key === "poe" || key === "education") && (
+                                    {(key === "poe" || key === "education" || key === "tools") && (
                                         <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                                     )}
                                 </div>

@@ -100,6 +100,11 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
             desc: "A research-oriented module focused on privacy-preserving techniques and zero-knowledge proofs in applied Web3 systems."
         },
 
+        tools: {
+            title: "Developer Tools",
+            desc: "Interactive protocol visualizers and sandboxes for inspecting blockchain mechanics step by step."
+        },
+
         cta: "Explore"
     },
 
@@ -114,9 +119,15 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
         items: [
             {
                 category: "release",
-                date: "Jan 2026",
-                title: "Web3Edu Platform — Public Launch (Coming Soon)",
-                desc: "Public release of the Web3Edu learning platform, including foundational labs, learning identity, and ecosystem access.",
+                date: "1/03/2026",
+                title: "Web3Edu Platform — Public Launch",
+                desc: "Public release of the Web3Edu platform, opening access to the learning experience, foundational labs, and identity-driven progression.",
+            },
+            {
+                category: "event",
+                date: "9/03/2026",
+                title: "1st Web3Edu Workshop",
+                desc: "The event where the platform was officially presented at the University of West Attica.",
             },
             {
                 category: "update",

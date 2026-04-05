@@ -49,7 +49,6 @@ export default function Projects() {
       })
       .then((data) => {
         const xpTotal = getXpTotalFromBackend(data);
-        console.log("XP from backend:", xpTotal);
         setCompletedProjects(data?.metadata?.projectsCompleted || {});
         setUserTier(getRoleFromXpTotal(xpTotal).toLowerCase());
       })

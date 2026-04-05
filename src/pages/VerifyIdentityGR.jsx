@@ -86,7 +86,6 @@ export default function VerifyIdentityGR() {
                 };
 
                 merged.xp_total = getXpTotalFromBackend(merged);
-                console.log("XP from backend:", merged.xp_total);
                 setProfile(merged);
                 setLoading(false);
             })

@@ -22,6 +22,8 @@ const DaoPreviewGR = lazy(() => import("../pages/dao-preview/DaoPreviewGR.jsx"))
 const DaoGovernance = lazy(() => import("../pages/dao-preview/DaoGovernance.jsx"));
 const DaoGovernanceGR = lazy(() => import("../pages/dao-preview/DaoGovernanceGR.jsx"));
 const GenesisEvent = lazy(() => import("../pages/events/GenesisEvent.jsx"));
+const Tools = lazy(() => import("../pages/Tools.jsx"));
+const MiningLab = lazy(() => import("../pages/MiningLab.jsx"));
 
 const Join = lazy(() => import("../pages/Join.jsx"));
 const JoinGR = lazy(() => import("../pages/JoinGR.jsx"));
@@ -116,6 +118,10 @@ export default function AppRoutes() {
       <Route path="/events/genesis" element={withSuspense(<GenesisEvent />)} />
       <Route path="/events/genesis-gr" element={withSuspense(<GenesisEvent />)} />
       <Route path="/events-gr/genesis" element={withSuspense(<GenesisEvent />)} />
+      <Route path="/tools" element={withSuspense(<Tools />)} />
+      <Route path="/tools-gr" element={withSuspense(<Tools lang="gr" />)} />
+      <Route path="/tools/mining" element={withSuspense(<MiningLab />)} />
+      <Route path="/tools-gr/mining" element={withSuspense(<MiningLab lang="gr" />)} />
 
       <Route element={withSuspense(<Web3Layout />)}>
         <Route path="/join" element={withSuspense(<Join />)} />

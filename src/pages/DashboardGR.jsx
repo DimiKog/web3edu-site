@@ -138,8 +138,6 @@ export default function Dashboard() {
 
                 const xpTotal = getXpTotalFromBackend(data);
                 const derivedProgress = getProgressFromXpTotal(xpTotal);
-                console.log("XP from backend:", xpTotal);
-
                 const combinedMetadata = {
                     ...apiMetadata,
                     ...apiProfile,
@@ -299,8 +297,39 @@ export default function Dashboard() {
         prevTierRef.current = metadata.tier;
     }, [metadata?.tier, builderUnlockShown]);
 
-    // Always provide a recommendation (backend-driven or fallback)
-    const fallbackRecommendation = {
+    const projectsCompleted =
+        metadata?.projects_completed && typeof metadata.projects_completed === "object"
+            ? metadata.projects_completed
+            : {};
+    const hasCompletedProject1 = Boolean(projectsCompleted.decrypt01);
+    const hasCompletedProject2 = Boolean(projectsCompleted.txinvestigation01);
+    const isBuilderTier =
+        displayedMetadata?.tier === "Builder" || displayedMetadata?.tier === "Architect";
+
+    const builderProjectRecommendation = !isBuilderTier
+        ? null
+        : !hasCompletedProject1
+            ? {
+                type: "project",
+                slug: "decrypt-message",
+                title: "Project #1 — Βρες και Αποκρυπτογράφησε Ένα On-Chain Μήνυμα",
+                why: "Έφτασες στο επίπεδο Builder. Ξεκίνα με το πρώτο project challenge για να εξασκηθείς στην αποκωδικοποίηση event data και στην ανάκτηση κρυφού μηνύματος.",
+                estimatedTime: 15,
+                xp: 50,
+            }
+            : !hasCompletedProject2
+                ? {
+                    type: "project",
+                    slug: "tx-investigation",
+                    title: "Project #2 — Ανάλυση Συναλλαγών",
+                    why: "Ολοκλήρωσες το Project #1. Συνέχισε στο επόμενο project challenge και εντόπισε ποια συναλλαγή περιέχει το πραγματικό κρυπτογραφημένο payload.",
+                    estimatedTime: 20,
+                    xp: 120,
+                }
+                : null;
+
+    // Always provide a recommendation (project-builder path, backend-driven, or fallback)
+    const fallbackRecommendation = builderProjectRecommendation || {
         type: "guide",
         title: "Ξεκίνα εδώ — Οδηγός Web3Edu",
         slug: "start-here-gr",
@@ -365,10 +394,6 @@ export default function Dashboard() {
             });
         });
 
-        const projectsCompleted =
-            metadata?.projects_completed && typeof metadata.projects_completed === "object"
-                ? metadata.projects_completed
-                : {};
         const projectGrants =
             metadata?.projectLabs && typeof metadata.projectLabs === "object"
                 ? metadata.projectLabs
@@ -1087,6 +1112,10 @@ export default function Dashboard() {
                                     }
                                     if (recommended.type === "lesson" && recommended.slug) {
                                         navigate(`/lessons/${recommended.slug}`);
+                                        return;
+                                    }
+                                    if (recommended.type === "project" && recommended.slug) {
+                                        navigate(`/projects-gr/${recommended.slug}`);
                                         return;
                                     }
                                     navigate("/education-gr");

@@ -49,7 +49,6 @@ export default function SbtViewGR() {
             })
             .then(data => {
                 setProfile(data);
-                console.log("XP from backend:", getXpTotalFromBackend(data));
                 setLoading(false);
             })
             .catch(err => {

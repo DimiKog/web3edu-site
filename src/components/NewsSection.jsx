@@ -1,5 +1,18 @@
 import SectionBadge from "./SectionBadge.jsx";
 
+const parseNewsDate = (value) => {
+    if (!value) return 0;
+
+    const slashDateMatch = value.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (slashDateMatch) {
+        const [, day, month, year] = slashDateMatch;
+        return new Date(Number(year), Number(month) - 1, Number(day)).getTime();
+    }
+
+    const parsed = Date.parse(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+};
+
 const NewsSection = ({ content }) => (
     <section className="relative z-10 mt-16 sm:mt-24 rounded-3xl p-6 sm:p-10 border 
                       bg-gradient-to-br from-[#F6F1FF]/70 via-white/60 to-[#EAF8FF]/70 
@@ -51,12 +64,7 @@ const NewsSection = ({ content }) => (
 
             {[...content.items]
                 .sort((a, b) => {
-                    // Expect format like "Jan 2026", "Nov 2025"
-                    const parseDate = (d) => {
-                        const [month, year] = d.split(" ");
-                        return new Date(`${month} 1, ${year}`);
-                    };
-                    return parseDate(b.date) - parseDate(a.date);
+                    return parseNewsDate(b.date) - parseNewsDate(a.date);
                 })
                 .map((n, i) => (
                     <div
