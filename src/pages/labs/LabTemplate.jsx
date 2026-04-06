@@ -76,6 +76,7 @@ const LabTemplate = ({
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
+                    wallet: address,
                     address,
                     labId,
                 }),

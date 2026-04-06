@@ -68,7 +68,7 @@ export const projects = [
         title: "Find and Decrypt an On-Chain Message",
         titleGR: "Βρες και Αποκρυπτογράφησε Ένα On-Chain Μήνυμα",
         difficulty: "Builder",
-        xp: 50,
+        xp: 200,
         description:
             "Locate an encrypted message in a blockchain transaction and decrypt it using the provided key. The useful data is hidden inside event output, and not every byte you see is part of the real message.",
         descriptionGR:
@@ -150,7 +150,7 @@ export const projects = [
         title: "Transaction Investigation",
         titleGR: "Ανάλυση Συναλλαγών",
         difficulty: "Builder",
-        xp: 120,
+        xp: 350,
         description:
             "Investigate multiple transactions, identify which one contains meaningful data, and extract a hidden message.",
         descriptionGR:

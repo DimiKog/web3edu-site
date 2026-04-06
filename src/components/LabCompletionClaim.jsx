@@ -33,6 +33,8 @@ export default function LabCompletionClaim({
     backHref = null,
     backLabel = null,
     labTitle = null,
+    claimButtonLabel = null,
+    claimingButtonLabel = null,
 }) {
     const labels = COPY[language] || COPY.en;
     const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
@@ -218,7 +220,9 @@ export default function LabCompletionClaim({
                             : "bg-green-600 hover:bg-green-700"
                         }`}
                 >
-                    {claiming ? labels.claimingButton : labels.claimButton}
+                    {claiming
+                        ? (claimingButtonLabel || labels.claimingButton)
+                        : (claimButtonLabel || labels.claimButton)}
                 </button>
             )}
 

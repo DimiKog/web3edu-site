@@ -39,6 +39,7 @@ const Lab05InteractionGR = () => {
     const [showContractDetails, setShowContractDetails] = useState(false);
     // Step 1 feedback state
     const [creatorFeedback, setCreatorFeedback] = useState(null); // "correct" | "wrong" | null
+    const [selectedCreator, setSelectedCreator] = useState("");
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -64,6 +65,8 @@ const Lab05InteractionGR = () => {
     const resetLab = () => {
         setLabState({ ...initialLab05State });
         setShowContractDetails(false);
+        setCreatorFeedback(null);
+        setSelectedCreator("");
     };
 
     return (
@@ -153,8 +156,10 @@ const Lab05InteractionGR = () => {
                                 </label>
                                 <select
                                     className="w-full max-w-md px-3 py-2 border rounded-md bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-sm"
+                                    value={selectedCreator}
                                     onChange={(e) => {
                                         const selected = e.target.value;
+                                        setSelectedCreator(selected);
                                         const isCorrect =
                                             selected === "0x0E66db7d115B8F392eB7DFb8BaCb23675dAEB59E";
                                         if (isCorrect) {
@@ -169,7 +174,6 @@ const Lab05InteractionGR = () => {
                                             // Do not set contractObserved or call recordAction
                                         }
                                     }}
-                                    defaultValue=""
                                 >
                                     <option value="" disabled>
                                         Επιλέξτε διεύθυνση δημιουργού

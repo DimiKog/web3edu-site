@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import BlockCard from "./BlockCard";
 import { hashBlock } from "../../utils/mining";
 
-export default function BlockchainView({ chain, setChain, copy }) {
+export default function BlockchainView({ chain, setChain, copy, onStateChange, simState }) {
     const [activeBlock, setActiveBlock] = useState(null);
     const [isRepairMining, setIsRepairMining] = useState(false);
     const repairIntervalRef = useRef(null);
     const shortenHash = (value, head = 10, tail = 8) =>
         value ? `${value.slice(0, head)}...${value.slice(-tail)}` : "-";
+
+    const [simHighlight, setSimHighlight] = useState(null);
 
     const onEditNonce = (index, newNonce) => {
         const updated = [...chain];
@@ -51,7 +53,49 @@ export default function BlockchainView({ chain, setChain, copy }) {
         return false;
     };
 
-    const firstBrokenIndex = chain.findIndex((_, idx) => idx > 0 && isLinkBroken(idx));
+    const isPowInvalid = (idx) => {
+        const block = chain[idx];
+        if (!block || idx === 0) return false;
+
+        const difficulty = block.blockDifficulty ?? 2;
+        const clean = block.hash?.startsWith("0x")
+            ? block.hash.slice(2)
+            : block.hash || "";
+
+        return !clean.startsWith("0".repeat(difficulty));
+    };
+
+    const isBlockInvalid = (idx) => idx > 0 && (isLinkBroken(idx) || isPowInvalid(idx));
+
+    const firstBrokenIndex = chain.findIndex((_, idx) => isBlockInvalid(idx));
+
+    useEffect(() => {
+        onStateChange?.({
+            chain,
+            firstBrokenIndex,
+            activeBlock,
+        });
+    }, [chain, firstBrokenIndex, activeBlock, onStateChange]);
+
+    useEffect(() => {
+        if (!simState) return;
+
+        if (simState.phase === "created") {
+            setSimHighlight("tx-created");
+        }
+
+        if (simState.phase === "pending") {
+            setSimHighlight("tx-pending");
+        }
+
+        if (simState.phase === "included") {
+            setSimHighlight("block-added");
+        }
+
+        if (simState.phase === "executed") {
+            setSimHighlight("state-updated");
+        }
+    }, [simState]);
 
     const getBlockPrompt = (block) => {
         if (!block) {
@@ -63,7 +107,7 @@ export default function BlockchainView({ chain, setChain, copy }) {
         }
 
         const idx = chain.findIndex((b) => b.index === block.index);
-        const broken = idx > 0 && isLinkBroken(idx);
+        const broken = idx > 0 && isBlockInvalid(idx);
 
         if (broken) {
             const isFirst = firstBrokenIndex === idx;
@@ -165,28 +209,42 @@ export default function BlockchainView({ chain, setChain, copy }) {
                 Each block contains a hash of the previous block → forming a secure chain
             </div>
 
-            <div className="mt-4 flex w-full items-stretch gap-4 overflow-x-auto pb-2">
-                {chain.map((block, idx) => (
-                    <div key={block.index} className="flex shrink-0 items-center gap-4">
-                        <BlockCard
-                            block={block}
-                            previousBlock={chain[idx - 1]}
-                            copy={copy}
-                            activeBlock={activeBlock}
-                            setActiveBlock={setActiveBlock}
-                            isFirstBroken={idx === firstBrokenIndex}
-                        />
+            {simHighlight && (
+                <div className="mt-3 text-xs text-indigo-300">
+                    {simHighlight === "tx-created" && "• Transaction created"}
+                    {simHighlight === "tx-pending" && "• Transaction pending (waiting for block)"}
+                    {simHighlight === "block-added" && "• Transaction included in new block"}
+                    {simHighlight === "state-updated" && "• Contract executed — state updated"}
+                </div>
+            )}
 
-                        {idx < chain.length - 1 && (() => {
-                            const broken = isLinkBroken(idx + 1);
-                            return (
-                                <div className={`text-xl ${broken ? "text-red-400" : "text-slate-400"}`}>
-                                    →
-                                </div>
-                            );
-                        })()}
-                    </div>
-                ))}
+            <div className="mt-4 flex w-full items-stretch gap-4 overflow-x-auto pb-2">
+                {chain.map((block, idx) => {
+                    const isLastBlock = idx === chain.length - 1;
+                    const highlightBlock = simHighlight === "block-added" && isLastBlock;
+                    return (
+                        <div key={block.index} className="flex shrink-0 items-center gap-4">
+                            <div className={highlightBlock ? "ring-2 ring-indigo-400 rounded-xl" : ""}>
+                                <BlockCard
+                                    block={block}
+                                    previousBlock={chain[idx - 1]}
+                                    copy={copy}
+                                    activeBlock={activeBlock}
+                                    setActiveBlock={setActiveBlock}
+                                    isFirstBroken={idx === firstBrokenIndex}
+                                />
+                            </div>
+                            {idx < chain.length - 1 && (() => {
+                                const broken = isBlockInvalid(idx + 1);
+                                return (
+                                    <div className={`text-xl ${broken ? "text-red-400" : "text-slate-400"}`}>
+                                        →
+                                    </div>
+                                );
+                            })()}
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Chain validity indicator */}

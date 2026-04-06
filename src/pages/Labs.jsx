@@ -24,6 +24,8 @@ const LAB_ROUTES = {
     lab06: "/labs/lab06",
     dao01: "/labs/dao-01",
     dao02: "/labs/dao-02",
+    "system-s1": "/labs/system/s1",
+    "system-s2": "/labs/system/s2",
 };
 
 const FOUNDATIONAL_COPY = {
@@ -62,15 +64,19 @@ const FOUNDATIONAL_COPY = {
 const DAO_COPY = {
     dao01: {
         title: "DAO Lab 01 — 🗳️ Governance & Voting",
+        hint: "A wallet signature is a vote — no transaction needed, no gas spent.",
         description:
             "Participate in a simulated DAO governance process and cast a real vote using your wallet signature. Learn how proposals, voting power, and collective decision-making work in DAOs — without deploying a production system.",
         level: "Intermediate",
+        badge: "Governance Participant",
     },
     dao02: {
         title: "DAO Lab 02 — 🏛 Governance Models & Power Dynamics",
+        hint: "Governance rules are code — the same votes produce different outcomes depending on how power is distributed.",
         description:
             "Explore how governance outcomes depend on rule design. Select different voting models, adjust quorum and approval thresholds, and observe how identical community intent can lead to different results depending on how voting power is distributed.",
         level: "Advanced",
+        badge: "Governance Architect",
     },
 };
 
@@ -83,10 +89,33 @@ const PROJECT_COPY = {
     },
     "proof-of-escape": {
         title: "Lab 01 — 🧠 Proof of Escape",
+        hint: "Completion is on-chain — your NFT badge is cryptographic proof you understood the concepts.",
         description:
             "A gamified Web3 challenge combining quizzes, NFTs, and on-chain verification to introduce core blockchain concepts.",
         level: "Beginner",
+        badge: "Proof of Escape",
     },
+};
+
+const CARD_ACCENT = {
+    foundational: "bg-blue-500/10 border-blue-400/20 dark:bg-blue-500/20 dark:border-blue-400/30",
+    system:       "bg-indigo-500/10 border-indigo-400/20 dark:bg-indigo-500/20 dark:border-indigo-400/30",
+    dao:          "bg-green-500/10 border-green-400/20 dark:bg-green-500/20 dark:border-green-400/30",
+    project:      "bg-orange-500/10 border-orange-400/20 dark:bg-orange-500/20 dark:border-orange-400/30",
+};
+
+const CATEGORY_BADGE = {
+    foundational: "bg-blue-500/10 text-blue-700 dark:text-blue-300 dark:bg-blue-500/20",
+    system:       "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 dark:bg-indigo-500/20",
+    dao:          "bg-green-500/10 text-green-700 dark:text-green-300 dark:bg-green-500/20",
+    project:      "bg-orange-500/10 text-orange-700 dark:text-orange-300 dark:bg-orange-500/20",
+};
+
+const CATEGORY_BADGE_LABEL = {
+    foundational: "Foundational",
+    system:       "System",
+    dao:          "DAO",
+    project:      "Applied",
 };
 
 const CATEGORY_DESCRIPTIONS = {
@@ -97,6 +126,35 @@ const CATEGORY_DESCRIPTIONS = {
     project:
         "Applied labs and project-style challenges that connect the core concepts to more complete Web3 flows.",
 };
+
+const SYSTEM_LABS = [
+    {
+        id: "system-s1",
+        title: "SysLab01 — ⛏️ PoW Mining",
+        hint: "Changing one byte invalidates every block that follows — this is why blockchains are tamper-evident.",
+        description:
+            "Trace how blocks connect into a secure chain, break that chain by editing data, and repair it through Proof of Work intuition.",
+        level: "Intermediate",
+        xp: 300,
+        link: "/labs/system/s1",
+        cta: "Open Lab →",
+        status: "Available",
+        badge: "System Thinker",
+    },
+    {
+        id: "system-s2",
+        title: "SysLab02 — 🔄 Transaction to State Change",
+        hint: "Transactions do not just move data around. They trigger execution that changes blockchain state.",
+        description:
+            "Follow how a transaction is executed by the system and how that execution results in a persistent state change on-chain.",
+        level: "Intermediate",
+        xp: 300,
+        link: "/labs/system/s2",
+        cta: "Open Lab →",
+        status: "Available",
+        badge: "State Change Explorer",
+    },
+];
 
 const sortLabs = (labs) =>
     [...labs].sort((a, b) => {
@@ -236,8 +294,29 @@ export default function Labs() {
     const featuredLab = foundationalLabs.find((lab) => lab.id === "lab01") || null;
     const remainingFoundationalLabs = foundationalLabs.filter((lab) => lab.id !== "lab01");
     const daoLabs = labsRegistry.filter((lab) => lab.category === "dao");
+    const systemLabs = labsRegistry.filter((lab) => lab.category === "system");
+    const displayedSystemLabs = SYSTEM_LABS.map((fallbackLab) => {
+        const backendLab = systemLabs.find((lab) => lab.id === fallbackLab.id);
+        return {
+            id: fallbackLab.id,
+            title: fallbackLab.title || backendLab?.title?.en || fallbackLab.id,
+            hint: fallbackLab.hint || null,
+            description: backendLab?.description?.en || fallbackLab.description,
+            level: backendLab?.level || fallbackLab.level,
+            xp: typeof backendLab?.xp === "number" ? backendLab.xp : fallbackLab.xp,
+            link: LAB_ROUTES[fallbackLab.id] || fallbackLab.link,
+            cta: fallbackLab.cta,
+            status: Boolean(completionMap[fallbackLab.id]) ? "Completed" : "Available",
+            completed: Boolean(completionMap[fallbackLab.id]),
+            badge:
+                backendLab?.badge?.label?.en ||
+                backendLab?.badge?.label ||
+                backendLab?.badge?.id ||
+                fallbackLab.badge,
+        };
+    });
     const otherSections = groupedLabs.filter(
-        ([category]) => category !== "foundational" && category !== "dao" && category !== "project"
+        ([category]) => category !== "foundational" && category !== "dao" && category !== "project" && category !== "system"
     );
 
     const completedCount = foundationalLabs.filter((lab) => Boolean(completionMap[lab.id])).length;
@@ -252,8 +331,8 @@ export default function Labs() {
                         Web3Edu Labs
                     </h1>
                     <p className="max-w-3xl text-lg text-slate-600 dark:text-slate-300">
-                        The labs catalog now comes directly from the backend registry, so new labs
-                        appear here automatically instead of being hardcoded in the frontend.
+                        Hands-on exercises that take you from wallet basics to governance mechanics
+                        and applied Web3 challenges — each lab builds on the last.
                     </p>
                 </header>
 
@@ -295,7 +374,7 @@ export default function Labs() {
                                         >
                                             {completionMap[featuredLab.id] ? (
                                                 <div className="absolute top-4 right-4 z-20">
-                                                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-500/90 text-white text-xs font-semibold shadow-lg backdrop-blur">
+                                                    <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-green-500/90 px-2 py-0.5 text-[10px] font-semibold leading-none text-white shadow-lg backdrop-blur">
                                                         ✓ Completed
                                                     </span>
                                                 </div>
@@ -362,8 +441,11 @@ export default function Labs() {
                                                 <Link
                                                     key={lab.id}
                                                     to={link}
-                                                    className="group rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                                                    className={`group rounded-2xl border ${CARD_ACCENT.foundational} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
                                                 >
+                                                    <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.foundational}`}>
+                                                        {CATEGORY_BADGE_LABEL.foundational}
+                                                    </span>
                                                     <div className="flex items-start justify-between gap-3 mb-4">
                                                         <div>
                                                             <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
@@ -373,11 +455,11 @@ export default function Labs() {
                                                                 {title}
                                                             </h3>
                                                         </div>
-                                                        <span
-                                                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${statusTone(completed)}`}
-                                                        >
-                                                            {completed ? "Completed" : "Available"}
-                                                        </span>
+                                                        {completed ? (
+                                                            <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-green-400/20 bg-green-500 px-2 py-0.5 text-[10px] font-semibold leading-none text-white shadow">
+                                                                ✓ Completed
+                                                            </span>
+                                                        ) : null}
                                                         {showNext ? (
                                                             <span className="inline-flex rounded-full border border-indigo-400/20 bg-indigo-500/15 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
                                                                 ⭐ NEXT
@@ -431,6 +513,7 @@ export default function Labs() {
 
                         {daoLabs.length > 0 ? (
                             <section>
+                                <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
                                 <div className="mb-6">
                                     <h2 className="text-2xl font-semibold">DAO & Governance Labs</h2>
                                     <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
@@ -447,23 +530,25 @@ export default function Labs() {
                                             !Boolean(completionMap.dao02);
                                         const copy = DAO_COPY[lab.id] || {};
                                         const title = copy.title || lab.title?.en || lab.id;
+                                        const hint = copy.hint || null;
                                         const description = copy.description || lab.description?.en || "";
+                                        const badge = lab.badge?.label?.en || lab.badge?.id || copy.badge;
                                         const link = LAB_ROUTES[lab.id] || `/labs/${lab.slug || lab.id}`;
 
                                         return (
                                             <Link
                                                 key={lab.id}
                                                 to={link}
-                                                className="group rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                                                className={`group rounded-2xl border ${CARD_ACCENT.dao} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
                                             >
+                                                <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.dao}`}>
+                                                    {CATEGORY_BADGE_LABEL.dao}
+                                                </span>
                                                 <div className="flex items-start justify-between gap-3 mb-4">
                                                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                                                         {title}
                                                     </h3>
                                                     <div className="flex items-center gap-2 shrink-0">
-                                                        <span className="inline-flex rounded-full border border-green-500/20 bg-green-500/15 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300">
-                                                            Available
-                                                        </span>
                                                         {completed ? (
                                                             <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
                                                                 ✓ Completed
@@ -477,9 +562,21 @@ export default function Labs() {
                                                     </div>
                                                 </div>
 
+                                                {hint ? (
+                                                    <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
+                                                        Pedagogy hint: <span className="not-italic">{hint}</span>
+                                                    </p>
+                                                ) : null}
+
                                                 <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
                                                     {description}
                                                 </p>
+
+                                                {badge ? (
+                                                    <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                                                        Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{badge}</span>
+                                                    </p>
+                                                ) : null}
 
                                                 <div className="mt-5 flex items-center justify-between gap-4">
                                                     <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
@@ -502,33 +599,112 @@ export default function Labs() {
                         ) : null}
 
                         <section>
+                            <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
                             <div className="mb-6">
-                                <h2 className="text-2xl font-semibold">Applied Labs</h2>
+                                <h2 className="text-2xl font-semibold">System Labs</h2>
+                                <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
+                                    Explore blockchain mechanics as a system by inspecting how hashes, links, and mining work together to secure chain history.
+                                </p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <Link
-                                    to="/labs/proof-of-escape"
-                                    className="group rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
-                                >
-                                    <div className="flex items-start justify-between gap-3 mb-4">
-                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                            Lab 01 — 🧠 Proof of Escape
-                                        </h3>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                            <span className="inline-flex rounded-full border border-green-500/20 bg-green-500/15 px-3 py-1 text-xs font-semibold text-green-700 dark:text-green-300">
-                                                Available
-                                            </span>
-                                            {poeCompleted ? (
+                                {displayedSystemLabs.map((lab) => (
+                                    <Link
+                                        key={lab.id}
+                                        to={lab.link}
+                                        className={`group rounded-2xl border ${CARD_ACCENT.system} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
+                                    >
+                                        <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.system}`}>
+                                            {CATEGORY_BADGE_LABEL.system}
+                                        </span>
+                                        <div className="mb-4 flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                                                    {lab.id}
+                                                </p>
+                                                <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
+                                                    {lab.title}
+                                                </h3>
+                                            </div>
+                                            {lab.completed ? (
                                                 <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
                                                     ✓ Completed
                                                 </span>
                                             ) : null}
                                         </div>
+
+                                        {lab.hint ? (
+                                            <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
+                                                Pedagogy hint: <span className="not-italic">{lab.hint}</span>
+                                            </p>
+                                        ) : null}
+
+                                        <p className="min-h-[72px] text-sm text-slate-600 dark:text-slate-300">
+                                            {lab.description}
+                                        </p>
+
+                                        {lab.badge ? (
+                                            <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                                                Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
+                                            </p>
+                                        ) : null}
+
+                                        <div className="mt-5 flex items-center justify-between gap-4">
+                                            <span className="rounded-lg bg-slate-200/80 px-3 py-1 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                                {lab.level}
+                                            </span>
+                                            <div className="flex items-center gap-4">
+                                                <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm text-indigo-700 dark:bg-indigo-900/35 dark:text-indigo-300">
+                                                    +{lab.xp} XP
+                                                </span>
+                                                <span className="text-sm font-semibold text-indigo-600 transition-transform group-hover:translate-x-1 dark:text-indigo-300">
+                                                    {lab.cta}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section>
+                            <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-semibold">Applied Labs</h2>
+                                <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
+                                    Scenario-driven challenges that put your knowledge to work — combining on-chain interaction, gamification, and real-world problem solving.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <Link
+                                    to="/labs/proof-of-escape"
+                                    className={`group rounded-2xl border ${CARD_ACCENT.project} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
+                                >
+                                    <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.project}`}>
+                                        {CATEGORY_BADGE_LABEL.project}
+                                    </span>
+                                    <div className="flex items-start justify-between gap-3 mb-4">
+                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                            Lab 01 — 🧠 Proof of Escape
+                                        </h3>
+                                        {poeCompleted ? (
+                                            <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow shrink-0">
+                                                ✓ Completed
+                                            </span>
+                                        ) : null}
                                     </div>
+
+                                    <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
+                                        Pedagogy hint: <span className="not-italic">Completion is on-chain — your NFT badge is cryptographic proof you understood the concepts.</span>
+                                    </p>
 
                                     <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
                                         A gamified Web3 challenge combining quizzes, NFTs, and on-chain verification to introduce core blockchain concepts.
+                                    </p>
+
+                                    <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                                        Badge: <span className="font-medium text-slate-700 dark:text-slate-200">Proof of Escape</span>
                                     </p>
 
                                     <div className="mt-5 flex items-center justify-between gap-4">
@@ -546,7 +722,10 @@ export default function Labs() {
                                     </div>
                                 </Link>
 
-                                <div className="rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm">
+                                <div className={`rounded-2xl border ${CARD_ACCENT.project} p-6 shadow-sm`}>
+                                    <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.project}`}>
+                                        {CATEGORY_BADGE_LABEL.project}
+                                    </span>
                                     <div className="flex items-start justify-between gap-3 mb-4">
                                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                                             Lab 02 — 🖼 NFT Marketplace Lab
@@ -555,6 +734,10 @@ export default function Labs() {
                                             Coming Soon
                                         </span>
                                     </div>
+
+                                    <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
+                                        Pedagogy hint: <span className="not-italic">Token standards define ownership rules — an NFT is a unique on-chain record no one can duplicate.</span>
+                                    </p>
 
                                     <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
                                         Build and interact with a simple NFT marketplace while learning token standards, ownership, and on-chain events.
@@ -574,6 +757,7 @@ export default function Labs() {
 
                         {otherSections.map(([category, labs]) => (
                             <section key={category}>
+                                <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
                                 <div className="mb-6">
                                     <h2 className="text-2xl font-semibold">
                                         {CATEGORY_LABELS[category] || category}
@@ -588,6 +772,7 @@ export default function Labs() {
                                         const completed = Boolean(completionMap[lab.id]);
                                         const copy = PROJECT_COPY[lab.id] || PROJECT_COPY[lab.slug] || {};
                                         const title = copy.title || lab.title?.en || lab.id;
+                                        const hint = copy.hint || null;
                                         const description = copy.description || lab.description?.en || "";
                                         const badge = lab.badge?.label?.en || lab.badge?.id;
                                         const link = LAB_ROUTES[lab.id] || `/labs/${lab.slug || lab.id}`;
@@ -596,8 +781,11 @@ export default function Labs() {
                                             <Link
                                                 key={lab.id}
                                                 to={link}
-                                                className="group rounded-2xl border border-slate-200/70 dark:border-slate-700/60 bg-white/70 dark:bg-slate-900/45 p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                                                className={`group rounded-2xl border ${CARD_ACCENT[category] || CARD_ACCENT.project} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
                                             >
+                                                <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE[category] || CATEGORY_BADGE.project}`}>
+                                                    {CATEGORY_BADGE_LABEL[category] || CATEGORY_BADGE_LABEL.project}
+                                                </span>
                                                 <div className="flex items-start justify-between gap-3 mb-4">
                                                     <div>
                                                         <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
@@ -607,12 +795,18 @@ export default function Labs() {
                                                             {title}
                                                         </h3>
                                                     </div>
-                                                    <span
-                                                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${statusTone(completed)}`}
-                                                    >
-                                                        {completed ? "Completed" : "Available"}
-                                                    </span>
+                                                    {completed ? (
+                                                        <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
+                                                            ✓ Completed
+                                                        </span>
+                                                    ) : null}
                                                 </div>
+
+                                                {hint ? (
+                                                    <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
+                                                        Pedagogy hint: <span className="not-italic">{hint}</span>
+                                                    </p>
+                                                ) : null}
 
                                                 <p className="min-h-[72px] text-sm text-slate-600 dark:text-slate-300">
                                                     {description}
