@@ -648,17 +648,6 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
     };
 
     const confirmFinalStep = () => {
-        if (state.selected !== "correct") {
-            setState((prev) => ({
-                ...prev,
-                feedback:
-                    lang === "gr"
-                        ? "Δοκίμασε ξανά — σκέψου γιατί οι έντιμοι συμμετέχοντες μπορεί να διαφωνούν."
-                        : "Try again — think about why honest participants may disagree.",
-            }));
-            return;
-        }
-
         setState((prev) => ({
             ...prev,
             explanationOk: true,
@@ -972,8 +961,8 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
 
                         <button
                             onClick={confirmFinalStep}
-                            disabled={!state.selected}
-                            className={`mt-4 rounded-full px-4 py-2 text-sm font-semibold text-white transition ${state.selected
+                            disabled={state.selected !== "correct"}
+                            className={`mt-4 rounded-full px-4 py-2 text-sm font-semibold text-white transition ${state.selected === "correct"
                                 ? "bg-indigo-600 hover:bg-indigo-500"
                                 : "bg-slate-500 cursor-not-allowed"
                                 }`}

@@ -8,10 +8,11 @@ const COPY = {
         description: "Explore visual sandboxes and protocol mechanics without leaving the learning environment.",
         miningTitle: "Mining Visualizer",
         miningDescription: "Build blocks from a mempool, inspect chain growth, and see how pending transactions turn into confirmed history.",
+        posTitle: "PoS Visualizer",
+        posDescription: "Adjust validator stake, run proposer selection, and watch how a proof-of-stake round moves from selection to finality.",
         openLabel: "Open tool",
-        soonTitle: "More tools soon",
-        soonDescription: "This section is now routed and ready for more protocol visualizers, debugging sandboxes, and interactive explainers.",
         miningRoute: "/tools/mining",
+        posRoute: "/tools/pos",
     },
     gr: {
         badge: "Εργαλεία Ανάπτυξης",
@@ -19,10 +20,11 @@ const COPY = {
         description: "Εξερεύνησε οπτικά sandboxes και μηχανισμούς blockchain μέσα από το ίδιο μαθησιακό περιβάλλον.",
         miningTitle: "Οπτικοποίηση Mining",
         miningDescription: "Δημιούργησε blocks από το mempool, παρακολούθησε την αλυσίδα να μεγαλώνει και δες πώς οι εκκρεμείς συναλλαγές γίνονται επιβεβαιωμένο ιστορικό.",
+        posTitle: "Οπτικοποίηση PoS",
+        posDescription: "Άλλαξε το stake των validators, εκτέλεσε την επιλογή proposer και δες πώς ένας proof-of-stake γύρος φτάνει από την επιλογή στην οριστικοποίηση.",
         openLabel: "Άνοιγμα εργαλείου",
-        soonTitle: "Περισσότερα εργαλεία σύντομα",
-        soonDescription: "Η ενότητα αυτή είναι πλέον έτοιμη να φιλοξενήσει περισσότερα protocol visualizers, sandboxes και διαδραστικά explainers.",
         miningRoute: "/tools-gr/mining",
+        posRoute: "/tools-gr/pos",
     },
 };
 
@@ -71,17 +73,24 @@ export default function Tools({ lang = "en" }) {
                             </div>
                         </Link>
 
-                        <div className="rounded-3xl border border-dashed border-slate-300/80 bg-slate-50/80 p-8 dark:border-slate-700/70 dark:bg-slate-900/40">
-                            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-200 text-2xl text-slate-600 dark:bg-slate-800 dark:text-slate-300">
-                                +
+                        <Link
+                            to={copy.posRoute}
+                            className="group rounded-3xl border border-slate-200/70 bg-white/80 p-8 shadow-xl transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(74,203,255,0.22)] dark:border-slate-700/60 dark:bg-slate-900/60"
+                        >
+                            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0F766E] to-[#4ACBFF] text-2xl text-white shadow-lg">
+                                ⚖
                             </div>
-                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                                {copy.soonTitle}
+                            <h2 className="text-2xl font-bold text-slate-900 transition group-hover:text-[#0F766E] dark:text-white">
+                                {copy.posTitle}
                             </h2>
                             <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
-                                {copy.soonDescription}
+                                {copy.posDescription}
                             </p>
-                        </div>
+                            <div className="mt-6 inline-flex items-center gap-2 font-semibold text-[#0F766E]">
+                                {copy.openLabel}
+                                <span className="transition group-hover:translate-x-1">→</span>
+                            </div>
+                        </Link>
                     </section>
                 </main>
             </div>
