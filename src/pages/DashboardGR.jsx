@@ -10,6 +10,7 @@ import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
 import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
 import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
+import { projects } from "../services/projectService.js";
 import {
     createBackendError,
     extractBackendMetadata,
@@ -26,6 +27,94 @@ const parseCompletedAt = (value) => {
     if (!value) return 0;
     const timestamp = Date.parse(value);
     return Number.isFinite(timestamp) ? timestamp : 0;
+};
+
+const findProjectById = (id) =>
+    projects.find(project => project.id === id) || null;
+
+const normalizeRecommendedSlug = (slug) =>
+    typeof slug === "string" ? slug.replace(/-gr$/, "") : null;
+
+const LAB_ROUTE_MAP_GR = {
+    lab01: "/labs-gr/wallets-keys",
+    "wallets-keys": "/labs-gr/wallets-keys",
+    lab02: "/labs-gr/lab02",
+    lab03: "/labs-gr/lab03",
+    lab04: "/labs-gr/lab04",
+    lab05: "/labs-gr/lab05",
+    lab06: "/labs-gr/lab06",
+    dao01: "/labs-gr/dao-01",
+    "dao-01": "/labs-gr/dao-01",
+    dao02: "/labs-gr/dao-02",
+    "dao-02": "/labs-gr/dao-02",
+    "system-s0": "/labs-gr/system/s0",
+    "system/s0": "/labs-gr/system/s0",
+    "system-byzantine-generals": "/labs-gr/system/s0",
+    "system-s1": "/labs-gr/system/s1",
+    "system/s1": "/labs-gr/system/s1",
+    "system-s2": "/labs-gr/system/s2",
+    "system/s2": "/labs-gr/system/s2",
+    "proof-of-escape": "/labs-gr/proof-of-escape",
+};
+
+const resolveRecommendedLabPath = (slug) => {
+    if (typeof slug !== "string" || !slug.trim()) return null;
+    if (slug.startsWith("/")) return slug;
+
+    const normalizedSlug = normalizeRecommendedSlug(slug)
+        ?.replace(/^labs-gr\//, "")
+        ?.replace(/^labs\//, "");
+
+    if (!normalizedSlug) return null;
+
+    return LAB_ROUTE_MAP_GR[normalizedSlug] || `/labs-gr/${normalizedSlug}`;
+};
+
+const hasCompletedProject = (projectsCompleted, project) => {
+    if (!project || !projectsCompleted || typeof projectsCompleted !== "object") {
+        return false;
+    }
+
+    const candidateKeys = [
+        project.backendId,
+        project.id,
+        project.type,
+    ].filter(Boolean);
+
+    return candidateKeys.some(key => Boolean(projectsCompleted[key]));
+};
+
+const getPreferredRecommendation = (apiMetadata, apiProfile) => {
+    const metadataRecommendation =
+        apiMetadata && typeof apiMetadata.recommendedNext === "object"
+            ? apiMetadata.recommendedNext
+            : null;
+    const profileRecommendation =
+        apiProfile && typeof apiProfile.recommendedNext === "object"
+            ? apiProfile.recommendedNext
+            : null;
+    const isUsableRecommendation = recommendation =>
+        recommendation && (recommendation.title || recommendation.slug);
+
+    if (isUsableRecommendation(metadataRecommendation)) return metadataRecommendation;
+    if (isUsableRecommendation(profileRecommendation)) return profileRecommendation;
+    return null;
+};
+
+const isCompletedProjectRecommendation = (recommendation, projectsCompleted) => {
+    if (!recommendation || recommendation.type !== "project") return false;
+
+    const normalizedSlug = normalizeRecommendedSlug(recommendation.slug);
+    if (!normalizedSlug) return false;
+
+    const matchedProject = projects.find(project =>
+        project.id === normalizedSlug ||
+        project.type === normalizedSlug ||
+        project.backendId === normalizedSlug
+    );
+
+    if (!matchedProject?.backendId) return false;
+    return Boolean(projectsCompleted?.[matchedProject.backendId]);
 };
 
 export default function Dashboard() {
@@ -135,6 +224,10 @@ export default function Dashboard() {
                 // Normalize metadata/profile and merge the richest info available
                 const apiMetadata = extractBackendMetadata(data);
                 const apiProfile = extractBackendProfile(data);
+                const preferredRecommendation = getPreferredRecommendation(
+                    apiMetadata,
+                    apiProfile
+                );
 
                 const xpTotal = getXpTotalFromBackend(data);
                 const derivedProgress = getProgressFromXpTotal(xpTotal);
@@ -152,6 +245,7 @@ export default function Dashboard() {
                     xpPercent: derivedProgress.xpPercent,
                     nextTierPercent: derivedProgress.nextTierPercent,
                     remainingXp: derivedProgress.remainingXp,
+                    recommendedNext: preferredRecommendation,
                 });
 
                 const parseMaybeJson = value => {
@@ -298,13 +392,23 @@ export default function Dashboard() {
     }, [metadata?.tier, builderUnlockShown]);
 
     const projectsCompleted =
-        metadata?.projects_completed && typeof metadata.projects_completed === "object"
-            ? metadata.projects_completed
-            : {};
-    const hasCompletedProject1 = Boolean(projectsCompleted.decrypt01);
-    const hasCompletedProject2 = Boolean(projectsCompleted.txinvestigation01);
+        metadata?.projectsCompleted && typeof metadata.projectsCompleted === "object"
+            ? metadata.projectsCompleted
+            : metadata?.projects_completed && typeof metadata.projects_completed === "object"
+                ? metadata.projects_completed
+                : {};
     const isBuilderTier =
         displayedMetadata?.tier === "Builder" || displayedMetadata?.tier === "Architect";
+    const decryptMessageProject = findProjectById("decrypt-message");
+    const txInvestigationProject = findProjectById("tx-investigation");
+    const hasCompletedProject1 = hasCompletedProject(
+        projectsCompleted,
+        decryptMessageProject
+    );
+    const hasCompletedProject2 = hasCompletedProject(
+        projectsCompleted,
+        txInvestigationProject
+    );
 
     const builderProjectRecommendation = !isBuilderTier
         ? null
@@ -312,19 +416,19 @@ export default function Dashboard() {
             ? {
                 type: "project",
                 slug: "decrypt-message",
-                title: "Project #1 — Βρες και Αποκρυπτογράφησε Ένα On-Chain Μήνυμα",
+                title: `Project #1 — ${decryptMessageProject?.titleGR || "Βρες και Αποκρυπτογράφησε Ένα On-Chain Μήνυμα"}`,
                 why: "Έφτασες στο επίπεδο Builder. Ξεκίνα με το πρώτο project challenge για να εξασκηθείς στην αποκωδικοποίηση event data και στην ανάκτηση κρυφού μηνύματος.",
                 estimatedTime: 15,
-                xp: 50,
+                xp: decryptMessageProject?.xp ?? 200,
             }
             : !hasCompletedProject2
                 ? {
                     type: "project",
                     slug: "tx-investigation",
-                    title: "Project #2 — Ανάλυση Συναλλαγών",
+                    title: `Project #2 — ${txInvestigationProject?.titleGR || "Ανάλυση Συναλλαγών"}`,
                     why: "Ολοκλήρωσες το Project #1. Συνέχισε στο επόμενο project challenge και εντόπισε ποια συναλλαγή περιέχει το πραγματικό κρυπτογραφημένο payload.",
                     estimatedTime: 20,
-                    xp: 120,
+                    xp: txInvestigationProject?.xp ?? 350,
                 }
                 : null;
 
@@ -340,18 +444,21 @@ export default function Dashboard() {
         metadata && typeof metadata.recommendedNext === "object"
             ? metadata.recommendedNext
             : null;
+    const usableBackendRecommendation = isCompletedProjectRecommendation(
+        recommendedFromBackend,
+        projectsCompleted
+    )
+        ? null
+        : recommendedFromBackend;
     const hasBackendRecommendation =
-        recommendedFromBackend &&
-        (recommendedFromBackend.title || recommendedFromBackend.slug);
+        usableBackendRecommendation &&
+        (usableBackendRecommendation.title || usableBackendRecommendation.slug);
     const recommended = hasBackendRecommendation
-        ? recommendedFromBackend
+        ? usableBackendRecommendation
         : fallbackRecommendation;
     const isFallbackRecommendation = !hasBackendRecommendation;
     const isBuilderRequired = !!recommended?.builderRequired;
-    const recommendedLabSlug =
-        recommended?.slug?.endsWith("-gr")
-            ? recommended.slug.replace(/-gr$/, "")
-            : recommended?.slug;
+    const recommendedLabPath = resolveRecommendedLabPath(recommended?.slug);
 
     const greekLabTitlesById = {
         lab01: "Lab 01 — Πορτοφόλια & Web3 Ταυτότητες",
@@ -1106,8 +1213,8 @@ export default function Dashboard() {
                                         navigate(`/${recommended.slug}`);
                                         return;
                                     }
-                                    if (recommended.type === "lab" && recommendedLabSlug) {
-                                        navigate(`/labs-gr/${recommendedLabSlug}`);
+                                    if (recommended.type === "lab" && recommendedLabPath) {
+                                        navigate(recommendedLabPath);
                                         return;
                                     }
                                     if (recommended.type === "lesson" && recommended.slug) {

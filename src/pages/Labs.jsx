@@ -24,6 +24,7 @@ const LAB_ROUTES = {
     lab06: "/labs/lab06",
     dao01: "/labs/dao-01",
     dao02: "/labs/dao-02",
+    "system-s0": "/labs/system/s0",
     "system-s1": "/labs/system/s1",
     "system-s2": "/labs/system/s2",
 };
@@ -128,6 +129,19 @@ const CATEGORY_DESCRIPTIONS = {
 };
 
 const SYSTEM_LABS = [
+    {
+        id: "system-s0",
+        title: "System Lab S0 — 🏰 Why Consensus Is Hard",
+        hint: "Consensus exists because honest participants can still see different local realities.",
+        description:
+            "Explore the Byzantine Generals Problem and see why distributed systems need explicit consensus rules before they can agree safely.",
+        level: "Intermediate",
+        xp: 200,
+        link: "/labs/system/s0",
+        cta: "Open Lab →",
+        status: "Available",
+        badge: "Consensus Analyst",
+    },
     {
         id: "system-s1",
         title: "SysLab01 — ⛏️ PoW Mining",
@@ -603,7 +617,7 @@ export default function Labs() {
                             <div className="mb-6">
                                 <h2 className="text-2xl font-semibold">System Labs</h2>
                                 <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
-                                    Explore blockchain mechanics as a system by inspecting how hashes, links, and mining work together to secure chain history.
+                                    Explore blockchain mechanics as a system, starting with why consensus is needed at all and then moving into how hashes, links, mining, and execution secure chain history.
                                 </p>
                             </div>
 

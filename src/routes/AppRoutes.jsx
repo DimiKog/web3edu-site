@@ -63,6 +63,8 @@ const Lab06 = lazy(() => import("../pages/labs/Lab06.jsx"));
 const Lab06GR = lazy(() => import("../pages/labs/Lab06GR.jsx"));
 const Lab06Interaction = lazy(() => import("../pages/labs/Lab06Interaction.jsx"));
 const Lab06InteractionGR = lazy(() => import("../pages/labs/Lab06InteractionGR.jsx"));
+const SystemLabS0 = lazy(() => import("../pages/labs/SystemLabS0.jsx"));
+const SystemLabS0Interaction = lazy(() => import("../pages/labs/SystemLabS0Interaction.jsx"));
 const SystemLabS1 = lazy(() => import("../pages/labs/SystemLabS1.jsx"));
 const SystemLabS1Interaction = lazy(() => import("../pages/labs/SystemLabS1Interaction.jsx"));
 const SystemLabS2 = lazy(() => import("../pages/labs/SystemLabS2.jsx"));
@@ -166,6 +168,10 @@ export default function AppRoutes() {
         <Route path="/labs-gr/lab06" element={withSuspense(<Lab06GR />)} />
         <Route path="/labs/lab06/interaction" element={withSuspense(<Lab06Interaction />)} />
         <Route path="/labs-gr/lab06/interaction" element={withSuspense(<Lab06InteractionGR />)} />
+        <Route path="/labs/system/s0" element={withSuspense(<SystemLabS0 />)} />
+        <Route path="/labs-gr/system/s0" element={withSuspense(<SystemLabS0 lang="gr" />)} />
+        <Route path="/labs/system/s0/interaction" element={withSuspense(<SystemLabS0Interaction />)} />
+        <Route path="/labs-gr/system/s0/interaction" element={withSuspense(<SystemLabS0Interaction lang="gr" />)} />
         <Route path="/labs/system/s1" element={withSuspense(<SystemLabS1 />)} />
         <Route path="/labs-gr/system/s1" element={withSuspense(<SystemLabS1 lang="gr" />)} />
         <Route path="/labs/system/s1/interaction" element={withSuspense(<SystemLabS1Interaction />)} />

@@ -24,6 +24,7 @@ const LAB_ROUTES_GR = {
     lab06: "/labs-gr/lab06",
     dao01: "/labs-gr/dao-01",
     dao02: "/labs-gr/dao-02",
+    "system-s0": "/labs-gr/system/s0",
     "system-s1": "/labs-gr/system/s1",
     "system-s2": "/labs-gr/system/s2",
 };
@@ -128,6 +129,19 @@ const CATEGORY_DESCRIPTIONS = {
 };
 
 const SYSTEM_LABS_GR = [
+    {
+        id: "system-s0",
+        title: "System Lab S0 — 🏰 Γιατί η Συναίνεση Είναι Δύσκολη",
+        hint: "Η συναίνεση χρειάζεται επειδή ακόμη και οι έντιμοι συμμετέχοντες μπορεί να βλέπουν διαφορετικές τοπικές πραγματικότητες.",
+        description:
+            "Εξερεύνησε το πρόβλημα των Βυζαντινών Στρατηγών και δες γιατί τα κατανεμημένα συστήματα χρειάζονται ρητούς κανόνες συναίνεσης για να συμφωνούν με ασφάλεια.",
+        level: "Ενδιάμεσο",
+        xp: 200,
+        link: "/labs-gr/system/s0",
+        cta: "Άνοιγμα Lab →",
+        status: "Διαθέσιμο",
+        badge: "Αναλυτής Συναίνεσης",
+    },
     {
         id: "system-s1",
         title: "SysLab01 — ⛏️ PoW Mining",
@@ -604,7 +618,7 @@ export default function LabsGR() {
                             <div className="mb-6">
                                 <h2 className="text-2xl font-semibold">Εργαστήρια Συστήματος</h2>
                                 <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
-                                    Εξερεύνησε τους μηχανισμούς του blockchain ως σύστημα, βλέποντας πώς hashes, links και mining συνεργάζονται για να ασφαλίσουν το ιστορικό της αλυσίδας.
+                                    Εξερεύνησε τους μηχανισμούς του blockchain ως σύστημα, ξεκινώντας από το γιατί χρειάζεται συναίνεση και συνεχίζοντας με το πώς hashes, links, mining και εκτέλεση ασφαλίζουν το ιστορικό της αλυσίδας.
                                 </p>
                             </div>
 

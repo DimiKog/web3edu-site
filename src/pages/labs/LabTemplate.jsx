@@ -10,6 +10,8 @@ const DEFAULT_LABELS = {
     estimatedTime: "Estimated time",
     tools: "Tools used",
     prerequisites: "Prerequisites",
+    xp: "XP",
+    badgeLabel: "Badge",
     startLab: "Start Lab →",
     startLabHint: "Opens full step-by-step guide",
     startLabInteractionHint: "Opens interactive lab inside Web3Edu",
@@ -228,7 +230,7 @@ const LabTemplate = ({
                         bg-white/80 dark:bg-slate-900/60 p-5"
                         >
                             <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                                XP
+                                {mergedLabels.xp}
                             </div>
                             <div className="font-semibold text-slate-800 dark:text-slate-100">
                                 ⭐ {xp}
@@ -242,7 +244,7 @@ const LabTemplate = ({
                         bg-white/80 dark:bg-slate-900/60 p-5"
                         >
                             <div className="text-xs uppercase tracking-wide text-slate-500 mb-1">
-                                Badge
+                                {mergedLabels.badgeLabel}
                             </div>
                             <div className="font-semibold text-slate-800 dark:text-slate-100">
                                 {badge}
