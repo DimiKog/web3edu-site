@@ -8,6 +8,8 @@ export default function SelectionPanel({
     mempoolLength,
     lang = "en",
 }) {
+    const canStartRound = (phase === "idle" || phase === "finalized") && mempoolLength > 0;
+
     const phaseStatus = {
         en: {
             idle: "Waiting to begin a round.",
@@ -69,9 +71,9 @@ export default function SelectionPanel({
             </div>
             <button
                 onClick={onSelect}
-                disabled={phase !== "idle" || mempoolLength === 0}
+                disabled={!canStartRound}
                 className={`mt-4 rounded-md px-4 py-2 font-semibold text-white transition ${
-                    phase !== "idle" || mempoolLength === 0
+                    !canStartRound
                         ? "cursor-not-allowed bg-slate-400"
                         : "bg-indigo-600 hover:bg-indigo-700"
                 }`}

@@ -106,7 +106,7 @@ function selectValidator(validators) {
     }
 }
 
-export default function PoSVisualizer({ lang = "en" }) {
+export default function PoSVisualizer({ lang = "en", embedded = false }) {
     const copy = COPY[lang] || COPY.en;
     const [validators, setValidators] = useState(initialValidators);
     const [selected, setSelected] = useState(null);
@@ -167,7 +167,7 @@ export default function PoSVisualizer({ lang = "en" }) {
 
     const handleSelect = () => {
         if (mempool.length === 0) return;
-        if (phase !== "idle") return;
+        if (phase !== "idle" && phase !== "finalized") return;
 
         finalizedRef.current = false;
 
@@ -218,16 +218,18 @@ export default function PoSVisualizer({ lang = "en" }) {
         setRewardFlash({});
     };
 
-    return (
-        <PageShell>
-            <div className="relative min-h-screen overflow-hidden">
+    const content = (
+        <div className={`relative overflow-hidden ${embedded ? "" : "min-h-screen"}`}>
+            {!embedded && (
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute -top-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[#0F766E]/20 blur-3xl" />
                     <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-[#4ACBFF]/14 blur-3xl" />
                     <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(rgba(15,118,110,0.6)_1px,transparent_1px),linear-gradient(90deg,rgba(15,118,110,0.6)_1px,transparent_1px)] bg-[size:56px_56px]" />
                 </div>
+            )}
 
-                <main className="relative mx-auto w-full max-w-6xl px-6 py-20 xl:max-w-7xl 2xl:max-w-[1400px]">
+            <main className={`relative mx-auto w-full ${embedded ? "max-w-none px-0 py-0" : "max-w-6xl px-6 py-20 xl:max-w-7xl 2xl:max-w-[1400px]"}`}>
+                {!embedded && (
                     <div className="max-w-5xl">
                         <span className="inline-flex rounded-full border border-[#0F766E]/30 bg-[#0F766E]/10 px-4 py-1 text-sm font-semibold text-[#0F766E]">
                             {copy.eyebrow}
@@ -247,8 +249,9 @@ export default function PoSVisualizer({ lang = "en" }) {
                                 : "In short: stake makes Sybil attacks expensive, and the 2/3 rule blocks false consensus."}
                         </div>
                     </div>
+                )}
 
-                    <section className="mt-10 rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-xl backdrop-blur dark:border-slate-700/60 dark:bg-slate-900/60">
+                <section className={`${embedded ? "" : "mt-10"} rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-xl backdrop-blur dark:border-slate-700/60 dark:bg-slate-900/60`}>
                         <div className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-5 dark:border-slate-700/60 dark:bg-slate-950/30">
                             <div className="text-sm font-semibold text-slate-900 dark:text-white">
                                 {copy.sectionInputs}
@@ -343,9 +346,12 @@ export default function PoSVisualizer({ lang = "en" }) {
                         >
                             🔁 {lang === "gr" ? "Επαναφορά γύρου" : "Reset round"}
                         </button>
-                    </section>
-                </main>
-            </div>
-        </PageShell>
+                </section>
+            </main>
+        </div>
     );
+
+    if (embedded) return content;
+
+    return <PageShell>{content}</PageShell>;
 }

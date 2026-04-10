@@ -83,7 +83,7 @@ export default function SystemLabS1Interaction({ lang = "en" }) {
 
   const copy = {
     en: {
-      title: "System Lab S1 Interaction",
+      title: "How Blocks Form a Secure Chain",
       intro:
         "This lab helps you understand how blockchain integrity works. You will modify data, observe how the chain breaks, identify the root cause, and repair it step by step. Focus on why the order of repair matters.",
       chainState: "Chain State",
@@ -124,7 +124,7 @@ export default function SystemLabS1Interaction({ lang = "en" }) {
       toolLinkLabel: "Mining Visualizer",
     },
     gr: {
-      title: "System Lab S1 Interaction",
+      title: "Πώς τα Blocks σχηματίζουν ένα ασφαλές chain",
       intro:
         "Αυτό το lab σε βοηθά να κατανοήσεις πώς λειτουργεί η ακεραιότητα του blockchain. Θα τροποποιήσεις δεδομένα, θα παρατηρήσεις πώς σπάει το chain, θα εντοπίσεις τη ρίζα του προβλήματος και θα το επιδιορθώσεις βήμα προς βήμα. Εστίασε στο γιατί έχει σημασία η σειρά της επιδιόρθωσης.",
       chainState: "Κατάσταση Chain",
@@ -256,7 +256,7 @@ export default function SystemLabS1Interaction({ lang = "en" }) {
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
             {copy.title}
           </h1>
-          <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-300">
+          <p className="mt-3 max-w-5xl text-slate-600 dark:text-slate-300">
             {copy.intro}
           </p>
         </section>

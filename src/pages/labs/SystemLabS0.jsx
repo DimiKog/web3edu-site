@@ -3,7 +3,7 @@ import sysLab0Img from "../../assets/labs/SysLab0.webp";
 
 const CONTENT = {
     en: {
-        title: "System Lab S0 — 🏰 Why Consensus Is Hard",
+        title: "Why Consensus Is Hard",
         subtitle:
             "Understand the Byzantine Generals Problem and why distributed systems need explicit consensus rules before they can agree safely.",
         level: "Intermediate",
@@ -27,7 +27,7 @@ const CONTENT = {
         },
     },
     gr: {
-        title: "System Lab S0 — 🏰 Γιατί η Συναίνεση Είναι Δύσκολη",
+        title: "Γιατί η Συναίνεση Είναι Δύσκολη",
         subtitle:
             "Κατανόησε το πρόβλημα των Βυζαντινών Στρατηγών και γιατί τα κατανεμημένα συστήματα χρειάζονται ρητούς κανόνες συναίνεσης για να συμφωνούν με ασφάλεια.",
         level: "Ενδιάμεσο",

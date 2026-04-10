@@ -3,7 +3,7 @@ import sysLab02Img from "../../assets/labs/SysLab02.webp";
 
 const CONTENT = {
     en: {
-        title: "System Lab S2: From Transaction to State Change",
+        title: "From Transaction to State Change",
         subtitle:
             "Understand how a transaction is executed by the blockchain system and how that execution changes on-chain state.",
         level: "Intermediate",
@@ -30,7 +30,7 @@ const CONTENT = {
         },
     },
     gr: {
-        title: "System Lab S2: Από Συναλλαγή σε Αλλαγή Κατάστασης",
+        title: "Από Συναλλαγή σε Αλλαγή Κατάστασης",
         subtitle:
             "Κατανόησε πώς εκτελείται μια συναλλαγή από το blockchain ως σύστημα και πώς αυτή η εκτέλεση αλλάζει την on-chain κατάσταση.",
         level: "Ενδιάμεσο",

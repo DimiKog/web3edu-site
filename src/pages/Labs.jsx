@@ -27,6 +27,8 @@ const LAB_ROUTES = {
     "system-s0": "/labs/system/s0",
     "system-s1": "/labs/system/s1",
     "system-s2": "/labs/system/s2",
+    "system-s3": "/labs/system/s3",
+    "system-s4": "/labs/system/s4",
 };
 
 const FOUNDATIONAL_COPY = {
@@ -167,6 +169,32 @@ const SYSTEM_LABS = [
         cta: "Open Lab →",
         status: "Available",
         badge: "State Change Explorer",
+    },
+    {
+        id: "system-s3",
+        title: "System Lab S3 — 🛡️ Consensus Under Pressure",
+        hint: "A proposer can suggest a block, but the system accepts it only when enough stake attests and pushes it past the 2/3 threshold.",
+        description:
+            "Stress-test proof-of-stake by changing validator stake, observing proposer selection, and checking when attestation is strong enough to reach finality.",
+        level: "Intermediate",
+        xp: 350,
+        link: "/labs/system/s3",
+        cta: "Open Lab →",
+        status: "Available",
+        badge: "Consensus Stress Tester",
+    },
+    {
+        id: "system-s4",
+        title: "System Lab S4 — 🏛️ QBFT on Besu",
+        hint: "In a permissioned chain, consensus comes from a known validator set coordinating through explicit voting rounds.",
+        description:
+            "Compare proof-of-stake with QBFT and follow how pre-prepare, prepare, and commit phases let known validators finalize blocks on Besu Edu-Net.",
+        level: "Intermediate",
+        xp: 350,
+        link: "/labs/system/s4",
+        cta: "Open Lab →",
+        status: "Available",
+        badge: "QBFT Observer",
     },
 ];
 

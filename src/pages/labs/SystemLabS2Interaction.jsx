@@ -12,7 +12,7 @@ const counterAbi = [
 
 const CONTENT = {
     en: {
-        title: "System Lab S2 Interaction",
+        title: "From Transaction to State Change",
         intro:
             "Trace how one transaction moves through the system and becomes a persistent state change on-chain.",
         steps: [
@@ -147,7 +147,7 @@ const CONTENT = {
         discovery4Suffix: "— permanent on-chain evidence that execution modified contract storage.",
     },
     gr: {
-        title: "System Lab S2 Interaction",
+        title: "Από Συναλλαγή σε Αλλαγή Κατάστασης",
         intro:
             "Ακολούθησε πώς μία συναλλαγή διασχίζει το σύστημα και γίνεται μόνιμη αλλαγή κατάστασης on-chain.",
         steps: [

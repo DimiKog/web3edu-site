@@ -70,6 +70,10 @@ const SystemLabS1 = lazy(() => import("../pages/labs/SystemLabS1.jsx"));
 const SystemLabS1Interaction = lazy(() => import("../pages/labs/SystemLabS1Interaction.jsx"));
 const SystemLabS2 = lazy(() => import("../pages/labs/SystemLabS2.jsx"));
 const SystemLabS2Interaction = lazy(() => import("../pages/labs/SystemLabS2Interaction.jsx"));
+const SystemLabS3 = lazy(() => import("../pages/labs/SystemLabS3.jsx"));
+const SystemLabS3Interaction = lazy(() => import("../pages/labs/SystemLabS3Interaction.jsx"));
+const SystemLabS4 = lazy(() => import("../pages/labs/SystemLabS4.jsx"));
+const SystemLabS4Interaction = lazy(() => import("../pages/labs/SystemLabS4Interaction.jsx"));
 const DaoLab01 = lazy(() => import("../pages/labs/DaoLab01.jsx"));
 const DaoLab01GR = lazy(() => import("../pages/labs/DaoLab01GR.jsx"));
 const DaoLab01Interaction = lazy(() => import("../pages/labs/DaoLab01Interaction.jsx"));
@@ -183,6 +187,14 @@ export default function AppRoutes() {
         <Route path="/labs-gr/system/s2" element={withSuspense(<SystemLabS2 lang="gr" />)} />
         <Route path="/labs/system/s2/interaction" element={withSuspense(<SystemLabS2Interaction />)} />
         <Route path="/labs-gr/system/s2/interaction" element={withSuspense(<SystemLabS2Interaction lang="gr" />)} />
+        <Route path="/labs/system/s3" element={withSuspense(<SystemLabS3 />)} />
+        <Route path="/labs-gr/system/s3" element={withSuspense(<SystemLabS3 lang="gr" />)} />
+        <Route path="/labs/system/s3/interaction" element={withSuspense(<SystemLabS3Interaction />)} />
+        <Route path="/labs-gr/system/s3/interaction" element={withSuspense(<SystemLabS3Interaction lang="gr" />)} />
+        <Route path="/labs/system/s4" element={withSuspense(<SystemLabS4 />)} />
+        <Route path="/labs-gr/system/s4" element={withSuspense(<SystemLabS4 lang="gr" />)} />
+        <Route path="/labs/system/s4/interaction" element={withSuspense(<SystemLabS4Interaction />)} />
+        <Route path="/labs-gr/system/s4/interaction" element={withSuspense(<SystemLabS4Interaction lang="gr" />)} />
         <Route path="/labs/dao-01" element={withSuspense(<DaoLab01 />)} />
         <Route path="/labs-gr/dao-01" element={withSuspense(<DaoLab01GR />)} />
         <Route path="/labs/dao-01/interaction" element={withSuspense(<DaoLab01Interaction />)} />

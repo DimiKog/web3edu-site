@@ -32,6 +32,47 @@ const parseCompletedAt = (value) => {
 const findProjectById = (id) =>
     projects.find(project => project.id === id) || null;
 
+const SPECIAL_PROJECTS = {
+    "proof-of-escape": {
+        id: "proof-of-escape",
+        backendId: "proof-of-escape",
+        type: "proof-of-escape",
+        title: "Lab 01 — Proof of Escape",
+        xp: 500,
+    },
+    poe: {
+        id: "proof-of-escape",
+        backendId: "proof-of-escape",
+        type: "proof-of-escape",
+        title: "Lab 01 — Proof of Escape",
+        xp: 500,
+    },
+};
+
+const findProjectByCompletionKey = (projectId, entry) => {
+    const candidateKeys = [
+        projectId,
+        entry?.id,
+        entry?.projectId,
+        entry?.project_id,
+        entry?.backendId,
+        entry?.backend_id,
+        entry?.type,
+    ].filter(Boolean);
+
+    const matchedProject = projects.find(project =>
+        candidateKeys.some(key =>
+            key === project.id || key === project.backendId || key === project.type
+        )
+    );
+
+    if (matchedProject) return matchedProject;
+
+    return candidateKeys
+        .map(key => SPECIAL_PROJECTS[String(key).toLowerCase()])
+        .find(Boolean) || null;
+};
+
 const normalizeRecommendedSlug = (slug) =>
     typeof slug === "string" ? slug.replace(/-gr$/, "") : null;
 
@@ -54,6 +95,10 @@ const LAB_ROUTE_MAP = {
     "system/s1": "/labs/system/s1",
     "system-s2": "/labs/system/s2",
     "system/s2": "/labs/system/s2",
+    "system-s3": "/labs/system/s3",
+    "system/s3": "/labs/system/s3",
+    "system-s4": "/labs/system/s4",
+    "system/s4": "/labs/system/s4",
     "proof-of-escape": "/labs/proof-of-escape",
 };
 
@@ -493,12 +538,26 @@ export default function Dashboard() {
                 : {};
 
         Object.entries(projectsCompleted).forEach(([projectId, entry]) => {
+            const matchedProject = findProjectByCompletionKey(projectId, entry);
+            const projectXp =
+                entry?.xp ??
+                entry?.xpAwarded ??
+                entry?.xp_awarded ??
+                projectGrants?.[projectId]?.xp ??
+                matchedProject?.xp ??
+                0;
+            const projectTitle =
+                entry?.title ??
+                matchedProject?.title ??
+                entry?.badge ??
+                projectId;
+
             merged.set(`project:${projectId}`, {
                 type: "project",
                 id: projectId,
-                title: entry?.badge || projectId,
+                title: projectTitle,
                 badge: entry?.badge,
-                xp: projectGrants?.[projectId]?.xp || 0,
+                xp: projectXp,
                 completedAt: entry?.completedAt,
             });
         });

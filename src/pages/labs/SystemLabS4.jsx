@@ -1,0 +1,97 @@
+import LabTemplate from "./LabTemplate";
+import sysLab04Img from "../../assets/labs/SysLab04.webp";
+
+const CONTENT = {
+    en: {
+        title: "QBFT on Besu",
+        subtitle:
+            "Understand how permissioned validators coordinate through explicit voting rounds to finalize blocks on Besu Edu-Net.",
+        level: "Intermediate",
+        estimatedTime: "12–15 minutes",
+        conceptualFocusText:
+            "This lab shifts from open validator competition to permissioned consensus. You will compare Proof-of-Stake with QBFT, identify the roles of proposer and validator, and follow how pre-prepare, prepare, and commit form a deterministic path to finality.",
+        goals: [
+            "Differentiate PoS from permissioned QBFT consensus",
+            "Identify the proposer and validator roles in QBFT",
+            "Understand pre-prepare, prepare, and commit phases",
+            "Explain why known validator sets enable fast finality",
+        ],
+        prerequisites: [
+            "Modern browser (Chrome / Firefox / Brave)",
+            "No wallet required for the overview",
+        ],
+        interactionPath: "/labs/system/s4/interaction",
+        labels: {
+            headerPill: "⛓ Web3Edu · System Lab",
+            heroCaption:
+                "Permissioned validators coordinate through explicit agreement rounds instead of stake-weighted selection",
+            tools: "Learning Goals",
+        },
+    },
+    gr: {
+        title: "QBFT στο Besu",
+        subtitle:
+            "Κατανόησε πώς permissioned validators συντονίζονται μέσω ρητών γύρων ψηφοφορίας για να οριστικοποιούν blocks στο Besu Edu-Net.",
+        level: "Ενδιάμεσο",
+        estimatedTime: "12–15 λεπτά",
+        conceptualFocusText:
+            "Σε αυτό το lab περνάς από τον ανοιχτό ανταγωνισμό validators στη permissioned συναίνεση. Θα συγκρίνεις το Proof-of-Stake με το QBFT, θα αναγνωρίσεις τους ρόλους proposer και validator και θα ακολουθήσεις πώς οι φάσεις pre-prepare, prepare και commit δημιουργούν μια ντετερμινιστική πορεία προς το finality.",
+        goals: [
+            "Διαχωρισμός του PoS από το permissioned QBFT consensus",
+            "Αναγνώριση των ρόλων proposer και validator στο QBFT",
+            "Κατανόηση των φάσεων pre-prepare, prepare και commit",
+            "Εξήγηση του γιατί τα γνωστά validator sets επιτρέπουν γρήγορο finality",
+        ],
+        prerequisites: [
+            "Σύγχρονος browser (Chrome / Firefox / Brave)",
+            "Δεν απαιτείται wallet για την επισκόπηση",
+        ],
+        interactionPath: "/labs-gr/system/s4/interaction",
+        labels: {
+            breadcrumbLabs: "Εργαστήρια",
+            headerPill: "⛓ Web3Edu · System Lab",
+            heroCaption:
+                "Permissioned validators συντονίζονται μέσω ρητών γύρων συμφωνίας αντί για stake-weighted επιλογή",
+            tools: "Στόχοι Μάθησης",
+            level: "Επίπεδο",
+            estimatedTime: "Εκτιμώμενος χρόνος",
+            prerequisites: "Προαπαιτούμενα",
+            startLab: "Έναρξη Lab →",
+            startLabInteractionHint: "Ανοίγει το διαδραστικό εργαστήριο",
+            conceptualFocus: "Εκπαιδευτικό επίκεντρο",
+            completionTitle: "Ολοκλήρωση Εργαστηρίου",
+            completionDescription:
+                "Αφού ολοκληρώσετε το εργαστήριο, διεκδικήστε ολοκλήρωση μέσα στη διαδραστική σελίδα.",
+            successMessage: "✔ Η ολοκλήρωση καταγράφηκε επιτυχώς",
+            completeInsideInteraction:
+                "Ολοκληρώστε τη διαδραστική δραστηριότητα και διεκδικήστε ολοκλήρωση εκεί.",
+            checkingStatus: "Έλεγχος κατάστασης ολοκλήρωσης…",
+            completedBadge: "✓ Ολοκληρώθηκε",
+            completedOn: "Ολοκληρώθηκε στις:",
+            walletNotConnectedError: "Το πορτοφόλι δεν είναι συνδεδεμένο",
+            labIdMissingError: "Λείπει το αναγνωριστικό του εργαστηρίου",
+            backendError: "Σφάλμα κατά την καταγραφή της ολοκλήρωσης",
+        },
+    },
+};
+
+export default function SystemLabS4({ lang = "en" }) {
+    const t = CONTENT[lang] || CONTENT.en;
+
+    return (
+        <LabTemplate
+            labId="system-s4"
+            title={t.title}
+            subtitle={t.subtitle}
+            heroImage={sysLab04Img}
+            level={t.level}
+            estimatedTime={t.estimatedTime}
+            xp={350}
+            conceptualFocusText={t.conceptualFocusText}
+            tools={t.goals}
+            prerequisites={t.prerequisites}
+            interactionPath={t.interactionPath}
+            labels={t.labels}
+        />
+    );
+}

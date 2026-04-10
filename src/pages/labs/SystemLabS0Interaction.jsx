@@ -18,7 +18,7 @@ const INITIAL_STATE = {
 
 const CONTENT = {
     en: {
-        title: "System Lab S0 Interaction",
+        title: "Why Consensus Is Hard",
         intro:
             "Explore the Byzantine Generals Problem and see why distributed systems need explicit consensus rules before they can agree safely.",
         steps: [
@@ -230,7 +230,7 @@ const CONTENT = {
         },
     },
     gr: {
-        title: "System Lab S0 Interaction",
+        title: "Γιατί η Συναίνεση Είναι Δύσκολη",
         intro:
             "Εξερεύνησε το πρόβλημα των Βυζαντινών Στρατηγών και δες γιατί τα κατανεμημένα συστήματα χρειάζονται ρητούς κανόνες συναίνεσης για να συμφωνούν με ασφάλεια.",
         steps: [
@@ -664,7 +664,7 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
                     <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">
                         {copy.title}
                     </h1>
-                    <p className="mt-3 max-w-3xl text-slate-600 dark:text-slate-300">
+                    <p className="mt-3 max-w-5xl text-slate-600 dark:text-slate-300">
                         {copy.intro}
                     </p>
                 </section>

@@ -3,7 +3,7 @@ import sysLabImg from "../../assets/labs/SysLab01.webp";
 
 const CONTENT = {
     en: {
-        title: "System Lab S1: How Blocks Form a Secure Chain",
+        title: "How Blocks Form a Secure Chain",
         subtitle:
             "Understand how transactions become blocks, how blocks form a chain, and why blockchain is secure.",
         level: "Intermediate",
@@ -29,7 +29,7 @@ const CONTENT = {
         },
     },
     gr: {
-        title: "System Lab S1: Πώς τα Blocks σχηματίζουν ένα ασφαλές chain",
+        title: "Πώς τα Blocks σχηματίζουν ένα ασφαλές chain",
         subtitle:
             "Κατανόησε πώς οι συναλλαγές γίνονται blocks, πώς τα blocks σχηματίζουν chain και γιατί το blockchain είναι ασφαλές.",
         level: "Μέτριο",

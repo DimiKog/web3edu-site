@@ -27,6 +27,8 @@ const LAB_ROUTES_GR = {
     "system-s0": "/labs-gr/system/s0",
     "system-s1": "/labs-gr/system/s1",
     "system-s2": "/labs-gr/system/s2",
+    "system-s3": "/labs-gr/system/s3",
+    "system-s4": "/labs-gr/system/s4",
 };
 
 const FOUNDATIONAL_COPY_GR = {
@@ -167,6 +169,32 @@ const SYSTEM_LABS_GR = [
         cta: "Άνοιγμα Lab →",
         status: "Διαθέσιμο",
         badge: "Εξερευνητής Αλλαγής Κατάστασης",
+    },
+    {
+        id: "system-s3",
+        title: "System Lab S3 — 🛡️ Συναίνεση Υπό Πίεση",
+        hint: "Ένας proposer μπορεί να προτείνει block, αλλά το σύστημα το αποδέχεται μόνο όταν αρκετό stake κάνει attestation και ξεπερνά το όριο του 2/3.",
+        description:
+            "Δοκίμασε το proof-of-stake υπό πίεση αλλάζοντας stake validators, παρατηρώντας την επιλογή proposer και ελέγχοντας πότε το attestation είναι αρκετό για finality.",
+        level: "Ενδιάμεσο",
+        xp: 350,
+        link: "/labs-gr/system/s3",
+        cta: "Άνοιγμα Lab →",
+        status: "Διαθέσιμο",
+        badge: "Ελεγκτής Συναίνεσης Υπό Πίεση",
+    },
+    {
+        id: "system-s4",
+        title: "System Lab S4 — 🏛️ QBFT στο Besu",
+        hint: "Σε ένα permissioned chain, η συναίνεση προκύπτει από ένα γνωστό σύνολο validators που συντονίζονται μέσω ρητών γύρων ψηφοφορίας.",
+        description:
+            "Σύγκρινε το proof-of-stake με το QBFT και ακολούθησε πώς οι φάσεις pre-prepare, prepare και commit επιτρέπουν σε γνωστούς validators να οριστικοποιούν blocks στο Besu Edu-Net.",
+        level: "Ενδιάμεσο",
+        xp: 350,
+        link: "/labs-gr/system/s4",
+        cta: "Άνοιγμα Lab →",
+        status: "Διαθέσιμο",
+        badge: "Παρατηρητής QBFT",
     },
 ];
 
