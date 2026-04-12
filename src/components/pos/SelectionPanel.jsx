@@ -60,11 +60,11 @@ export default function SelectionPanel({
     const phasePrompts = prompts[lang] || prompts.en;
 
     return (
-        <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
-            <div className="font-semibold">
+        <div className="mt-4 rounded-xl border border-slate-700 bg-slate-900/40 p-4">
+            <div className="font-semibold text-white">
                 {lang === "gr" ? "Έλεγχος γύρου" : "Round Control"}
             </div>
-            <div className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            <div className="mt-2 text-sm text-slate-300">
                 {lang === "gr"
                     ? "Στο proof-of-stake ο proposer δεν κερδίζει απλώς επειδή επιλέχθηκε. Η επιλογή αποφασίζει ποιος προτείνει, αλλά η συναίνεση απαιτεί attestation από το δίκτυο."
                     : "In proof-of-stake, selection alone does not win consensus. It only decides who proposes; network attestation still decides whether the block is accepted."}
@@ -82,21 +82,21 @@ export default function SelectionPanel({
             </button>
 
             {mempoolLength === 0 && (
-                <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                <div className="mt-2 text-xs text-slate-400">
                     {lang === "gr"
                         ? "Δεν υπάρχουν εκκρεμείς συναλλαγές — κάνε επαναφορά γύρου για να προσομοιώσεις νέο mempool"
                         : "No pending transactions — reset the round to simulate a new mempool"}
                 </div>
             )}
 
-            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950/30 dark:text-slate-200">
+            <div className="mt-4 rounded-lg border border-slate-700 bg-slate-950/40 p-3 text-sm text-slate-200">
                 {phaseStatus[lang]?.[phase] ?? phaseStatus.en[phase]}
                 {phase === "selected" && (
-                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                    <div className="mt-2 text-xs text-slate-400">
                         {lang === "gr"
                             ? "Επιλέχθηκε πιθανοτικά με βάση το stake"
                             : "Selected probabilistically based on stake weight"}
-                        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                        <div className="mt-2 text-xs text-slate-400">
                             {lang === "gr"
                                 ? "Μεγαλύτερο stake αυξάνει την πιθανότητα επιλογής, αλλά δεν την εγγυάται."
                                 : "Higher stake increases the probability of being selected, but does not guarantee it."}
@@ -106,11 +106,11 @@ export default function SelectionPanel({
             </div>
 
             {(phase === "selected" || phase === "proposed" || phase === "validated") && (
-                <div className="mt-4 rounded-lg border border-indigo-200 bg-indigo-50/70 p-3 dark:border-indigo-800 dark:bg-indigo-950/20">
-                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-500">
+                <div className="mt-4 rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-3">
+                    <div className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-300">
                         {lang === "gr" ? "Στάση για εστίαση" : "Pause and Focus"}
                     </div>
-                    <div className="mt-2 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="mt-2 text-sm text-slate-200">
                         {phasePrompts[phase].focus}
                     </div>
                     <button

@@ -109,6 +109,64 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
     },
 
     // -------------------------
+    // -------------------------
+    // WHAT'S NEW (platform changelog)
+    // -------------------------
+    whatsNew: {
+        items: [
+            {
+                id: "pos-visualizer-v2",
+                category: "tool",
+                date: "2026-04-10",
+                title: "PoS Visualizer — Enhanced",
+                description: "Validator balances now grow with finalization rewards. Includes reward breakdown, improved mempool layout, and highlighted key numbers in the info panel.",
+                href: "#/tools/pos",
+                cta: "Explore Tool",
+                image: "/assets/previews/pos-visualizer.webp",
+                links: [
+                    { label: "All Visual Tools", href: "#/tools" },
+                    { label: "SystemLab S3 — Consensus Under Pressure", href: "#/labs/system/s3" },
+                ],
+            },
+            {
+                id: "system-labs-s0-s4",
+                category: "lab",
+                date: "2026-04-08",
+                title: "5 System Labs Available",
+                description: "Interactive consensus scenarios across five labs — covering node behavior, Byzantine faults, validator quorums, and QBFT-based finality.",
+                href: "#/labs",
+                cta: "Explore Labs",
+            },
+            {
+                id: "visual-tools-pow-pos",
+                category: "tool",
+                date: "2026-04-07",
+                title: "PoW & PoS Visual Tools",
+                description: "Two interactive visualizers live: explore mining difficulty and nonce search in PoW, and stake-weighted validator selection with attestation in PoS.",
+                href: "#/tools",
+                cta: "Open Tools",
+            },
+            {
+                id: "builder-projects",
+                category: "project",
+                date: "2026-04-04",
+                title: "2 Builder Projects Available",
+                description: "Applied project paths for Builders ready to move beyond labs into hands-on blockchain development work.",
+                href: "#/projects",
+                cta: "View Projects",
+            },
+            {
+                id: "builder-readiness-dashboard",
+                category: "update",
+                date: "2026-04-03",
+                title: "Ready to Become a Builder?",
+                description: "Complete the Core Labs first, then use the recommendations block in your dashboard to see which labs and Builder path you should tackle next.",
+                href: "#/dashboard",
+                cta: "Go to Dashboard",
+            },
+        ],
+    },
+
     // NEWS & EVENTS
     // -------------------------
     news: {

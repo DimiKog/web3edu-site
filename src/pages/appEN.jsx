@@ -1,4 +1,5 @@
 import HomePageLayout from "../components/HomePageLayout.jsx";
+import WhatsNew from "../components/WhatsNew.jsx";
 
 import en from "../content/en.js";
 
@@ -40,9 +41,9 @@ const AppEN = () => (
         learnPathContent={en.learnPath}
         daoContent={en.dao}
         appsContent={en.apps}
-        newsContent={en.news}
         footerContent={en.footer}
         featureCards={featureCardsEN}
+        whatsNewSection={<WhatsNew items={en.whatsNew.items} />}
         motivationBadgeLabel="Motivation"
         learnBadgeLabel="Learning Journey"
         teamBadgeLabel="Meet the Team"

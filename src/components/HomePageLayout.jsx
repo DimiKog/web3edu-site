@@ -9,8 +9,6 @@ import DaoSection from "./DaoSection.jsx";
 import DaoSectionGR from "./DaoSectionGR.jsx";
 import AppsGrid from "./AppsGrid.jsx";
 import AppsGridGR from "./AppsGridGR.jsx";
-import NewsSection from "./NewsSection.jsx";
-import NewsSectionGR from "./NewsSectionGR.jsx";
 import SectionBadge from "./SectionBadge.jsx";
 import { ACCENT_PRIMARY } from "../design/theme.js";
 
@@ -25,9 +23,9 @@ const HomePageLayout = ({
     learnPathContent,
     daoContent,
     appsContent,
-    newsContent,
     footerContent,
     featureCards = [],
+    whatsNewSection = null,
     motivationBadgeLabel = "Why Web3Edu",
     learnBadgeLabel = "Learning Journey",
     teamBadgeLabel,
@@ -87,6 +85,15 @@ const HomePageLayout = ({
                         ))}
                     </div>
                 </div>
+
+                {whatsNewSection && (
+                    <>
+                        <div className="w-full my-8 sm:my-10" aria-hidden="true"></div>
+                        <div className="w-full px-6 opacity-0 animate-fadeInSlow duration-500">
+                            {whatsNewSection}
+                        </div>
+                    </>
+                )}
 
                 <div className="w-full my-8 sm:my-10" aria-hidden="true"></div>
 
@@ -174,7 +181,7 @@ const HomePageLayout = ({
                 <div className="w-full my-8" aria-hidden="true"></div>
 
                 <div className="w-full px-6">
-                    <div className="mt-8 mb-10 relative overflow-hidden opacity-0 animate-fadeInSlow duration-500">
+                    <div className="mt-8 mb-10 relative overflow-hidden opacity-0 animate-fadeInSlow duration-500" id="team-section">
                         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top_left,rgba(138,87,255,0.18),transparent_60%),radial-gradient(circle_at_bottom_right,rgba(74,203,255,0.16),transparent_60%)] opacity-70 animate-subtleFloat"></div>
                         <div className="relative max-w-6xl mx-auto">
                             <SectionBadge label={teamBadgeLabel} className="mb-4 transition-opacity duration-500" />
@@ -216,15 +223,6 @@ const HomePageLayout = ({
                     </div>
                 </div>
 
-                <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
-
-                <div className="w-full px-6 opacity-0 animate-fadeInSlow duration-500 hover:shadow-[0_16px_40px_rgba(138,87,255,0.28)] sm:hover:scale-[1.015] transition-all duration-300">
-                    {isGreek ? (
-                        <NewsSectionGR content={newsContent} />
-                    ) : (
-                        <NewsSection content={newsContent} />
-                    )}
-                </div>
 
             </PageShell>
         </>

@@ -1271,17 +1271,17 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                     </div>
                     <div className="mt-2 h-px w-full bg-slate-200 dark:bg-slate-700" />
 
-                    <div className="mt-3 rounded-2xl bg-slate-950/75 p-5 backdrop-blur-[0.5px]">
+                    <div className="mt-3 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-5 dark:border-slate-700 dark:bg-slate-900/30">
                         <div className="grid gap-5 lg:grid-cols-2">
                             <div className={`rounded-2xl border p-4 ${phase === "prepare"
-                                    ? "border-indigo-400 bg-white/80 dark:border-indigo-500 dark:bg-slate-950/40"
-                                    : "border-slate-200 bg-white/70 dark:border-slate-700 dark:bg-slate-950/30"
+                                    ? "border-indigo-400/70 bg-[#0F172A] text-white"
+                                    : "border-slate-700 bg-[#0F172A] text-white"
                                 }`}>
                                 <div className="flex items-center justify-between gap-3">
-                                    <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                                    <div className="text-sm font-semibold text-white">
                                         {copy.prepareVoteLabel}
                                     </div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                                    <div className="text-xs text-slate-300">
                                         {copy.approvalsLabel}: {prepareApprovals}/{totalValidators} ({copy.quorumLabel} ≥ {threshold})
                                     </div>
                                 </div>
@@ -1293,29 +1293,29 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                                     ? prepareApprovals >= threshold
                                                         ? "bg-green-500"
                                                         : "bg-indigo-500"
-                                                    : "bg-slate-300 dark:bg-slate-700"
+                                                    : "bg-slate-700"
                                                 }`}
                                         />
                                     ))}
                                 </div>
-                                <p className="mt-3 text-xs font-medium text-slate-600 dark:text-slate-300">
+                                <p className="mt-3 text-xs font-medium text-slate-200">
                                     {copy.proposalTitle}
                                 </p>
-                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                <p className="mt-1 text-xs text-slate-300">
                                     {copy.proposalHint}
                                 </p>
                                 {dualProposerMode ? (
-                                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                    <div className="mt-2 text-xs text-slate-300">
                                         {copy.conflictingProposalsIntro}
                                     </div>
                                 ) : null}
                                 {dualProposerMode ? (
-                                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                    <div className="mt-2 text-xs text-slate-300">
                                         {copy.conflictingProposalsCause}
                                     </div>
                                 ) : null}
                                 {dualProposerMode ? (
-                                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                    <div className="mt-2 text-xs text-slate-300">
                                         {copy.proposerRotationHint}
                                     </div>
                                 ) : null}
@@ -1340,7 +1340,7 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                         <div className="mt-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">
                                             {copy.proposedBy} {copy.validatorLabel} {proposers.A}
                                         </div>
-                                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-300">
                                             {prepareCounts.A} / {totalValidators}
                                         </div>
                                     </div>
@@ -1359,20 +1359,20 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                         <div className="mt-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
                                             {copy.proposedBy} {copy.validatorLabel} {proposers.B}
                                         </div>
-                                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-300">
                                             {prepareCounts.B} / {totalValidators}
                                         </div>
                                     </div>
                                 </div>
-                                <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                                <p className="mt-3 text-xs text-slate-300">
                                     {phase === "idle" ? copy.prepareLockedHint : copy.voteHintPrepare}
                                 </p>
                                 {phase === "prepare" ? (
-                                    <div className="mt-2 rounded-lg border border-indigo-300 bg-indigo-100/20 px-3 py-2 text-xs text-indigo-700 dark:border-indigo-500/40 dark:text-indigo-200">
+                                    <div className="mt-2 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-3 py-2 text-xs text-indigo-200">
                                         {copy.prepareActionPrompt}
                                     </div>
                                 ) : null}
-                                <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                <div className="mt-2 text-xs text-slate-300">
                                     {copy.proposalRule}
                                 </div>
                                 {asyncMode ? (
@@ -1380,7 +1380,7 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                         <div className="mt-2 text-xs text-sky-600 dark:text-sky-300">
                                             {copy.asyncPrepareHint}
                                         </div>
-                                        <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                        <div className="mt-2 text-xs text-slate-300">
                                             {copy.asyncTimelineHint}
                                         </div>
                                         {hasPendingPrepare ? (
@@ -1389,7 +1389,7 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                             </div>
                                         ) : null}
                                         {(hasPendingPrepare || splitNetwork) ? (
-                                            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                            <div className="mt-2 text-xs text-slate-300">
                                                 {copy.asyncEventualAgreement}
                                             </div>
                                         ) : null}
@@ -1412,9 +1412,9 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                                     ⚠ Faulty validator
                                                 </div>
                                             )}
-                                            <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-                                                {copy.validatorChoiceLabel}: {prepareChoices[id] ? proposalLabel(prepareChoices[id], copy) : "—"}
-                                            </div>
+                                        <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-300">
+                                            {copy.validatorChoiceLabel}: {prepareChoices[id] ? proposalLabel(prepareChoices[id], copy) : "—"}
+                                        </div>
                                             {pendingPrepare[id] ? (
                                                 <div className="mt-1 text-[11px] text-sky-600 dark:text-sky-300">
                                                     {copy.pendingVoteLabel}... {proposalLabel(pendingPrepare[id], copy)}
@@ -1478,9 +1478,9 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                         <div className="font-semibold text-slate-900 dark:text-white">
                                             {copy.alignedProposal}: {copy.noAlignedProposal}
                                         </div>
-                                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                            {copy.prepareQuorumMissing}
-                                        </div>
+                                            <div className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+                                                {copy.prepareQuorumMissing}
+                                            </div>
                                         {!alignedProposal && prepareApprovals > 0 ? (
                                             <div className="mt-2 text-xs text-red-500 dark:text-red-400">
                                                 {copy.splitVoteWarning}
@@ -1502,7 +1502,7 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                             </div>
                                         ) : null}
                                         {splitNetwork ? (
-                                            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                            <div className="mt-2 text-xs text-slate-500 dark:text-slate-300">
                                                 {copy.byzantineBridge}
                                             </div>
                                         ) : null}
@@ -1514,16 +1514,16 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                             </div>
                                         )}
                                         {!alignedProposal && prepareApprovals > 0 && !splitNetwork ? (
-                                            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                            <div className="mt-2 text-xs text-slate-500 dark:text-slate-300">
                                                 {copy.byzantineBridge}
                                             </div>
                                         ) : null}
                                     </div>
                                 )}
-                                <div className="mt-3 rounded-lg border border-amber-400 bg-amber-100/20 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+                                <div className="mt-3 rounded-lg border border-amber-400/80 bg-amber-500/12 px-3 py-2 text-xs text-amber-200">
                                     ⚠ {copy.prepareWarning}
                                 </div>
-                                <div className="mt-3 rounded-lg border border-red-400 bg-red-100/20 px-3 py-2 text-xs text-red-700 dark:text-red-300">
+                                <div className="mt-3 rounded-lg border border-red-400/80 bg-red-500/12 px-3 py-2 text-xs text-red-200">
                                     {lang === "gr"
                                         ? "Το QBFT ανέχεται faulty validators όσο λιγότερο από το 1/3 συμπεριφέρεται κακόβουλα."
                                         : "QBFT tolerates faulty validators as long as fewer than 1/3 behave maliciously."}
@@ -1531,14 +1531,14 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                             </div>
 
                             <div className={`rounded-2xl border p-4 ${phase === "commit"
-                                    ? "border-indigo-400 bg-white/80 dark:border-indigo-500 dark:bg-slate-950/40"
-                                    : "border-slate-200 bg-white/70 dark:border-slate-700 dark:bg-slate-950/30"
+                                    ? "border-indigo-400/70 bg-[#0F172A] text-white"
+                                    : "border-slate-700 bg-[#0F172A] text-white"
                                 }`}>
                                 <div className="flex items-center justify-between gap-3">
-                                    <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                                    <div className="text-sm font-semibold text-white">
                                         {copy.commitVoteLabel}
                                     </div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                                    <div className="text-xs text-slate-300">
                                         {copy.approvalsLabel}: {commitApprovals}/{totalValidators} ({copy.quorumLabel} ≥ {threshold})
                                     </div>
                                 </div>
@@ -1550,34 +1550,34 @@ export default function SystemLabS4Interaction({ lang = "en" }) {
                                                     ? commitApprovals >= threshold
                                                         ? "bg-green-500"
                                                         : "bg-indigo-500"
-                                                    : "bg-slate-300 dark:bg-slate-700"
+                                                    : "bg-slate-700"
                                                 }`}
                                         />
                                     ))}
                                 </div>
-                                <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                                <p className="mt-3 text-xs text-slate-300">
                                     {phase === "commit" ? copy.voteHintCommit : copy.commitLockedHint}
                                 </p>
-                                <div className="mt-2 text-xs text-indigo-600 dark:text-indigo-300">
+                                <div className="mt-2 text-xs text-indigo-300">
                                     {copy.commitClarifier}
                                 </div>
                                 {phase === "commit" ? (
-                                    <div className="mt-2 rounded-lg border border-indigo-300 bg-indigo-100/20 px-3 py-2 text-xs text-indigo-700 dark:border-indigo-500/40 dark:text-indigo-200">
+                                    <div className="mt-2 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-3 py-2 text-xs text-indigo-200">
                                         {copy.commitActionPrompt}
                                     </div>
                                 ) : null}
                                 {phase === "commit" ? (
-                                    <div className="mt-2 text-xs text-indigo-600 dark:text-indigo-300">
+                                    <div className="mt-2 text-xs text-indigo-300">
                                         {copy.commitLeaderMessage}
                                     </div>
                                 ) : null}
                                 {phase === "commit" ? (
-                                    <div className="mt-2 text-xs text-indigo-600 dark:text-indigo-300">
+                                    <div className="mt-2 text-xs text-indigo-300">
                                         {copy.commitIrreversible}
                                     </div>
                                 ) : null}
                                 {asyncMode ? (
-                                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                                    <div className="mt-2 text-xs text-slate-300">
                                         {copy.asyncTimelineHint}
                                     </div>
                                 ) : null}

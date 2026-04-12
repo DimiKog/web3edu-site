@@ -1,4 +1,5 @@
 import HomePageLayout from "../components/HomePageLayout.jsx";
+import WhatsNew from "../components/WhatsNew.jsx";
 
 import gr from "../content/gr.js";
 
@@ -40,9 +41,9 @@ const AppGR = () => (
         learnPathContent={gr.learnPath}
         daoContent={gr.dao}
         appsContent={gr.apps}
-        newsContent={gr.news}
         footerContent={gr.footer}
         featureCards={featureCardsGR}
+        whatsNewSection={<WhatsNew items={gr.whatsNew.items} isGR />}
         motivationBadgeLabel="Η Αποστολή Μας"
         learnBadgeLabel="Μαθησιακό Ταξίδι"
         teamBadgeLabel="Γνωρίστε την Ομάδα"

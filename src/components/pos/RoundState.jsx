@@ -59,8 +59,8 @@ export default function RoundState({ phase, totalStake, attestation, lang = "en"
     const thresholdMet = attestationStake >= supermajorityStake;
 
     return (
-        <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
-            <div className="font-semibold">
+        <div className="mt-4 rounded-xl border border-slate-700 bg-slate-900/40 p-4">
+            <div className="font-semibold text-white">
                 {lang === "gr" ? "Κατάσταση συναίνεσης" : "Consensus State"}
             </div>
 
@@ -78,50 +78,50 @@ export default function RoundState({ phase, totalStake, attestation, lang = "en"
                                             ? "bg-emerald-500"
                                             : isActive
                                                 ? "bg-indigo-500"
-                                                : "bg-slate-300 dark:bg-slate-600"
+                                                : "bg-slate-600"
                                     }`}
                                 />
                                 <div
                                     className={`mt-2 text-[10px] ${
                                         isActive
-                                            ? "font-semibold text-indigo-500"
-                                            : "text-slate-500"
+                                            ? "font-semibold text-indigo-300"
+                                            : "text-slate-400"
                                     }`}
                                 >
                                     {copy[step].label}
                                 </div>
                             </div>
                             {idx < phases.length - 1 && (
-                                <div className="mt-[5px] h-[1px] flex-1 bg-slate-300 dark:bg-slate-700" />
+                                <div className="mt-[5px] h-[1px] flex-1 bg-slate-700" />
                             )}
                         </React.Fragment>
                     );
                 })}
             </div>
 
-            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950/30 dark:text-slate-200">
+            <div className="mt-4 rounded-lg border border-slate-700 bg-slate-950/40 p-3 text-sm text-slate-200">
                 {copy[phase].detail}
             </div>
 
-            <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+            <div className="mt-3 text-xs text-slate-400">
                 {lang === "gr"
                     ? `Κατώφλι BFT σε αυτόν τον γύρο: attestation από τουλάχιστον ${supermajorityStake} από συνολικό stake ${totalStake}.`
                     : `BFT threshold in this round: attestation from at least ${supermajorityStake} of ${totalStake} total stake.`}
             </div>
 
             {(phase === "validated" || phase === "finalized") && (
-                <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-3 dark:border-slate-700 dark:bg-slate-950/30">
-                    <div className="text-xs text-slate-600 dark:text-slate-300">
+                <div className="mt-4 rounded-lg border border-slate-700 bg-slate-950/40 p-3">
+                    <div className="text-xs text-slate-300">
                         {lang === "gr"
                             ? `Attestation: ${attestationStake} / ${totalStake}`
                             : `Attestation: ${attestationStake} / ${totalStake}`}
                     </div>
-                    <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    <div className="mt-1 text-xs text-slate-400">
                         {lang === "gr"
                             ? `Κατώφλι: ${supermajorityStake} απαιτούνται`
                             : `Threshold: ${supermajorityStake} required`}
                     </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-700">
                         <div
                             className={`h-full rounded-full ${
                                 thresholdMet ? "bg-emerald-500" : "bg-amber-500"
@@ -129,7 +129,7 @@ export default function RoundState({ phase, totalStake, attestation, lang = "en"
                             style={{ width: `${attestationPercent}%` }}
                         />
                     </div>
-                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                    <div className="mt-2 text-xs text-slate-400">
                         {thresholdMet
                             ? lang === "gr"
                                 ? "Επιτεύχθηκε συναίνεση (≥ 2/3 συμφωνία)"

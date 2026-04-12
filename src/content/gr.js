@@ -110,6 +110,64 @@ const gr = {
     },
 
     // -------------------------
+    // -------------------------
+    // WHAT'S NEW (platform changelog)
+    // -------------------------
+    whatsNew: {
+        items: [
+            {
+                id: "pos-visualizer-v2",
+                category: "tool",
+                date: "2026-04-10",
+                title: "PoS Visualizer — Βελτιωμένο",
+                description: "Τα υπόλοιπα των validators αυξάνονται πλέον με τις αμοιβές finalization. Περιλαμβάνει ανάλυση αμοιβών, βελτιωμένο mempool και επισήμανση βασικών αριθμών στο info panel.",
+                href: "#/tools-gr/pos",
+                cta: "Εξερεύνηση Εργαλείου",
+                image: "/assets/previews/pos-visualizer.webp",
+                links: [
+                    { label: "Όλα τα Εργαλεία", href: "#/tools-gr" },
+                    { label: "SystemLab S3 — Consensus Under Pressure", href: "#/labs-gr/system/s3" },
+                ],
+            },
+            {
+                id: "system-labs-s0-s4",
+                category: "lab",
+                date: "2026-04-08",
+                title: "5 System Labs Διαθέσιμα",
+                description: "Διαδραστικά σενάρια συναίνεσης σε πέντε labs — καλύπτουν συμπεριφορά κόμβων, Byzantine faults, quorums validators και QBFT finality.",
+                href: "#/labs",
+                cta: "Εξερεύνηση Labs",
+            },
+            {
+                id: "visual-tools-pow-pos",
+                category: "tool",
+                date: "2026-04-07",
+                title: "PoW & PoS Οπτικά Εργαλεία",
+                description: "Δύο διαδραστικά εργαλεία: εξερεύνησε mining δυσκολία και αναζήτηση nonce στο PoW, και stake-weighted επιλογή validator με attestation στο PoS.",
+                href: "#/tools",
+                cta: "Άνοιγμα Εργαλείων",
+            },
+            {
+                id: "builder-projects",
+                category: "project",
+                date: "2026-04-04",
+                title: "2 Builder Projects Διαθέσιμα",
+                description: "Πρακτικά project paths για Builders που είναι έτοιμοι να προχωρήσουν πέρα από τα labs σε εφαρμοσμένη ανάπτυξη blockchain.",
+                href: "#/projects",
+                cta: "Δες τα Projects",
+            },
+            {
+                id: "builder-readiness-dashboard",
+                category: "update",
+                date: "2026-04-03",
+                title: "Έτοιμος να γίνεις Builder;",
+                description: "Ολοκλήρωσε πρώτα τα Core Labs και μετά δες το block προτάσεων στο dashboard για να δεις ποια labs και ποιο Builder path σου ταιριάζουν στη συνέχεια.",
+                href: "#/dashboard-gr",
+                cta: "Πήγαινε στο Dashboard",
+            },
+        ],
+    },
+
     // NEWS & EVENTS
     // -------------------------
     news: {

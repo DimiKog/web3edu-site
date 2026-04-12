@@ -147,49 +147,4 @@ const NewsSection = ({ content }) => (
     </section>
 );
 
-<style>{`
-@keyframes elasticIn {
-  0% { opacity: 0; transform: scale(0.6) translateY(40px); }
-  60% { opacity: 1; transform: scale(1.05) translateY(-6px); }
-  100% { transform: scale(1) translateY(0); }
-}
-.animate-elasticIn {
-  animation: elasticIn 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes particleSlow {
-  0% { transform: translateY(0) translateX(0); opacity: 0.4; }
-  50% { opacity: 0.7; }
-  100% { transform: translateY(-40px) translateX(20px); opacity: 0.4; }
-}
-.animate-particleSlow { animation: particleSlow 14s ease-in-out infinite; }
-
-@keyframes particleSlow2 {
-  0% { transform: translateY(0) scale(1); opacity: 0.35; }
-  100% { transform: translateY(-60px) scale(1.3); opacity: 0.35; }
-}
-.animate-particleSlow2 { animation: particleSlow2 18s linear infinite; }
-
-@keyframes particleSlow3 {
-  0% { transform: translateY(0) scale(1); opacity: 0.3; }
-  100% { transform: translateY(-30px) scale(0.9); opacity: 0.3; }
-}
-.animate-particleSlow3 { animation: particleSlow3 16s ease-in-out infinite; }
-
-@keyframes pulseSlow {
-  0% { transform: scale(1); opacity: 0.85; }
-  50% { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.85; }
-}
-.animate-pulseSlow { animation: pulseSlow 2s ease-in-out infinite; }
-
-@keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(35px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-.animate-fadeInUp {
-  animation: fadeInUp 0.7s ease-out forwards;
-}
-`}</style>
-
 export default NewsSection;

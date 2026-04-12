@@ -252,15 +252,15 @@ export default function PoSVisualizer({ lang = "en", embedded = false }) {
                 )}
 
                 <section className={`${embedded ? "" : "mt-10"} rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-xl backdrop-blur dark:border-slate-700/60 dark:bg-slate-900/60`}>
-                        <div className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-5 dark:border-slate-700/60 dark:bg-slate-950/30">
-                            <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                        <div className="rounded-2xl bg-[#0F172A] p-5 text-white">
+                            <div className="text-sm font-semibold text-white">
                                 {copy.sectionInputs}
                             </div>
-                            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            <div className="mt-1 text-xs text-slate-400">
                                 {copy.sectionInputsNote}
                             </div>
 
-                            <div className="mt-3 rounded-lg border border-amber-200/60 bg-amber-50/60 p-3 text-xs text-amber-800 dark:border-amber-800/40 dark:bg-amber-950/20 dark:text-amber-300">
+                            <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
                                 💡 {copy.rewardNote}
                             </div>
 
@@ -281,12 +281,12 @@ export default function PoSVisualizer({ lang = "en", embedded = false }) {
                         </div>
 
                         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[0.72fr_1.28fr]">
-                            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-5 dark:border-slate-700/60 dark:bg-slate-950/30">
-                                <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                            <div className="rounded-2xl bg-[#0F172A] p-5 text-white">
+                                <div className="text-sm font-semibold text-white">
                                     {copy.sectionProcess}
                                 </div>
                                 {errorMsg && (
-                                    <div className="mb-3 rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                                    <div className="mb-3 rounded-lg border border-red-400/40 bg-red-500/10 px-3 py-2 text-xs text-red-200">
                                         {errorMsg}
                                     </div>
                                 )}
@@ -306,8 +306,8 @@ export default function PoSVisualizer({ lang = "en", embedded = false }) {
                                 />
                             </div>
 
-                            <div className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-5 dark:border-slate-700/60 dark:bg-slate-950/30">
-                                <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                            <div className="rounded-2xl bg-[#0F172A] p-5 text-white">
+                                <div className="text-sm font-semibold text-white">
                                     {copy.sectionOutputs}
                                 </div>
                                 <PoSMempool

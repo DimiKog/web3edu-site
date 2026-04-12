@@ -25,17 +25,17 @@ export default function PoSMempool({
 
     return (
         <div className="mt-4 grid w-full gap-4 lg:grid-cols-[minmax(0,1fr)_140px_minmax(0,1.15fr)]">
-            <div className="min-w-0 rounded-xl border border-slate-200 bg-white/80 p-4 dark:border-slate-700 dark:bg-slate-900/40">
+            <div className="min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-4">
                 <div className="flex items-center justify-between">
-                    <div className="font-semibold text-sm">
+                    <div className="font-semibold text-sm text-white">
                         Mempool
                     </div>
-                    <div className="rounded-full border border-slate-200 bg-slate-100/80 px-3 py-1 text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300">
+                    <div className="rounded-full border border-slate-700 bg-slate-800/70 px-3 py-1 text-xs text-slate-300">
                         {mempool.length} {lang === "gr" ? "ορατές" : "visible"}
                     </div>
                 </div>
 
-                <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                <div className="mt-2 text-xs text-slate-400">
                     {lang === "gr"
                         ? "Εδώ βρίσκονται οι pending συναλλαγές πριν κάποιος proposer τις συμπεριλάβει."
                         : "Pending transactions stay here until a proposer includes them in a block."}
@@ -43,50 +43,50 @@ export default function PoSMempool({
 
                 <div className="mt-3 max-h-[28rem] space-y-3 overflow-auto pr-1">
                     {mempool.length === 0 ? (
-                        <div className="text-xs text-slate-500">
+                        <div className="text-xs text-slate-400">
                             {lang === "gr" ? "Δεν υπάρχουν εκκρεμείς συναλλαγές" : "No pending transactions"}
                         </div>
                     ) : (
                         mempool.map((tx) => (
                             <div
                                 key={tx.id}
-                                className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs dark:border-slate-700 dark:bg-slate-950/30"
+                                className="rounded-xl border border-slate-700 bg-slate-950/30 p-4 text-xs"
                             >
                                 <div className="flex items-start justify-between gap-2">
                                     <div className="min-w-0 flex-1">
-                                        <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                                        <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
                                             Pending Tx
                                         </div>
-                                        <div className="mt-1 truncate font-mono text-xs text-slate-500">
+                                        <div className="mt-1 truncate font-mono text-xs text-slate-300">
                                             {shortenHash(tx.hash, 10, 6)}
                                         </div>
                                     </div>
-                                    <div className="shrink-0 self-start rounded-full bg-slate-200/80 px-2.5 py-1 text-[11px] text-slate-500 dark:bg-slate-700/70 dark:text-slate-300">
+                                    <div className="shrink-0 self-start rounded-full bg-slate-700/70 px-2.5 py-1 text-[11px] text-slate-300">
                                         Pending
                                     </div>
                                 </div>
 
                                 <div className="mt-4">
-                                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
                                         {lang === "gr" ? "Route" : "Route"}
                                     </div>
-                                    <div className="mt-2 font-mono text-xs text-slate-700 dark:text-slate-200 sm:text-sm">
+                                    <div className="mt-2 font-mono text-xs text-slate-200 sm:text-sm">
                                         {shortenHash(tx.from, 10, 6)} → {shortenHash(tx.to, 10, 6)}
                                     </div>
                                 </div>
 
-                                <div className="mt-3 grid gap-y-2 text-[11px] text-slate-500 dark:text-slate-300 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2 sm:text-xs">
+                                <div className="mt-3 grid gap-y-2 text-[11px] text-slate-300 sm:grid-cols-2 sm:gap-x-4 sm:gap-y-2 sm:text-xs">
                                     <div>
-                                        <span className="text-slate-400 dark:text-slate-500">{lang === "gr" ? "Value" : "Value"}</span> {tx.valueEth} ETH
+                                        <span className="text-slate-500">{lang === "gr" ? "Value" : "Value"}</span> {tx.valueEth} ETH
                                     </div>
                                     <div>
-                                        <span className="text-slate-400 dark:text-slate-500">{lang === "gr" ? "Gas" : "Gas"}</span> {tx.gas?.toLocaleString()}
+                                        <span className="text-slate-500">{lang === "gr" ? "Gas" : "Gas"}</span> {tx.gas?.toLocaleString()}
                                     </div>
                                     <div>
-                                        <span className="text-slate-400 dark:text-slate-500">{lang === "gr" ? "Fee" : "Fee"}</span> {tx.feeEth?.toFixed(3)} ETH
+                                        <span className="text-slate-500">{lang === "gr" ? "Fee" : "Fee"}</span> {tx.feeEth?.toFixed(3)} ETH
                                     </div>
                                     <div>
-                                        <span className="text-slate-400 dark:text-slate-500">{lang === "gr" ? "Nonce" : "Nonce"}</span> {tx.nonce}
+                                        <span className="text-slate-500">{lang === "gr" ? "Nonce" : "Nonce"}</span> {tx.nonce}
                                     </div>
                                 </div>
                             </div>
@@ -94,29 +94,29 @@ export default function PoSMempool({
                     )}
                 </div>
 
-                <div className="mt-3 text-[11px] text-slate-500 dark:text-slate-400">
+                <div className="mt-3 text-[11px] text-slate-400">
                     {lang === "gr"
                         ? "Σε αυτό το demo, ο proposer επιλέγει αυτόματα ένα υποσύνολο συναλλαγών (προσομοιωμένη επιλογή)."
                         : "For this demo, the proposer automatically selects a subset of pending transactions (selection is simulated)."}
                 </div>
             </div>
 
-            <div className="flex min-w-0 flex-col items-center justify-center rounded-xl border border-dashed border-indigo-200 bg-indigo-50/70 px-3 py-6 text-center dark:border-indigo-800 dark:bg-indigo-950/20">
+            <div className="flex min-w-0 flex-col items-center justify-center rounded-xl border border-dashed border-indigo-500/30 bg-indigo-500/10 px-3 py-6 text-center">
                 <div className="text-2xl text-indigo-500">→</div>
-                <div className="mt-2 text-xs font-semibold text-indigo-500">
+                <div className="mt-2 text-xs font-semibold text-indigo-300">
                     {lang === "gr" ? "Πρόταση block" : "Block proposal"}
                 </div>
-                <div className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <div className="mt-1 text-[11px] text-slate-300">
                     {lang === "gr"
                         ? "Ο proposer μεταφέρει συναλλαγές από το mempool στο candidate block."
                         : "The proposer moves transactions from the mempool into the candidate block."}
                 </div>
-                <div className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                <div className="mt-3 text-xs text-slate-400">
                     {lang === "gr"
                         ? "Επιλέγονται από proposer → περιλαμβάνονται στο block"
                         : "Selected by proposer → included in block"}
                 </div>
-                <div className="my-2 flex items-center justify-center text-xs text-slate-400">
+                <div className="my-2 flex items-center justify-center text-xs text-slate-500">
                     {lang === "gr"
                         ? "↓ Επιλέγονται από proposer → block"
                         : "↓ Selected by proposer → included in block"}
@@ -124,20 +124,20 @@ export default function PoSMempool({
             </div>
 
             {(blockNumber > 0 || phase !== "idle") && (
-                <div className="min-w-0 rounded-xl border border-indigo-200 bg-indigo-50/60 p-4 dark:border-indigo-700 dark:bg-indigo-900/30">
+                <div className="min-w-0 rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4">
                 <div className="flex items-start justify-between gap-3">
                     <div>
-                        <div className="font-semibold text-sm">
+                        <div className="font-semibold text-sm text-white">
                             {blockTitle}
                         </div>
                         {selected && phase !== "idle" && (
-                            <div className="mt-1 text-xs font-medium text-slate-700 dark:text-slate-200">
+                            <div className="mt-1 text-xs font-medium text-slate-200">
                                 {lang === "gr"
                                     ? `Προτάθηκε από Validator ${selected.id}`
                                     : `Proposed by Validator ${selected.id}`}
                             </div>
                         )}
-                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+                        <div className="mt-1 text-xs text-slate-300">
                             {phase === "idle"
                                 ? lang === "gr"
                                     ? "Δεν υπάρχει ενεργό block ακόμη."
@@ -147,7 +147,7 @@ export default function PoSMempool({
                                     : `Block #${blockNumber} by Validator ${selected?.id ?? "-"}`}
                         </div>
                     </div>
-                    <div className="rounded-full border border-indigo-200 bg-white/80 px-3 py-1 text-[11px] font-semibold text-indigo-500 dark:border-indigo-800 dark:bg-slate-900/40">
+                    <div className="rounded-full border border-indigo-500/30 bg-slate-900/50 px-3 py-1 text-[11px] font-semibold text-indigo-300">
                         {phase === "idle"
                             ? lang === "gr"
                                 ? "Αναμονή"
@@ -164,7 +164,7 @@ export default function PoSMempool({
 
                 <div className="mt-3 max-h-[28rem] space-y-3 overflow-auto pr-1">
                     {selectedTxs.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-indigo-200 bg-white/50 px-3 py-4 text-sm text-slate-500 dark:border-indigo-800 dark:bg-slate-900/20">
+                        <div className="rounded-xl border border-dashed border-indigo-500/30 bg-slate-900/40 px-3 py-4 text-sm text-slate-300">
                             {lang === "gr"
                                 ? "Ο proposer δεν έχει επιλέξει ακόμη συναλλαγές."
                                 : "The proposer has not selected transactions yet."}
@@ -173,43 +173,43 @@ export default function PoSMempool({
                         selectedTxs.map((tx) => (
                             <div
                                 key={tx.id}
-                                className="rounded-xl border border-indigo-300 bg-white/80 p-4 text-xs dark:border-indigo-600 dark:bg-slate-900/40"
+                                className="rounded-xl border border-indigo-500/30 bg-slate-900/45 p-4 text-xs"
                             >
                                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                                     <div className="min-w-0">
-                                        <div className="text-[11px] uppercase tracking-[0.18em] text-indigo-400">
+                                        <div className="text-[11px] uppercase tracking-[0.18em] text-indigo-300">
                                             {lang === "gr" ? "Queued for block" : "Queued for block"}
                                         </div>
-                                        <div className="mt-1 font-mono text-xs text-indigo-500">
+                                        <div className="mt-1 font-mono text-xs text-indigo-200">
                                             {shortenHash(tx.hash, 12, 8)}
                                         </div>
                                     </div>
-                                    <div className="self-start rounded-full bg-indigo-100 px-2.5 py-1 text-[11px] text-indigo-600 dark:bg-indigo-800/40 dark:text-indigo-200 sm:shrink-0">
+                                    <div className="self-start rounded-full bg-indigo-500/20 px-2.5 py-1 text-[11px] text-indigo-200 sm:shrink-0">
                                         {lang === "gr" ? "In block" : "In block"}
                                     </div>
                                 </div>
 
                                 <div className="mt-4">
-                                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
+                                    <div className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
                                         {lang === "gr" ? "Route" : "Route"}
                                     </div>
-                                    <div className="mt-2 font-mono text-xs text-slate-700 dark:text-slate-200 sm:text-sm">
+                                    <div className="mt-2 font-mono text-xs text-slate-200 sm:text-sm">
                                         {shortenHash(tx.from, 8, 6)} → {shortenHash(tx.to, 8, 6)}
                                     </div>
                                 </div>
 
-                                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[11px] text-slate-500 dark:text-slate-300 sm:text-xs">
+                                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-[11px] text-slate-300 sm:text-xs">
                                     <div className="whitespace-nowrap">
-                                        <span className="text-slate-400 dark:text-slate-500">{lang === "gr" ? "Value" : "Value"}</span> {tx.valueEth} ETH
+                                        <span className="text-slate-500">{lang === "gr" ? "Value" : "Value"}</span> {tx.valueEth} ETH
                                     </div>
                                     <div className="whitespace-nowrap">
-                                        <span className="text-slate-400 dark:text-slate-500">{lang === "gr" ? "Gas" : "Gas"}</span> {tx.gas?.toLocaleString()}
+                                        <span className="text-slate-500">{lang === "gr" ? "Gas" : "Gas"}</span> {tx.gas?.toLocaleString()}
                                     </div>
                                     <div className="whitespace-nowrap">
-                                        <span className="text-slate-400 dark:text-slate-500">{lang === "gr" ? "Fee" : "Fee"}</span> {tx.feeEth?.toFixed(3)} ETH
+                                        <span className="text-slate-500">{lang === "gr" ? "Fee" : "Fee"}</span> {tx.feeEth?.toFixed(3)} ETH
                                     </div>
                                     <div className="whitespace-nowrap">
-                                        <span className="text-slate-400 dark:text-slate-500">{lang === "gr" ? "Nonce" : "Nonce"}</span> {tx.nonce}
+                                        <span className="text-slate-500">{lang === "gr" ? "Nonce" : "Nonce"}</span> {tx.nonce}
                                     </div>
                                 </div>
                             </div>
@@ -218,14 +218,14 @@ export default function PoSMempool({
                 </div>
 
                 {selectedTxs.length > 0 && (
-                    <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50/80 p-3 text-xs text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/20 dark:text-emerald-200">
+                    <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-200">
                         {lang === "gr"
                             ? `Ανταμοιβή proposer από τα fees των επιλεγμένων συναλλαγών: ${proposerReward.toFixed(3)} ETH`
                             : `Proposer reward from included transaction fees: ${proposerReward.toFixed(3)} ETH`}
                     </div>
                 )}
 
-                <div className="mt-3 text-[11px] text-slate-500 dark:text-slate-300">
+                <div className="mt-3 text-[11px] text-slate-300">
                     {phase === "finalized"
                         ? lang === "gr"
                             ? "Αυτές οι συναλλαγές έχουν επιβεβαιωθεί και αφαιρέθηκαν από το mempool."
