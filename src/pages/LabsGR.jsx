@@ -29,6 +29,7 @@ const LAB_ROUTES_GR = {
     "system-s2": "/labs-gr/system/s2",
     "system-s3": "/labs-gr/system/s3",
     "system-s4": "/labs-gr/system/s4",
+    "system-s5": "/labs-gr/system/s5",
 };
 
 const FOUNDATIONAL_COPY_GR = {
@@ -195,6 +196,19 @@ const SYSTEM_LABS_GR = [
         cta: "Άνοιγμα Lab →",
         status: "Διαθέσιμο",
         badge: "Παρατηρητής QBFT",
+    },
+    {
+        id: "system-s5",
+        title: "System Lab S5 — 🌐 Network Partition και Recovery στο QBFT",
+        hint: "Όταν σπάει το quorum, η safety μπορεί να παραμένει άθικτη ακόμη κι αν το liveness σταματήσει.",
+        description:
+            "Εξερεύνησε πώς συμπεριφέρεται το QBFT όταν οι validators χωρίζονται από ένα network partition, γιατί το finality παγώνει χωρίς quorum και πώς η συντονισμένη πρόοδος επιστρέφει μετά το recovery.",
+        level: "Ενδιάμεσο",
+        xp: 400,
+        link: "/labs-gr/system/s5",
+        cta: "Άνοιγμα Lab →",
+        status: "Διαθέσιμο",
+        badge: "Αναλυτής Partition",
     },
 ];
 
@@ -499,7 +513,7 @@ export default function LabsGR() {
                                                             </h3>
                                                         </div>
                                                         {completed ? (
-                                                            <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-green-400/20 bg-green-500 px-2 py-0.5 text-[10px] font-semibold leading-none text-white shadow">
+                                                            <span className="inline-flex max-w-[132px] shrink-0 items-center justify-center gap-1 rounded-full border border-green-400/20 bg-green-500 px-2.5 py-1 text-[10px] font-semibold leading-tight text-center text-white shadow">
                                                                 ✓ Ολοκληρώθηκε
                                                             </span>
                                                         ) : null}
@@ -593,7 +607,7 @@ export default function LabsGR() {
                                                     </h3>
                                                     <div className="flex items-center gap-2 shrink-0">
                                                         {completed ? (
-                                                            <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
+                                                            <span className="inline-flex max-w-[132px] shrink-0 items-center justify-center rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold leading-tight text-center text-white shadow">
                                                                 ✓ Ολοκληρώθηκε
                                                             </span>
                                                         ) : null}
@@ -670,7 +684,7 @@ export default function LabsGR() {
                                                 </h3>
                                             </div>
                                             {lab.completed ? (
-                                                <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
+                                                <span className="inline-flex max-w-[132px] shrink-0 items-center justify-center rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold leading-tight text-center text-white shadow">
                                                     ✓ Ολοκληρώθηκε
                                                 </span>
                                             ) : null}
@@ -732,7 +746,7 @@ export default function LabsGR() {
                                             Lab 01 — 🧠 Proof of Escape
                                         </h3>
                                         {poeCompleted ? (
-                                            <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow shrink-0">
+                                            <span className="inline-flex max-w-[132px] shrink-0 items-center justify-center rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold leading-tight text-center text-white shadow">
                                                 ✓ Ολοκληρώθηκε
                                             </span>
                                         ) : null}
@@ -839,7 +853,7 @@ export default function LabsGR() {
                                                         </h3>
                                                     </div>
                                                     {completed ? (
-                                                        <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
+                                                        <span className="inline-flex max-w-[132px] shrink-0 items-center justify-center rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold leading-tight text-center text-white shadow">
                                                             ✓ Ολοκληρώθηκε
                                                         </span>
                                                     ) : null}

@@ -29,6 +29,7 @@ const LAB_ROUTES = {
     "system-s2": "/labs/system/s2",
     "system-s3": "/labs/system/s3",
     "system-s4": "/labs/system/s4",
+    "system-s5": "/labs/system/s5",
 };
 
 const FOUNDATIONAL_COPY = {
@@ -195,6 +196,19 @@ const SYSTEM_LABS = [
         cta: "Open Lab →",
         status: "Available",
         badge: "QBFT Observer",
+    },
+    {
+        id: "system-s5",
+        title: "System Lab S5 — 🌐 Network Partition and Recovery in QBFT",
+        hint: "When quorum breaks, safety can remain intact even while liveness stalls.",
+        description:
+            "Explore how QBFT behaves when validators are split across a network partition, why finality pauses without quorum, and how coordinated progress resumes after recovery.",
+        level: "Intermediate",
+        xp: 400,
+        link: "/labs/system/s5",
+        cta: "Open Lab →",
+        status: "Available",
+        badge: "Partition Analyst",
     },
 ];
 
