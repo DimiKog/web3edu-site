@@ -167,24 +167,23 @@ export default function S5NetworkTopology({
 
     return (
         <div className="rounded-[1.75rem] border border-slate-200 bg-slate-100/80 p-5 sm:p-6 dark:border-white/10 dark:bg-slate-950/45">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-3">
-                        <span className="inline-flex items-center rounded-full border border-cyan-300 bg-cyan-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:border-cyan-400/20 dark:bg-cyan-400/10 dark:text-cyan-200">
-                            {copy.badge}
-                        </span>
-                        <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200">
-                            <Network className="h-3.5 w-3.5" />
-                            {isRunning ? copy.stateRunning : copy.statePaused}
-                        </span>
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-semibold text-slate-900 dark:text-white sm:text-2xl">{copy.title}</h3>
-                        <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600 dark:text-slate-300">{getScenarioSummary(copy, scenarioKey)}</p>
-                    </div>
+            <div className="space-y-4">
+                <div className="flex flex-wrap items-center gap-3">
+                    <span className="inline-flex items-center rounded-full border border-cyan-300 bg-cyan-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:border-cyan-400/20 dark:bg-cyan-400/10 dark:text-cyan-200">
+                        {copy.badge}
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-200">
+                        <Network className="h-3.5 w-3.5" />
+                        {isRunning ? copy.stateRunning : copy.statePaused}
+                    </span>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="max-w-4xl">
+                    <h3 className="text-xl font-semibold text-slate-900 dark:text-white sm:text-2xl">{copy.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">{getScenarioSummary(copy, scenarioKey)}</p>
+                </div>
+
+                <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
                     <div className="min-w-0 rounded-2xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-100">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700/90 dark:text-emerald-200/90">{copy.healthyLabel}</p>
                         <p className="mt-1 text-base font-semibold">{healthyCount}</p>
@@ -195,12 +194,12 @@ export default function S5NetworkTopology({
                     </div>
                     <div className="min-w-0 rounded-2xl border border-fuchsia-300 bg-fuchsia-50 px-4 py-3 text-sm text-fuchsia-700 dark:border-fuchsia-400/20 dark:bg-fuchsia-400/10 dark:text-fuchsia-100">
                         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-fuchsia-700/90 dark:text-fuchsia-200/90">Quorum</p>
-                        <p className="mt-1 break-words text-sm font-semibold">{getQuorumLabel(copy, scenarioKey)}</p>
+                        <p className="mt-1 text-sm font-semibold leading-6 break-words">{getQuorumLabel(copy, scenarioKey)}</p>
                     </div>
                 </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+            <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
                 <div className="rounded-[1.5rem] border border-slate-200 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.06),transparent_55%)] p-4 sm:p-5 dark:border-white/10 dark:bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.08),transparent_55%)]">
                     <div className="relative mx-auto h-[360px] w-full max-w-[520px] overflow-hidden rounded-[1.5rem] border border-slate-300 bg-[#0F172A] dark:border-white/10 dark:bg-slate-950/65">
                         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
