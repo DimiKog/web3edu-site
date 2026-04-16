@@ -1,17 +1,31 @@
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { useCallback, useEffect, useState } from "react";
 import PageShell from "../components/PageShell.jsx";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import joinHero from "../assets/join-hero.webp";
+import { loadIdentityState } from "../utils/aaIdentity.js";
+import { importIdentity } from "../utils/identityExport.js";
+import { useIdentity } from "../context/IdentityContext.jsx";
+import { getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
+
+function readHasPersistedAaIdentity() {
+    const s = loadIdentityState();
+    return Boolean(s?.hasIdentity === true || s?.alreadyMinted === true);
+}
 
 export default function JoinGR() {
     const { address, isConnected } = useAccount();
+    const { openConnectModal } = useConnectModal();
+    const { clearIdentity } = useIdentity();
     const navigate = useNavigate();
     const [networkOK, setNetworkOK] = useState(true);
     const [loadingNetwork, setLoadingNetwork] = useState(false);
     const [loadingSBT, setLoadingSBT] = useState(false);
+    const [hasPersistedAa, setHasPersistedAa] = useState(readHasPersistedAaIdentity);
+    const [showImportIdentity, setShowImportIdentity] = useState(false);
+    const [importPaste, setImportPaste] = useState("");
 
     // Έλεγχος δικτύου (Besu Edu-Net, chainId 424242)
     const checkNetwork = useCallback(async () => {
@@ -35,12 +49,20 @@ export default function JoinGR() {
     }, [navigate]);
 
     useEffect(() => {
+        setHasPersistedAa(readHasPersistedAaIdentity());
+    }, [isConnected]);
+
+    useEffect(() => {
         if (!isConnected) return;
         checkNetwork();
     }, [isConnected, checkNetwork]);
 
-    const handleContinue = async () => {
-        const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+    const handleLegacyContinue = async () => {
+        if (!address) {
+            alert("Σύνδεσε πρώτα το πορτοφόλι σου για έλεγχο υπάρχοντος Identity SBT.");
+            return;
+        }
+        const BACKEND = getWeb3eduBackendUrl();
         setLoadingSBT(true);
         try {
             const res = await axios.get(
@@ -143,6 +165,48 @@ rounded-3xl dark:hidden"></div>
                 backdrop-blur-md rounded-3xl px-10 py-12
                 max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] transition-colors duration-500">
 
+                    {hasPersistedAa && !isConnected ? (
+                        <div
+                            className="mb-8 mt-2 w-full max-w-md rounded-2xl border border-indigo-200/60 bg-indigo-50/80 px-4 py-4 text-left
+                            dark:border-indigo-500/30 dark:bg-indigo-950/40"
+                        >
+                            <p className="text-sm font-semibold text-slate-800 dark:text-white">
+                                Βρέθηκε αποθηκευμένη ταυτότητα Web3Edu
+                            </p>
+                            <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                                Συνέχισε με αυτήν, σύνδεσε πορτοφόλι ή επανάφερε την ταυτότητα του browser.
+                            </p>
+                            <div className="mt-3 flex flex-col gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/dashboard-gr")}
+                                    className="w-full rounded-lg bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] py-2.5 text-xs font-semibold text-white shadow-md"
+                                >
+                                    Συνέχεια με την αποθηκευμένη
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => openConnectModal?.()}
+                                    className="w-full rounded-lg border border-slate-300/80 bg-white/90 py-2.5 text-xs font-semibold text-slate-800 dark:border-white/20 dark:bg-white/10 dark:text-white"
+                                >
+                                    Σύνδεση πορτοφολιού
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        localStorage.removeItem("web3edu-aa-owner-private-key");
+                                        localStorage.removeItem("web3edu-aa-identity");
+                                        clearIdentity();
+                                        setHasPersistedAa(false);
+                                    }}
+                                    className="w-full rounded-lg border border-red-200/60 bg-red-50/90 py-2.5 text-xs font-semibold text-red-800 dark:border-red-400/30 dark:bg-red-950/30 dark:text-red-100"
+                                >
+                                    Επαναφορά ταυτότητας
+                                </button>
+                            </div>
+                        </div>
+                    ) : null}
+
                     <h1 className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight mb-4 mt-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.40)] relative z-10">
                         Ξεκίνησε το Ταξίδι σου στο Web3Edu
                     </h1>
@@ -171,14 +235,30 @@ rounded-3xl dark:hidden"></div>
                         Χωρίς έξοδα gas. Το πορτοφόλι παραμένει πάντα δικό σας.
                     </p>
 
-                    {/* Continue Button */}
-                    {isConnected && networkOK && (
-                        <button
-                            onClick={loadingSBT ? undefined : handleContinue}
-                            disabled={loadingSBT}
-                            className={`mt-10 relative z-10 py-3 px-8 rounded-xl
+                    <button
+                        type="button"
+                        onClick={() => navigate("/mint-identity-gr")}
+                        className="mt-8 relative z-10 py-3 px-8 rounded-xl w-full max-w-md
                             bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
                             text-white font-semibold shadow-lg shadow-[#8A57FF]/30 tracking-wide
+                            transition-all duration-300 hover:opacity-90 hover:scale-[1.02]"
+                    >
+                        Δημιούργησε το Web3Edu Identity σου
+                    </button>
+                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 max-w-md">
+                        Χωρίς σύνδεση πορτοφολιού — κλειδί στον browser και Account Abstraction.
+                    </p>
+
+                    {/* Continue Button — legacy path when wallet is connected */}
+                    {isConnected && networkOK && (
+                        <button
+                            type="button"
+                            onClick={loadingSBT ? undefined : handleLegacyContinue}
+                            disabled={loadingSBT}
+                            className={`mt-8 relative z-10 py-3 px-8 rounded-xl
+                            border border-slate-300/80 dark:border-white/20
+                            bg-white/90 dark:bg-white/10 text-slate-800 dark:text-white
+                            font-semibold shadow-md tracking-wide
                             transition-all duration-300
                             ${loadingSBT ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:scale-[1.02]"}`}
                         >
@@ -192,6 +272,43 @@ rounded-3xl dark:hidden"></div>
                             Έλεγχος δικτύου…
                         </p>
                     )}
+
+                    <div className="mt-8 w-full max-w-md">
+                        <button
+                            type="button"
+                            onClick={() => setShowImportIdentity((v) => !v)}
+                            className="text-xs text-slate-500 hover:text-indigo-500 dark:text-slate-400"
+                        >
+                            {showImportIdentity ? "▼ Απόκρυψη εισαγωγής" : "▸ Εισαγωγή ταυτότητας"}
+                        </button>
+                        {showImportIdentity ? (
+                            <div className="mt-2 flex flex-col gap-2 rounded-xl border border-slate-200/70 bg-white/60 p-3 dark:border-white/10 dark:bg-white/[0.06]">
+                                <textarea
+                                    value={importPaste}
+                                    onChange={(e) => setImportPaste(e.target.value)}
+                                    placeholder="Επικόλλησε JSON backup ή private key owner…"
+                                    rows={4}
+                                    className="w-full resize-y rounded border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const ok = importIdentity(importPaste);
+                                        if (!ok) {
+                                            alert("Η εισαγωγή απέτυχε");
+                                            return;
+                                        }
+                                        setImportPaste("");
+                                        setShowImportIdentity(false);
+                                        window.location.href = "/#/dashboard-gr";
+                                    }}
+                                    className="rounded-lg bg-indigo-600 py-2 text-xs font-semibold text-white hover:bg-indigo-500"
+                                >
+                                    Εισαγωγή ταυτότητας
+                                </button>
+                            </div>
+                        ) : null}
+                    </div>
                 </div>
 
             </div>

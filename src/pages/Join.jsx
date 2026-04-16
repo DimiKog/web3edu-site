@@ -1,17 +1,31 @@
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { useCallback, useEffect, useState } from "react";
 import PageShell from "../components/PageShell.jsx";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import joinHero from "../assets/join-hero.webp";
+import { loadIdentityState } from "../utils/aaIdentity.js";
+import { importIdentity } from "../utils/identityExport.js";
+import { useIdentity } from "../context/IdentityContext.jsx";
+import { getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
+
+function readHasPersistedAaIdentity() {
+    const s = loadIdentityState();
+    return Boolean(s?.hasIdentity === true || s?.alreadyMinted === true);
+}
 
 export default function Join() {
     const { address, isConnected } = useAccount();
+    const { openConnectModal } = useConnectModal();
+    const { clearIdentity } = useIdentity();
     const navigate = useNavigate();
     const [networkOK, setNetworkOK] = useState(true);
     const [loadingNetwork, setLoadingNetwork] = useState(false);
     const [checkingSBT, setCheckingSBT] = useState(false);
+    const [hasPersistedAa, setHasPersistedAa] = useState(readHasPersistedAaIdentity);
+    const [showImportIdentity, setShowImportIdentity] = useState(false);
+    const [importPaste, setImportPaste] = useState("");
 
     // Check if user is connected to Web3Edu Besu Edu-Net (chainId 424242)
     const checkNetwork = useCallback(async () => {
@@ -35,13 +49,21 @@ export default function Join() {
     }, [navigate]);
 
     useEffect(() => {
+        setHasPersistedAa(readHasPersistedAaIdentity());
+    }, [isConnected]);
+
+    useEffect(() => {
         if (isConnected) {
             checkNetwork();
         }
     }, [isConnected, checkNetwork]);
 
-    const handleContinue = async () => {
-        const BACKEND = "https://web3edu-api.dimikog.org";
+    const handleLegacyContinue = async () => {
+        if (!address) {
+            alert("Connect your wallet first to check an existing Identity SBT.");
+            return;
+        }
+        const BACKEND = getWeb3eduBackendUrl();
 
         setCheckingSBT(true);
 
@@ -139,7 +161,49 @@ bg-white/80 dark:bg-white/5
 border border-slate-200/70 dark:border-white/15
 shadow-[0_8px_24px_rgba(15,23,42,0.18)]
 backdrop-blur-md rounded-3xl px-10 py-12
-max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] transition-colors duration-500">
+                max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] transition-colors duration-500">
+
+                    {hasPersistedAa && !isConnected ? (
+                        <div
+                            className="mb-8 w-full max-w-md rounded-2xl border border-indigo-200/60 bg-indigo-50/80 px-4 py-4 text-left
+                            dark:border-indigo-500/30 dark:bg-indigo-950/40"
+                        >
+                            <p className="text-sm font-semibold text-slate-800 dark:text-white">
+                                Saved Web3Edu identity found
+                            </p>
+                            <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                                Continue with it, connect a wallet, or reset this browser identity.
+                            </p>
+                            <div className="mt-3 flex flex-col gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => navigate("/dashboard")}
+                                    className="w-full rounded-lg bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] py-2.5 text-xs font-semibold text-white shadow-md"
+                                >
+                                    Continue with saved identity
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => openConnectModal?.()}
+                                    className="w-full rounded-lg border border-slate-300/80 bg-white/90 py-2.5 text-xs font-semibold text-slate-800 dark:border-white/20 dark:bg-white/10 dark:text-white"
+                                >
+                                    Connect wallet
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        localStorage.removeItem("web3edu-aa-owner-private-key");
+                                        localStorage.removeItem("web3edu-aa-identity");
+                                        clearIdentity();
+                                        setHasPersistedAa(false);
+                                    }}
+                                    className="w-full rounded-lg border border-red-200/60 bg-red-50/90 py-2.5 text-xs font-semibold text-red-800 dark:border-red-400/30 dark:bg-red-950/30 dark:text-red-100"
+                                >
+                                    Reset identity
+                                </button>
+                            </div>
+                        </div>
+                    ) : null}
 
                     <h1 className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight mt-4 mb-5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.40)] relative z-10">
                         Start Your Web3Edu Journey
@@ -169,13 +233,29 @@ max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] tra
                         No gas fees. Your wallet always remains yours.
                     </p>
 
-                    {isConnected && networkOK && !loadingNetwork && (
-                        <button
-                            onClick={handleContinue}
-                            disabled={checkingSBT}
-                            className={`mt-10 relative z-10 py-3 px-8 rounded-xl
+                    <button
+                        type="button"
+                        onClick={() => navigate("/mint-identity")}
+                        className="mt-8 relative z-10 py-3 px-8 rounded-xl w-full max-w-md
                         bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
                         text-white font-semibold shadow-lg shadow-[#8A57FF]/30 tracking-wide
+                        transition-all duration-300 hover:opacity-90 hover:scale-[1.02]"
+                    >
+                        Create your Web3Edu identity
+                    </button>
+                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 max-w-md">
+                        No wallet required — uses a browser key and Account Abstraction.
+                    </p>
+
+                    {isConnected && networkOK && !loadingNetwork && (
+                        <button
+                            type="button"
+                            onClick={handleLegacyContinue}
+                            disabled={checkingSBT}
+                            className={`mt-8 relative z-10 py-3 px-8 rounded-xl
+                        border border-slate-300/80 dark:border-white/20
+                        bg-white/90 dark:bg-white/10 text-slate-800 dark:text-white
+                        font-semibold shadow-md tracking-wide
                         transition-all duration-300
                         ${checkingSBT ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:scale-[1.02]"}`}
                         >
@@ -194,6 +274,43 @@ max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] tra
                             Checking network…
                         </p>
                     )}
+
+                    <div className="mt-8 w-full max-w-md">
+                        <button
+                            type="button"
+                            onClick={() => setShowImportIdentity((v) => !v)}
+                            className="text-xs text-slate-500 hover:text-indigo-500 dark:text-slate-400"
+                        >
+                            {showImportIdentity ? "▼ Hide import" : "▸ Import Identity"}
+                        </button>
+                        {showImportIdentity ? (
+                            <div className="mt-2 flex flex-col gap-2 rounded-xl border border-slate-200/70 bg-white/60 p-3 dark:border-white/10 dark:bg-white/[0.06]">
+                                <textarea
+                                    value={importPaste}
+                                    onChange={(e) => setImportPaste(e.target.value)}
+                                    placeholder="Paste exported backup (JSON) or owner private key…"
+                                    rows={4}
+                                    className="w-full resize-y rounded border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const ok = importIdentity(importPaste);
+                                        if (!ok) {
+                                            alert("Import failed");
+                                            return;
+                                        }
+                                        setImportPaste("");
+                                        setShowImportIdentity(false);
+                                        window.location.href = "/#/dashboard";
+                                    }}
+                                    className="rounded-lg bg-indigo-600 py-2 text-xs font-semibold text-white hover:bg-indigo-500"
+                                >
+                                    Import Identity
+                                </button>
+                            </div>
+                        ) : null}
+                    </div>
                 </div>
 
             </div>

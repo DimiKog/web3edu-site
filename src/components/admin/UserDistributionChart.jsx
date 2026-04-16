@@ -74,7 +74,7 @@ export default function UserDistributionChart({ data, type = "tier" }) {
                     <Legend
                         verticalAlign="bottom"
                         height={36}
-                        formatter={(value, entry) => (
+                        formatter={(value) => (
                             <span className="text-slate-600 dark:text-slate-300 text-sm">
                                 {value}
                             </span>

@@ -3,6 +3,12 @@ import PageShell from "../../components/PageShell";
 import { useAccount } from "wagmi";
 import { Link } from "react-router-dom";
 import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
+import { useIdentity } from "../../context/IdentityContext.jsx";
+import {
+    buildLabsStatusUrl,
+    resolveReadOwnerQueryParam,
+    getWeb3eduBackendUrl,
+} from "../../lib/web3eduBackend.js";
 
 const DEFAULT_LABELS = {
     breadcrumbLabs: "Labs",
@@ -172,7 +178,7 @@ const SystemLabTemplate = ({
     showCompletionSection = true,
 
     // backend
-    apiBase = import.meta.env.VITE_BACKEND_URL,
+    apiBase,
 }) => {
     const mergedLabels = useMemo(
         () => ({ ...DEFAULT_LABELS, ...labels }),
@@ -180,21 +186,30 @@ const SystemLabTemplate = ({
     );
 
     const { address, isConnected } = useAccount();
+    const { smartAccount } = useIdentity();
+    const identityAddress = smartAccount ?? null;
+    const resolveOwner = useMemo(
+        () => resolveReadOwnerQueryParam(smartAccount, address, null),
+        [smartAccount, address]
+    );
+    const resolvedApiBase = apiBase ?? getWeb3eduBackendUrl();
 
     const [claimed, setClaimed] = useState(false);
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completedAt, setCompletedAt] = useState(null);
 
     useEffect(() => {
-        if (!isConnected || !address || !labId || !apiBase) {
+        if (!isConnected || !identityAddress || !labId || !resolvedApiBase) {
             setCheckingStatus(false);
             return;
         }
 
         const checkCompletion = async () => {
             try {
+                // eslint-disable-next-line no-console -- AA / backend integration debug
+                console.log("API CALL", { identityAddress, resolveOwner });
                 const res = await fetch(
-                    `${apiBase}/labs/status?address=${address}&labId=${labId}`
+                    buildLabsStatusUrl(identityAddress, labId, resolveOwner)
                 );
 
                 if (!res.ok) {
@@ -209,6 +224,7 @@ const SystemLabTemplate = ({
                     setCompletedAt(data.completedAt || null);
                 }
             } catch (err) {
+                // eslint-disable-next-line no-console -- non-fatal status restore
                 console.warn("Failed to restore lab completion state", err);
             } finally {
                 setCheckingStatus(false);
@@ -216,7 +232,7 @@ const SystemLabTemplate = ({
         };
 
         checkCompletion();
-    }, [isConnected, address, labId, apiBase]);
+    }, [isConnected, identityAddress, resolveOwner, labId, resolvedApiBase]);
 
     return (
         <PageShell>

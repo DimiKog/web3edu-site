@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAccount } from "wagmi";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
@@ -15,14 +15,31 @@ import {
     getXpTotalFromBackend,
     isUserStateUnavailableError,
 } from "../utils/progression.js";
+import { useIdentity } from "../context/IdentityContext.jsx";
+import {
+    buildWeb3SbtResolveUrl,
+    resolveReadOwnerQueryParam,
+} from "../lib/web3eduBackend.js";
+import { normalizeEvmAddress } from "../utils/evmAddress.js";
 
 export default function SbtViewGR() {
     const { address, isConnected } = useAccount();
+    const { owner, smartAccount } = useIdentity();
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [profile, setProfile] = useState(null);
+
+    const resolveUrl = useMemo(() => {
+        const path =
+            normalizeEvmAddress(smartAccount) ?? normalizeEvmAddress(owner);
+        if (!path) return null;
+        return buildWeb3SbtResolveUrl(
+            path,
+            resolveReadOwnerQueryParam(smartAccount, address, owner)
+        );
+    }, [smartAccount, owner, address]);
 
     useEffect(() => {
         if (!isConnected) {
@@ -33,12 +50,11 @@ export default function SbtViewGR() {
     }, [isConnected, navigate]);
 
     useEffect(() => {
-        if (!address) return;
-        const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+        if (!resolveUrl) return;
 
         setLoading(true);
         setError("");
-        fetch(`${BACKEND}/web3sbt/resolve/${address}`)
+        fetch(resolveUrl)
             .then(res => {
                 if (!res.ok) {
                     return res.json().catch(() => ({})).then((payload) => {
@@ -62,7 +78,7 @@ export default function SbtViewGR() {
                 setError("Δεν ήταν δυνατή η φόρτωση του ψηφιακού διαβατηρίου σας.");
                 setLoading(false);
             });
-    }, [address]);
+    }, [resolveUrl]);
 
     const shortAddr = shortAddress(address);
 

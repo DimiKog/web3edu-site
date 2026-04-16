@@ -1,4 +1,4 @@
-export default function BlockCard({ block, copy, previousBlock, activeBlock, setActiveBlock, difficulty = 2, isFirstBroken = false }) {
+export default function BlockCard({ block, previousBlock, activeBlock, setActiveBlock, difficulty = 2, isFirstBroken = false }) {
     const isGenesis = block.index === 0;
 
     const prevHash = block.previousHash;

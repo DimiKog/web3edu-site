@@ -24,30 +24,33 @@ export default function DecryptPanel({
         setIsDecryptionCorrect(false);
     };
 
+    const fieldClass =
+        "w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 dark:border-cyan-500/25 dark:!bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-400 dark:[-webkit-text-fill-color:white] dark:[caret-color:white] dark:[color-scheme:dark] dark:focus:border-cyan-400/50 dark:focus:ring-cyan-900/30";
+
     return (
         <div>
-            <h3 className="text-lg font-semibold text-white">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
                 {isGR ? "Αποκρυπτογράφηση" : "Decrypt Message"}
             </h3>
             {selectedTx === false && (
-                <p className="mt-2 text-sm text-[#4ACBFF] font-medium">
+                <p className="mt-2 text-sm font-medium text-cyan-800 dark:text-[#4ACBFF]">
                     {isGR
                         ? "Επιλέξτε πρώτα μια συναλλαγή από τη λίστα για να ενεργοποιηθεί η αποκρυπτογράφηση."
                         : "Select a transaction from the list first to enable decryption."}
                 </p>
             )}
             <div className="mt-3 space-y-4">
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-slate-500 dark:text-white/50">
                     {isGR
                         ? "Αντιγράψτε την τιμή από: Decoded → data (bytes)"
                         : "Copy the value from: Decoded → data (bytes)"}
                 </p>
-                <p className="text-[11px] text-white/40">
+                <p className="text-[11px] text-slate-400 dark:text-white/40">
                     {isGR
                         ? "ΜΗ χρησιμοποιήσετε τα raw πεδία Data ή Topics. Χρησιμοποιήστε μόνο την decoded τιμή bytes."
                         : "Do NOT use the raw Data or Topics fields. Use only the decoded bytes value."}
                 </p>
-                <p className="text-[11px] font-mono text-white/35">
+                <p className="text-[11px] font-mono text-slate-400 dark:text-white/35">
                     {isGR
                         ? "Παράδειγμα format: 4f7a2c9e1b3d5a6f8c0e2d4b6a8f1c3e5d7b9a0c2e4f6a8b0d1f3c5e7a9b2d4"
                         : "Example format: 4f7a2c9e1b3d5a6f8c0e2d4b6a8f1c3e5d7b9a0c2e4f6a8b0d1f3c5e7a9b2d4"}
@@ -65,12 +68,12 @@ export default function DecryptPanel({
                             ? "Επικολλήστε την τιμή Decoded → data (bytes)..."
                             : "Paste the Decoded → data (bytes) value..."
                     }
-                    className="w-full rounded-2xl border border-[#4ACBFF]/15 bg-[#16213A]/92 px-4 py-3 text-white placeholder:text-white/40 outline-none [color-scheme:dark] [-webkit-text-fill-color:white] [caret-color:white] focus:border-white/20 focus:ring-2 focus:ring-white/10"
+                    className={fieldClass}
                 />
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-slate-500 dark:text-white/50">
                     {isGR ? "Key για αποκρυπτογράφηση" : "Decryption key"}
                 </p>
-                <p className="text-[11px] text-white/40">
+                <p className="text-[11px] text-slate-400 dark:text-white/40">
                     {isGR
                         ? "Το key είναι απλό string (όχι hex)."
                         : "The key is a plain string (not hex)."}
@@ -85,7 +88,7 @@ export default function DecryptPanel({
                     }}
                     onPaste={(e) => handlePlainTextPaste(e, setUserKey)}
                     placeholder={isGR ? "Εισάγετε το key..." : "Enter decryption key..."}
-                    className="w-full rounded-2xl border border-[#4ACBFF]/15 bg-[#16213A]/92 px-4 py-3 text-white placeholder:text-white/40 outline-none [color-scheme:dark] [-webkit-text-fill-color:white] [caret-color:white] focus:border-white/20 focus:ring-2 focus:ring-white/10"
+                    className={fieldClass}
                 />
                 <button
                     onClick={decryptMessage}
@@ -95,7 +98,7 @@ export default function DecryptPanel({
                     {isGR ? "Αποκρυπτογράφηση" : "Decrypt"}
                 </button>
                 {isDecryptionCorrect && (
-                    <p className="text-sm text-emerald-300">
+                    <p className="text-sm text-emerald-700 dark:text-emerald-300">
                         {isGR
                             ? "✔ Σωστό μήνυμα! Μπορείτε να προχωρήσετε στην υποβολή."
                             : "✔ Correct message! You can proceed to submit."}
@@ -103,10 +106,10 @@ export default function DecryptPanel({
                 )}
                 {decryptedOutput && (
                     <div>
-                        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm leading-7 text-emerald-200 [overflow-wrap:anywhere]">
+                        <div className="rounded-2xl border border-emerald-300/70 bg-emerald-50 px-4 py-3 text-sm leading-7 text-emerald-900 [overflow-wrap:anywhere] dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-200">
                             {decryptedOutput}
                         </div>
-                        <p className="mt-2 text-[11px] text-white/40">
+                        <p className="mt-2 text-[11px] text-slate-400 dark:text-white/40">
                             {isGR
                                 ? "Αν το μήνυμα φαίνεται λανθασμένο, ελέγξτε ξανά ότι αντιγράψατε τα σωστά δεδομένα από το αποκωδικοποιημένο event (δεν απαιτείται περικοπή ή μετατόπιση)."
                                 : "If the message looks incorrect, double-check that you copied the correct data from the decoded event (no trimming or shifting is needed)."}
@@ -114,8 +117,8 @@ export default function DecryptPanel({
                     </div>
                 )}
                 {suggestedTrim && (
-                    <div className="mt-2 rounded-2xl border border-blue-400/20 bg-blue-400/10 px-4 py-3 text-xs text-blue-200">
-                        <p className="mb-2 text-[11px] text-blue-200/80">
+                    <div className="mt-2 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-900 dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-200">
+                        <p className="mb-2 text-[11px] text-blue-800/90 dark:text-blue-200/80">
                             {isGR
                                 ? "Τα δεδομένα των events περιέχουν δομή (offset, length, payload). Προσπαθήστε να εντοπίσετε το πραγματικό payload."
                                 : "Event data contains structure (offset, length, payload). Try to identify the actual payload segment."}
@@ -131,14 +134,14 @@ export default function DecryptPanel({
                                 setEncryptedInput(suggestedTrim);
                                 setSuggestedTrim("");
                             }}
-                            className="mt-2 text-xs text-blue-300 underline hover:text-white"
+                            className="mt-2 text-xs text-blue-700 underline hover:text-blue-900 dark:text-blue-300 dark:hover:text-white"
                         >
                             {isGR ? "Δοκιμάστε αυτό" : "Try this candidate"}
                         </button>
                     </div>
                 )}
                 {decryptAttempts >= 1 && (
-                    <div className="space-y-2 rounded-2xl border border-yellow-400/20 bg-yellow-400/10 px-4 py-3 text-sm leading-7 text-yellow-200">
+                    <div className="space-y-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-7 text-amber-950 dark:border-yellow-400/20 dark:bg-yellow-400/10 dark:text-yellow-200">
                         <>
                             <p>
                                 {isGR

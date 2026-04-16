@@ -1,27 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useAccount } from "wagmi";
+import { useIdentity } from "../../context/IdentityContext.jsx";
 import LabTemplate from "./LabTemplate";
 import lab01HeroImg from "../../assets/labs/lab01-identity-diagram.webp";
+import { useLabAutoStartOnce } from "../../hooks/useLabAutoStartOnce.js";
 
 const Lab01GR = () => {
     const { address } = useAccount();
-
-    useEffect(() => {
-        if (!address) return;
-
-        let cancelled = false;
-
-        fetch(`${import.meta.env.VITE_BACKEND_URL}/labs/start`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                wallet: address,
-                labId: "lab01"
-            })
-        }).catch(() => { });
-
-        return () => { cancelled = true; };
-    }, [address]);
+    const { smartAccount } = useIdentity();
+    useLabAutoStartOnce({ labId: "lab01", smartAccount, address });
 
     return (
         <LabTemplate

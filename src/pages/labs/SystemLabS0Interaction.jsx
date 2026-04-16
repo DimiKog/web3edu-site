@@ -16,6 +16,33 @@ const INITIAL_STATE = {
     feedback: "",
 };
 
+const VIZ_NODE_CLASS = {
+    a: "bg-gradient-to-br from-sky-500 to-blue-700 text-white shadow-lg shadow-sky-500/30 ring-2 ring-sky-200/90 dark:from-sky-600 dark:to-blue-900 dark:shadow-sky-950/40 dark:ring-sky-500/25",
+    b: "bg-gradient-to-br from-violet-500 to-purple-700 text-white shadow-lg shadow-violet-500/30 ring-2 ring-violet-200/90 dark:from-violet-600 dark:to-purple-900 dark:shadow-violet-950/40 dark:ring-violet-500/25",
+    c: "bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-200/90 dark:from-emerald-600 dark:to-teal-900 dark:shadow-emerald-950/40 dark:ring-emerald-500/25",
+    d: "bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30 ring-2 ring-amber-200/90 dark:from-amber-600 dark:to-orange-800 dark:shadow-amber-950/40 dark:ring-amber-500/25",
+};
+
+function VizMsgBadge({ children }) {
+    return (
+        <span
+            className="inline-flex min-w-[3.25rem] items-center justify-center rounded-full border-2 border-indigo-400 bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-800 shadow-md shadow-indigo-200/50 dark:border-indigo-400/70 dark:bg-indigo-950/80 dark:text-indigo-100 dark:shadow-indigo-950/40"
+        >
+            {children}
+        </span>
+    );
+}
+
+function VizNodePill({ className, label }) {
+    return (
+        <div
+            className={`min-w-[5.5rem] px-3.5 py-2.5 rounded-full text-xs font-bold text-center ${className}`}
+        >
+            {label}
+        </div>
+    );
+}
+
 const CONTENT = {
     en: {
         title: "Why Consensus Is Hard",
@@ -451,7 +478,6 @@ function StepCard({
     onSelect,
     feedback,
     scenario,
-    lang,
 }) {
     return (
         <section className="rounded-xl border border-slate-200 dark:border-slate-700 p-6 bg-slate-50 dark:bg-slate-900/40">
@@ -489,8 +515,8 @@ function GeneralNode({ label, tone = "slate" }) {
     const tones = {
         slate: "border-slate-300 bg-white text-slate-800 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100",
         green: "border-green-400/50 bg-green-500/10 text-green-700 dark:text-green-300",
-        red: "border-red-400 bg-red-500/20 text-red-300",
-        indigo: "border-indigo-400/50 bg-indigo-500/10 text-indigo-200",
+        red: "border-red-400 bg-red-500/20 text-red-800 dark:text-red-300",
+        indigo: "border-indigo-400/50 bg-indigo-500/10 text-indigo-800 dark:text-indigo-200",
     };
 
     return (
@@ -745,53 +771,72 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
                                 {copy.onboardingRolesBridge}
                             </p>
 
-                            <div className="mt-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-900/60 p-5 text-xs text-center">
-                                <div className="text-slate-400 mb-4">
-                                    {lang === "gr"
-                                        ? "Οπτικοποίηση του συστήματος"
-                                        : "System visualization"}
-                                </div>
+                            <div
+                                className="mt-6 relative overflow-hidden rounded-2xl border-2 border-indigo-200/90 bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-6 text-center shadow-xl shadow-indigo-200/50 ring-1 ring-indigo-100/80 dark:border-slate-600 dark:from-slate-900/90 dark:via-slate-900/70 dark:to-indigo-950/50 dark:shadow-none dark:ring-slate-700/60"
+                            >
+                                <div
+                                    aria-hidden
+                                    className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-cyan-400/20 blur-2xl dark:bg-indigo-600/20"
+                                />
+                                <div
+                                    aria-hidden
+                                    className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-indigo-400/25 blur-2xl dark:bg-cyan-500/10"
+                                />
 
-                                {/* 4-node mesh layout */}
-                                <div className="flex flex-col items-center gap-3">
-                                    {/* Top row: A and B */}
-                                    <div className="flex items-center justify-center gap-8">
-                                        <div className="px-3 py-2 rounded-full bg-indigo-500/20 border border-indigo-400 text-indigo-200">
-                                            {lang === "gr" ? "Κόμβος Α" : "Node A"}
+                                <div className="relative">
+                                    <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-800 shadow-sm dark:border-indigo-500/40 dark:bg-indigo-950/70 dark:text-indigo-200">
+                                        <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-indigo-500 motion-reduce:animate-none animate-pulse dark:bg-indigo-400" />
+                                        {lang === "gr"
+                                            ? "Οπτικοποίηση συστήματος"
+                                            : "System visualization"}
+                                    </div>
+
+                                    {/* 4-node mesh — distinct node colors for faster scanning */}
+                                    <div className="mx-auto flex max-w-md flex-col items-center gap-4">
+                                        <div className="flex w-full flex-wrap items-center justify-center gap-3 sm:gap-5">
+                                            <VizNodePill
+                                                className={VIZ_NODE_CLASS.a}
+                                                label={lang === "gr" ? "Κόμβος Α" : "Node A"}
+                                            />
+                                            <VizMsgBadge>msg ↔</VizMsgBadge>
+                                            <VizNodePill
+                                                className={VIZ_NODE_CLASS.b}
+                                                label={lang === "gr" ? "Κόμβος Β" : "Node B"}
+                                            />
                                         </div>
-                                        <div className="text-slate-400 text-xs">msg ↔</div>
-                                        <div className="px-3 py-2 rounded-full bg-indigo-500/20 border border-indigo-400 text-indigo-200">
-                                            {lang === "gr" ? "Κόμβος Β" : "Node B"}
+
+                                        <div className="flex w-full flex-wrap items-center justify-center gap-3 sm:gap-6">
+                                            <VizMsgBadge>msg ↕</VizMsgBadge>
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-indigo-300 bg-gradient-to-br from-white to-indigo-50 text-xs font-bold leading-tight text-indigo-600 shadow-lg dark:border-indigo-500/60 dark:from-indigo-950 dark:to-slate-900 dark:text-indigo-300">
+                                                <span className="select-none">↘︎↗︎</span>
+                                            </div>
+                                            <VizMsgBadge>msg ↕</VizMsgBadge>
+                                        </div>
+
+                                        <div className="flex w-full flex-wrap items-center justify-center gap-3 sm:gap-5">
+                                            <VizNodePill
+                                                className={VIZ_NODE_CLASS.c}
+                                                label={lang === "gr" ? "Κόμβος Γ" : "Node C"}
+                                            />
+                                            <VizMsgBadge>msg ↔</VizMsgBadge>
+                                            <VizNodePill
+                                                className={VIZ_NODE_CLASS.d}
+                                                label={lang === "gr" ? "Κόμβος Δ" : "Node D"}
+                                            />
                                         </div>
                                     </div>
-                                    {/* Cross connections */}
-                                    <div className="flex items-center justify-center gap-2 text-slate-500 text-xs">
-                                        <span>msg ↕</span>
-                                        <span className="mx-10">↘︎↗︎</span>
-                                        <span>msg ↕</span>
-                                    </div>
-                                    {/* Bottom row: C and D */}
-                                    <div className="flex items-center justify-center gap-8">
-                                        <div className="px-3 py-2 rounded-full bg-indigo-500/20 border border-indigo-400 text-indigo-200">
-                                            {lang === "gr" ? "Κόμβος Γ" : "Node C"}
-                                        </div>
-                                        <div className="text-slate-400 text-xs">msg ↔</div>
-                                        <div className="px-3 py-2 rounded-full bg-indigo-500/20 border border-indigo-400 text-indigo-200">
-                                            {lang === "gr" ? "Κόμβος Δ" : "Node D"}
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div className="mt-4 text-xs text-amber-400">
-                                    {lang === "gr"
-                                        ? "⚠ Κάποιοι κόμβοι μπορεί να στείλουν διαφορετικά μηνύματα"
-                                        : "⚠ Some nodes may send different messages"}
-                                </div>
+                                    <div className="mt-5 rounded-xl border border-amber-300/80 bg-gradient-to-r from-amber-100 to-orange-50 px-3 py-2.5 text-xs font-semibold text-amber-950 shadow-sm dark:border-amber-500/35 dark:from-amber-950/40 dark:to-orange-950/30 dark:text-amber-200">
+                                        {lang === "gr"
+                                            ? "⚠ Κάποιοι κόμβοι μπορεί να στείλουν διαφορετικά μηνύματα"
+                                            : "⚠ Some nodes may send different messages"}
+                                    </div>
 
-                                <div className="mt-4 text-slate-400">
-                                    {lang === "gr"
-                                        ? "Κάθε κόμβος επικοινωνεί με πολλούς άλλους και πρέπει να συμφωνήσουν στην ίδια απόφαση"
-                                        : "Each node communicates with multiple peers and all must agree on the same decision"}
+                                    <p className="mt-4 text-xs font-medium leading-relaxed text-slate-700 dark:text-slate-300">
+                                        {lang === "gr"
+                                            ? "Κάθε κόμβος επικοινωνεί με πολλούς άλλους και πρέπει να συμφωνήσουν στην ίδια απόφαση"
+                                            : "Each node communicates with multiple peers and all must agree on the same decision"}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -804,27 +849,27 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
                             {copy.onboardingOutcome}
                         </p>
 
-                        <div className="mt-4 p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-sm">
+                        <div className="mt-4 rounded-xl border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-violet-50 p-4 text-sm font-medium text-slate-800 shadow-md dark:border-indigo-500/35 dark:from-indigo-950/50 dark:to-violet-950/40 dark:text-slate-100 dark:shadow-none">
                             {copy.onboardingGoal}
                         </div>
 
                         {/* Agreement vs Disagreement visual */}
                         <div className="mt-6 grid grid-cols-2 gap-4 text-center text-sm">
-                            <div className="p-4 rounded-xl border bg-green-500/10 border-green-500/30">
-                                <div className="text-lg">✅</div>
-                                <div className="font-semibold">{copy.agreementLabel}</div>
-                                <div className="text-xs text-slate-400 mt-1">{copy.agreementOutcome}</div>
+                            <div className="rounded-xl border-2 border-emerald-300/80 bg-gradient-to-b from-emerald-50 to-white p-4 shadow-md shadow-emerald-200/40 dark:border-emerald-700/50 dark:from-emerald-950/30 dark:to-slate-900/40 dark:shadow-none">
+                                <div className="text-2xl drop-shadow-sm">✅</div>
+                                <div className="font-bold text-emerald-900 dark:text-emerald-100">{copy.agreementLabel}</div>
+                                <div className="mt-1 text-xs font-semibold text-emerald-800/90 dark:text-emerald-300/90">{copy.agreementOutcome}</div>
                             </div>
-                            <div className="p-4 rounded-xl border bg-red-500/10 border-red-500/30">
-                                <div className="text-lg">❌</div>
-                                <div className="font-semibold">{copy.disagreementLabel}</div>
-                                <div className="text-xs text-slate-400 mt-1">{copy.disagreementOutcome}</div>
+                            <div className="rounded-xl border-2 border-rose-300/80 bg-gradient-to-b from-rose-50 to-white p-4 shadow-md shadow-rose-200/40 dark:border-rose-700/50 dark:from-rose-950/30 dark:to-slate-900/40 dark:shadow-none">
+                                <div className="text-2xl drop-shadow-sm">❌</div>
+                                <div className="font-bold text-rose-900 dark:text-rose-100">{copy.disagreementLabel}</div>
+                                <div className="mt-1 text-xs font-semibold text-rose-800/90 dark:text-rose-300/90">{copy.disagreementOutcome}</div>
                             </div>
                         </div>
 
                         <button
                             onClick={() => setState(prev => ({ ...prev, currentStep: 1 }))}
-                            className="mt-4 px-4 py-2 rounded bg-indigo-600 text-white"
+                            className="mt-5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/35 transition hover:from-indigo-500 hover:to-violet-500 hover:shadow-indigo-500/45 active:scale-[0.98] dark:shadow-indigo-950/50"
                         >
                             {copy.continueLabel}
                         </button>
@@ -839,7 +884,6 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
                         onSelect={(option) => onStepChoice("s1", option, copy.step1.retry)}
                         feedback={stepFeedback}
                         scenario={copy.step1Hint}
-                        lang={lang}
                     />
                 ) : null}
 
@@ -851,7 +895,6 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
                             options={copy.step2.options}
                             onSelect={(option) => onStepChoice("s2", option, copy.step2.retry)}
                             feedback={stepFeedback}
-                            lang={lang}
                         />
                         {alignedFlow}
                     </>
@@ -865,18 +908,17 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
                             options={copy.step3.options}
                             onSelect={(option) => onStepChoice("s3", option, copy.step3.retry)}
                             feedback={stepFeedback}
-                            lang={lang}
                         />
                         <div className="rounded-xl border border-amber-300/40 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
                             {copy.step3.callout}
                         </div>
                         {brokenFlow}
                         {/* Traitor behavior visual */}
-                        <div className="text-xs bg-slate-900/60 border border-slate-700 p-3 rounded">
-                            <div className="mb-2 text-slate-400">{copy.traitorBehaviorTitle}</div>
-                            <div>A → B: <span className="text-green-400">{copy.attackLabel}</span></div>
-                            <div>A → C: <span className="text-red-400">{copy.retreatLabel}</span></div>
-                            <div className="mt-2 text-slate-500">
+                        <div className="text-xs bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 p-3 rounded">
+                            <div className="mb-2 text-slate-600 dark:text-slate-400">{copy.traitorBehaviorTitle}</div>
+                            <div className="text-slate-800 dark:text-slate-200">A → B: <span className="text-green-700 dark:text-green-400">{copy.attackLabel}</span></div>
+                            <div className="text-slate-800 dark:text-slate-200">A → C: <span className="text-red-700 dark:text-red-400">{copy.retreatLabel}</span></div>
+                            <div className="mt-2 text-slate-600 dark:text-slate-500">
                                 {copy.traitorBehaviorSummary}
                             </div>
                         </div>
@@ -892,7 +934,6 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
                             onSelect={(option) => onStepChoice("s4", option, copy.step4.retry)}
                             feedback={stepFeedback}
                             scenario={scenario}
-                            lang={lang}
                         />
                         <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-950/50 p-5">
                             <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
@@ -919,16 +960,20 @@ export default function SystemLabS0Interaction({ lang = "en" }) {
                         </p>
 
                         {/* Consensus flow visual */}
-                        <div className="mt-6 flex items-center justify-center gap-3 text-xs text-center flex-wrap">
-                            <div className="px-3 py-2 rounded border bg-slate-800">{copy.flowDifferentViews}</div>
+                        <div className="mt-6 flex items-center justify-center gap-3 text-xs text-center flex-wrap text-slate-800 dark:text-slate-100">
+                            <div className="px-3 py-2 rounded border border-slate-300 bg-slate-200 text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
+                                {copy.flowDifferentViews}
+                            </div>
                             <div>→</div>
-                            <div className="px-3 py-2 rounded border bg-slate-800">{copy.flowDisagreement}</div>
+                            <div className="px-3 py-2 rounded border border-slate-300 bg-slate-200 text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100">
+                                {copy.flowDisagreement}
+                            </div>
                             <div>→</div>
-                            <div className="px-3 py-2 rounded border bg-indigo-500/20 border-indigo-400">
+                            <div className="px-3 py-2 rounded border bg-indigo-500/15 border-indigo-400/80 text-indigo-900 dark:bg-indigo-500/20 dark:border-indigo-400 dark:text-indigo-200">
                                 {copy.flowConsensusRules}
                             </div>
                             <div>→</div>
-                            <div className="px-3 py-2 rounded border bg-green-500/20">
+                            <div className="px-3 py-2 rounded border border-green-400/50 bg-green-500/15 text-green-900 dark:border-green-500/30 dark:bg-green-500/20 dark:text-green-200">
                                 {copy.flowAgreement}
                             </div>
                         </div>

@@ -5,14 +5,23 @@ import "./index.css";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import AppRoutes from "./routes/AppRoutes.jsx";
 import AppErrorBoundary from "./components/AppErrorBoundary.jsx";
+import { IdentityProvider } from "./context/IdentityContext.jsx";
+import { ResolvedIdentityProvider } from "./context/ResolvedIdentityContext.jsx";
+import Web3Providers from "./providers/Web3Providers.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AppErrorBoundary>
-      <HashRouter>
-        <ScrollToTop />
-        <AppRoutes />
-      </HashRouter>
+      <Web3Providers>
+        <IdentityProvider>
+          <ResolvedIdentityProvider>
+            <HashRouter>
+              <ScrollToTop />
+              <AppRoutes />
+            </HashRouter>
+          </ResolvedIdentityProvider>
+        </IdentityProvider>
+      </Web3Providers>
     </AppErrorBoundary>
   </React.StrictMode>
 );

@@ -79,7 +79,7 @@ export default function LabsCompletionChart({ labs }) {
     );
 }
 
-function CustomTooltip({ active, payload, label }) {
+function CustomTooltip({ active, payload }) {
     if (!active || !payload || !payload.length) return null;
 
     const data = payload[0]?.payload;

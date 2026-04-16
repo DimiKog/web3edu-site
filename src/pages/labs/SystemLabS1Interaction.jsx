@@ -246,7 +246,6 @@ export default function SystemLabS1Interaction({ lang = "en" }) {
   // Shared card class — matches Core Lab interaction style
   const card = "rounded-xl border border-slate-200 dark:border-slate-700 p-6 bg-slate-50 dark:bg-slate-900/40";
 
-  const walletAddress = localStorage.getItem("wallet") || "demo-wallet";
   return (
     <PageShell>
       <div className="mx-auto max-w-5xl space-y-10 px-4 py-12">

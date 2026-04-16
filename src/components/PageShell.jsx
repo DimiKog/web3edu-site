@@ -10,12 +10,10 @@ import {
   generateAvatarStyle,
   shortAddress,
 } from "./identity-ui.jsx";
-import {
-  createBackendError,
-  getRoleFromXpTotal,
-  getXpTotalFromBackend,
-  isUserStateUnavailableError,
-} from "../utils/progression.js";
+import { useNavigate } from "react-router-dom";
+import { useAccount, useDisconnect } from "wagmi";
+import { useIdentity } from "../context/IdentityContext.jsx";
+import { useResolvedIdentityContext } from "../context/ResolvedIdentityContext.jsx";
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
 const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
@@ -75,6 +73,11 @@ export default function PageShell({
   children,
   footerContent,
 }) {
+  const navigate = useNavigate();
+  const { disconnectAsync } = useDisconnect();
+  const [identityMenuOpen, setIdentityMenuOpen] = React.useState(false);
+  const identityMenuRef = React.useRef(null);
+  const identityMenuMobileRef = React.useRef(null);
   const [isShrunk, setIsShrunk] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [hasWalletSession, setHasWalletSession] = React.useState(() => {
@@ -85,14 +88,22 @@ export default function PageShell({
     if (typeof window === "undefined") return "";
     return localStorage.getItem(WALLET_ADDRESS_KEY) || "";
   });
-  const [walletTier, setWalletTier] = React.useState("Explorer");
-  const [syncIssueVisible, setSyncIssueVisible] = React.useState(false);
-  const [syncRetryTick, setSyncRetryTick] = React.useState(0);
+  const { walletTier, syncIssueVisible, refetch } = useResolvedIdentityContext();
 
   const [currentHash, setCurrentHash] = React.useState(
     typeof window !== "undefined" ? window.location.hash || "#/" : "#/"
   );
 
+  const { owner, smartAccount, disconnectIdentity } = useIdentity();
+  const { address: wagmiAddress, isConnected } = useAccount();
+  const identityAddress = React.useMemo(
+    () => smartAccount ?? owner ?? wagmiAddress ?? null,
+    [smartAccount, owner, wagmiAddress]
+  );
+  const displayAddress = React.useMemo(
+    () => smartAccount ?? wagmiAddress ?? owner ?? null,
+    [smartAccount, wagmiAddress, owner]
+  );
   // THE ONLY source of truth for language — prefer URL hint, then stored value
   const [lang, setLang] = React.useState(() => {
     if (typeof window !== "undefined") {
@@ -212,51 +223,13 @@ export default function PageShell({
   }, [hasWalletSession]);
 
   React.useEffect(() => {
-    if (!walletAddress) {
-      setWalletTier("Explorer");
-      setSyncIssueVisible(false);
-      return;
-    }
-
-    const controller = new AbortController();
-    const BACKEND =
-      import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
-
-    fetch(`${BACKEND}/web3sbt/resolve/${walletAddress}`, {
-      signal: controller.signal,
-    })
-      .then((res) => {
-        if (res.ok) return res.json();
-        return res.json().catch(() => ({})).then((payload) => {
-          throw createBackendError(res.status, payload);
-        });
-      })
-      .then((data) => {
-        const xpTotal = getXpTotalFromBackend(data);
-        setWalletTier(getRoleFromXpTotal(xpTotal));
-        setSyncIssueVisible(false);
-      })
-      .catch((err) => {
-        if (isUserStateUnavailableError(err)) {
-          console.warn("Backend user state temporarily unavailable; preserving wallet tier.");
-          setSyncIssueVisible(true);
-          return;
-        }
-        setSyncIssueVisible(false);
-        setWalletTier("Explorer");
-      });
-
-    return () => controller.abort();
-  }, [walletAddress, syncRetryTick]);
-
-  React.useEffect(() => {
     if (!syncIssueVisible) return undefined;
     const timeoutId = window.setTimeout(() => {
-      setSyncRetryTick((value) => value + 1);
+      refetch();
     }, 4000);
 
     return () => window.clearTimeout(timeoutId);
-  }, [syncIssueVisible]);
+  }, [syncIssueVisible, refetch]);
 
   // Handle language toggle
   const toggleLanguage = () => {
@@ -292,11 +265,40 @@ export default function PageShell({
     normalizedHash.startsWith("#/admin");
 
   const showJoinCta =
-    !hasWalletSession && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
-  const showWalletSessionCtaDesktop =
-    hasWalletSession && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
-  const showWalletSessionCtaMobile =
-    hasWalletSession && !isJoinPage && !isLabsLandingPage;
+    !identityAddress && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
+  const showIdentityCtaDesktop =
+    Boolean(identityAddress) &&
+    !isJoinPage &&
+    !isLabsLandingPage &&
+    !isWeb3ProtectedRoute;
+  const showIdentityCtaMobile =
+    Boolean(identityAddress) && !isJoinPage && !isLabsLandingPage;
+
+  const handleDisconnectIdentity = React.useCallback(async () => {
+    setIdentityMenuOpen(false);
+    setMobileOpen(false);
+    if (isConnected) {
+      try {
+        await disconnectAsync();
+      } catch {
+        /* ignore wagmi disconnect errors */
+      }
+    }
+    disconnectIdentity();
+    navigate("/");
+  }, [disconnectAsync, disconnectIdentity, isConnected, navigate]);
+
+  React.useEffect(() => {
+    if (!identityMenuOpen) return undefined;
+    const onDocDown = (e) => {
+      const desktop = identityMenuRef.current;
+      const mobile = identityMenuMobileRef.current;
+      if (desktop?.contains(e.target) || mobile?.contains(e.target)) return;
+      setIdentityMenuOpen(false);
+    };
+    document.addEventListener("mousedown", onDocDown);
+    return () => document.removeEventListener("mousedown", onDocDown);
+  }, [identityMenuOpen]);
 
   return (
     <main
@@ -486,36 +488,56 @@ export default function PageShell({
                   {isGR ? "Σύνδεση" : "Join"}
                 </button>
               )}
-            {showWalletSessionCtaDesktop && walletAddress && (
-              <>
+            {showIdentityCtaDesktop && displayAddress && (
+              <div ref={identityMenuRef} className="relative flex items-center gap-2">
                 <button
-                  onClick={() => {
-                    window.location.hash = isGR ? "#/dashboard-gr" : "#/dashboard";
-                  }}
+                  type="button"
+                  aria-expanded={identityMenuOpen}
+                  aria-haspopup="menu"
+                  aria-label={isGR ? "Μενού λογαριασμού" : "Account menu"}
+                  onClick={() => setIdentityMenuOpen((o) => !o)}
                   className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-900/85 px-2 py-1.5 text-white shadow-lg shadow-indigo-500/25 backdrop-blur cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40 hover:border-white/40"
                 >
                   <span
                     className="flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-purple-400/80"
-                    style={generateAvatarStyle(walletAddress, walletTier)}
+                    style={generateAvatarStyle(displayAddress, walletTier)}
                   >
-                    <AddressIdenticon address={walletAddress} />
+                    <AddressIdenticon address={displayAddress} />
                   </span>
                   <span className="hidden text-xs font-mono sm:inline">
-                    {shortAddress(walletAddress)}
+                    {shortAddress(displayAddress)}
+                  </span>
+                  <span className="hidden text-[10px] opacity-70 sm:inline" aria-hidden>
+                    ▾
                   </span>
                 </button>
-                <button
-                  onClick={() => {
-                    localStorage.removeItem(WALLET_SESSION_KEY);
-                    localStorage.removeItem(WALLET_ADDRESS_KEY);
-                    window.dispatchEvent(new Event("web3edu-wallet-state"));
-                    window.location.hash = isGR ? "#/join-gr" : "#/join";
-                  }}
-                  className="px-4 py-1.5 rounded-full bg-red-500/20 hover:bg-red-500/35 text-white shadow-lg shadow-red-500/20 border border-red-300/25 cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl"
-                >
-                  {isGR ? "Αποσύνδεση" : "Disconnect"}
-                </button>
-                {isAdminWallet(walletAddress) ? (
+                {identityMenuOpen ? (
+                  <div
+                    role="menu"
+                    className="absolute right-0 top-[calc(100%+0.5rem)] z-[100] min-w-[11rem] rounded-xl border border-white/15 bg-slate-900/95 py-1 text-left shadow-xl shadow-black/40 backdrop-blur-md dark:bg-slate-950/95"
+                  >
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="block w-full px-4 py-2.5 text-left text-sm text-white transition hover:bg-white/10"
+                      onClick={() => {
+                        setIdentityMenuOpen(false);
+                        window.location.hash = isGR ? "#/dashboard-gr" : "#/dashboard";
+                      }}
+                    >
+                      {isGR ? "Πίνακας" : "Dashboard"}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="block w-full px-4 py-2.5 text-left text-sm text-red-200 transition hover:bg-red-500/20"
+                      onClick={() => void handleDisconnectIdentity()}
+                    >
+                      {isGR ? "Αποσύνδεση" : "Disconnect"}
+                    </button>
+                  </div>
+                ) : null}
+                {isAdminWallet(wagmiAddress || walletAddress) ? (
                   <button
                     onClick={() => {
                       window.location.hash = "#/admin";
@@ -525,7 +547,7 @@ export default function PageShell({
                     {isGR ? "Διαχείριση" : "Admin"}
                   </button>
                 ) : null}
-              </>
+              </div>
             )}
 
             {/* Theme toggle (moved outside language toggle group) */}
@@ -574,7 +596,7 @@ export default function PageShell({
                   : "⚠ We’re having trouble syncing your progress. Retrying…"}
               </p>
               <button
-                onClick={() => setSyncRetryTick((value) => value + 1)}
+                onClick={() => refetch()}
                 className="inline-flex items-center justify-center rounded-full border border-amber-400/30 bg-amber-500/15 px-4 py-1.5 font-semibold text-amber-950 transition hover:bg-amber-500/25 dark:text-amber-100"
               >
                 {isGR ? "Δοκίμασε ξανά" : "Retry now"}
@@ -689,32 +711,54 @@ export default function PageShell({
                     {isGR ? "Σύνδεση" : "Join"}
                   </button>
                 )}
-              {showWalletSessionCtaMobile && walletAddress && (
-                <>
+              {showIdentityCtaMobile && displayAddress && (
+                <div ref={identityMenuMobileRef} className="space-y-2">
                   <button
-                    onClick={() => navigateTo(isGR ? "#/dashboard-gr" : "#/dashboard")}
+                    type="button"
+                    aria-expanded={identityMenuOpen}
+                    aria-haspopup="menu"
+                    aria-label={isGR ? "Μενού λογαριασμού" : "Account menu"}
+                    onClick={() => setIdentityMenuOpen((o) => !o)}
                     className="w-full rounded-xl bg-slate-900 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/25 transition inline-flex items-center justify-center gap-2"
                   >
                     <span
                       className="flex h-7 w-7 items-center justify-center rounded-full ring-2 ring-purple-400/80"
-                      style={generateAvatarStyle(walletAddress, walletTier)}
+                      style={generateAvatarStyle(displayAddress, walletTier)}
                     >
-                      <AddressIdenticon address={walletAddress} />
+                      <AddressIdenticon address={displayAddress} />
                     </span>
-                    <span className="font-mono">{shortAddress(walletAddress)}</span>
+                    <span className="font-mono">{shortAddress(displayAddress)}</span>
+                    <span className="text-xs opacity-70" aria-hidden>
+                      ▾
+                    </span>
                   </button>
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem(WALLET_SESSION_KEY);
-                      localStorage.removeItem(WALLET_ADDRESS_KEY);
-                      window.dispatchEvent(new Event("web3edu-wallet-state"));
-                      navigateTo(isGR ? "#/join-gr" : "#/join");
-                    }}
-                    className="w-full rounded-xl bg-red-500/35 text-white py-3 text-sm font-semibold shadow-lg shadow-red-500/25 hover:bg-red-500/45 transition"
-                  >
-                    {isGR ? "Αποσύνδεση" : "Disconnect"}
-                  </button>
-                  {isAdminWallet(walletAddress) ? (
+                  {identityMenuOpen ? (
+                    <div
+                      role="menu"
+                      className="w-full overflow-hidden rounded-xl border border-white/15 bg-white/95 dark:bg-slate-900/95"
+                    >
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="block w-full px-4 py-3 text-left text-sm font-semibold text-slate-900 transition hover:bg-slate-200/80 dark:text-white dark:hover:bg-white/10"
+                        onClick={() => {
+                          setIdentityMenuOpen(false);
+                          navigateTo(isGR ? "#/dashboard-gr" : "#/dashboard");
+                        }}
+                      >
+                        {isGR ? "Πίνακας" : "Dashboard"}
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="block w-full border-t border-white/10 px-4 py-3 text-left text-sm font-semibold text-red-700 transition hover:bg-red-500/15 dark:text-red-200 dark:hover:bg-red-500/20"
+                        onClick={() => void handleDisconnectIdentity()}
+                      >
+                        {isGR ? "Αποσύνδεση" : "Disconnect"}
+                      </button>
+                    </div>
+                  ) : null}
+                  {isAdminWallet(wagmiAddress || walletAddress) ? (
                     <button
                       onClick={() => navigateTo("#/admin")}
                       className="w-full rounded-xl bg-red-500/30 text-white py-3 text-sm font-semibold shadow-lg shadow-red-500/25 hover:bg-red-500/45 transition"
@@ -722,7 +766,7 @@ export default function PageShell({
                       {isGR ? "Διαχείριση" : "Admin"}
                     </button>
                   ) : null}
-                </>
+                </div>
               )}
 
               <div className="grid grid-cols-2 gap-3 pt-1">

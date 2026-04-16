@@ -18,7 +18,7 @@ export default function TxInvestigation({ project, shared }) {
             />
 
             {!selectedTx && (
-                <div className="mt-3 text-sm text-blue-300 font-medium">
+                <div className="mt-3 text-sm font-medium text-blue-700 dark:text-blue-300">
                     {isGR
                         ? "Επιλέξτε μια συναλλαγή από τη λίστα για να συνεχίσετε."
                         : "Select a transaction from the list first to enable decryption."}

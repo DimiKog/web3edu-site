@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
+import { useIdentity } from "../context/IdentityContext.jsx";
+import {
+    buildWeb3SbtResolveUrl,
+    resolveReadOwnerQueryParam,
+} from "../lib/web3eduBackend.js";
+import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import PageShell from "../components/PageShell.jsx";
 import web3eduLogoDark from "../assets/web3edu_logo.svg";
 import web3eduLogoLight from "../assets/web3edu_logo_light.svg";
@@ -9,16 +15,26 @@ const WelcomeIdentityGR = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { address } = useAccount();
+    const { owner, smartAccount } = useIdentity();
 
     const [isDark, setIsDark] = useState(false);
     const txHashRaw = new URLSearchParams(location.search).get("tx");
     const [tokenId, setTokenId] = useState(null);
     const [tokenIdError, setTokenIdError] = useState(null);
 
+    const resolveUrl = useMemo(() => {
+        const path =
+            normalizeEvmAddress(smartAccount) ?? normalizeEvmAddress(owner);
+        if (!path) return null;
+        return buildWeb3SbtResolveUrl(
+            path,
+            resolveReadOwnerQueryParam(smartAccount, address, owner)
+        );
+    }, [smartAccount, owner, address]);
+
     useEffect(() => {
-        if (!address) return;
-        const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
-        fetch(`${BACKEND}/web3sbt/resolve/${address}`)
+        if (!resolveUrl) return;
+        fetch(resolveUrl)
             .then((res) => res.json())
             .then((data) => {
                 setTokenId(data?.tokenId ?? null);
@@ -29,7 +45,7 @@ const WelcomeIdentityGR = () => {
                 setTokenId(null);
                 setTokenIdError("Αδυναμία ανάκτησης Token ID.");
             });
-    }, [address]);
+    }, [resolveUrl]);
 
     useEffect(() => {
         const mq = window.matchMedia("(prefers-color-scheme: dark)");

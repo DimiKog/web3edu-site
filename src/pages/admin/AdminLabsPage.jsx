@@ -11,7 +11,7 @@ export default function AdminLabsPage() {
     const [labs, setLabs] = useState(null);
     const [error, setError] = useState(null);
     const [sortBy, setSortBy] = useState(searchParams.get("sort") || "dropoff");
-    const [sortDir, setSortDir] = useState(searchParams.get("dir") || "desc");
+    const [sortDir] = useState(searchParams.get("dir") || "desc");
 
     const loadLabs = () => {
         if (!address) return;

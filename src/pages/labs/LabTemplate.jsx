@@ -1,7 +1,14 @@
 import React from "react";
 import PageShell from "../../components/PageShell";
 import { useAccount } from "wagmi";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useIdentity } from "../../context/IdentityContext.jsx";
+import {
+    buildLabsStatusUrl,
+    resolveReadOwnerQueryParam,
+    getWeb3eduBackendUrl,
+} from "../../lib/web3eduBackend.js";
+import { getLabsStatusReadIdentity, postLabsStart } from "../../utils/labWriteApi.js";
 
 const DEFAULT_LABELS = {
     breadcrumbLabs: "Labs",
@@ -60,44 +67,59 @@ const LabTemplate = ({
 
     const mergedLabels = { ...DEFAULT_LABELS, ...labels };
 
-    const { address, isConnected } = useAccount();
+    const { address } = useAccount();
+    const { smartAccount } = useIdentity();
+    const { identityAddress } = useMemo(
+        () => getLabsStatusReadIdentity({ smartAccount }),
+        [smartAccount]
+    );
+    const statusOwner = useMemo(
+        () => resolveReadOwnerQueryParam(smartAccount, address, null),
+        [smartAccount, address]
+    );
 
     const [claimed, setClaimed] = useState(false);
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completedAt, setCompletedAt] = useState(null);
 
-    const API_BASE = import.meta.env.VITE_BACKEND_URL;
+    const API_BASE = getWeb3eduBackendUrl();
+    const manualStartGuardRef = useRef(null);
 
-    const handleStartLab = async () => {
-        if (!isConnected || !address || !labId) return;
+    const handleStartLab = useCallback(async () => {
+        if (!smartAccount || !labId) return;
+        const guardKey = `${String(labId)}:${smartAccount}`;
+        if (manualStartGuardRef.current === guardKey) return;
+        manualStartGuardRef.current = guardKey;
 
         try {
-            await fetch(`${API_BASE}/labs/start`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    wallet: address,
-                    address,
-                    labId,
-                }),
+            const res = await postLabsStart({
+                apiBase: API_BASE,
+                smartAccount,
+                address,
+                labId,
             });
+            if (!res.ok) {
+                manualStartGuardRef.current = null;
+            }
         } catch (err) {
+            manualStartGuardRef.current = null;
+            // eslint-disable-next-line no-console -- non-fatal lab start telemetry
             console.warn("Failed to record lab start", err);
         }
-    };
+    }, [API_BASE, smartAccount, address, labId]);
 
     useEffect(() => {
-        if (!isConnected || !address || !labId) {
+        if (!identityAddress || !labId) {
             setCheckingStatus(false);
             return;
         }
 
         const checkCompletion = async () => {
             try {
+                // eslint-disable-next-line no-console -- AA / backend integration debug
+                console.log("API CALL", { identityAddress, statusOwner });
                 const res = await fetch(
-                    `${API_BASE}/labs/status?address=${address}&labId=${labId}`
+                    buildLabsStatusUrl(identityAddress, labId, statusOwner)
                 );
 
                 if (!res.ok) {
@@ -111,6 +133,7 @@ const LabTemplate = ({
                     setCompletedAt(data.completedAt || null);
                 }
             } catch (err) {
+                // eslint-disable-next-line no-console -- non-fatal status restore
                 console.warn("Failed to restore lab completion state", err);
             } finally {
                 setCheckingStatus(false);
@@ -118,7 +141,7 @@ const LabTemplate = ({
         };
 
         checkCompletion();
-    }, [isConnected, address, labId]);
+    }, [identityAddress, statusOwner, labId]);
 
     return (
         <PageShell>
@@ -159,7 +182,7 @@ const LabTemplate = ({
                         )}
                     </div>
 
-                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
+                    <h1 className="mb-3 text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl dark:text-white">
                         {title}
                     </h1>
                     <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl">
@@ -258,7 +281,7 @@ const LabTemplate = ({
                     className="mb-10 rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                     bg-white/80 dark:bg-slate-900/60 p-6"
                 >
-                    <h3 className="text-lg font-semibold mb-4">
+                    <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
                         {mergedLabels.tools}
                     </h3>
                     <ul className="space-y-2 text-slate-700 dark:text-slate-300">
@@ -275,7 +298,7 @@ const LabTemplate = ({
                     className="mb-10 rounded-2xl border border-slate-200/70 dark:border-slate-700/60
                     bg-white/80 dark:bg-slate-900/60 p-6"
                 >
-                    <h3 className="text-lg font-semibold mb-4">
+                    <h3 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
                         {mergedLabels.prerequisites}
                     </h3>
                     <ul className="space-y-2 text-slate-700 dark:text-slate-300">
@@ -327,7 +350,7 @@ const LabTemplate = ({
                     className="mt-14 rounded-2xl border border-indigo-200/50 dark:border-indigo-700/40
                     bg-indigo-50/60 dark:bg-indigo-900/20 p-6"
                 >
-                    <h3 className="text-lg font-semibold mb-2">
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
                         {mergedLabels.completionTitle}
                     </h3>
 

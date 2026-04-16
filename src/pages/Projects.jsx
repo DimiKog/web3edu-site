@@ -3,16 +3,14 @@ import { Link, useLocation } from "react-router-dom";
 import { localizeProject, projects } from "../services/projectService";
 import { useEffect, useMemo, useState } from "react";
 import SectionBadge from "../components/SectionBadge.jsx";
-import {
-  createBackendError,
-  getRoleFromXpTotal,
-  getXpTotalFromBackend,
-  isUserStateUnavailableError,
-} from "../utils/progression.js";
+import { useIdentity } from "../context/IdentityContext.jsx";
+import { useResolvedIdentityContext } from "../context/ResolvedIdentityContext.jsx";
 
 export default function Projects() {
   const { pathname } = useLocation();
   const isGR = pathname.startsWith("/projects-gr");
+  const { owner, smartAccount } = useIdentity();
+  const { metadata } = useResolvedIdentityContext();
   const [completedProjects, setCompletedProjects] = useState({});
   const [userTier, setUserTier] = useState("explorer");
 
@@ -20,6 +18,7 @@ export default function Projects() {
     () => localStorage.getItem("web3edu-wallet-address") || "",
     []
   );
+  const identityAddress = smartAccount ?? owner ?? (wallet || null);
   const activeProjects = useMemo(
     () => projects.filter((project) => project.status === "active"),
     []
@@ -30,41 +29,21 @@ export default function Projects() {
   );
 
   useEffect(() => {
-    if (!wallet) {
-      setCompletedProjects({});
-      setUserTier("explorer");
+    if (!identityAddress || !metadata) {
+      if (!identityAddress) {
+        setCompletedProjects({});
+        setUserTier("explorer");
+      }
       return;
     }
 
-    const controller = new AbortController();
-
-    fetch(`https://web3edu-api.dimikog.org/web3sbt/resolve/${wallet}`, {
-      signal: controller.signal,
-    })
-      .then((res) => {
-        if (res.ok) return res.json();
-        return res.json().catch(() => ({})).then((payload) => {
-          throw createBackendError(res.status, payload);
-        });
-      })
-      .then((data) => {
-        const xpTotal = getXpTotalFromBackend(data);
-        setCompletedProjects(data?.metadata?.projectsCompleted || {});
-        setUserTier(getRoleFromXpTotal(xpTotal).toLowerCase());
-      })
-      .catch((err) => {
-        if (err.name !== "AbortError") {
-          if (isUserStateUnavailableError(err)) {
-            console.warn("Backend user state temporarily unavailable; preserving project access state.");
-            return;
-          }
-          console.error("Failed to load project completion status", err);
-          setUserTier("explorer");
-        }
-      });
-
-    return () => controller.abort();
-  }, [wallet]);
+    setCompletedProjects(
+      metadata.projectsCompleted ||
+        metadata.projects_completed ||
+        {}
+    );
+    setUserTier((metadata.tier || "Explorer").toLowerCase());
+  }, [identityAddress, metadata]);
 
   const content = isGR
     ? {
@@ -142,25 +121,25 @@ export default function Projects() {
 
   return (
     <PageShell>
-      <div className="relative min-h-screen overflow-hidden">
+      <div className="relative min-h-screen overflow-hidden text-slate-900 dark:text-white">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-24 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-[#8A57FF]/22 blur-[160px]" />
-          <div className="absolute top-1/4 right-[-5rem] h-[24rem] w-[24rem] rounded-full bg-[#4ACBFF]/18 blur-[150px]" />
-          <div className="absolute bottom-[12%] left-[-4rem] h-[22rem] w-[22rem] rounded-full bg-[#FF67D2]/14 blur-[135px]" />
-          <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(rgba(138,87,255,0.45)_1px,transparent_1px),linear-gradient(90deg,rgba(74,203,255,0.35)_1px,transparent_1px)] bg-[size:56px_56px]" />
+          <div className="absolute -top-24 left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-[#8A57FF]/12 blur-[160px] dark:bg-[#8A57FF]/22" />
+          <div className="absolute top-1/4 right-[-5rem] h-[24rem] w-[24rem] rounded-full bg-[#4ACBFF]/10 blur-[150px] dark:bg-[#4ACBFF]/18" />
+          <div className="absolute bottom-[12%] left-[-4rem] h-[22rem] w-[22rem] rounded-full bg-[#FF67D2]/8 blur-[135px] dark:bg-[#FF67D2]/14" />
+          <div className="absolute inset-0 bg-[size:56px_56px] bg-[linear-gradient(rgba(100,116,139,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(100,116,139,0.06)_1px,transparent_1px)] opacity-[0.28] dark:bg-[linear-gradient(rgba(138,87,255,0.45)_1px,transparent_1px),linear-gradient(90deg,rgba(74,203,255,0.35)_1px,transparent_1px)] dark:opacity-[0.03]" />
         </div>
 
         <main className="relative mx-auto flex max-w-5xl flex-col gap-10 px-4 py-20">
           <section className="relative overflow-hidden rounded-[28px]">
-            <div className="absolute -inset-0.5 rounded-[28px] bg-gradient-to-r from-[#FF67D2]/40 via-[#8A57FF]/45 to-[#4ACBFF]/40 blur-sm" />
-            <div className="relative rounded-[28px] border border-white/10 bg-gradient-to-br from-[#0A0F1A]/94 via-[#101728]/94 to-[#131D30]/94 p-8 shadow-[0_0_70px_rgba(138,87,255,0.16)] backdrop-blur-xl md:p-12">
-              <span className="inline-flex rounded-full border border-[#8A57FF]/40 bg-[#8A57FF]/16 px-4 py-1 text-sm font-semibold text-[#D8C6FF] shadow-[0_0_20px_rgba(138,87,255,0.22)]">
+            <div className="absolute -inset-0.5 rounded-[28px] bg-gradient-to-r from-fuchsia-400/25 via-indigo-400/30 to-cyan-400/25 blur-sm dark:from-[#FF67D2]/40 dark:via-[#8A57FF]/45 dark:to-[#4ACBFF]/40" />
+            <div className="relative rounded-[28px] border border-slate-200/90 bg-gradient-to-br from-white via-indigo-50/35 to-slate-50 p-8 shadow-lg shadow-slate-200/40 backdrop-blur-xl dark:border-white/10 dark:from-[#0A0F1A]/94 dark:via-[#101728]/94 dark:to-[#131D30]/94 dark:shadow-[0_0_70px_rgba(138,87,255,0.16)] md:p-12">
+              <span className="inline-flex rounded-full border border-indigo-300/80 bg-indigo-100/90 px-4 py-1 text-sm font-semibold text-indigo-900 shadow-sm dark:border-indigo-500/40 dark:bg-indigo-950/85 dark:text-indigo-100 dark:shadow-[0_0_20px_rgba(138,87,255,0.22)]">
                 {content.eyebrow}
               </span>
-              <h1 className="mt-6 bg-gradient-to-r from-[#FFFFFF] via-[#FF67D2] to-[#4ACBFF] bg-clip-text text-4xl font-extrabold tracking-tight text-transparent md:text-5xl">
+              <h1 className="mt-6 bg-gradient-to-r from-slate-900 via-indigo-800 to-cyan-800 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent dark:from-[#FFFFFF] dark:via-[#FF67D2] dark:to-[#4ACBFF] md:text-5xl">
                 {content.title}
               </h1>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-white/72 md:text-lg">
+              <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600 md:text-lg dark:text-slate-300">
                 {content.description}
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
@@ -172,7 +151,7 @@ export default function Projects() {
                 </Link>
                 <Link
                   to={content.ctaSecondary}
-                  className="rounded-full border border-[#8A57FF]/35 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white/82 transition hover:border-[#FF67D2]/45 hover:bg-[#8A57FF]/10 hover:text-white"
+                  className="rounded-full border border-indigo-300/80 bg-white px-5 py-3 text-sm font-semibold text-indigo-900 shadow-sm transition hover:border-fuchsia-400/50 hover:bg-indigo-50 dark:border-[#8A57FF]/35 dark:bg-white/[0.04] dark:text-white/82 dark:shadow-none dark:hover:border-[#FF67D2]/45 dark:hover:bg-[#8A57FF]/10 dark:hover:text-white"
                 >
                   {content.secondaryLabel}
                 </Link>
@@ -193,10 +172,10 @@ export default function Projects() {
 
           <section className="mt-6">
             <SectionBadge label={content.sectionTitle} className="mb-4" />
-            <h2 className="bg-gradient-to-r from-[#FFFFFF] via-[#B8C8FF] to-[#4ACBFF] bg-clip-text text-3xl font-extrabold tracking-tight text-transparent md:text-4xl">
+            <h2 className="bg-gradient-to-r from-slate-900 via-indigo-800 to-cyan-800 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent dark:from-[#FFFFFF] dark:via-[#B8C8FF] dark:to-[#4ACBFF] md:text-4xl">
               {content.sectionTitle}
             </h2>
-            <p className="mb-4 text-white/60 text-sm">
+            <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
               {content.sectionDescription}
             </p>
 
@@ -208,7 +187,7 @@ export default function Projects() {
                 return (
                   <article
                     key={localizedProject.id}
-                    className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-[#121827]/96 to-[#191E30]/92 p-6 shadow-[0_20px_55px_rgba(2,8,23,0.32)] backdrop-blur-md"
+                    className="group relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 p-6 shadow-md shadow-slate-200/50 backdrop-blur-md dark:border-white/10 dark:from-[#121827] dark:via-[#151c2e] dark:to-[#191E30] dark:shadow-[0_20px_55px_rgba(2,8,23,0.32)]"
                   >
                     {isCompleted && (
                       <div className="absolute top-4 right-4 z-20">
@@ -229,17 +208,17 @@ export default function Projects() {
                       className="relative mb-4 h-40 w-full rounded-xl object-cover"
                     />
 
-                    <h3 className="relative text-lg font-semibold text-white">{localizedProject.title}</h3>
-                    <p className="relative mt-2 text-sm text-white/72">{localizedProject.description}</p>
+                    <h3 className="relative text-lg font-semibold text-slate-900 dark:text-white">{localizedProject.title}</h3>
+                    <p className="relative mt-2 text-sm text-slate-600 dark:text-slate-300">{localizedProject.description}</p>
 
                     <div className="relative mt-4 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-[#8A57FF]/35 bg-[#8A57FF]/16 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#D8C6FF]">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-indigo-900 dark:border-indigo-500/40 dark:bg-indigo-950/75 dark:text-indigo-100">
                         {isGR ? "Δυσκολία" : "Difficulty"}: {localizedProject.difficulty}
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-[#4ACBFF]/35 bg-[#4ACBFF]/14 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#A8EEFF]">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-900 dark:border-cyan-500/40 dark:bg-cyan-950/75 dark:text-cyan-100">
                         XP: {localizedProject.xp}
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/65">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
                         {content.skillLabel}: {localizedProject.skills?.[0]}
                       </span>
                     </div>
@@ -252,7 +231,7 @@ export default function Projects() {
                         {content.viewProject}
                       </Link>
                     ) : (
-                      <div className="relative mt-4 inline-flex rounded-full border border-yellow-400/25 bg-yellow-400/10 px-4 py-2 text-sm font-semibold text-yellow-200">
+                      <div className="relative mt-4 inline-flex rounded-full border border-amber-300/70 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-950 dark:border-yellow-400/25 dark:bg-yellow-400/10 dark:text-yellow-200">
                         {content.lockedReachBuilder}
                       </div>
                     )}
@@ -265,25 +244,25 @@ export default function Projects() {
                 return (
                   <article
                     key={localizedProject.id}
-                    className="group relative overflow-hidden rounded-[28px] border border-dashed border-white/10 bg-gradient-to-br from-[#121827]/60 to-[#191E30]/50 p-6 opacity-60"
+                    className="group relative overflow-hidden rounded-[28px] border border-dashed border-slate-300/90 bg-gradient-to-br from-slate-50 to-slate-100/90 p-6 opacity-95 dark:border-white/10 dark:from-[#121827]/90 dark:to-[#191E30]/75 dark:opacity-60"
                   >
                     <div className="absolute top-4 right-4">
-                      <span className="text-xs text-white/50">🔒 {content.lockedLabel}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">🔒 {content.lockedLabel}</span>
                     </div>
 
-                    <div className="mb-4 h-40 w-full rounded-xl bg-white/5 flex items-center justify-center text-white/30 text-sm">
+                    <div className="mb-4 flex h-40 w-full items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-100 text-sm text-slate-400 dark:border-transparent dark:bg-white/5 dark:text-white/30">
                       {content.lockedProject}
                     </div>
 
-                    <h3 className="text-lg font-semibold text-white/70">{localizedProject.title}</h3>
-                    <p className="mt-2 text-sm text-white/45">{localizedProject.description}</p>
-                    <p className="mt-3 text-sm text-white/45">{content.lockedHint}</p>
+                    <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200">{localizedProject.title}</h3>
+                    <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{localizedProject.description}</p>
+                    <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">{content.lockedHint}</p>
 
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-xs text-white/50">
+                      <span className="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-300">
                         {localizedProject.difficulty}
                       </span>
-                      <span className="inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-xs text-white/50">
+                      <span className="inline-flex items-center rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-500 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-300">
                         XP: {localizedProject.xp}
                       </span>
                     </div>
@@ -300,10 +279,10 @@ export default function Projects() {
 
 function ProjectCard({ title, text, color }) {
   return (
-    <article className="relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-[#121827]/95 to-[#181E2D]/92 p-6 shadow-[0_16px_44px_rgba(15,23,42,0.24)] backdrop-blur-md">
-      <div className={`pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-r ${color} blur-2xl`} />
-      <h2 className="relative text-xl font-semibold text-white">{title}</h2>
-      <p className="relative mt-3 text-sm leading-6 text-white/72">{text}</p>
+    <article className="relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 p-6 shadow-md shadow-slate-200/40 backdrop-blur-md dark:border-white/10 dark:from-[#121827] dark:via-[#151c2e] dark:to-[#181E2D] dark:shadow-[0_16px_44px_rgba(15,23,42,0.24)]">
+      <div className={`pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-r ${color} blur-2xl opacity-60 dark:opacity-100`} />
+      <h2 className="relative text-xl font-semibold text-slate-900 dark:text-white">{title}</h2>
+      <p className="relative mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{text}</p>
     </article>
   );
 }

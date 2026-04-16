@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { useAccount } from "wagmi";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
@@ -7,21 +7,26 @@ import XPProgressCard from "../components/XPProgressCard.jsx";
 
 import { UserIcon, AcademicCapIcon, StarIcon, ShieldCheckIcon } from "@heroicons/react/24/solid";
 import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
+import {
+    ArrowTopRightOnSquareIcon,
+    ClipboardDocumentIcon,
+    ShareIcon,
+    ChevronDownIcon,
+} from "@heroicons/react/24/outline";
 import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
 import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
 import { projects } from "../services/projectService.js";
 import {
-    createBackendError,
-    extractBackendMetadata,
-    extractBackendProfile,
-    getProgressFromXpTotal,
-    getXpTotalFromBackend,
-    isUserStateUnavailableError,
-} from "../utils/progression.js";
-import {
-    shortAddress
+    shortAddress,
+    AddressIdenticon,
 } from "../components/identity-ui.jsx";
+import { useIdentity } from "../context/IdentityContext.jsx";
+import { useResolvedIdentityContext } from "../context/ResolvedIdentityContext.jsx";
+import { exportIdentity } from "../utils/identityExport.js";
+import { clearIdentityState } from "../utils/aaIdentity.js";
+
+const EDU_NET_EXPLORER = "https://blockexplorer.dimikog.org";
 
 const parseCompletedAt = (value) => {
     if (!value) return 0;
@@ -129,23 +134,6 @@ const hasCompletedProject = (projectsCompleted, project) => {
     return candidateKeys.some(key => Boolean(projectsCompleted[key]));
 };
 
-const getPreferredRecommendation = (apiMetadata, apiProfile) => {
-    const metadataRecommendation =
-        apiMetadata && typeof apiMetadata.recommendedNext === "object"
-            ? apiMetadata.recommendedNext
-            : null;
-    const profileRecommendation =
-        apiProfile && typeof apiProfile.recommendedNext === "object"
-            ? apiProfile.recommendedNext
-            : null;
-    const isUsableRecommendation = recommendation =>
-        recommendation && (recommendation.title || recommendation.slug);
-
-    if (isUsableRecommendation(metadataRecommendation)) return metadataRecommendation;
-    if (isUsableRecommendation(profileRecommendation)) return profileRecommendation;
-    return null;
-};
-
 const isCompletedProjectRecommendation = (recommendation, projectsCompleted) => {
     if (!recommendation || recommendation.type !== "project") return false;
 
@@ -163,26 +151,88 @@ const isCompletedProjectRecommendation = (recommendation, projectsCompleted) => 
 };
 
 export default function Dashboard() {
-    const { address, isConnected } = useAccount();
+    const { address } = useAccount();
     const navigate = useNavigate();
+    const { smartAccount, tokenId: identityTokenId } = useIdentity();
+
+    const identityAddress = smartAccount ?? null;
+
+    const builderUnlockStorageKey = "web3edu-builder-unlock-shown";
+
     const [metadata, setMetadata] = useState(null);
     const [showTierPopup, setShowTierPopup] = useState(false);
     const [xpLeveledUp, setXpLeveledUp] = useState(false);
-    const prevXpRef = useRef(null);
     const [profile, setProfile] = useState(null);
     const [lastSyncTime, setLastSyncTime] = useState(null);
-
-    // Builder unlock promo state
-    const builderUnlockStorageKey = "web3edu-builder-unlock-shown";
+    const [showKeyTools, setShowKeyTools] = useState(false);
+    const [addressCopyFeedback, setAddressCopyFeedback] = useState("");
+    const [walletCardIdentityCopyTip, setWalletCardIdentityCopyTip] = useState("");
+    const [walletCardEoaCopyTip, setWalletCardEoaCopyTip] = useState("");
     const [showBuilderUnlock, setShowBuilderUnlock] = useState(false);
-    const [builderRewardClaimed, setBuilderRewardClaimed] = useState(
+    const [, setBuilderRewardClaimed] = useState(
         localStorage.getItem("web3edu-builder-claimed") === "true"
     );
     const [builderUnlockShown, setBuilderUnlockShown] = useState(
         localStorage.getItem(builderUnlockStorageKey) === "true"
     );
     const [builderJustClaimed, setBuilderJustClaimed] = useState(false);
+    const [showBuilderPath, setShowBuilderPath] = useState(false);
+
+    const prevXpRef = useRef(null);
     const prevTierRef = useRef(null);
+
+    const { metadata: resolvedMetadata, profile: resolvedProfile } =
+        useResolvedIdentityContext();
+
+    useEffect(() => {
+        if (!identityAddress) {
+            navigate("/join");
+            return;
+        }
+        window.scrollTo(0, 0);
+    }, [identityAddress, navigate]);
+
+    useEffect(() => {
+        if (resolvedMetadata) setMetadata(resolvedMetadata);
+        if (resolvedProfile) setProfile(resolvedProfile);
+        if (resolvedMetadata || resolvedProfile) {
+            setLastSyncTime(new Date());
+        }
+    }, [resolvedMetadata, resolvedProfile]);
+
+    useEffect(() => {
+        if (!metadata || typeof metadata.xp_total !== "number") return;
+
+        let timeoutId;
+        if (prevXpRef.current == null) {
+            prevXpRef.current = metadata.xp_total;
+        } else {
+            if (metadata.xp_total > prevXpRef.current) {
+                setXpLeveledUp(true);
+                timeoutId = setTimeout(() => setXpLeveledUp(false), 1200);
+            }
+            prevXpRef.current = metadata.xp_total;
+        }
+
+        return () => {
+            if (timeoutId) clearTimeout(timeoutId);
+        };
+    }, [metadata]);
+
+    useEffect(() => {
+        if (!metadata?.tier) return;
+
+        if (
+            (metadata.tier === "Builder" || metadata.tier === "Architect") &&
+            !builderUnlockShown
+        ) {
+            setShowBuilderUnlock(true);
+            setBuilderUnlockShown(true);
+            localStorage.setItem(builderUnlockStorageKey, "true");
+        }
+
+        prevTierRef.current = metadata.tier;
+    }, [metadata, builderUnlockShown]);
 
     const fallbackMetadata = {
         tier: "Explorer",
@@ -222,12 +272,14 @@ export default function Dashboard() {
         );
     })();
 
-    useEffect(() => {
-        if (!isConnected) navigate("/join");
-        window.scrollTo(0, 0);
-    }, [isConnected, navigate]);
+    const formattedAddress = shortAddress(identityAddress);
 
-    const formattedAddress = shortAddress(address);
+    const avatarSrc =
+        profile?.image &&
+        typeof profile.image === "string" &&
+        profile.image.startsWith("http")
+            ? profile.image
+            : null;
 
     const resolveTokenId = payload => {
         const candidates = [
@@ -253,188 +305,75 @@ export default function Dashboard() {
         return null;
     };
 
-    useEffect(() => {
+    const displayTokenId =
+        resolveTokenId(metadata) ?? identityTokenId ?? resolveTokenId(profile) ?? null;
+
+    const handleIdentityViewExplorer = useCallback(() => {
+        if (!identityAddress) return;
+        window.open(
+            `${EDU_NET_EXPLORER}/address/${encodeURIComponent(identityAddress)}`,
+            "_blank",
+            "noopener,noreferrer"
+        );
+    }, [identityAddress]);
+
+    const handleIdentityCopyAddress = useCallback(async () => {
+        if (!identityAddress) return;
+        try {
+            await navigator.clipboard.writeText(identityAddress);
+            setAddressCopyFeedback("Copied!");
+            window.setTimeout(() => setAddressCopyFeedback(""), 2000);
+        } catch {
+            alert("Could not copy address.");
+        }
+    }, [identityAddress]);
+
+    const handleWalletCardCopyIdentity = useCallback(async () => {
+        if (!identityAddress) return;
+        try {
+            await navigator.clipboard.writeText(identityAddress);
+            setWalletCardIdentityCopyTip("Copied!");
+            window.setTimeout(() => setWalletCardIdentityCopyTip(""), 2000);
+        } catch {
+            alert("Could not copy address.");
+        }
+    }, [identityAddress]);
+
+    const handleWalletCardCopyEoa = useCallback(async () => {
         if (!address) return;
-        const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
-        fetch(`${BACKEND}/web3sbt/resolve/${address}`)
-            .then(res => {
-                if (!res.ok) {
-                    return res.json().catch(() => ({})).then((payload) => {
-                        throw createBackendError(res.status, payload);
-                    });
-                }
-                return res.json();
-            })
-            .then(data => {
-                // Normalize metadata/profile and merge the richest info available
-                const apiMetadata = extractBackendMetadata(data);
-                const apiProfile = extractBackendProfile(data);
-                const preferredRecommendation = getPreferredRecommendation(
-                    apiMetadata,
-                    apiProfile
-                );
+        try {
+            await navigator.clipboard.writeText(address);
+            setWalletCardEoaCopyTip("Copied!");
+            window.setTimeout(() => setWalletCardEoaCopyTip(""), 2000);
+        } catch {
+            alert("Could not copy address.");
+        }
+    }, [address]);
 
-                const xpTotal = getXpTotalFromBackend(data);
-                const derivedProgress = getProgressFromXpTotal(xpTotal);
-                const combinedMetadata = {
-                    ...apiMetadata,
-                    ...apiProfile,
-                };
-
-                setMetadata({
-                    ...combinedMetadata,
-                    tokenId: resolveTokenId(data),
-                    xp_total: xpTotal,
-                    xp: xpTotal,
-                    tier: derivedProgress.tier,
-                    xpPercent: derivedProgress.xpPercent,
-                    nextTierPercent: derivedProgress.nextTierPercent,
-                    remainingXp: derivedProgress.remainingXp,
-                    recommendedNext: preferredRecommendation,
+    const handleIdentityShare = useCallback(async () => {
+        if (!identityAddress) return;
+        const shareUrl = `${window.location.origin}${window.location.pathname}#/verify/${identityAddress}`;
+        try {
+            if (typeof navigator.share === "function") {
+                await navigator.share({
+                    title: "Web3Edu Identity",
+                    text: "View this Web3Edu identity profile",
+                    url: shareUrl,
                 });
-
-                const parseMaybeJson = value => {
-                    if (typeof value === "string") {
-                        try {
-                            return JSON.parse(value);
-                        } catch {
-                            return null;
-                        }
-                    }
-                    return value;
-                };
-
-                const normalizeAttributes = source => {
-                    const candidates = [
-                        source?.attributes,
-                        source?.attribute,
-                        source?.attrs,
-                        source?.traits,
-                        source?.traits_array,
-                        source?.traitsArray,
-                        source?.attributes_json,
-                        source?.attributesJson
-                    ];
-                    for (const cand of candidates) {
-                        const parsed = parseMaybeJson(cand);
-                        if (Array.isArray(parsed)) return parsed;
-                        if (parsed && typeof parsed === "object") {
-                            return Object.entries(parsed).map(([key, value]) => ({
-                                trait_type: key,
-                                value
-                            }));
-                        }
-                    }
-                    return [];
-                };
-
-                const metadataAttributes = normalizeAttributes(apiMetadata);
-                const profileAttributes = normalizeAttributes(apiProfile);
-                const mergedAttributes = [...metadataAttributes, ...profileAttributes];
-
-                // Add derived attributes for role/specialization if missing
-                const roleValue = apiProfile.role || apiMetadata.role;
-                const specializationValue =
-                    apiProfile.specialization ||
-                    apiProfile.speciality ||
-                    apiMetadata.specialization ||
-                    apiMetadata.speciality;
-
-                const hasRoleAttr = mergedAttributes.some(
-                    a => (a.trait_type || "").toLowerCase() === "role"
-                );
-                const hasSpecAttr = mergedAttributes.some(a =>
-                    ["specialization", "speciality"].includes(
-                        (a.trait_type || "").toLowerCase()
-                    )
-                );
-
-                if (!hasRoleAttr && roleValue) {
-                    mergedAttributes.push({ trait_type: "Role", value: roleValue });
-                }
-                if (!hasSpecAttr && specializationValue) {
-                    mergedAttributes.push({
-                        trait_type: "Specialization",
-                        value: specializationValue
-                    });
-                }
-
-                // Determine final profile image with a clear precedence:
-                // 1) profile.image
-                // 2) profile.avatar
-                // 3) metadata.image
-                // 4) metadata.avatar
-                const finalImage =
-                    apiProfile.image && apiProfile.image.trim() !== ""
-                        ? apiProfile.image
-                        : apiProfile.avatar && apiProfile.avatar.trim() !== ""
-                            ? apiProfile.avatar
-                            : apiMetadata.image && apiMetadata.image.trim() !== ""
-                                ? apiMetadata.image
-                                : apiMetadata.avatar && apiMetadata.avatar.trim() !== ""
-                                    ? apiMetadata.avatar
-                                    : null;
-
-                const mergedProfile = {
-                    ...combinedMetadata,
-                    xp_total: xpTotal,
-                    xp: xpTotal,
-                    tier: derivedProgress.tier,
-                    name:
-                        apiProfile.name ||
-                        apiMetadata.name ||
-                        formattedAddress ||
-                        "Web3Edu Identity",
-                    image: finalImage,
-                    attributes: mergedAttributes
-                };
-
-                setProfile(mergedProfile);
-                setLastSyncTime(new Date());
-            })
-            .catch(err => {
-                if (isUserStateUnavailableError(err)) {
-                    console.warn("Backend user state temporarily unavailable; preserving dashboard state.");
-                    return;
-                }
-                console.error("Failed to fetch metadata:", err);
-            });
-    }, [address, formattedAddress]);
-
-    useEffect(() => {
-        if (!metadata || typeof metadata.xp_total !== "number") return;
-
-        let timeoutId;
-        if (prevXpRef.current == null) {
-            prevXpRef.current = metadata.xp_total;
-        } else {
-            if (metadata.xp_total > prevXpRef.current) {
-                setXpLeveledUp(true);
-                timeoutId = setTimeout(() => setXpLeveledUp(false), 1200);
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                alert("Verify page link copied to clipboard.");
             }
-            prevXpRef.current = metadata.xp_total;
+        } catch (e) {
+            if (e?.name === "AbortError") return;
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                alert("Verify page link copied to clipboard.");
+            } catch {
+                alert("Could not share or copy link.");
+            }
         }
-
-        return () => {
-            if (timeoutId) clearTimeout(timeoutId);
-        };
-    }, [metadata]);
-
-    // Builder unlock promo effect
-    useEffect(() => {
-        if (!metadata?.tier) return;
-
-        if (
-            (metadata.tier === "Builder" || metadata.tier === "Architect") &&
-            !builderUnlockShown
-        ) {
-            setShowBuilderUnlock(true);
-            setBuilderUnlockShown(true);
-            localStorage.setItem(builderUnlockStorageKey, "true");
-        }
-
-        prevTierRef.current = metadata.tier;
-    }, [metadata?.tier, builderUnlockShown]);
+    }, [identityAddress]);
 
     const projectsCompleted =
         metadata?.projectsCompleted && typeof metadata.projectsCompleted === "object"
@@ -520,7 +459,9 @@ export default function Dashboard() {
         const completedLabs =
             metadata?.labs_completed && typeof metadata.labs_completed === "object"
                 ? metadata.labs_completed
-                : {};
+                : metadata?.labs && typeof metadata.labs === "object"
+                    ? metadata.labs
+                    : {};
         Object.entries(completedLabs).forEach(([labId, entry]) => {
             merged.set(`lab:${labId}`, {
                 type: "lab",
@@ -566,9 +507,6 @@ export default function Dashboard() {
             (a, b) => parseCompletedAt(b?.completedAt) - parseCompletedAt(a?.completedAt)
         );
     })();
-    const [showBuilderPath, setShowBuilderPath] = useState(
-        metadata?.tier && metadata.tier !== "Explorer"
-    );
     const eventBadges = Array.isArray(metadata?.eventBadges) ? metadata.eventBadges : [];
     const hasGenesisBadge = eventBadges.some(b => {
         if (typeof b === "string") {
@@ -635,15 +573,30 @@ export default function Dashboard() {
                     >
                         {/* Mini Avatar + Shine */}
                         <div className="flex justify-center mb-3">
-                            <div className="relative">
-                                <img src={profile.image || "/icons/web3edu-identity.png"}
-                                    alt="avatar"
-                                    className="
+                            <div className="relative w-14 h-14">
+                                {avatarSrc ? (
+                                    <img
+                                        src={avatarSrc}
+                                        alt="avatar"
+                                        className="
                         w-14 h-14 rounded-full object-cover shadow-md 
                         border border-white/20 dark:border-white/10 
                         transition-all duration-700
                         dark:animate-[shine_3.4s_ease-in-out_infinite]
-                    " loading="lazy" />
+                    "
+                                        loading="lazy"
+                                    />
+                                ) : (
+                                    <div
+                                        className="
+                        flex h-14 w-14 items-center justify-center rounded-full
+                        border border-white/20 dark:border-white/10 shadow-md
+                        bg-white/80 dark:bg-slate-900/80
+                    "
+                                    >
+                                        <AddressIdenticon address={identityAddress} />
+                                    </div>
+                                )}
 
                                 {/* Subtle highlight ring */}
                                 <div
@@ -776,11 +729,137 @@ export default function Dashboard() {
                     <div className="flex flex-col items-center justify-start mt-10 lg:mt-0 relative self-center">
                         <div className="absolute -z-10 top-1/2 -translate-y-1/2 w-[420px] h-[420px] bg-purple-500/25 dark:bg-purple-500/20 blur-[200px] rounded-full"></div>
                         {profile && (
-                            <IdentityCard
-                                metadata={profile}
-                                wallet={address}
-                                tokenId={displayedMetadata.tokenId}
-                            />
+                            <>
+                                <IdentityCard
+                                    metadata={profile}
+                                    wallet={identityAddress}
+                                    tokenId={displayTokenId}
+                                />
+
+                                <div
+                                    className="
+                                        mt-5 w-full max-w-sm rounded-2xl border border-slate-200/80 dark:border-slate-700/50
+                                        bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm shadow-sm
+                                        p-4 flex flex-col gap-3
+                                    "
+                                >
+                                    <p className="text-center text-[10px] uppercase tracking-[0.12em] text-slate-400 dark:text-slate-500 font-semibold">
+                                        On-chain identity
+                                    </p>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        <button
+                                            type="button"
+                                            title="Open your address in the Edu-Net block explorer"
+                                            onClick={handleIdentityViewExplorer}
+                                            disabled={!identityAddress}
+                                            className="
+                                                group flex flex-col items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 dark:border-slate-600/50
+                                                bg-slate-50/90 dark:bg-slate-800/60 py-3 px-1.5 min-h-[4.25rem]
+                                                text-[11px] font-medium text-slate-600 dark:text-slate-300
+                                                hover:border-violet-300/80 dark:hover:border-violet-500/35
+                                                hover:bg-violet-50/70 dark:hover:bg-violet-950/25 hover:text-violet-700 dark:hover:text-violet-200
+                                                transition-all duration-200 disabled:opacity-35 disabled:pointer-events-none
+                                            "
+                                        >
+                                            <ArrowTopRightOnSquareIcon className="w-5 h-5 text-violet-500 dark:text-violet-400 group-hover:scale-105 transition-transform" />
+                                            <span className="leading-tight text-center">Explorer</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            title="Copy smart account address"
+                                            onClick={handleIdentityCopyAddress}
+                                            disabled={!identityAddress}
+                                            className="
+                                                group flex flex-col items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 dark:border-slate-600/50
+                                                bg-slate-50/90 dark:bg-slate-800/60 py-3 px-1.5 min-h-[4.25rem]
+                                                text-[11px] font-medium text-slate-600 dark:text-slate-300
+                                                hover:border-violet-300/80 dark:hover:border-violet-500/35
+                                                hover:bg-violet-50/70 dark:hover:bg-violet-950/25 hover:text-violet-700 dark:hover:text-violet-200
+                                                transition-all duration-200 disabled:opacity-35 disabled:pointer-events-none
+                                            "
+                                        >
+                                            <ClipboardDocumentIcon className="w-5 h-5 text-violet-500 dark:text-violet-400 group-hover:scale-105 transition-transform" />
+                                            <span className="leading-tight text-center">Copy</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            title="Share a link to your public verify page"
+                                            onClick={handleIdentityShare}
+                                            disabled={!identityAddress}
+                                            className="
+                                                group flex flex-col items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 dark:border-slate-600/50
+                                                bg-slate-50/90 dark:bg-slate-800/60 py-3 px-1.5 min-h-[4.25rem]
+                                                text-[11px] font-medium text-slate-600 dark:text-slate-300
+                                                hover:border-violet-300/80 dark:hover:border-violet-500/35
+                                                hover:bg-violet-50/70 dark:hover:bg-violet-950/25 hover:text-violet-700 dark:hover:text-violet-200
+                                                transition-all duration-200 disabled:opacity-35 disabled:pointer-events-none
+                                            "
+                                        >
+                                            <ShareIcon className="w-5 h-5 text-violet-500 dark:text-violet-400 group-hover:scale-105 transition-transform" />
+                                            <span className="leading-tight text-center">Share</span>
+                                        </button>
+                                    </div>
+                                    {addressCopyFeedback ? (
+                                        <p className="text-center text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                                            {addressCopyFeedback}
+                                        </p>
+                                    ) : null}
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowKeyTools((prev) => !prev)}
+                                        aria-expanded={showKeyTools}
+                                        className="
+                                            flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-[11px] font-medium
+                                            text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-300
+                                            hover:bg-slate-100/80 dark:hover:bg-slate-800/50 transition-colors
+                                        "
+                                    >
+                                        Identity Tools
+                                        <ChevronDownIcon
+                                            className={`w-3.5 h-3.5 text-slate-400 transition-transform ${showKeyTools ? "rotate-180" : ""}`}
+                                        />
+                                    </button>
+
+                                    {showKeyTools ? (
+                                        <div className="flex flex-col gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-700/50">
+                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center leading-snug">
+                                                Advanced options — handle with care.
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const key = exportIdentity();
+                                                    if (!key) {
+                                                        alert("No identity found");
+                                                        return;
+                                                    }
+                                                    navigator.clipboard.writeText(key);
+                                                    alert("Private key copied ⚠️ Store it safely!");
+                                                }}
+                                                className="py-2.5 px-3 text-xs font-medium rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                            >
+                                                Export private key
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    clearIdentityState();
+                                                    localStorage.removeItem(
+                                                        "web3edu-aa-owner-private-key"
+                                                    );
+                                                    localStorage.removeItem("web3edu-aa-identity");
+                                                    window.location.href = "/#/join";
+                                                }}
+                                                className="py-2.5 px-3 text-xs font-medium rounded-xl border border-amber-200/80 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 hover:bg-amber-100/90 dark:hover:bg-amber-950/50 transition-colors"
+                                            >
+                                                Reset identity (dev)
+                                            </button>
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </>
                         )}
                     </div>
 
@@ -821,9 +900,57 @@ export default function Dashboard() {
                             "
                             icon={<KeyIcon className="w-5 h-5 text-white" />}
                         >
-                            <p className="text-sm font-mono text-slate-700 dark:text-slate-300 break-all">
-                                {address ?? "—"}
-                            </p>
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-start gap-2">
+                                    <p className="min-w-0 flex-1 text-sm font-mono leading-snug text-slate-700 dark:text-slate-300 break-all">
+                                        {identityAddress || "—"}
+                                    </p>
+                                    {identityAddress ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => void handleWalletCardCopyIdentity()}
+                                            title="Copy smart account address"
+                                            className="mt-0.5 shrink-0 rounded-lg border border-cyan-200/60 bg-cyan-50/80 p-1.5 text-cyan-800 transition hover:bg-cyan-100/90 dark:border-cyan-700/50 dark:bg-cyan-950/40 dark:text-cyan-200 dark:hover:bg-cyan-900/50"
+                                        >
+                                            <ClipboardDocumentIcon className="h-5 w-5" aria-hidden />
+                                            <span className="sr-only">Copy smart account address</span>
+                                        </button>
+                                    ) : null}
+                                </div>
+                                {walletCardIdentityCopyTip ? (
+                                    <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                                        {walletCardIdentityCopyTip}
+                                    </p>
+                                ) : null}
+                                {address &&
+                                identityAddress &&
+                                address.toLowerCase() !== identityAddress.toLowerCase() ? (
+                                    <div className="mt-1 border-t border-slate-200/70 pt-3 dark:border-slate-600/50">
+                                        <p className="mb-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
+                                            Connected wallet (EOA)
+                                        </p>
+                                        <div className="flex items-start gap-2">
+                                            <p className="min-w-0 flex-1 text-xs font-mono leading-snug text-slate-600 dark:text-slate-300 break-all">
+                                                {address}
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={() => void handleWalletCardCopyEoa()}
+                                                title="Copy connected wallet address"
+                                                className="mt-0.5 shrink-0 rounded-lg border border-slate-200/80 bg-slate-50/90 p-1.5 text-slate-700 transition hover:bg-slate-100 dark:border-slate-600/50 dark:bg-slate-800/60 dark:text-slate-200 dark:hover:bg-slate-800"
+                                            >
+                                                <ClipboardDocumentIcon className="h-4 w-4" aria-hidden />
+                                                <span className="sr-only">Copy connected wallet address</span>
+                                            </button>
+                                        </div>
+                                        {walletCardEoaCopyTip ? (
+                                            <p className="mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                                                {walletCardEoaCopyTip}
+                                            </p>
+                                        ) : null}
+                                    </div>
+                                ) : null}
+                            </div>
                         </DashboardCard>
 
                         {/* Animated Rank Panel */}

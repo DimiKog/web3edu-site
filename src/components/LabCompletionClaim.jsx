@@ -1,6 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 import FeedbackModal from "./FeedbackModal";
+import { useIdentity } from "../context/IdentityContext.jsx";
+import {
+    buildLabsStatusUrl,
+    resolveReadOwnerQueryParam,
+    getWeb3eduBackendUrl,
+} from "../lib/web3eduBackend.js";
+import { getLabsStatusReadIdentity, postLabsStart } from "../utils/labWriteApi.js";
+import { getOwnerWallet } from "../utils/aaIdentity.js";
 
 const COPY = {
     en: {
@@ -37,9 +45,18 @@ export default function LabCompletionClaim({
     claimingButtonLabel = null,
 }) {
     const labels = COPY[language] || COPY.en;
-    const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+    const BACKEND = getWeb3eduBackendUrl();
 
     const { address, isConnected } = useAccount();
+    const { smartAccount } = useIdentity();
+    const { identityAddress } = useMemo(
+        () => getLabsStatusReadIdentity({ smartAccount }),
+        [smartAccount]
+    );
+    const statusOwner = useMemo(
+        () => resolveReadOwnerQueryParam(smartAccount, address, null),
+        [smartAccount, address]
+    );
     const { signMessageAsync } = useSignMessage();
 
     const [claiming, setClaiming] = useState(false);
@@ -51,14 +68,18 @@ export default function LabCompletionClaim({
     const [showFeedback, setShowFeedback] = useState(false);
 
     useEffect(() => {
-        if (!isConnected || !address || !labId) {
+        if (!identityAddress || !labId) {
             setCheckingStatus(false);
             return;
         }
 
         const checkCompletion = async () => {
             try {
-                const res = await fetch(`${BACKEND}/labs/status?address=${address}&labId=${labId}`);
+                // eslint-disable-next-line no-console -- AA / backend integration debug
+                console.log("API CALL", { identityAddress, statusOwner });
+                const res = await fetch(
+                    buildLabsStatusUrl(identityAddress, labId, statusOwner)
+                );
                 if (!res.ok) return;
 
                 const data = await res.json();
@@ -67,6 +88,7 @@ export default function LabCompletionClaim({
                     setCompletedAt(data.completedAt || null);
                 }
             } catch (err) {
+                // eslint-disable-next-line no-console -- non-fatal status restore
                 console.warn("Failed to restore lab completion state", err);
             } finally {
                 setCheckingStatus(false);
@@ -74,7 +96,7 @@ export default function LabCompletionClaim({
         };
 
         checkCompletion();
-    }, [BACKEND, isConnected, address, labId]);
+    }, [identityAddress, statusOwner, labId]);
 
     useEffect(() => {
         if (!showCelebration) return undefined;
@@ -147,19 +169,20 @@ export default function LabCompletionClaim({
     }, [showCelebration]);
 
     useEffect(() => {
-        if (checkingStatus || !claimed || !labId || !address) return;
+        if (checkingStatus || !claimed || !labId) return;
+        if (!address && !statusOwner) return;
 
         const submitted = localStorage.getItem(`feedback_${labId}`) === "true";
         const prompted = localStorage.getItem(`feedback_prompted_${labId}`) === "true";
         if (submitted || prompted) return;
 
         setShowFeedback(true);
-    }, [checkingStatus, claimed, labId, address]);
+    }, [checkingStatus, claimed, labId, address, statusOwner]);
 
     const handleClaimCompletion = async () => {
         if (claimed) return;
 
-        if (!isConnected || !address) {
+        if (!smartAccount) {
             setError(labels.walletNotConnectedError);
             return;
         }
@@ -173,9 +196,28 @@ export default function LabCompletionClaim({
         setError(null);
 
         try {
+            const startRes = await postLabsStart({
+                apiBase: BACKEND,
+                smartAccount,
+                address,
+                labId,
+            });
+            if (!startRes.ok) {
+                throw new Error("Could not register lab start");
+            }
+
             const timestamp = new Date().toISOString();
-            const message = `I confirm completion of Web3Edu Lab\nLab ID: ${labId}\nAddress: ${address}\nTimestamp: ${timestamp}`;
-            const signature = await signMessageAsync({ message });
+            const useEoaSigner = isConnected && !!address;
+            const messageSigner = useEoaSigner ? address : getOwnerWallet().address;
+            const message = `I confirm completion of Web3Edu Lab\nLab ID: ${labId}\nAddress: ${messageSigner}\nTimestamp: ${timestamp}`;
+
+            let signature;
+            if (isConnected && address) {
+                signature = await signMessageAsync({ message });
+            } else {
+                const wallet = getOwnerWallet();
+                signature = await wallet.signMessage(message);
+            }
 
             const res = await fetch(`${BACKEND}/labs/complete`, {
                 method: "POST",
@@ -184,14 +226,30 @@ export default function LabCompletionClaim({
                     "X-API-KEY": import.meta.env.VITE_XP_SECRET,
                 },
                 body: JSON.stringify({
-                    address,
+                    wallet: smartAccount,
+                    owner: address ?? null,
                     labId,
                     message,
                     signature,
                 }),
             });
 
-            if (!res.ok) throw new Error("Backend rejected completion");
+            const completePayload = await res.json().catch(() => ({}));
+            if (
+                completePayload?.identityKey != null &&
+                completePayload?.identityKey !== undefined
+            ) {
+                // eslint-disable-next-line no-console -- backend integration diagnostic
+                console.log("LAB IDENTITY KEY", completePayload.identityKey);
+            }
+
+            if (!res.ok) {
+                // eslint-disable-next-line no-console -- lab complete error visibility
+                console.error("LAB COMPLETE ERROR RESPONSE", completePayload);
+                throw new Error(
+                    completePayload?.error || "Backend rejected completion"
+                );
+            }
 
             setClaimed(true);
             setCompletedAt(new Date().toISOString());
@@ -199,7 +257,7 @@ export default function LabCompletionClaim({
             setShowFeedback(true);
         } catch (err) {
             console.error(err);
-            setError(labels.backendError);
+            setError(err?.message || labels.backendError);
         } finally {
             setClaiming(false);
         }
@@ -216,8 +274,8 @@ export default function LabCompletionClaim({
                     onClick={handleClaimCompletion}
                     disabled={claiming}
                     className={`px-5 py-2 rounded-md font-semibold text-white transition ${claiming
-                            ? "bg-slate-400 cursor-not-allowed"
-                            : "bg-green-600 hover:bg-green-700"
+                        ? "bg-slate-400 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700"
                         }`}
                 >
                     {claiming
@@ -261,6 +319,7 @@ export default function LabCompletionClaim({
                 labId={labId}
                 labTitle={labTitle}
                 language={language}
+                submitterAddressOverride={address ?? statusOwner}
                 onSubmit={async (feedback) => {
                     const res = await fetch(`${BACKEND}/feedback`, {
                         method: "POST",

@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAccount } from "wagmi";
+import { useIdentity } from "../context/IdentityContext.jsx";
 import PageShell from "../components/PageShell.jsx";
 import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.webp";
+import {
+    buildLabsStatusUrl,
+    resolveReadOwnerQueryParam,
+    getWeb3eduBackendUrl,
+} from "../lib/web3eduBackend.js";
 
-const BACKEND =
-    import.meta.env.VITE_BACKEND_URL ?? "https://web3edu-api.dimikog.org";
+const BACKEND = getWeb3eduBackendUrl();
 
 const CATEGORY_LABELS = {
     foundational: "Θεμελιώδη Labs",
@@ -22,6 +27,7 @@ const LAB_ROUTES_GR = {
     lab04: "/labs-gr/lab04",
     lab05: "/labs-gr/lab05",
     lab06: "/labs-gr/lab06",
+    coding01: "/labs-gr/coding-01",
     dao01: "/labs-gr/dao-01",
     dao02: "/labs-gr/dao-02",
     "system-s0": "/labs-gr/system/s0",
@@ -101,8 +107,22 @@ const PROJECT_COPY_GR = {
     },
 };
 
+const CODING_LABS_GR = [
+    {
+        id: "coding01",
+        title: "Coding Lab 01 — ✍️ Γράψε και Κάνε Deploy το Πρώτο σου Smart Contract",
+        hint: "Η κατασκευή ξεκινά με το deployment — γράψε ένα ελάχιστο contract, κάνε compile και ανέβασε το δικό σου on-chain instance.",
+        description:
+            "Δημιούργησε το πρώτο σου Solidity contract, κάνε compile στο Remix, κάνε deploy στο Besu Edu-Net και επιβεβαίωσε ότι το δικό σου contract instance είναι live on-chain. Αυτό το lab εισάγει όλη τη διαδρομή από τον πηγαίο κώδικα μέχρι το ανεπτυγμένο smart contract.",
+        level: "Αρχάριο",
+        xp: 400,
+        badge: "Smart Contract Deployer",
+    },
+];
+
 const CARD_ACCENT = {
     foundational: "bg-blue-500/10 border-blue-400/20 dark:bg-blue-500/20 dark:border-blue-400/30",
+    coding:       "bg-fuchsia-500/10 border-fuchsia-400/20 dark:bg-fuchsia-500/20 dark:border-fuchsia-400/30",
     system:       "bg-indigo-500/10 border-indigo-400/20 dark:bg-indigo-500/20 dark:border-indigo-400/30",
     dao:          "bg-green-500/10 border-green-400/20 dark:bg-green-500/20 dark:border-green-400/30",
     project:      "bg-orange-500/10 border-orange-400/20 dark:bg-orange-500/20 dark:border-orange-400/30",
@@ -110,6 +130,7 @@ const CARD_ACCENT = {
 
 const CATEGORY_BADGE = {
     foundational: "bg-blue-500/10 text-blue-700 dark:text-blue-300 dark:bg-blue-500/20",
+    coding:       "bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-300 dark:bg-fuchsia-500/20",
     system:       "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 dark:bg-indigo-500/20",
     dao:          "bg-green-500/10 text-green-700 dark:text-green-300 dark:bg-green-500/20",
     project:      "bg-orange-500/10 text-orange-700 dark:text-orange-300 dark:bg-orange-500/20",
@@ -117,6 +138,7 @@ const CATEGORY_BADGE = {
 
 const CATEGORY_BADGE_LABEL = {
     foundational: "Θεμελιώδες",
+    coding:       "Προγραμματισμός",
     system:       "Σύστημα",
     dao:          "DAO",
     project:      "Εφαρμοσμένο",
@@ -219,18 +241,19 @@ const sortLabs = (labs) =>
         return String(a.id).localeCompare(String(b.id));
     });
 
-const statusTone = (completed) =>
-    completed
-        ? "bg-green-500/15 text-green-700 dark:text-green-300 border-green-500/30"
-        : "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30";
-
 export default function LabsGR() {
+    const { smartAccount } = useIdentity();
     const { address } = useAccount();
+    const identityAddress = smartAccount ?? null;
+    const resolveOwner = useMemo(
+        () => resolveReadOwnerQueryParam(smartAccount, address, null),
+        [smartAccount, address]
+    );
     const [labsRegistry, setLabsRegistry] = useState([]);
     const [completionMap, setCompletionMap] = useState({});
     const [poeCompleted, setPoeCompleted] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [statusLoading, setStatusLoading] = useState(false);
+    const [, setStatusLoading] = useState(false);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -269,20 +292,20 @@ export default function LabsGR() {
             return;
         }
 
-        if (!address) {
-            setCompletionMap(
-                Object.fromEntries(labsRegistry.map((lab) => [lab.id, false]))
-            );
+        if (!identityAddress) {
             return;
         }
 
         const controller = new AbortController();
         setStatusLoading(true);
 
+        // eslint-disable-next-line no-console -- AA / backend integration debug
+        console.log("API CALL", { identityAddress, resolveOwner });
+
         Promise.all(
             labsRegistry.map(async (lab) => {
                 const res = await fetch(
-                    `${BACKEND}/labs/status?address=${address}&labId=${lab.id}`,
+                    buildLabsStatusUrl(identityAddress, lab.id, resolveOwner),
                     { signal: controller.signal }
                 );
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -305,17 +328,21 @@ export default function LabsGR() {
             });
 
         return () => controller.abort();
-    }, [address, labsRegistry]);
+    }, [identityAddress, resolveOwner, labsRegistry]);
 
     useEffect(() => {
-        if (!address) {
-            setPoeCompleted(false);
+        if (!identityAddress) {
             return;
         }
 
         const controller = new AbortController();
 
-        fetch(`${BACKEND}/projects/poe/status?address=${address}`, {
+        const poeParams = new URLSearchParams({ address: identityAddress });
+        if (resolveOwner) {
+            poeParams.set("owner", resolveOwner);
+        }
+
+        fetch(`${BACKEND}/projects/poe/status?${poeParams.toString()}`, {
             signal: controller.signal,
         })
             .then((res) => {
@@ -332,7 +359,7 @@ export default function LabsGR() {
             });
 
         return () => controller.abort();
-    }, [address]);
+    }, [identityAddress, resolveOwner]);
 
     const groupedLabs = useMemo(() => {
         const groups = new Map();
@@ -362,7 +389,7 @@ export default function LabsGR() {
             xp: typeof backendLab?.xp === "number" ? backendLab.xp : fallbackLab.xp,
             link: LAB_ROUTES_GR[fallbackLab.id] || fallbackLab.link,
             cta: fallbackLab.cta,
-            status: Boolean(completionMap[fallbackLab.id]) ? "Ολοκληρώθηκε" : "Διαθέσιμο",
+            status: completionMap[fallbackLab.id] ? "Ολοκληρώθηκε" : "Διαθέσιμο",
             completed: Boolean(completionMap[fallbackLab.id]),
             badge:
                 backendLab?.badge?.label?.gr ||
@@ -491,8 +518,8 @@ export default function LabsGR() {
                                             const link = LAB_ROUTES_GR[lab.id] || `/labs-gr/${lab.slug || lab.id}`;
                                             const showNext =
                                                 lab.id === "lab02" &&
-                                                Boolean(completionMap.lab01) &&
-                                                !Boolean(completionMap.lab02);
+                                                !!completionMap.lab01 &&
+                                                !completionMap.lab02;
 
                                             return (
                                                 <Link
@@ -568,6 +595,134 @@ export default function LabsGR() {
                             </section>
                         ) : null}
 
+                        <section>
+                            <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-semibold">Εργαστήρια Προγραμματισμού</h2>
+                                <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
+                                    Πρακτικά labs εστιασμένα στη συγγραφή, ανάπτυξη και αλληλεπίδραση με smart contracts και Web3 κώδικα. Αυτά τα labs μετακινούν τη μάθηση από την παρατήρηση στην κατασκευή.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                {CODING_LABS_GR.map((lab) => (
+                                    <div
+                                        key={lab.id}
+                                        className={`rounded-2xl border ${CARD_ACCENT.coding} p-6 shadow-sm`}
+                                    >
+                                        <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.coding}`}>
+                                            {CATEGORY_BADGE_LABEL.coding}
+                                        </span>
+                                        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                                                    {lab.id}
+                                                </p>
+                                                <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
+                                                    {lab.title}
+                                                </h3>
+                                            </div>
+                                            <span className="inline-flex shrink-0 self-start rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-900 dark:border-amber-500/35 dark:bg-amber-500/10 dark:text-amber-200">
+                                                Σύντομα
+                                            </span>
+                                        </div>
+
+                                        <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
+                                            Παιδαγωγική ιδέα: <span className="not-italic">{lab.hint}</span>
+                                        </p>
+
+                                        <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
+                                            {lab.description}
+                                        </p>
+
+                                        {lab.badge ? (
+                                            <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                                                Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
+                                            </p>
+                                        ) : null}
+
+                                        <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+                                            <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
+                                                {lab.level}
+                                            </span>
+                                            <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/35 px-3 py-1 text-sm text-indigo-700 dark:text-indigo-300">
+                                                +{lab.xp} XP
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section>
+                            <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
+                            <div className="mb-6">
+                                <h2 className="text-2xl font-semibold">Εργαστήρια Συστήματος</h2>
+                                <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
+                                    Εξερεύνησε τους μηχανισμούς του blockchain ως σύστημα, ξεκινώντας από το γιατί χρειάζεται συναίνεση και συνεχίζοντας με το πώς hashes, links, mining και εκτέλεση ασφαλίζουν το ιστορικό της αλυσίδας.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                {displayedSystemLabs.map((lab) => (
+                                    <Link
+                                        key={lab.id}
+                                        to={lab.link}
+                                        className={`group flex h-full flex-col rounded-2xl border ${CARD_ACCENT.system} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
+                                    >
+                                        <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.system}`}>
+                                            {CATEGORY_BADGE_LABEL.system}
+                                        </span>
+                                        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                                                    {lab.id}
+                                                </p>
+                                                <h3 className="mt-1 text-lg font-semibold leading-snug text-slate-900 dark:text-white">
+                                                    {lab.title}
+                                                </h3>
+                                            </div>
+                                            {lab.completed ? (
+                                                <span className="inline-flex max-w-[132px] shrink-0 self-start items-center justify-center rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold leading-tight text-center text-white shadow">
+                                                    ✓ Ολοκληρώθηκε
+                                                </span>
+                                            ) : null}
+                                        </div>
+
+                                        {lab.hint ? (
+                                            <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
+                                                Παιδαγωγική ιδέα: <span className="not-italic">{lab.hint}</span>
+                                            </p>
+                                        ) : null}
+
+                                        <p className="min-h-[72px] text-sm text-slate-600 dark:text-slate-300">
+                                            {lab.description}
+                                        </p>
+
+                                        {lab.badge ? (
+                                            <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                                                Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
+                                            </p>
+                                        ) : null}
+
+                                        <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-5">
+                                            <span className="rounded-lg bg-slate-200/80 px-3 py-1 text-sm text-slate-700 capitalize dark:bg-slate-800 dark:text-slate-200">
+                                                {lab.level}
+                                            </span>
+                                            <div className="flex flex-wrap items-center gap-4 sm:justify-end">
+                                                <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm text-indigo-700 dark:bg-indigo-900/35 dark:text-indigo-300">
+                                                    +{lab.xp} XP
+                                                </span>
+                                                <span className="text-sm font-semibold text-indigo-600 transition-transform group-hover:translate-x-1 dark:text-indigo-300">
+                                                    {lab.cta}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </section>
+
                         {daoLabs.length > 0 ? (
                             <section>
                                 <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
@@ -583,8 +738,8 @@ export default function LabsGR() {
                                         const completed = Boolean(completionMap[lab.id]);
                                         const showNext =
                                             lab.id === "dao02" &&
-                                            Boolean(completionMap.dao01) &&
-                                            !Boolean(completionMap.dao02);
+                                            !!completionMap.dao01 &&
+                                            !completionMap.dao02;
                                         const copy = DAO_COPY_GR[lab.id] || {};
                                         const title = copy.title || lab.title?.gr || lab.title?.en || lab.id;
                                         const hint = copy.hint || null;
@@ -654,75 +809,6 @@ export default function LabsGR() {
                                 </div>
                             </section>
                         ) : null}
-
-                        <section>
-                            <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
-                            <div className="mb-6">
-                                <h2 className="text-2xl font-semibold">Εργαστήρια Συστήματος</h2>
-                                <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
-                                    Εξερεύνησε τους μηχανισμούς του blockchain ως σύστημα, ξεκινώντας από το γιατί χρειάζεται συναίνεση και συνεχίζοντας με το πώς hashes, links, mining και εκτέλεση ασφαλίζουν το ιστορικό της αλυσίδας.
-                                </p>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                {displayedSystemLabs.map((lab) => (
-                                    <Link
-                                        key={lab.id}
-                                        to={lab.link}
-                                        className={`group rounded-2xl border ${CARD_ACCENT.system} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
-                                    >
-                                        <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.system}`}>
-                                            {CATEGORY_BADGE_LABEL.system}
-                                        </span>
-                                        <div className="mb-4 flex items-start justify-between gap-3">
-                                            <div>
-                                                <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                                                    {lab.id}
-                                                </p>
-                                                <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
-                                                    {lab.title}
-                                                </h3>
-                                            </div>
-                                            {lab.completed ? (
-                                                <span className="inline-flex max-w-[132px] shrink-0 items-center justify-center rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold leading-tight text-center text-white shadow">
-                                                    ✓ Ολοκληρώθηκε
-                                                </span>
-                                            ) : null}
-                                        </div>
-
-                                        {lab.hint ? (
-                                            <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
-                                                Παιδαγωγική ιδέα: <span className="not-italic">{lab.hint}</span>
-                                            </p>
-                                        ) : null}
-
-                                        <p className="min-h-[72px] text-sm text-slate-600 dark:text-slate-300">
-                                            {lab.description}
-                                        </p>
-
-                                        {lab.badge ? (
-                                            <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                                                Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
-                                            </p>
-                                        ) : null}
-
-                                        <div className="mt-5 flex items-center justify-between gap-4">
-                                            <span className="rounded-lg bg-slate-200/80 px-3 py-1 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                                                {lab.level}
-                                            </span>
-                                            <div className="flex items-center gap-4">
-                                                <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm text-indigo-700 dark:bg-indigo-900/35 dark:text-indigo-300">
-                                                    +{lab.xp} XP
-                                                </span>
-                                                <span className="text-sm font-semibold text-indigo-600 transition-transform group-hover:translate-x-1 dark:text-indigo-300">
-                                                    {lab.cta}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        </section>
 
                         <section>
                             <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />

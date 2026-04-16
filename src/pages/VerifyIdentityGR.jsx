@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useAccount } from "wagmi";
 import PageShell from "../components/PageShell.jsx";
 
 import {
@@ -19,9 +20,16 @@ import {
     isUserStateUnavailableError,
     parseObjectish
 } from "../utils/progression.js";
+import {
+    buildWeb3SbtResolveUrlForViewer,
+    getWeb3eduBackendUrl,
+} from "../lib/web3eduBackend.js";
+import { useIdentity } from "../context/IdentityContext.jsx";
 
 export default function VerifyIdentityGR() {
-    const { address } = useParams();
+    const { address: routeAddress } = useParams();
+    const { address: walletAddress } = useAccount();
+    const { owner, smartAccount } = useIdentity();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -30,15 +38,13 @@ export default function VerifyIdentityGR() {
     useEffect(() => {
         window.scrollTo(0, 0);
 
-        if (!address) {
+        if (!routeAddress) {
             setError("Μη έγκυρη διεύθυνση.");
             setLoading(false);
             return;
         }
 
-        const BACKEND =
-            import.meta.env.VITE_BACKEND_URL ??
-            "https://web3edu-api.dimikog.org";
+        const BACKEND = getWeb3eduBackendUrl();
 
         setLoading(true);
         setError("");
@@ -53,8 +59,15 @@ export default function VerifyIdentityGR() {
         };
 
         Promise.allSettled([
-            fetchJson(`${BACKEND}/web3sbt/verify/${address}`),
-            fetchJson(`${BACKEND}/web3sbt/resolve/${address}`)
+            fetchJson(`${BACKEND}/web3sbt/verify/${routeAddress}`),
+            fetchJson(
+                buildWeb3SbtResolveUrlForViewer(
+                    routeAddress,
+                    smartAccount,
+                    walletAddress,
+                    owner
+                )
+            ),
         ])
             .then(([verifyResult, resolveResult]) => {
                 const verifyData =
@@ -91,6 +104,7 @@ export default function VerifyIdentityGR() {
             })
             .catch((err) => {
                 if (isUserStateUnavailableError(err)) {
+                    // eslint-disable-next-line no-console -- backend transient state
                     console.warn("Backend user state temporarily unavailable during verify.");
                     setError("Τα δεδομένα προφίλ δεν είναι προσωρινά διαθέσιμα. Δοκιμάστε ξανά.");
                     setLoading(false);
@@ -100,7 +114,7 @@ export default function VerifyIdentityGR() {
                 setError("Αδυναμία φόρτωσης των δεδομένων SBT.");
                 setLoading(false);
             });
-    }, [address]);
+    }, [routeAddress, smartAccount, walletAddress, owner]);
 
     // Normalize nested payload shapes (verify endpoint can return metadata/profile wrappers)
     const rawMeta = profile?.metadata ?? {};
@@ -134,9 +148,7 @@ export default function VerifyIdentityGR() {
 
     const totalXp = toNumber(profile?.xp_total) ?? 0;
     const progress = getProgressFromXpTotal(totalXp);
-    const tier = progress.tier;
-    const remainingXp = progress.remainingXp;
-    const xpBarPercent = progress.overallPercent;
+    const { tier, overallPercent: xpBarPercent } = progress;
     const timeline = pickFirst(
         meta.timeline,
         info.timeline,
@@ -201,7 +213,7 @@ export default function VerifyIdentityGR() {
 
     const tokenId = profile?.tokenId ?? null;
 
-    const shortAddr = address ? shortAddress(address) : "";
+    const shortAddr = routeAddress ? shortAddress(routeAddress) : "";
 
     return (
         <PageShell>
@@ -354,9 +366,9 @@ export default function VerifyIdentityGR() {
                             <div className="flex items-center gap-3">
                                 <div
                                     className="w-14 h-14 rounded-full flex items-center justify-center"
-                                    style={generateAvatarStyle(address, tier)}
+                                    style={generateAvatarStyle(routeAddress, tier)}
                                 >
-                                    <AddressIdenticon address={address} />
+                                    <AddressIdenticon address={routeAddress} />
                                 </div>
                                 <div>
                                     <p className="text-xs text-white/40 uppercase tracking-wider">
@@ -435,9 +447,9 @@ export default function VerifyIdentityGR() {
                                                     ? "ring-2 ring-[#33D6FF]/70"
                                                     : "ring-2 ring-[#7F3DF1]/60")
                                         }
-                                        style={generateAvatarStyle(address, tier)}
+                                        style={generateAvatarStyle(routeAddress, tier)}
                                     >
-                                        <AddressIdenticon address={address} />
+                                        <AddressIdenticon address={routeAddress} />
 
                                         <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-black/60 border border-white/40 flex items-center justify-center">
                                             {tier === "Explorer" && <ExplorerIcon />}
@@ -548,7 +560,7 @@ export default function VerifyIdentityGR() {
                                                 <p className="text-sm font-semibold uppercase text-slate-600 dark:text-slate-300">
                                                     ΠΟΡΤΟΦΟΛΙ
                                                 </p>
-                                                <p className="font-mono text-xs break-all">{address}</p>
+                                                <p className="font-mono text-xs break-all">{routeAddress}</p>
                                             </div>
 
                                             {/* Token ID */}

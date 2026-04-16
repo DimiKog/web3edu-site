@@ -72,13 +72,15 @@ export default function FeedbackModal({
     labTitle,
     labType,
     language,
-    onSubmit
+    onSubmit,
+    submitterAddressOverride = null,
 }) {
     const lang = language === "gr" ? "gr" : "en";
     const t = COPY[lang];
     const resolvedLabType = labType || inferLabType(labId);
 
     const { address } = useAccount();
+    const walletForSubmit = address ?? submitterAddressOverride;
 
     const [duration, setDuration] = useState("");
     const [difficulty, setDifficulty] = useState(3);
@@ -90,7 +92,7 @@ export default function FeedbackModal({
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!address) return;
+        if (!walletForSubmit) return;
 
         setSubmitting(true);
         setSubmitError("");
@@ -99,7 +101,7 @@ export default function FeedbackModal({
             labId,
             labTitle,
             labType: resolvedLabType,
-            walletAddress: address,
+            walletAddress: walletForSubmit,
             duration,
             difficulty,
             clarity,

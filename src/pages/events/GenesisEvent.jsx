@@ -3,6 +3,8 @@ import genesisBadgeImage from "./badges/genesis.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
+import { useAccount } from "wagmi";
+import { useIdentity } from "../../context/IdentityContext.jsx";
 
 const texts = {
     en: {
@@ -31,7 +33,9 @@ const texts = {
         errRejected: "Transaction rejected in wallet.",
         errInsufficientFunds: "Insufficient funds for gas fees.",
         errAlreadyClaimed: "This wallet has already claimed the Genesis badge.",
-        errGeneric: "Mint failed. Please try again."
+        errGeneric: "Mint failed. Please try again.",
+        connectToMint: "Connect your wallet to mint your Genesis Badge.",
+        aaConnectHint: "Connect wallet to mint your Genesis Badge",
     },
     gr: {
         title: "Web3Edu Genesis Εκδήλωση",
@@ -59,11 +63,16 @@ const texts = {
         errRejected: "Η συναλλαγή απορρίφθηκε στο wallet.",
         errInsufficientFunds: "Ανεπαρκές υπόλοιπο για gas fees.",
         errAlreadyClaimed: "Αυτό το wallet έχει ήδη κάνει claim το Genesis badge.",
-        errGeneric: "Το mint απέτυχε. Δοκίμασε ξανά."
+        errGeneric: "Το mint απέτυχε. Δοκίμασε ξανά.",
+        connectToMint: "Σύνδεσε το πορτοφόλι σου για να κάνεις mint το Genesis Badge.",
+        aaConnectHint: "Σύνδεσε το πορτοφόλι για να κάνεις mint το Genesis Badge",
     }
 };
 
 export default function GenesisEvent() {
+    const { isConnected, address } = useAccount();
+    const { smartAccount } = useIdentity();
+    const canMint = Boolean(isConnected && address);
     const location = useLocation();
     const navigate = useNavigate();
     const isGreekRoute =
@@ -108,6 +117,7 @@ export default function GenesisEvent() {
 
     async function mintGenesis() {
         if (isMinting) return;
+        if (!canMint) return;
         try {
             if (!window.ethereum) {
                 setMintStatus("error");
@@ -255,9 +265,15 @@ export default function GenesisEvent() {
                         {t.explorer}
                     </a>
 
+                    {!canMint ? (
+                        <div className="mb-4 rounded-xl border border-amber-300/40 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 dark:border-amber-600/40 dark:bg-amber-950/30 dark:text-amber-100">
+                            {smartAccount && !isConnected ? t.aaConnectHint : t.connectToMint}
+                        </div>
+                    ) : null}
+
                     <button
                         onClick={mintGenesis}
-                        disabled={isMinting || hasMinted}
+                        disabled={!canMint || isMinting || hasMinted}
                         className="
                         w-full py-3 rounded-xl
                         bg-gradient-to-r from-purple-500 to-indigo-500
