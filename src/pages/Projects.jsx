@@ -4,7 +4,7 @@ import { localizeProject, projects } from "../services/projectService";
 import { useEffect, useMemo, useState } from "react";
 import SectionBadge from "../components/SectionBadge.jsx";
 import { useIdentity } from "../context/IdentityContext.jsx";
-import { useResolvedIdentityContext } from "../context/ResolvedIdentityContext.jsx";
+import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 
 export default function Projects() {
   const { pathname } = useLocation();

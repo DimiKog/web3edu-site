@@ -85,7 +85,7 @@ async function fetchLegacyResolve({ identityAddress, resolveOwner, signal }) {
   return await res.json();
 }
 
-export function useResolvedIdentity(identityAddress, owner, address, smartAccount) {
+export function useResolvedIdentity(identityAddress, owner, address) {
   const [metadata, setMetadata] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -113,7 +113,7 @@ export function useResolvedIdentity(identityAddress, owner, address, smartAccoun
   }, [canonOwner, canonId, canonWallet]);
 
   const resolveOwner = useMemo(
-    () => resolveReadOwnerQueryParam(smartAccount, address, owner),
+    () => resolveReadOwnerQueryParam(address),
     [address]
   );
 
@@ -304,6 +304,7 @@ export function useResolvedIdentity(identityAddress, owner, address, smartAccoun
   }, [
     resolveKey,
     canonId,
+    canonWallet,
     resolveOwner,
     isAAUser,
     canonOwner,

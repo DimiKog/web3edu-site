@@ -6,119 +6,14 @@ import PageShell from "../components/PageShell.jsx";
 import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.webp";
 import {
     buildLabsStatusUrl,
-    resolveReadOwnerQueryParam,
+    buildResolveOwner,
     getWeb3eduBackendUrl,
 } from "../lib/web3eduBackend.js";
+import { LABS_LOCALES } from "../content/labsPageLocale.js";
 
 const BACKEND = getWeb3eduBackendUrl();
 
-const CATEGORY_LABELS = {
-    foundational: "Foundational Labs",
-    dao: "DAO & Governance Labs",
-    project: "Applied Labs",
-};
-
 const CORE_LAB_IDS = ["lab01", "lab02", "lab03", "lab04", "lab05", "lab06"];
-
-const LAB_ROUTES = {
-    lab01: "/labs/wallets-keys",
-    lab02: "/labs/lab02",
-    lab03: "/labs/lab03",
-    lab04: "/labs/lab04",
-    lab05: "/labs/lab05",
-    lab06: "/labs/lab06",
-    coding01: "/labs/coding-01",
-    dao01: "/labs/dao-01",
-    dao02: "/labs/dao-02",
-    "system-s0": "/labs/system/s0",
-    "system-s1": "/labs/system/s1",
-    "system-s2": "/labs/system/s2",
-    "system-s3": "/labs/system/s3",
-    "system-s4": "/labs/system/s4",
-    "system-s5": "/labs/system/s5",
-};
-
-const FOUNDATIONAL_COPY = {
-    lab02: {
-        title: "Lab 02 — 🔐 Encrypted Messages",
-        hint: "Privacy in Web3 starts off‑chain with encryption.",
-        description:
-            "Learn how encrypted communication works in Web3 using public‑key cryptography and off‑chain message encryption — without blockchain transactions or smart contracts.",
-    },
-    lab03: {
-        title: "Lab 03 — ✍️ Message Signing & Ownership",
-        hint: "Signatures prove ownership and intent without spending gas.",
-        description:
-            "Learn how cryptographic signatures prove ownership and intent — without revealing private keys or sending on‑chain transactions.",
-    },
-    lab04: {
-        title: "Lab 04 — ⛽ Transactions & Gas",
-        hint: "On‑chain actions cost gas and permanently change state.",
-        description:
-            "Interact with your first blockchain transaction and learn how gas, execution, and state changes work on-chain.",
-    },
-    lab05: {
-        title: "Lab 05 — 📜 Smart Contracts & State",
-        hint: "READ is a free call; WRITE is a transaction.",
-        description:
-            "Interact with a real smart contract and learn how on‑chain state, reads, and writes work.",
-    },
-    lab06: {
-        title: "Lab 06 — ⚙️ Consensus & Finality",
-        hint: "Consensus picks one chain; finality locks it.",
-        description:
-            "Explore how validators reach agreement and when blocks become truly final.",
-    },
-};
-
-const DAO_COPY = {
-    dao01: {
-        title: "DAO Lab 01 — 🗳️ Governance & Voting",
-        hint: "A wallet signature is a vote — no transaction needed, no gas spent.",
-        description:
-            "Participate in a simulated DAO governance process and cast a real vote using your wallet signature. Learn how proposals, voting power, and collective decision-making work in DAOs — without deploying a production system.",
-        level: "Intermediate",
-        badge: "Governance Participant",
-    },
-    dao02: {
-        title: "DAO Lab 02 — 🏛 Governance Models & Power Dynamics",
-        hint: "Governance rules are code — the same votes produce different outcomes depending on how power is distributed.",
-        description:
-            "Explore how governance outcomes depend on rule design. Select different voting models, adjust quorum and approval thresholds, and observe how identical community intent can lead to different results depending on how voting power is distributed.",
-        level: "Advanced",
-        badge: "Governance Architect",
-    },
-};
-
-const PROJECT_COPY = {
-    poe01: {
-        title: "Lab 01 — 🧠 Proof of Escape",
-        description:
-            "A gamified Web3 challenge combining quizzes, NFTs, and on-chain verification to introduce core blockchain concepts.",
-        level: "Beginner",
-    },
-    "proof-of-escape": {
-        title: "Lab 01 — 🧠 Proof of Escape",
-        hint: "Completion is on-chain — your NFT badge is cryptographic proof you understood the concepts.",
-        description:
-            "A gamified Web3 challenge combining quizzes, NFTs, and on-chain verification to introduce core blockchain concepts.",
-        level: "Beginner",
-        badge: "Proof of Escape",
-    },
-};
-
-const CODING_LABS = [
-    {
-        id: "coding01",
-        title: "Coding Lab 01 — ✍️ Write and Deploy Your First Smart Contract",
-        hint: "Building begins with deployment — write a minimal contract, compile it, and launch your own on-chain instance.",
-        description:
-            "Create your first Solidity contract, compile it in Remix, deploy it to Besu Edu-Net, and verify that your own contract instance is live on-chain. This lab introduces the full path from source code to deployed smart contract.",
-        level: "Beginner",
-        xp: 400,
-        badge: "Smart Contract Deployer",
-    },
-];
 
 const CARD_ACCENT = {
     foundational: "bg-blue-500/10 border-blue-400/20 dark:bg-blue-500/20 dark:border-blue-400/30",
@@ -136,103 +31,65 @@ const CATEGORY_BADGE = {
     project:      "bg-orange-500/10 text-orange-700 dark:text-orange-300 dark:bg-orange-500/20",
 };
 
-const CATEGORY_BADGE_LABEL = {
-    foundational: "Foundational",
-    coding:       "Coding",
-    system:       "System",
-    dao:          "DAO",
-    project:      "Applied",
-};
+function buildLabRoutes(prefix) {
+    return {
+        lab01: `${prefix}/wallets-keys`,
+        lab02: `${prefix}/lab02`,
+        lab03: `${prefix}/lab03`,
+        lab04: `${prefix}/lab04`,
+        lab05: `${prefix}/lab05`,
+        lab06: `${prefix}/lab06`,
+        coding01: `${prefix}/coding-01`,
+        dao01: `${prefix}/dao-01`,
+        dao02: `${prefix}/dao-02`,
+        "system-s0": `${prefix}/system/s0`,
+        "system-s1": `${prefix}/system/s1`,
+        "system-s2": `${prefix}/system/s2`,
+        "system-s3": `${prefix}/system/s3`,
+        "system-s4": `${prefix}/system/s4`,
+        "system-s5": `${prefix}/system/s5`,
+    };
+}
 
-const CATEGORY_DESCRIPTIONS = {
-    foundational:
-        "Build core Web3 mental models before moving into governance and deeper protocol mechanics.",
-    dao:
-        "Explore decentralized governance, collective decision-making, and DAO mechanics through guided simulations and real cryptographic actions.",
-    project:
-        "Applied labs and project-style challenges that connect the core concepts to more complete Web3 flows.",
-};
+function pickLang(lab, field, lang) {
+    if (!lab?.[field]) return undefined;
+    const v = lab[field];
+    if (typeof v === "string") return v;
+    if (lang === "gr") return v.gr ?? v.en;
+    return v.en ?? v.gr;
+}
 
-const SYSTEM_LABS = [
-    {
-        id: "system-s0",
-        title: "System Lab S0 — 🏰 Why Consensus Is Hard",
-        hint: "Consensus exists because honest participants can still see different local realities.",
-        description:
-            "Explore the Byzantine Generals Problem and see why distributed systems need explicit consensus rules before they can agree safely.",
-        level: "Intermediate",
-        xp: 200,
-        link: "/labs/system/s0",
-        cta: "Open Lab →",
-        status: "Available",
-        badge: "Consensus Analyst",
-    },
-    {
-        id: "system-s1",
-        title: "SysLab01 — ⛏️ PoW Mining",
-        hint: "Changing one byte invalidates every block that follows — this is why blockchains are tamper-evident.",
-        description:
-            "Trace how blocks connect into a secure chain, break that chain by editing data, and repair it through Proof of Work intuition.",
-        level: "Intermediate",
-        xp: 300,
-        link: "/labs/system/s1",
-        cta: "Open Lab →",
-        status: "Available",
-        badge: "System Thinker",
-    },
-    {
-        id: "system-s2",
-        title: "SysLab02 — 🔄 Transaction to State Change",
-        hint: "Transactions do not just move data around. They trigger execution that changes blockchain state.",
-        description:
-            "Follow how a transaction is executed by the system and how that execution results in a persistent state change on-chain.",
-        level: "Intermediate",
-        xp: 300,
-        link: "/labs/system/s2",
-        cta: "Open Lab →",
-        status: "Available",
-        badge: "State Change Explorer",
-    },
-    {
-        id: "system-s3",
-        title: "System Lab S3 — 🛡️ Consensus Under Pressure",
-        hint: "A proposer can suggest a block, but the system accepts it only when enough stake attests and pushes it past the 2/3 threshold.",
-        description:
-            "Stress-test proof-of-stake by changing validator stake, observing proposer selection, and checking when attestation is strong enough to reach finality.",
-        level: "Intermediate",
-        xp: 350,
-        link: "/labs/system/s3",
-        cta: "Open Lab →",
-        status: "Available",
-        badge: "Consensus Stress Tester",
-    },
-    {
-        id: "system-s4",
-        title: "System Lab S4 — 🏛️ QBFT on Besu",
-        hint: "In a permissioned chain, consensus comes from a known validator set coordinating through explicit voting rounds.",
-        description:
-            "Compare proof-of-stake with QBFT and follow how pre-prepare, prepare, and commit phases let known validators finalize blocks on Besu Edu-Net.",
-        level: "Intermediate",
-        xp: 350,
-        link: "/labs/system/s4",
-        cta: "Open Lab →",
-        status: "Available",
-        badge: "QBFT Observer",
-    },
-    {
-        id: "system-s5",
-        title: "System Lab S5 — 🌐 Network Partition and Recovery in QBFT",
-        hint: "When quorum breaks, safety can remain intact even while liveness stalls.",
-        description:
-            "Explore how QBFT behaves when validators are split across a network partition, why finality pauses without quorum, and how coordinated progress resumes after recovery.",
-        level: "Intermediate",
-        xp: 400,
-        link: "/labs/system/s5",
-        cta: "Open Lab →",
-        status: "Available",
-        badge: "Partition Analyst",
-    },
-];
+function pickBadge(lab, lang) {
+    const b = lab?.badge;
+    if (!b) return undefined;
+    if (typeof b === "string") return b;
+    if (b.label && typeof b.label === "object") {
+        if (lang === "gr") return b.label.gr ?? b.label.en ?? b.label;
+        return b.label.en ?? b.label.gr ?? b.label;
+    }
+    return b.label ?? b.id;
+}
+
+function foundationalCompletedClass(lang) {
+    if (lang === "gr") {
+        return "inline-flex max-w-[132px] shrink-0 items-center justify-center gap-1 rounded-full border border-green-400/20 bg-green-500 px-2.5 py-1 text-[10px] font-semibold leading-tight text-center text-white shadow";
+    }
+    return "inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-green-400/20 bg-green-500 px-2 py-0.5 text-[10px] font-semibold leading-none text-white shadow";
+}
+
+function completedMdClass(lang) {
+    if (lang === "gr") {
+        return "inline-flex max-w-[132px] shrink-0 self-start items-center justify-center rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold leading-tight text-center text-white shadow";
+    }
+    return "inline-flex shrink-0 self-start rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow";
+}
+
+function otherSectionCompletedClass(lang) {
+    if (lang === "gr") {
+        return "inline-flex max-w-[132px] shrink-0 items-center justify-center rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold leading-tight text-center text-white shadow";
+    }
+    return "inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow";
+}
 
 const sortLabs = (labs) =>
     [...labs].sort((a, b) => {
@@ -241,14 +98,16 @@ const sortLabs = (labs) =>
         return String(a.id).localeCompare(String(b.id));
     });
 
-export default function Labs() {
-    const { smartAccount } = useIdentity();
+export default function Labs({ lang = "en" }) {
+    const { smartAccount, owner: identityOwner } = useIdentity();
     const { address } = useAccount();
     const identityAddress = smartAccount ?? null;
     const resolveOwner = useMemo(
-        () => resolveReadOwnerQueryParam(smartAccount, address, null),
-        [smartAccount, address]
+        () => buildResolveOwner(address, identityOwner),
+        [address, identityOwner]
     );
+    const L = lang === "gr" ? LABS_LOCALES.gr : LABS_LOCALES.en;
+    const labRoutes = useMemo(() => buildLabRoutes(L.pathPrefix), [L.pathPrefix]);
     const [labsRegistry, setLabsRegistry] = useState([]);
     const [completionMap, setCompletionMap] = useState({});
     const [poeCompleted, setPoeCompleted] = useState(false);
@@ -378,24 +237,27 @@ export default function Labs() {
     const remainingFoundationalLabs = foundationalLabs.filter((lab) => lab.id !== "lab01");
     const daoLabs = labsRegistry.filter((lab) => lab.category === "dao");
     const systemLabs = labsRegistry.filter((lab) => lab.category === "system");
-    const displayedSystemLabs = SYSTEM_LABS.map((fallbackLab) => {
+    const displayedSystemLabs = L.systemLabs.map((fallbackLab) => {
         const backendLab = systemLabs.find((lab) => lab.id === fallbackLab.id);
         return {
             id: fallbackLab.id,
-            title: fallbackLab.title || backendLab?.title?.en || fallbackLab.id,
+            title:
+                fallbackLab.title ||
+                pickLang(backendLab, "title", lang) ||
+                fallbackLab.id,
             hint: fallbackLab.hint || null,
-            description: backendLab?.description?.en || fallbackLab.description,
+            description:
+                pickLang(backendLab, "description", lang) || fallbackLab.description,
             level: backendLab?.level || fallbackLab.level,
             xp: typeof backendLab?.xp === "number" ? backendLab.xp : fallbackLab.xp,
-            link: LAB_ROUTES[fallbackLab.id] || fallbackLab.link,
+            link: labRoutes[fallbackLab.id],
             cta: fallbackLab.cta,
-            status: completionMap[fallbackLab.id] ? "Completed" : "Available",
+            status: completionMap[fallbackLab.id]
+                ? L.ui.statusCompleted
+                : L.ui.statusAvailable,
             completed: Boolean(completionMap[fallbackLab.id]),
             badge:
-                backendLab?.badge?.label?.en ||
-                backendLab?.badge?.label ||
-                backendLab?.badge?.id ||
-                fallbackLab.badge,
+                pickBadge(backendLab, lang) || fallbackLab.badge,
         };
     });
     const otherSections = groupedLabs.filter(
@@ -411,35 +273,34 @@ export default function Labs() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-14">
                 <header className="mb-12">
                     <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
-                        Web3Edu Labs
+                        {L.ui.heroTitle}
                     </h1>
                     <p className="max-w-3xl text-lg text-slate-600 dark:text-slate-300">
-                        Hands-on exercises that take you from wallet basics to governance mechanics
-                        and applied Web3 challenges — each lab builds on the last.
+                        {L.ui.heroSubtitle}
                     </p>
                 </header>
 
                 {loading ? (
-                    <p className="text-slate-600 dark:text-slate-300">Loading labs...</p>
+                    <p className="text-slate-600 dark:text-slate-300">{L.ui.loadingLabs}</p>
                 ) : groupedLabs.length === 0 ? (
                     <p className="text-slate-600 dark:text-slate-300">
-                        No labs were returned by the backend registry.
+                        {L.ui.emptyRegistry}
                     </p>
                 ) : (
                     <div className="space-y-14">
                         {foundationalLabs.length > 0 ? (
                             <section>
                                 <div className="mb-6">
-                                    <h2 className="text-2xl font-semibold">Foundational Labs</h2>
+                                    <h2 className="text-2xl font-semibold">{L.ui.foundationalSectionTitle}</h2>
                                     <p className="mt-2 max-w-3xl text-slate-600 dark:text-slate-300">
-                                        Build your Web3 identity and core mental models before touching transactions or smart contracts.
+                                        {L.ui.foundationalSectionBlurb}
                                     </p>
                                 </div>
 
                                 <div className="mb-10 max-w-xl">
                                     <div className="flex items-center justify-between mb-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                        <span>Foundational Labs Progress</span>
-                                        <span>{completedCount} / {totalCount} completed</span>
+                                        <span>{L.ui.progressLabel}</span>
+                                        <span>{completedCount} / {totalCount} {L.ui.progressCountSuffix}</span>
                                     </div>
                                     <div className="h-2 w-full rounded-full bg-slate-200/80 dark:bg-slate-700/60 overflow-hidden">
                                         <div
@@ -452,13 +313,13 @@ export default function Labs() {
                                 {featuredLab ? (
                                     <div className="mb-10">
                                         <Link
-                                            to={LAB_ROUTES[featuredLab.id] || `/labs/${featuredLab.slug || featuredLab.id}`}
+                                            to={labRoutes[featuredLab.id] || `${L.pathPrefix}/${featuredLab.slug || featuredLab.id}`}
                                             className="group relative block overflow-hidden rounded-2xl backdrop-blur-sm bg-gradient-to-br from-indigo-50/90 via-purple-50/80 to-blue-50/90 dark:from-slate-900 dark:via-indigo-950/50 dark:to-slate-900 border border-white/20 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all"
                                         >
                                             {completionMap[featuredLab.id] ? (
                                                 <div className="absolute top-4 right-4 z-20">
                                                     <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full bg-green-500/90 px-2 py-0.5 text-[10px] font-semibold leading-none text-white shadow-lg backdrop-blur">
-                                                        ✓ Completed
+                                                        {L.ui.completedBadge}
                                                     </span>
                                                 </div>
                                             ) : null}
@@ -466,7 +327,7 @@ export default function Labs() {
                                                 <div className="relative flex items-center justify-center bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-blue-500/10 p-6 lg:p-8">
                                                     <img
                                                         src={lab01IdentityImg}
-                                                        alt="Web3 identity flow: wallet to address to identity"
+                                                        alt={L.ui.featuredLabAlt}
                                                         className="w-full h-auto rounded-2xl shadow-2xl ring-1 ring-white/30"
                                                         loading="lazy"
                                                     />
@@ -474,26 +335,26 @@ export default function Labs() {
                                                 <div className="p-10 flex flex-col justify-between">
                                                     <div>
                                                         <h3 className="text-2xl font-bold mb-3 text-slate-900 dark:text-indigo-300">
-                                                            {featuredLab.title?.en || "Lab 01 — Wallets & Web3 Identity"}
+                                                            {pickLang(featuredLab, "title", lang) || L.ui.featuredDefaultTitle}
                                                         </h3>
                                                         <p className="text-xs italic text-slate-600/90 dark:text-slate-300/80 mb-4">
-                                                            Pedagogy hint: Your wallet is your Web3 identity — before transactions ever happen.
+                                                            {L.ui.pedagogyHintLabel} {L.ui.featuredPedagogy}
                                                         </p>
                                                         <p className="text-slate-600 dark:text-slate-300 mb-6 max-w-xl">
-                                                            {featuredLab.description?.en}
+                                                            {pickLang(featuredLab, "description", lang)}
                                                         </p>
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 text-sm text-slate-500 dark:text-slate-400">
-                                                            <span>🧭 <strong className="font-semibold text-slate-700 dark:text-slate-200">Level:</strong> {featuredLab.level || "Beginner"}</span>
-                                                            <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Time:</strong> {featuredLab.estimated_time_minutes || "15-20"} minutes</span>
-                                                            <span>🌐 <strong className="font-semibold text-slate-700 dark:text-slate-200">Network:</strong> Besu Edu-Net</span>
-                                                            <span>🚫 <strong className="font-semibold text-slate-700 dark:text-slate-200">Transactions:</strong> None</span>
-                                                            <span>🛠️ <strong className="font-semibold text-slate-700 dark:text-slate-200">Tools:</strong> 3 interactive tools</span>
-                                                            <span>🏅 <strong className="font-semibold text-slate-700 dark:text-slate-200">Badge:</strong> {featuredLab.badge?.label?.en || featuredLab.badge?.id || "Identity Explorer"}</span>
+                                                            <span>🧭 <strong className="font-semibold text-slate-700 dark:text-slate-200">{L.ui.metaLevel}</strong> {featuredLab.level || "Beginner"}</span>
+                                                            <span>⏱️ <strong className="font-semibold text-slate-700 dark:text-slate-200">{L.ui.metaTime}</strong> {featuredLab.estimated_time_minutes || "15-20"} {L.ui.metaTimeUnit}</span>
+                                                            <span>🌐 <strong className="font-semibold text-slate-700 dark:text-slate-200">{L.ui.metaNetwork}</strong> Besu Edu-Net</span>
+                                                            <span>🚫 <strong className="font-semibold text-slate-700 dark:text-slate-200">{L.ui.metaTransactions}</strong> {L.ui.metaTransactionsNone}</span>
+                                                            <span>🛠️ <strong className="font-semibold text-slate-700 dark:text-slate-200">{L.ui.metaTools}</strong> {L.ui.metaToolsCount}</span>
+                                                            <span>🏅 <strong className="font-semibold text-slate-700 dark:text-slate-200">{L.ui.metaBadge}</strong> {pickBadge(featuredLab, lang) || L.ui.defaultBadge}</span>
                                                         </div>
                                                     </div>
                                                     <div className="mt-6 flex items-center justify-between">
                                                         <span className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold group-hover:translate-x-1 transition">
-                                                            Start Lab →
+                                                            {L.ui.startLabCta}
                                                         </span>
                                                         <span className="text-xs px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
                                                             +{featuredLab.xp || 100} XP
@@ -509,12 +370,12 @@ export default function Labs() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                                         {remainingFoundationalLabs.map((lab) => {
                                             const completed = Boolean(completionMap[lab.id]);
-                                            const copy = FOUNDATIONAL_COPY[lab.id] || {};
-                                            const title = copy.title || lab.title?.en || lab.id;
-                                            const description = copy.description || lab.description?.en || "";
+                                            const copy = L.foundationalCopy[lab.id] || {};
+                                            const title = copy.title || pickLang(lab, "title", lang) || lab.id;
+                                            const description = copy.description || pickLang(lab, "description", lang) || "";
                                             const hint = copy.hint || null;
-                                            const badge = lab.badge?.label?.en || lab.badge?.id;
-                                            const link = LAB_ROUTES[lab.id] || `/labs/${lab.slug || lab.id}`;
+                                            const badge = pickBadge(lab, lang);
+                                            const link = labRoutes[lab.id] || `${L.pathPrefix}/${lab.slug || lab.id}`;
                                             const showNext =
                                                 lab.id === "lab02" &&
                                                 !!completionMap.lab01 &&
@@ -527,7 +388,7 @@ export default function Labs() {
                                                     className={`group rounded-2xl border ${CARD_ACCENT.foundational} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
                                                 >
                                                     <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.foundational}`}>
-                                                        {CATEGORY_BADGE_LABEL.foundational}
+                                                        {L.categoryBadgeLabel.foundational}
                                                     </span>
                                                     <div className="flex items-start justify-between gap-3 mb-4">
                                                         <div>
@@ -539,20 +400,20 @@ export default function Labs() {
                                                             </h3>
                                                         </div>
                                                         {completed ? (
-                                                            <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-green-400/20 bg-green-500 px-2 py-0.5 text-[10px] font-semibold leading-none text-white shadow">
-                                                                ✓ Completed
+                                                            <span className={foundationalCompletedClass(lang)}>
+                                                                {L.ui.completedBadge}
                                                             </span>
                                                         ) : null}
                                                         {showNext ? (
                                                             <span className="inline-flex rounded-full border border-indigo-400/20 bg-indigo-500/15 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
-                                                                ⭐ NEXT
+                                                                {L.ui.nextBadge}
                                                             </span>
                                                         ) : null}
                                                     </div>
 
                                                     {hint ? (
                                                         <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
-                                                            Pedagogy hint: <span className="not-italic">{hint}</span>
+                                                            {L.ui.pedagogyHintLabel} <span className="not-italic">{hint}</span>
                                                         </p>
                                                     ) : null}
                                                     <p className="min-h-[72px] text-sm text-slate-600 dark:text-slate-300">
@@ -567,7 +428,7 @@ export default function Labs() {
                                                         ) : null}
                                                         {lab.estimated_time_minutes ? (
                                                             <span className="rounded-full bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-slate-700 dark:text-slate-200">
-                                                                {lab.estimated_time_minutes} min
+                                                                {lab.estimated_time_minutes} {L.ui.timeMinShort}
                                                             </span>
                                                         ) : null}
                                                         {typeof lab.xp === "number" ? (
@@ -579,12 +440,12 @@ export default function Labs() {
 
                                                     {badge ? (
                                                         <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                                                            Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{badge}</span>
+                                                            {L.ui.badgePrefix} <span className="font-medium text-slate-700 dark:text-slate-200">{badge}</span>
                                                         </p>
                                                     ) : null}
 
                                                     <div className="mt-5 text-sm font-semibold text-indigo-600 dark:text-indigo-300 group-hover:translate-x-1 transition-transform">
-                                                        Open Lab →
+                                                        {L.ui.openLabCta}
                                                     </div>
                                                 </Link>
                                             );
@@ -597,20 +458,20 @@ export default function Labs() {
                         <section>
                             <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
                             <div className="mb-6">
-                                <h2 className="text-2xl font-semibold">Coding Labs</h2>
+                                <h2 className="text-2xl font-semibold">{L.ui.codingSectionTitle}</h2>
                                 <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
-                                    Hands-on labs focused on writing, deploying, and interacting with smart contracts and Web3 code. These labs shift from observation to building.
+                                    {L.ui.codingSectionBlurb}
                                 </p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                {CODING_LABS.map((lab) => (
+                                {L.codingLabs.map((lab) => (
                                     <div
                                         key={lab.id}
                                         className={`rounded-2xl border ${CARD_ACCENT.coding} p-6 shadow-sm`}
                                     >
                                         <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.coding}`}>
-                                            {CATEGORY_BADGE_LABEL.coding}
+                                            {L.categoryBadgeLabel.coding}
                                         </span>
                                         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="min-w-0 flex-1">
@@ -622,12 +483,12 @@ export default function Labs() {
                                                 </h3>
                                             </div>
                                             <span className="inline-flex shrink-0 self-start rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-900 dark:border-amber-500/35 dark:bg-amber-500/10 dark:text-amber-200">
-                                                Coming soon
+                                                {L.ui.comingSoon}
                                             </span>
                                         </div>
 
                                         <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
-                                            Pedagogy hint: <span className="not-italic">{lab.hint}</span>
+                                            {L.ui.pedagogyHintLabel} <span className="not-italic">{lab.hint}</span>
                                         </p>
 
                                         <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
@@ -636,7 +497,7 @@ export default function Labs() {
 
                                         {lab.badge ? (
                                             <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                                                Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
+                                                {L.ui.badgePrefix} <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
                                             </p>
                                         ) : null}
 
@@ -656,9 +517,9 @@ export default function Labs() {
                         <section>
                             <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
                             <div className="mb-6">
-                                <h2 className="text-2xl font-semibold">System Labs</h2>
+                                <h2 className="text-2xl font-semibold">{L.ui.systemSectionTitle}</h2>
                                 <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
-                                    Explore blockchain mechanics as a system, starting with why consensus is needed at all and then moving into how hashes, links, mining, and execution secure chain history.
+                                    {L.ui.systemSectionBlurb}
                                 </p>
                             </div>
 
@@ -670,7 +531,7 @@ export default function Labs() {
                                         className={`group flex h-full flex-col rounded-2xl border ${CARD_ACCENT.system} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
                                     >
                                         <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.system}`}>
-                                            {CATEGORY_BADGE_LABEL.system}
+                                            {L.categoryBadgeLabel.system}
                                         </span>
                                         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="min-w-0 flex-1">
@@ -682,15 +543,15 @@ export default function Labs() {
                                                 </h3>
                                             </div>
                                             {lab.completed ? (
-                                                <span className="inline-flex shrink-0 self-start rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
-                                                    ✓ Completed
+                                                <span className={completedMdClass(lang)}>
+                                                    {L.ui.completedBadge}
                                                 </span>
                                             ) : null}
                                         </div>
 
                                         {lab.hint ? (
                                             <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
-                                                Pedagogy hint: <span className="not-italic">{lab.hint}</span>
+                                                {L.ui.pedagogyHintLabel} <span className="not-italic">{lab.hint}</span>
                                             </p>
                                         ) : null}
 
@@ -700,7 +561,7 @@ export default function Labs() {
 
                                         {lab.badge ? (
                                             <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                                                Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
+                                                {L.ui.badgePrefix} <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
                                             </p>
                                         ) : null}
 
@@ -726,9 +587,9 @@ export default function Labs() {
                             <section>
                                 <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
                                 <div className="mb-6">
-                                    <h2 className="text-2xl font-semibold">DAO & Governance Labs</h2>
+                                    <h2 className="text-2xl font-semibold">{L.ui.daoSectionTitle}</h2>
                                     <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
-                                        Explore decentralized governance, collective decision-making, and DAO mechanics through guided simulations and real cryptographic actions.
+                                        {L.ui.daoSectionBlurb}
                                     </p>
                                 </div>
 
@@ -739,12 +600,12 @@ export default function Labs() {
                                             lab.id === "dao02" &&
                                             !!completionMap.dao01 &&
                                             !completionMap.dao02;
-                                        const copy = DAO_COPY[lab.id] || {};
-                                        const title = copy.title || lab.title?.en || lab.id;
+                                        const copy = L.daoCopy[lab.id] || {};
+                                        const title = copy.title || pickLang(lab, "title", lang) || lab.id;
                                         const hint = copy.hint || null;
-                                        const description = copy.description || lab.description?.en || "";
-                                        const badge = lab.badge?.label?.en || lab.badge?.id || copy.badge;
-                                        const link = LAB_ROUTES[lab.id] || `/labs/${lab.slug || lab.id}`;
+                                        const description = copy.description || pickLang(lab, "description", lang) || "";
+                                        const badge = pickBadge(lab, lang) || copy.badge;
+                                        const link = labRoutes[lab.id] || `${L.pathPrefix}/${lab.slug || lab.id}`;
 
                                         return (
                                             <Link
@@ -753,7 +614,7 @@ export default function Labs() {
                                                 className={`group rounded-2xl border ${CARD_ACCENT.dao} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
                                             >
                                                 <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.dao}`}>
-                                                    {CATEGORY_BADGE_LABEL.dao}
+                                                    {L.categoryBadgeLabel.dao}
                                                 </span>
                                                 <div className="flex items-start justify-between gap-3 mb-4">
                                                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -761,13 +622,13 @@ export default function Labs() {
                                                     </h3>
                                                     <div className="flex items-center gap-2 shrink-0">
                                                         {completed ? (
-                                                            <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
-                                                                ✓ Completed
+                                                            <span className={completedMdClass(lang)}>
+                                                                {L.ui.completedBadge}
                                                             </span>
                                                         ) : null}
                                                         {showNext ? (
                                                             <span className="inline-flex rounded-full border border-indigo-400/20 bg-indigo-500/15 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
-                                                                ⭐ NEXT
+                                                                {L.ui.nextBadge}
                                                             </span>
                                                         ) : null}
                                                     </div>
@@ -775,7 +636,7 @@ export default function Labs() {
 
                                                 {hint ? (
                                                     <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
-                                                        Pedagogy hint: <span className="not-italic">{hint}</span>
+                                                        {L.ui.pedagogyHintLabel} <span className="not-italic">{hint}</span>
                                                     </p>
                                                 ) : null}
 
@@ -785,20 +646,20 @@ export default function Labs() {
 
                                                 {badge ? (
                                                     <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                                                        Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{badge}</span>
+                                                        {L.ui.badgePrefix} <span className="font-medium text-slate-700 dark:text-slate-200">{badge}</span>
                                                     </p>
                                                 ) : null}
 
                                                 <div className="mt-5 flex items-center justify-between gap-4">
                                                     <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
-                                                        {copy.level || lab.level || "Intermediate"}
+                                                        {copy.level || lab.level || L.ui.defaultDaoLevelFallback}
                                                     </span>
                                                     <div className="flex items-center gap-4">
                                                         <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/35 px-3 py-1 text-sm text-indigo-700 dark:text-indigo-300">
                                                             +{lab.xp || 0} XP
                                                         </span>
                                                         <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-300 group-hover:translate-x-1 transition-transform">
-                                                            Open Lab →
+                                                            {L.ui.openLabCta}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -812,53 +673,53 @@ export default function Labs() {
                         <section>
                             <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
                             <div className="mb-6">
-                                <h2 className="text-2xl font-semibold">Applied Labs</h2>
+                                <h2 className="text-2xl font-semibold">{L.ui.appliedSectionTitle}</h2>
                                 <p className="mt-2 max-w-4xl text-slate-600 dark:text-slate-300">
-                                    Scenario-driven challenges that put your knowledge to work — combining on-chain interaction, gamification, and real-world problem solving.
+                                    {L.ui.appliedSectionBlurb}
                                 </p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <Link
-                                    to="/labs/proof-of-escape"
+                                    to={`${L.pathPrefix}/proof-of-escape`}
                                     className={`group rounded-2xl border ${CARD_ACCENT.project} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
                                 >
                                     <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.project}`}>
-                                        {CATEGORY_BADGE_LABEL.project}
+                                        {L.categoryBadgeLabel.project}
                                     </span>
                                     <div className="flex items-start justify-between gap-3 mb-4">
                                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                            Lab 01 — 🧠 Proof of Escape
+                                            {L.ui.proofOfEscapeTitle}
                                         </h3>
                                         {poeCompleted ? (
-                                            <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow shrink-0">
-                                                ✓ Completed
+                                            <span className={completedMdClass(lang)}>
+                                                {L.ui.completedBadge}
                                             </span>
                                         ) : null}
                                     </div>
 
                                     <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
-                                        Pedagogy hint: <span className="not-italic">Completion is on-chain — your NFT badge is cryptographic proof you understood the concepts.</span>
+                                        {L.ui.pedagogyHintLabel} <span className="not-italic">{L.ui.proofOfEscapeHint}</span>
                                     </p>
 
                                     <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
-                                        A gamified Web3 challenge combining quizzes, NFTs, and on-chain verification to introduce core blockchain concepts.
+                                        {L.ui.proofOfEscapeDescription}
                                     </p>
 
                                     <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                                        Badge: <span className="font-medium text-slate-700 dark:text-slate-200">Proof of Escape</span>
+                                        {L.ui.badgePrefix} <span className="font-medium text-slate-700 dark:text-slate-200">{L.ui.proofOfEscapeBadge}</span>
                                     </p>
 
                                     <div className="mt-5 flex items-center justify-between gap-4">
                                         <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
-                                            Beginner
+                                            {L.ui.proofOfEscapeLevel}
                                         </span>
                                         <div className="flex items-center gap-4">
                                             <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/35 px-3 py-1 text-sm text-indigo-700 dark:text-indigo-300">
                                                 +500 XP
                                             </span>
                                             <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-300 group-hover:translate-x-1 transition-transform">
-                                                Open Lab →
+                                                {L.ui.openLabCta}
                                             </span>
                                         </div>
                                     </div>
@@ -866,31 +727,31 @@ export default function Labs() {
 
                                 <div className={`rounded-2xl border ${CARD_ACCENT.project} p-6 shadow-sm`}>
                                     <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.project}`}>
-                                        {CATEGORY_BADGE_LABEL.project}
+                                        {L.categoryBadgeLabel.project}
                                     </span>
                                     <div className="flex items-start justify-between gap-3 mb-4">
                                         <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                            Lab 02 — 🖼 NFT Marketplace Lab
+                                            {L.ui.nftMarketplaceTitle}
                                         </h3>
                                         <span className="inline-flex rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
-                                            Coming Soon
+                                            {L.ui.nftComingSoonBadge}
                                         </span>
                                     </div>
 
                                     <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
-                                        Pedagogy hint: <span className="not-italic">Token standards define ownership rules — an NFT is a unique on-chain record no one can duplicate.</span>
+                                        {L.ui.pedagogyHintLabel} <span className="not-italic">{L.ui.nftMarketplaceHint}</span>
                                     </p>
 
                                     <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
-                                        Build and interact with a simple NFT marketplace while learning token standards, ownership, and on-chain events.
+                                        {L.ui.nftMarketplaceDescription}
                                     </p>
 
                                     <div className="mt-5 flex items-center justify-between gap-4">
                                         <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
-                                            Intermediate
+                                            {L.ui.nftMarketplaceLevel}
                                         </span>
                                         <span className="text-sm text-slate-500 dark:text-slate-400">
-                                            Coming Soon
+                                            {L.ui.nftComingSoonFooter}
                                         </span>
                                     </div>
                                 </div>
@@ -902,22 +763,22 @@ export default function Labs() {
                                 <hr className="mb-8 border-slate-200/60 dark:border-slate-700/50" />
                                 <div className="mb-6">
                                     <h2 className="text-2xl font-semibold">
-                                        {CATEGORY_LABELS[category] || category}
+                                        {L.categoryLabels[category] || category}
                                     </h2>
                                     <p className="mt-2 max-w-3xl text-slate-600 dark:text-slate-300">
-                                        {CATEGORY_DESCRIPTIONS[category] || "Labs exposed by the backend registry."}
+                                        {L.categoryDescriptions[category] || L.ui.otherCategoryFallback}
                                     </p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                                     {labs.map((lab) => {
                                         const completed = Boolean(completionMap[lab.id]);
-                                        const copy = PROJECT_COPY[lab.id] || PROJECT_COPY[lab.slug] || {};
-                                        const title = copy.title || lab.title?.en || lab.id;
+                                        const copy = L.projectCopy[lab.id] || L.projectCopy[lab.slug] || {};
+                                        const title = copy.title || pickLang(lab, "title", lang) || lab.id;
                                         const hint = copy.hint || null;
-                                        const description = copy.description || lab.description?.en || "";
-                                        const badge = lab.badge?.label?.en || lab.badge?.id;
-                                        const link = LAB_ROUTES[lab.id] || `/labs/${lab.slug || lab.id}`;
+                                        const description = copy.description || pickLang(lab, "description", lang) || "";
+                                        const badge = pickBadge(lab, lang);
+                                        const link = labRoutes[lab.id] || `${L.pathPrefix}/${lab.slug || lab.id}`;
 
                                         return (
                                             <Link
@@ -926,7 +787,7 @@ export default function Labs() {
                                                 className={`group rounded-2xl border ${CARD_ACCENT[category] || CARD_ACCENT.project} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
                                             >
                                                 <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE[category] || CATEGORY_BADGE.project}`}>
-                                                    {CATEGORY_BADGE_LABEL[category] || CATEGORY_BADGE_LABEL.project}
+                                                    {L.categoryBadgeLabel[category] || L.categoryBadgeLabel.project}
                                                 </span>
                                                 <div className="flex items-start justify-between gap-3 mb-4">
                                                     <div>
@@ -938,15 +799,15 @@ export default function Labs() {
                                                         </h3>
                                                     </div>
                                                     {completed ? (
-                                                        <span className="inline-flex rounded-full border border-green-400/20 bg-green-500 px-3 py-1 text-xs font-semibold text-white shadow">
-                                                            ✓ Completed
+                                                        <span className={otherSectionCompletedClass(lang)}>
+                                                            {L.ui.completedBadge}
                                                         </span>
                                                     ) : null}
                                                 </div>
 
                                                 {hint ? (
                                                     <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
-                                                        Pedagogy hint: <span className="not-italic">{hint}</span>
+                                                        {L.ui.pedagogyHintLabel} <span className="not-italic">{hint}</span>
                                                     </p>
                                                 ) : null}
 
@@ -962,7 +823,7 @@ export default function Labs() {
                                                         ) : null}
                                                     {lab.estimated_time_minutes ? (
                                                         <span className="rounded-full bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-slate-700 dark:text-slate-200">
-                                                            {lab.estimated_time_minutes} min
+                                                            {lab.estimated_time_minutes} {L.ui.timeMinShort}
                                                         </span>
                                                     ) : null}
                                                     {typeof lab.xp === "number" ? (
@@ -974,12 +835,12 @@ export default function Labs() {
 
                                                 {badge ? (
                                                     <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                                                        Badge: <span className="font-medium text-slate-700 dark:text-slate-200">{badge}</span>
+                                                        {L.ui.badgePrefix} <span className="font-medium text-slate-700 dark:text-slate-200">{badge}</span>
                                                     </p>
                                                 ) : null}
 
                                                 <div className="mt-5 text-sm font-semibold text-indigo-600 dark:text-indigo-300 group-hover:translate-x-1 transition-transform">
-                                                    Open Lab →
+                                                    {L.ui.openLabCta}
                                                 </div>
                                             </Link>
                                         );

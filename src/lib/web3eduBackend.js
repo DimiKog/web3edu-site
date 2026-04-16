@@ -23,16 +23,17 @@ export function buildResolveOwner(address, owner) {
 }
 
 /**
- * `owner` query for backend reads: wagmi EOA only — same as write payloads (`owner: address ?? null`).
- * Never IdentityContext `owner`.
+ * Wagmi EOA only (no IdentityContext). Prefer {@link buildResolveOwner} for lab status / AA flows.
  */
-export function resolveReadOwnerQueryParam(_smartAccount, address, _contextOwner) {
+export function resolveReadOwnerQueryParam(address) {
   return normalizeEvmAddress(address);
 }
 
 /**
  * GET /web3sbt/resolve/:routeAddress for the current viewer: adds `?owner=` only when
- * the route matches the viewer's AA (`smartAccount`) or persisted owner EOA (no wagmi in identity match).
+ * the URL address matches the viewer's identity (`smartAccount` or persisted `owner` EOA).
+ * `routeAddress` may be a smart account or an EOA; `?owner=` supplies the EOA key the backend
+ * uses for legacy rows when the path is the viewer's own smart account and wagmi is disconnected.
  */
 export function buildWeb3SbtResolveUrlForViewer(
   routeAddress,
@@ -48,7 +49,7 @@ export function buildWeb3SbtResolveUrlForViewer(
     normalizeEvmAddress(smartAccount) ?? normalizeEvmAddress(contextOwner);
   const ownerQuery =
     myId && path === myId
-      ? resolveReadOwnerQueryParam(smartAccount, walletAddress, contextOwner)
+      ? buildResolveOwner(walletAddress, contextOwner)
       : null;
   return buildWeb3SbtResolveUrl(routeAddress, ownerQuery);
 }
@@ -56,7 +57,7 @@ export function buildWeb3SbtResolveUrlForViewer(
 /**
  * GET /web3sbt/resolve/:identityAddress — optional ?owner=<resolveOwner>
  * @param {string} identityAddress smart account preferred, else owner / connected EOA
- * @param {string|null|undefined} resolveOwner wagmi EOA only (see {@link resolveReadOwnerQueryParam})
+ * @param {string|null|undefined} resolveOwner EOA for backend row lookup (use {@link buildResolveOwner} when wagmi may be disconnected)
  */
 export function buildWeb3SbtResolveUrl(identityAddress, resolveOwner) {
   const base = getWeb3eduBackendUrl();

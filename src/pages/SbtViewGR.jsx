@@ -37,7 +37,7 @@ export default function SbtViewGR() {
         if (!path) return null;
         return buildWeb3SbtResolveUrl(
             path,
-            resolveReadOwnerQueryParam(smartAccount, address, owner)
+            resolveReadOwnerQueryParam(address)
         );
     }, [smartAccount, owner, address]);
 

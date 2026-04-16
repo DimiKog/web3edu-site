@@ -6,7 +6,7 @@ import ScrollToTop from "./components/ScrollToTop.jsx";
 import AppRoutes from "./routes/AppRoutes.jsx";
 import AppErrorBoundary from "./components/AppErrorBoundary.jsx";
 import { IdentityProvider } from "./context/IdentityContext.jsx";
-import { ResolvedIdentityProvider } from "./context/ResolvedIdentityContext.jsx";
+import { ResolvedIdentityProvider } from "./context/ResolvedIdentityProvider.jsx";
 import Web3Providers from "./providers/Web3Providers.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

@@ -6,7 +6,7 @@ import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { useIdentity } from "../../context/IdentityContext.jsx";
 import {
     buildLabsStatusUrl,
-    resolveReadOwnerQueryParam,
+    buildResolveOwner,
     getWeb3eduBackendUrl,
 } from "../../lib/web3eduBackend.js";
 
@@ -186,11 +186,11 @@ const SystemLabTemplate = ({
     );
 
     const { address, isConnected } = useAccount();
-    const { smartAccount } = useIdentity();
+    const { smartAccount, owner: identityOwner } = useIdentity();
     const identityAddress = smartAccount ?? null;
     const resolveOwner = useMemo(
-        () => resolveReadOwnerQueryParam(smartAccount, address, null),
-        [smartAccount, address]
+        () => buildResolveOwner(address, identityOwner),
+        [address, identityOwner]
     );
     const resolvedApiBase = apiBase ?? getWeb3eduBackendUrl();
 

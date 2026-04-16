@@ -40,7 +40,6 @@ const SbtViewGR = lazy(() => import("../pages/SbtViewGR.jsx"));
 const VerifyIdentity = lazy(() => import("../pages/VerifyIdentity.jsx"));
 const VerifyIdentityGR = lazy(() => import("../pages/VerifyIdentityGR.jsx"));
 const Labs = lazy(() => import("../pages/Labs.jsx"));
-const LabsGR = lazy(() => import("../pages/LabsGR.jsx"));
 const Lab01 = lazy(() => import("../pages/labs/Lab01.jsx"));
 const Lab01GR = lazy(() => import("../pages/labs/Lab01GR.jsx"));
 const Lab02 = lazy(() => import("../pages/labs/Lab02.jsx"));
@@ -167,7 +166,7 @@ export const routeTable = {
       { path: "/verify/:address", component: VerifyIdentity },
       { path: "/verify-gr/:address", component: VerifyIdentityGR },
       { path: "/labs", component: Labs },
-      { path: "/labs-gr", component: LabsGR },
+      { path: "/labs-gr", component: Labs, props: { lang: "gr" } },
       { path: "/labs/wallets-keys", component: Lab01 },
       { path: "/labs-gr/wallets-keys", component: Lab01GR },
       { path: "/labs/lab02", component: Lab02 },

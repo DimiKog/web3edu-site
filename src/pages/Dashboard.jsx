@@ -16,13 +16,14 @@ import {
 import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
 import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
+import IdentityBackupBanner from "../components/IdentityBackupBanner.jsx";
 import { projects } from "../services/projectService.js";
 import {
     shortAddress,
     AddressIdenticon,
 } from "../components/identity-ui.jsx";
 import { useIdentity } from "../context/IdentityContext.jsx";
-import { useResolvedIdentityContext } from "../context/ResolvedIdentityContext.jsx";
+import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { exportIdentity } from "../utils/identityExport.js";
 import { clearIdentityState } from "../utils/aaIdentity.js";
 
@@ -556,6 +557,8 @@ export default function Dashboard() {
                   }
                 `}
                 </style>
+
+                <IdentityBackupBanner variant="en" />
 
                 {/* Glow */}
                 <div className="absolute inset-0 pointer-events-none">

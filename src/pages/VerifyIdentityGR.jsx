@@ -35,6 +35,12 @@ export default function VerifyIdentityGR() {
     const [error, setError] = useState("");
     const [profile, setProfile] = useState(null);
 
+    /**
+     * `routeAddress` may be an EOA or a smart account. Public resolve uses the path alone;
+     * when the URL matches the viewer's own identity (SC or stored owner), we append
+     * `?owner=` via {@link buildWeb3SbtResolveUrlForViewer} so the backend can resolve legacy
+     * rows even if wagmi is disconnected (owner comes from IdentityContext).
+     */
     useEffect(() => {
         window.scrollTo(0, 0);
 

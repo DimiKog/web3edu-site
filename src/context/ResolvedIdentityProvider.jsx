@@ -1,10 +1,9 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useAccount } from "wagmi";
 import { useIdentity } from "./IdentityContext.jsx";
+import { ResolvedIdentityContext } from "./resolvedIdentityContext.js";
 import { useResolvedIdentity } from "../hooks/useResolvedIdentity.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
-
-const ResolvedIdentityContext = createContext(null);
 
 /**
  * Single app-wide /web3sbt/resolve subscriber (one network fetch per identity key).
@@ -21,8 +20,7 @@ export function ResolvedIdentityProvider({ children }) {
   const { metadata, profile, loading, error, refetch } = useResolvedIdentity(
     identityAddress,
     owner ?? null,
-    address ?? null,
-    smartAccount ?? null
+    address ?? null
   );
 
   const walletTier = metadata?.tier ?? "Explorer";
@@ -46,14 +44,4 @@ export function ResolvedIdentityProvider({ children }) {
       {children}
     </ResolvedIdentityContext.Provider>
   );
-}
-
-export function useResolvedIdentityContext() {
-  const ctx = useContext(ResolvedIdentityContext);
-  if (!ctx) {
-    throw new Error(
-      "useResolvedIdentityContext must be used within ResolvedIdentityProvider"
-    );
-  }
-  return ctx;
 }

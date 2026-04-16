@@ -6,7 +6,7 @@ import { getProjectById, localizeProject } from "../services/projectService";
 import CryptoJS from "crypto-js";
 import { keccak_256 } from "@noble/hashes/sha3";
 import { useIdentity } from "../context/IdentityContext.jsx";
-import { useResolvedIdentityContext } from "../context/ResolvedIdentityContext.jsx";
+import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
 
 const capitalize = (s) =>

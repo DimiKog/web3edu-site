@@ -13,7 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAccount, useDisconnect } from "wagmi";
 import { useIdentity } from "../context/IdentityContext.jsx";
-import { useResolvedIdentityContext } from "../context/ResolvedIdentityContext.jsx";
+import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
 const WALLET_ADDRESS_KEY = "web3edu-wallet-address";

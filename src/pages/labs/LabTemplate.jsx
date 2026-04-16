@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIdentity } from "../../context/IdentityContext.jsx";
 import {
     buildLabsStatusUrl,
-    resolveReadOwnerQueryParam,
+    buildResolveOwner,
     getWeb3eduBackendUrl,
 } from "../../lib/web3eduBackend.js";
 import { getLabsStatusReadIdentity, postLabsStart } from "../../utils/labWriteApi.js";
@@ -68,14 +68,14 @@ const LabTemplate = ({
     const mergedLabels = { ...DEFAULT_LABELS, ...labels };
 
     const { address } = useAccount();
-    const { smartAccount } = useIdentity();
+    const { smartAccount, owner: identityOwner } = useIdentity();
     const { identityAddress } = useMemo(
         () => getLabsStatusReadIdentity({ smartAccount }),
         [smartAccount]
     );
     const statusOwner = useMemo(
-        () => resolveReadOwnerQueryParam(smartAccount, address, null),
-        [smartAccount, address]
+        () => buildResolveOwner(address, identityOwner),
+        [address, identityOwner]
     );
 
     const [claimed, setClaimed] = useState(false);
@@ -96,6 +96,7 @@ const LabTemplate = ({
                 apiBase: API_BASE,
                 smartAccount,
                 address,
+                owner: identityOwner,
                 labId,
             });
             if (!res.ok) {
@@ -106,7 +107,7 @@ const LabTemplate = ({
             // eslint-disable-next-line no-console -- non-fatal lab start telemetry
             console.warn("Failed to record lab start", err);
         }
-    }, [API_BASE, smartAccount, address, labId]);
+    }, [API_BASE, smartAccount, address, identityOwner, labId]);
 
     useEffect(() => {
         if (!identityAddress || !labId) {

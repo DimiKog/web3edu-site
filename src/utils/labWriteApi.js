@@ -1,4 +1,4 @@
-import { getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
+import { buildResolveOwner, getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "./evmAddress.js";
 
 const LAB_START_SESSION_PREFIX = "web3edu:labsStart:v1:";
@@ -23,8 +23,8 @@ export function getLabsStatusReadIdentity({ smartAccount }) {
 }
 
 /**
- * POST /labs/start — AA `wallet` + optional wagmi EOA `owner` for migration only.
- * Never IdentityContext `owner`, never readConnectedEoaAddress.
+ * POST /labs/start — AA `wallet` + EOA `owner` (wagmi `address` when connected, else IdentityContext `owner`
+ * for walletless AA) so the backend can key XP the same way as {@link buildLabsStatusUrl}.
  *
  * Idempotent per browser tab: after a successful response for the same (labId, smartAccount),
  * further calls resolve immediately without a second network request.
@@ -33,6 +33,7 @@ export async function postLabsStart({
   apiBase,
   smartAccount,
   address,
+  owner,
   labId,
 } = {}) {
   const storageKey = labStartSessionStorageKey(labId, smartAccount);
@@ -59,6 +60,8 @@ export async function postLabsStart({
   const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
   const startedAt = new Date().toISOString();
 
+  const ownerPayload = buildResolveOwner(address, owner);
+
   const promise = (async () => {
     try {
       const res = await fetch(`${base}/labs/start`, {
@@ -66,7 +69,7 @@ export async function postLabsStart({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wallet: smartAccount,
-          owner: address ?? null,
+          owner: ownerPayload,
           labId,
           startedAt,
         }),
