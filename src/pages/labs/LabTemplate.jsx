@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIdentity } from "../../context/IdentityContext.jsx";
 import {
     buildLabsStatusUrl,
-    buildResolveOwner,
     getWeb3eduBackendUrl,
 } from "../../lib/web3eduBackend.js";
 import { getLabsStatusReadIdentity, postLabsStart } from "../../utils/labWriteApi.js";
@@ -73,11 +72,6 @@ const LabTemplate = ({
         () => getLabsStatusReadIdentity({ smartAccount }),
         [smartAccount]
     );
-    const statusOwner = useMemo(
-        () => buildResolveOwner(address, identityOwner),
-        [address, identityOwner]
-    );
-
     const [claimed, setClaimed] = useState(false);
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completedAt, setCompletedAt] = useState(null);
@@ -115,34 +109,44 @@ const LabTemplate = ({
             return;
         }
 
+        let cancelled = false;
+        const controller = new AbortController();
+
         const checkCompletion = async () => {
             try {
-                // eslint-disable-next-line no-console -- AA / backend integration debug
-                console.log("API CALL", { identityAddress, statusOwner });
                 const res = await fetch(
-                    buildLabsStatusUrl(identityAddress, labId, statusOwner)
+                    buildLabsStatusUrl(identityAddress, labId, null),
+                    { signal: controller.signal }
                 );
 
                 if (!res.ok) {
-                    setCheckingStatus(false);
+                    if (!cancelled) setCheckingStatus(false);
                     return;
                 }
 
                 const data = await res.json();
-                if (data.completed === true) {
+                if (!cancelled && data.completed === true) {
                     setClaimed(true);
                     setCompletedAt(data.completedAt || null);
                 }
             } catch (err) {
-                // eslint-disable-next-line no-console -- non-fatal status restore
-                console.warn("Failed to restore lab completion state", err);
+                if (cancelled || err?.name === "AbortError") return;
+                if (import.meta.env.DEV) {
+                    // eslint-disable-next-line no-console -- non-fatal status restore
+                    console.warn("Failed to restore lab completion state", err);
+                }
             } finally {
-                setCheckingStatus(false);
+                if (!cancelled) setCheckingStatus(false);
             }
         };
 
         checkCompletion();
-    }, [identityAddress, statusOwner, labId]);
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [identityAddress, labId]);
 
     return (
         <PageShell>
@@ -286,8 +290,8 @@ const LabTemplate = ({
                         {mergedLabels.tools}
                     </h3>
                     <ul className="space-y-2 text-slate-700 dark:text-slate-300">
-                        {tools.map((tool, idx) => (
-                            <li key={idx} className="flex items-center gap-2">
+                        {tools.map((tool) => (
+                            <li key={tool} className="flex items-center gap-2">
                                 🛠️ <span>{tool}</span>
                             </li>
                         ))}
@@ -303,8 +307,8 @@ const LabTemplate = ({
                         {mergedLabels.prerequisites}
                     </h3>
                     <ul className="space-y-2 text-slate-700 dark:text-slate-300">
-                        {prerequisites.map((item, idx) => (
-                            <li key={idx} className="flex items-center gap-2">
+                        {prerequisites.map((item) => (
+                            <li key={item} className="flex items-center gap-2">
                                 ⚠️ <span>{item}</span>
                             </li>
                         ))}

@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAccount } from "wagmi";
 import { useIdentity } from "../context/IdentityContext.jsx";
-import {
-    buildWeb3SbtResolveUrl,
-    resolveReadOwnerQueryParam,
-} from "../lib/web3eduBackend.js";
+import { buildWeb3SbtResolveUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import PageShell from "../components/PageShell.jsx";
 import web3eduLogoDark from "../assets/web3edu_logo.svg";
@@ -14,8 +10,7 @@ import web3eduLogoLight from "../assets/web3edu_logo_light.svg";
 const WelcomeIdentityGR = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { address } = useAccount();
-    const { owner, smartAccount } = useIdentity();
+    const { smartAccount, isIdentityReady, identityHydrated } = useIdentity();
 
     const [isDark, setIsDark] = useState(false);
     const txHashRaw = new URLSearchParams(location.search).get("tx");
@@ -23,14 +18,23 @@ const WelcomeIdentityGR = () => {
     const [tokenIdError, setTokenIdError] = useState(null);
 
     const resolveUrl = useMemo(() => {
-        const path =
-            normalizeEvmAddress(smartAccount) ?? normalizeEvmAddress(owner);
+        const path = normalizeEvmAddress(smartAccount);
         if (!path) return null;
-        return buildWeb3SbtResolveUrl(
-            path,
-            resolveReadOwnerQueryParam(address)
-        );
-    }, [smartAccount, owner, address]);
+        return buildWeb3SbtResolveUrl(path, null);
+    }, [smartAccount]);
+
+    useEffect(() => {
+        if (!identityHydrated) return;
+        if (normalizeEvmAddress(smartAccount)) return;
+        navigate("/join-gr", { replace: true });
+    }, [identityHydrated, smartAccount, navigate]);
+
+    useEffect(() => {
+        if (!isIdentityReady) return;
+        const p = location.pathname || "";
+        if (p !== "/welcome" && p !== "/welcome-gr") return;
+        navigate(p === "/welcome-gr" ? "/dashboard-gr" : "/dashboard", { replace: true });
+    }, [isIdentityReady, location.pathname, navigate]);
 
     useEffect(() => {
         if (!resolveUrl) return;
@@ -164,14 +168,15 @@ const WelcomeIdentityGR = () => {
                     </h1>
                     <p className="animate-[fadeIn_0.9s_ease-out] text-md text-slate-600 dark:text-gray-300 leading-relaxed dark:leading-loose max-w-md mb-8">
                         Ολοκλήρωσες με επιτυχία την έκδοση του <strong>Web3Edu Identity SBT</strong>.
-                        Πρόκειται για την μόνιμη <strong>on-chain μαθησιακή ταυτότητά σου</strong>, η οποία ξεκλειδώνει πρόσβαση στο
+                        Πρόκειται για την <strong>on-chain μαθησιακή ταυτότητά σου</strong> (soulbound &amp; μη μεταβιβάσιμη) που
+                        ενημερώνεται καθώς μαθαίνεις, και ξεκλειδώνει πρόσβαση στο
                         <strong>προφίλ προόδου</strong>, τα <strong>επιτεύγματά</strong> σου και τις μελλοντικές λειτουργίες <strong>συμμετοχής στη DAO</strong>.
                     </p>
 
                     {/* Middle: Completed steps summary */}
                     <div className="bg-purple-200/40 dark:bg-purple-900/40 rounded-xl py-4 px-6 mb-8 w-full max-w-md text-left text-purple-800 dark:text-purple-200">
                         <ul className="list-disc list-inside space-y-2">
-                            <li><strong>Το wallet συνδέθηκε με επιτυχία</strong></li>
+                            <li><strong>Η ταυτότητα δημιουργήθηκε (με ή χωρίς wallet)</strong></li>
                             <li><strong>Το Identity SBT εκδόθηκε</strong></li>
                             <li><strong>Το Dashboard ξεκλειδώθηκε</strong></li>
                         </ul>

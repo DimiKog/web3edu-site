@@ -2,13 +2,13 @@ import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { useCallback, useEffect, useState } from "react";
 import PageShell from "../components/PageShell.jsx";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import joinHero from "../assets/join-hero.webp";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loadIdentityState } from "../utils/aaIdentity.js";
-import { importIdentity } from "../utils/identityExport.js";
 import { useIdentity } from "../context/IdentityContext.jsx";
-import { getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
+import { tryProvisionMintedWalletIdentityFromOwner } from "../utils/provisionWalletIdentityFromOwner.js";
+import { useAuth } from "react-oidc-context";
+import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
+import { saveReturnUrl } from "../auth/oidcConfig.js";
 
 function readHasPersistedAaIdentity() {
     const s = loadIdentityState();
@@ -18,14 +18,15 @@ function readHasPersistedAaIdentity() {
 export default function Join() {
     const { address, isConnected } = useAccount();
     const { openConnectModal } = useConnectModal();
-    const { clearIdentity } = useIdentity();
+    const { clearIdentity, setIdentity, isIdentityReady } = useIdentity();
+    const auth = useAuth();
+    const { socialIdentityLoading, socialIdentityError, resolveNow } = useSocialIdentity();
     const navigate = useNavigate();
+    const location = useLocation();
     const [networkOK, setNetworkOK] = useState(true);
     const [loadingNetwork, setLoadingNetwork] = useState(false);
     const [checkingSBT, setCheckingSBT] = useState(false);
     const [hasPersistedAa, setHasPersistedAa] = useState(readHasPersistedAaIdentity);
-    const [showImportIdentity, setShowImportIdentity] = useState(false);
-    const [importPaste, setImportPaste] = useState("");
 
     // Check if user is connected to Web3Edu Besu Edu-Net (chainId 424242)
     const checkNetwork = useCallback(async () => {
@@ -58,33 +59,48 @@ export default function Join() {
         }
     }, [isConnected, checkNetwork]);
 
+    useEffect(() => {
+        if (!isIdentityReady) return;
+        const p = location.pathname || "";
+        if (p !== "/join" && p !== "/join-gr") return;
+        navigate(p === "/join-gr" ? "/dashboard-gr" : "/dashboard", { replace: true });
+    }, [isIdentityReady, location.pathname, navigate]);
+
     const handleLegacyContinue = async () => {
         if (!address) {
             alert("Connect your wallet first to check an existing Identity SBT.");
             return;
         }
-        const BACKEND = getWeb3eduBackendUrl();
 
         setCheckingSBT(true);
 
         try {
-            const res = await axios.get(`${BACKEND}/check-sbt/${address}`, {
-                timeout: 8000
-            });
-
-            if (res.data.hasSBT === true) {
-                setCheckingSBT(false);
-                navigate("/dashboard");
-            } else {
-                setCheckingSBT(false);
-                navigate("/mint-identity");
+            const status = await tryProvisionMintedWalletIdentityFromOwner(address, setIdentity);
+            if (status === "minted") {
+                navigate("/dashboard", { replace: true });
+                return;
             }
+            if (status === "not_minted") {
+                navigate("/mint-identity", { replace: true });
+                return;
+            }
+            alert(
+                "Could not reach the identity service or no identity was found for this wallet. Try again or start mint."
+            );
         } catch (e) {
+            console.error("Wallet continue failed:", e);
+            alert("Could not verify your wallet identity. Please try again.");
+        } finally {
             setCheckingSBT(false);
-            console.error("SBT check failed:", e);
-            alert("Could not check your Identity SBT. Please try again.");
         }
     };
+
+    const primaryButtonClassName = "w-full rounded-xl bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] px-4 py-3 text-sm font-semibold text-white shadow-md shadow-[#8A57FF]/20 transition hover:brightness-110";
+    const secondaryButtonClassName = "w-full rounded-xl border border-slate-300/80 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/15";
+    const optionCardClassName = "relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white/65 p-5 text-left shadow-[0_12px_32px_rgba(15,23,42,0.10)] backdrop-blur-md ring-1 ring-white/60 transition-colors duration-300 dark:border-white/10 dark:bg-white/[0.06] dark:ring-white/10";
+
+    /** No local AA payload and not OIDC-authenticated → show device-based mint path. */
+    const showNewUserDeviceAaPath = !hasPersistedAa && !auth?.isAuthenticated;
 
     return (
         <PageShell>
@@ -113,81 +129,43 @@ blur-[110px] rounded-full dark:hidden"></div>
                     <div className="absolute bottom-1/3 right-1/4 w-[240px] h-[240px] bg-[#8A57FF]/18 blur-[100px] rounded-full hidden dark:block"></div>
                 </div>
 
-                {/* Step Header */}
-                <div className="relative z-20 max-w-xl w-full mb-12 flex flex-col items-center select-none">
-
-                    {/* Section Title Above Steps */}
-                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-4 tracking-tight">
-                        Identity Setup
-                    </h2>
-
-                    <div className="w-24 h-1 mb-6 rounded-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/30 to-[#FF67D2]/40"></div>
-
-                    {/* Steps Row */}
-                    <div className="flex justify-between items-center w-full text-sm font-semibold text-slate-700 dark:text-gray-400">
-
-                        {/* Step 1 — ACTIVE */}
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-br from-[#8A57FF]/15 via-[#4ACBFF]/10 to-[#FF67D2]/15 border border-[#8A57FF]/20 shadow-sm">
-                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] text-white font-bold shadow-md">
-                                1
-                            </div>
-                            <span className="text-slate-900 dark:text-white tracking-wide">Connect Wallet</span>
-                        </div>
-
-                        {/* Step 2 */}
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-600 dark:text-gray-400">
-                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-200 dark:bg-white/15 text-slate-800 dark:text-white">
-                                2
-                            </div>
-                            <span className="tracking-wide">Mint SBT</span>
-                        </div>
-
-                        {/* Step 3 */}
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-600 dark:text-gray-400">
-                            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-200 dark:bg-white/15 text-slate-800 dark:text-white">
-                                3
-                            </div>
-                            <span className="tracking-wide">Welcome</span>
-                        </div>
-
-                    </div>
-
-                    {/* Divider */}
-                    <div className="w-full h-px mt-6 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-70"></div>
-                </div>
-
                 <div className="relative z-10 max-sm:px-6
-bg-white/80 dark:bg-white/5
-border border-slate-200/70 dark:border-white/15
-shadow-[0_8px_24px_rgba(15,23,42,0.18)]
-backdrop-blur-md rounded-3xl px-10 py-12
-                max-w-3xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] transition-colors duration-500">
+bg-transparent
+border border-white/40 dark:border-white/10
+shadow-[0_18px_60px_rgba(15,23,42,0.10)]
+backdrop-blur-xl rounded-[28px] px-6 sm:px-10 py-10 sm:py-12
+max-w-4xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] transition-colors duration-500
+ring-1 ring-slate-900/5 dark:ring-white/10">
 
                     {hasPersistedAa && !isConnected ? (
                         <div
-                            className="mb-8 w-full max-w-md rounded-2xl border border-indigo-200/60 bg-indigo-50/80 px-4 py-4 text-left
-                            dark:border-indigo-500/30 dark:bg-indigo-950/40"
+                            className="mb-8 w-full max-w-[42rem] rounded-2xl border border-emerald-200/75 bg-emerald-50/90 px-5 py-5 text-left shadow-sm ring-1 ring-emerald-500/15
+                            dark:border-emerald-500/35 dark:bg-emerald-950/35 dark:ring-emerald-500/20"
                         >
-                            <p className="text-sm font-semibold text-slate-800 dark:text-white">
-                                Saved Web3Edu identity found
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-800/90 dark:text-emerald-200/90">
+                                Returning on this browser
                             </p>
-                            <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                                Continue with it, connect a wallet, or reset this browser identity.
+                            <p className="mt-2 text-base font-semibold text-slate-900 dark:text-white">
+                                Continue on this device
                             </p>
-                            <div className="mt-3 flex flex-col gap-2">
+                            <p className="mt-2 text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
+                                Use your existing Web3Edu identity saved in this browser. You can connect a Web3Edu account
+                                or wallet later for easier sign-in.
+                            </p>
+                            <div className="mt-4 flex flex-col gap-2">
                                 <button
                                     type="button"
                                     onClick={() => navigate("/dashboard")}
-                                    className="w-full rounded-lg bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] py-2.5 text-xs font-semibold text-white shadow-md"
+                                    className={primaryButtonClassName}
                                 >
-                                    Continue with saved identity
+                                    Continue on this device
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => openConnectModal?.()}
-                                    className="w-full rounded-lg border border-slate-300/80 bg-white/90 py-2.5 text-xs font-semibold text-slate-800 dark:border-white/20 dark:bg-white/10 dark:text-white"
+                                    className="w-full rounded-xl border border-slate-300/80 bg-white/90 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-white dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
                                 >
-                                    Connect wallet
+                                    Connect a wallet
                                 </button>
                                 <button
                                     type="button"
@@ -197,120 +175,205 @@ backdrop-blur-md rounded-3xl px-10 py-12
                                         clearIdentity();
                                         setHasPersistedAa(false);
                                     }}
-                                    className="w-full rounded-lg border border-red-200/60 bg-red-50/90 py-2.5 text-xs font-semibold text-red-800 dark:border-red-400/30 dark:bg-red-950/30 dark:text-red-100"
+                                    className="w-full rounded-xl border border-red-200/60 bg-red-50/90 py-2.5 text-xs font-semibold text-red-800 dark:border-red-400/30 dark:bg-red-950/30 dark:text-red-100"
                                 >
-                                    Reset identity
+                                    Reset this device session
                                 </button>
                             </div>
                         </div>
                     ) : null}
 
-                    <h1 className="text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight mt-4 mb-5 drop-shadow-[0_2px_4px_rgba(0,0,0,0.40)] relative z-10">
-                        Start Your Web3Edu Journey
-                    </h1>
-
-                    <p className="mt-3 text-lg text-slate-700 dark:text-white/85 max-w-md leading-relaxed tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.35)] relative z-10">
-                        Connect your wallet to access Web3-native learning, earn points,
-                        and unlock your dynamic Identity Soulbound Token (SBT).
-                    </p>
-
-                    <div className="relative mt-10 p-3 rounded-2xl bg-white/5 backdrop-blur-md shadow-inner shadow-black/10">
-                        <div className="absolute inset-0 blur-[55px]
-                        bg-gradient-to-br from-sky-300/20 via-purple-300/20 to-pink-300/20
-                        dark:from-[#8A57FF]/25 dark:via-[#4ACBFF]/20 dark:to-[#FF67D2]/20
-                        rounded-2xl"></div>
-                        <img src={joinHero}
-                            alt="Web3Edu Identity Illustration"
-                            className="relative w-full max-w-lg sm:max-w-xl rounded-2xl shadow-lg shadow-black/30 opacity-95 animate-fadeIn mx-auto"
-                            loading="eager" fetchPriority="high"
-                        />
+                    <div className="w-full flex flex-col items-center">
+                        <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                            Join Web3Edu
+                        </p>
+                        <h1 className="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.28)] relative z-10">
+                        How do you want to enter Web3Edu?
+                        </h1>
                     </div>
 
-                    <div className="mt-10 relative z-10 p-3 rounded-xl bg-white/70 dark:bg-white/5 backdrop-blur-lg shadow-[0_4px_18px_rgba(0,0,0,0.10)] dark:shadow-[0_4px_18px_rgba(15,23,42,0.18)]">
-                        <ConnectButton />
+                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed relative z-10">
+                        Choose how you want to start. You can switch later.
+                    </p>
+
+                    <div className="mt-7 w-full relative z-10">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            {/* Option 1: Web3Edu account */}
+                            <div className={optionCardClassName}>
+                                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2] opacity-70" />
+                                <div className="flex items-start gap-3">
+                                    <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/70 bg-white/70 text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/10 dark:text-slate-200">
+                                        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                            Sign in with Web3Edu
+                                        </p>
+                                        <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
+                                            New or returning — sign in with Keycloak.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-5 flex flex-1 flex-col justify-end">
+                                    {!auth?.isAuthenticated ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => { saveReturnUrl(location.state?.from); void auth?.signinRedirect?.(); }}
+                                            className={primaryButtonClassName}
+                                        >
+                                            Sign in
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-3">
+                                        <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 px-3 py-2 text-xs text-slate-700 dark:border-slate-800/70 dark:bg-slate-950/30 dark:text-slate-200">
+                                            You’re signed in.
+                                            {socialIdentityError ? (
+                                                <div className="mt-1 text-red-600 dark:text-red-300">
+                                                    {socialIdentityError}
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => navigate("/dashboard")}
+                                                className={primaryButtonClassName}
+                                            >
+                                                Continue
+                                            </button>
+                                            <button
+                                                type="button"
+                                                disabled={socialIdentityLoading}
+                                                onClick={() => void resolveNow()}
+                                                className="w-full rounded-xl border border-slate-300/70 bg-white/90 px-4 py-2.5 text-xs font-semibold text-slate-900 hover:bg-slate-50 disabled:opacity-60 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                                            >
+                                                {socialIdentityLoading
+                                                    ? "Finishing sign-in…"
+                                                    : "Trouble loading your account? Retry"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Option 2: Wallet */}
+                            <div className={optionCardClassName}>
+                                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#4ACBFF] via-[#8A57FF] to-[#FF67D2] opacity-60" />
+                                <div className="flex items-start gap-3">
+                                    <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/70 bg-white/70 text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/10 dark:text-slate-200">
+                                        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8V7a2 2 0 00-2-2H6a2 2 0 00-2 2v1" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M16 14h2" />
+                                        </svg>
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                            Connect a wallet
+                                        </p>
+                                        <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
+                                            For wallet-first users.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-5 flex flex-1 flex-col justify-end">
+                                    <div className="rounded-xl p-[1px] bg-gradient-to-r from-[#8A57FF]/35 via-[#4ACBFF]/30 to-[#FF67D2]/35 shadow-[0_8px_24px_rgba(74,203,255,0.10)]">
+                                        <div className="rounded-xl bg-white/80 p-2 dark:bg-white/5">
+                                            <ConnectButton.Custom>
+                                                {({
+                                                    account,
+                                                    chain,
+                                                    mounted,
+                                                    authenticationStatus,
+                                                    openAccountModal,
+                                                    openChainModal,
+                                                    openConnectModal: openWalletModal,
+                                                }) => {
+                                                    const ready = mounted && authenticationStatus !== "loading";
+                                                    const connected = ready && account && chain && (!authenticationStatus || authenticationStatus === "authenticated");
+
+                                                    let buttonLabel = "Connect Wallet";
+                                                    let buttonAction = openWalletModal;
+
+                                                    if (connected && chain.unsupported) {
+                                                        buttonLabel = "Wrong network";
+                                                        buttonAction = openChainModal;
+                                                    } else if (connected) {
+                                                        buttonLabel = account.displayName ? `Connected: ${account.displayName}` : "Wallet connected";
+                                                        buttonAction = openAccountModal;
+                                                    }
+
+                                                    return (
+                                                        <button
+                                                            type="button"
+                                                            onClick={buttonAction}
+                                                            className={connected && !chain.unsupported ? secondaryButtonClassName : primaryButtonClassName}
+                                                        >
+                                                            {buttonLabel}
+                                                        </button>
+                                                    );
+                                                }}
+                                            </ConnectButton.Custom>
+                                        </div>
+                                    </div>
+
+                                    {isConnected && loadingNetwork ? (
+                                        <p className="mt-3 text-xs text-slate-600 dark:text-slate-300 animate-pulse">
+                                            Checking network…
+                                        </p>
+                                    ) : null}
+
+                                    {isConnected && networkOK && !loadingNetwork ? (
+                                        <div className="mt-4 space-y-2">
+                                            <button
+                                                type="button"
+                                                onClick={handleLegacyContinue}
+                                                disabled={checkingSBT}
+                                                className={`w-full rounded-xl border border-slate-300/80 dark:border-white/20
+                                            bg-white/90 dark:bg-white/10 text-slate-800 dark:text-white
+                                            py-3 text-sm font-semibold shadow-md tracking-wide transition-all duration-300
+                                            ${checkingSBT ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:scale-[1.01]"}`}
+                                            >
+                                                {checkingSBT ? "Checking identity…" : "Continue with connected wallet"}
+                                            </button>
+                                            {checkingSBT ? (
+                                                <p className="text-xs text-slate-600 dark:text-slate-300 animate-pulse">
+                                                    Verifying your identity…
+                                                </p>
+                                            ) : null}
+                                        </div>
+                                    ) : null}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <p className="mt-3 text-sm text-slate-600 dark:text-gray-400 tracking-wide">
-                        No gas fees. Your wallet always remains yours.
-                    </p>
 
-                    <button
-                        type="button"
-                        onClick={() => navigate("/mint-identity")}
-                        className="mt-8 relative z-10 py-3 px-8 rounded-xl w-full max-w-md
-                        bg-gradient-to-r from-[#8A57FF] via-[#4ACBFF] to-[#FF67D2]
-                        text-white font-semibold shadow-lg shadow-[#8A57FF]/30 tracking-wide
-                        transition-all duration-300 hover:opacity-90 hover:scale-[1.02]"
-                    >
-                        Create your Web3Edu identity
-                    </button>
-                    <p className="mt-2 text-xs text-slate-500 dark:text-slate-400 max-w-md">
-                        No wallet required — uses a browser key and Account Abstraction.
-                    </p>
-
-                    {isConnected && networkOK && !loadingNetwork && (
-                        <button
-                            type="button"
-                            onClick={handleLegacyContinue}
-                            disabled={checkingSBT}
-                            className={`mt-8 relative z-10 py-3 px-8 rounded-xl
-                        border border-slate-300/80 dark:border-white/20
-                        bg-white/90 dark:bg-white/10 text-slate-800 dark:text-white
-                        font-semibold shadow-md tracking-wide
-                        transition-all duration-300
-                        ${checkingSBT ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:scale-[1.02]"}`}
-                        >
-                            {checkingSBT ? "Checking identity…" : "Continue"}
-                        </button>
-                    )}
-
-                    {checkingSBT && (
-                        <p className="mt-4 text-md text-slate-700 dark:text-white/75 tracking-wide relative z-10 animate-pulse">
-                            Verifying your Identity SBT…
-                        </p>
-                    )}
-
-                    {isConnected && loadingNetwork && (
-                        <p className="mt-6 text-md text-slate-700 dark:text-white/75 tracking-wide relative z-10 animate-pulse">
-                            Checking network…
-                        </p>
-                    )}
-
-                    <div className="mt-8 w-full max-w-md">
-                        <button
-                            type="button"
-                            onClick={() => setShowImportIdentity((v) => !v)}
-                            className="text-xs text-slate-500 hover:text-indigo-500 dark:text-slate-400"
-                        >
-                            {showImportIdentity ? "▼ Hide import" : "▸ Import Identity"}
-                        </button>
-                        {showImportIdentity ? (
-                            <div className="mt-2 flex flex-col gap-2 rounded-xl border border-slate-200/70 bg-white/60 p-3 dark:border-white/10 dark:bg-white/[0.06]">
-                                <textarea
-                                    value={importPaste}
-                                    onChange={(e) => setImportPaste(e.target.value)}
-                                    placeholder="Paste exported backup (JSON) or owner private key…"
-                                    rows={4}
-                                    className="w-full resize-y rounded border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-900 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
-                                />
+                    {showNewUserDeviceAaPath ? (
+                        <div className="mt-8 w-full max-w-[42rem] relative z-10 text-left">
+                            <div className="rounded-2xl border border-slate-200/60 bg-white/35 p-5 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04] ring-1 ring-white/40 dark:ring-white/10">
+                                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                    Start or continue without a wallet
+                                </p>
+                                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    Create a device-based identity now. You can connect a Web3Edu account or wallet later
+                                    for easier sign-in.
+                                </p>
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        const ok = importIdentity(importPaste);
-                                        if (!ok) {
-                                            alert("Import failed");
-                                            return;
-                                        }
-                                        setImportPaste("");
-                                        setShowImportIdentity(false);
-                                        window.location.href = "/#/dashboard";
-                                    }}
-                                    className="rounded-lg bg-indigo-600 py-2 text-xs font-semibold text-white hover:bg-indigo-500"
+                                    onClick={() => navigate("/mint-identity")}
+                                    className={`mt-4 ${secondaryButtonClassName}`}
                                 >
-                                    Import Identity
+                                    Continue without a wallet
                                 </button>
                             </div>
-                        ) : null}
-                    </div>
+                        </div>
+                    ) : null}
                 </div>
 
             </div>

@@ -2,16 +2,13 @@ import { LockClosedIcon } from "@heroicons/react/24/solid";
 import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import identityFallback from "../assets/icons/identity-icon.webp";
-import { getRoleFromXpTotal, getXpTotalFromBackend } from "../utils/progression.js";
+import {
+    getRoleFromXpTotal,
+    getXpTotalFromBackend,
+    isTruthyFounderFlag,
+} from "../utils/progression.js";
 
-<style jsx>{`
-@keyframes slideDownFade {
-    0% { opacity: 0; transform: translateY(-10px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-`}</style>
-
-export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" }) {
+export default function IdentityCard({ metadata, tokenId, wallet, lang = "en", variant = "full" }) {
     const {
         name,
         image,
@@ -30,8 +27,16 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
         attributes.find(a => ["specialization", "speciality"].includes((a.trait_type || "").toLowerCase()))?.value ||
         metaSpec ||
         metaSpeciality;
+    const founderAttr = attributes.find(
+        a => (a.trait_type || "").toLowerCase() === "founder"
+    )?.value;
     const isFounder =
-        attributes.find(a => (a.trait_type || "").toLowerCase() === "founder")?.value === true;
+        isTruthyFounderFlag(founderAttr) ||
+        isTruthyFounderFlag(metadata?.founder) ||
+        isTruthyFounderFlag(metadata?.isFounder) ||
+        metadata?.edition === "Founder Edition" ||
+        metadata?.role === "Founder" ||
+        String(metadata?.role || "").toLowerCase() === "founder";
     const resolvedImage =
         image ||
         avatar ||
@@ -81,29 +86,32 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                 ? "shadow-[0_0_22px_rgba(0,200,255,0.25)]"
                 : "shadow-[0_0_18px_rgba(168,85,247,0.20)]";
 
+    const isCompact = variant === "compact";
+
     return (
         <div
             className={`
-            relative mx-auto max-w-md
+            relative mx-auto w-full ${isCompact ? "max-w-sm" : "max-w-md"}
             rounded-3xl p-[2px]
             bg-gradient-to-r from-purple-700 via-purple-500 to-purple-700
             shadow-[0_0_12px_rgba(88,28,135,0.22)]
             transition-all duration-500 ${tierGlow}
             ${mounted ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"}
-            my-10
+            ${isCompact ? "my-4" : "my-10"}
         `}
         >
             <div
                 className="
                     bg-white dark:bg-gray-900
-                    rounded-3xl p-6
+                    rounded-3xl p-5
                     shadow-xl backdrop-blur-xl
                     border border-gray-800/40 dark:border-gray-600/30
                 "
             >
 
                 {/* Top Label */}
-                <div className="text-center mb-3">
+                {!isCompact ? (
+                    <div className="text-center mb-3">
                     <span
                         className="
                             text-xs tracking-widest font-semibold
@@ -112,10 +120,11 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                     >
                         {lang === "gr" ? "◆ Ταυτότητα Web3Edu ◆" : "◆ Web3Edu Identity ◆"}
                     </span>
-                </div>
+                    </div>
+                ) : null}
 
                 {/* Avatar */}
-                <div className="flex flex-col items-center mt-2">
+                <div className={`flex flex-col items-center ${isCompact ? "mt-0" : "mt-2"}`}>
                     {(() => {
                         let normalized = identityFallback;
 
@@ -135,13 +144,14 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                         return (
                             <img src={normalized}
                                 alt={lang === "gr" ? "Avatar Ιδρυτή" : "Founder Avatar"}
-                                className="
-                                    w-32 h-32 rounded-full object-cover
+                                className={`
+                                    rounded-full object-cover
                                     ring-[2.5px] ring-purple-500/40
                                     shadow-[0_0_4px_rgba(168,85,247,0.18)]
                                     transition-all duration-500
                                     hover:shadow-[0_0_8px_rgba(168,85,247,0.28)]
-                                "
+                                    ${isCompact ? "w-20 h-20" : "w-32 h-32"}
+                                `}
                                 loading="lazy"
                                 onError={(e) => {
                                     e.target.src = identityFallback;
@@ -153,8 +163,8 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                     {isFounder && (
                         <div
                             className="
-                                mt-4 relative inline-flex items-center
-                                px-6 py-2 rounded-lg
+                                mt-3 relative inline-flex items-center
+                                px-4 py-1.5 rounded-lg
                                 bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600
                                 border border-fuchsia-300/60
                                 shadow-[0_3px_10px_rgba(236,72,153,0.25)]
@@ -167,7 +177,7 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                             "
                         >
                             <span className="text-white font-bold tracking-wide flex items-center gap-2">
-                                ✨ {lang === "gr" ? "Έκδοση Ιδρυτή" : "Founder Edition"} ✨
+                                ✨ {lang === "gr" ? "Έκδοση Ιδρυτή" : "Founder Edition"}
                             </span>
                         </div>
                     )}
@@ -175,7 +185,7 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                     {/* Name */}
                     <h2
                         className="
-                            mt-3 text-[1.9rem] font-bold tracking-wide
+                            mt-3 text-[1.6rem] font-bold tracking-wide
                             text-gray-900 dark:text-white
                         "
                     >
@@ -201,7 +211,8 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                 </div>
 
                 {/* Metadata Section */}
-                <div className="mt-7 space-y-3 text-center">
+                {!isCompact ? (
+                    <div className="mt-7 space-y-3 text-center">
 
                     <div className="text-gray-700 dark:text-gray-300 text-sm">
                         <strong className="text-purple-500">{lang === "gr" ? "Ρόλος:" : "Role:"}</strong> {role || "—"}
@@ -274,17 +285,33 @@ export default function IdentityCard({ metadata, tokenId, wallet, lang = "en" })
                             />
                         </div>
                     )}
-                </div>
+                    </div>
+                ) : (
+                    <div className="mt-4 text-center">
+                        {tokenExplorerUrl ? (
+                            <a
+                                href={tokenExplorerUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs font-semibold text-purple-600 dark:text-purple-400 underline underline-offset-2 hover:text-purple-300 transition-all"
+                            >
+                                {lang === "gr" ? "Προβολή Token στο Blockscout →" : "View token on Blockscout →"}
+                            </a>
+                        ) : null}
+                    </div>
+                )}
 
                 {/* Footer */}
-                <div className="
+                {!isCompact ? (
+                    <div className="
                     mt-6 flex items-center justify-center gap-2 
                     text-gray-600 dark:text-gray-400
                     text-sm
                 ">
                     <LockClosedIcon className="w-5 h-5 text-purple-400" />
                     <span>{lang === "gr" ? "Soulbound • Μη μεταβιβάσιμο" : "Soulbound • Non Transferable"}</span>
-                </div>
+                    </div>
+                ) : null}
             </div>
         </div>
     );

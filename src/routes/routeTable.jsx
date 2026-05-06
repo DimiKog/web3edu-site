@@ -26,8 +26,12 @@ const GenesisEvent = lazy(() => import("../pages/events/GenesisEvent.jsx"));
 const Tools = lazy(() => import("../pages/Tools.jsx"));
 const MiningLab = lazy(() => import("../pages/MiningLab.jsx"));
 const PoSVisualizer = lazy(() => import("../pages/tools/PoSVisualizer.jsx"));
+const AuthCallback = lazy(() => import("../pages/AuthCallback.jsx"));
+const OidcTestPage = lazy(() => import("../pages/OidcTestPage.jsx"));
 
 // Web3 pages
+const Settings = lazy(() => import("../pages/Settings.jsx"));
+const SettingsGR = lazy(() => import("../pages/SettingsGR.jsx"));
 const Join = lazy(() => import("../pages/Join.jsx"));
 const JoinGR = lazy(() => import("../pages/JoinGR.jsx"));
 const MintIdentity = lazy(() => import("../pages/MintIdentity.jsx"));
@@ -113,6 +117,8 @@ export const routeTable = {
   public: [
     { path: "/", element: <AppEN /> },
     { path: "/gr", element: <AppGR /> },
+    { path: "/auth/callback", component: AuthCallback },
+    { path: "/oidc-test", component: OidcTestPage },
     { path: "/poe", component: Poe },
     { path: "/poe-gr", component: PoeGR },
     { path: "/education", component: Education },
@@ -161,6 +167,8 @@ export const routeTable = {
       { path: "/welcome-gr", component: WelcomeIdentityGR },
       { path: "/dashboard", component: Dashboard },
       { path: "/dashboard-gr", component: DashboardGR },
+      { path: "/settings", component: Settings },
+      { path: "/settings-gr", component: SettingsGR },
       { path: "/sbt-view", component: SbtView },
       { path: "/sbt-view-gr", component: SbtViewGR },
       { path: "/verify/:address", component: VerifyIdentity },

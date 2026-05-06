@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState, useRef } from "react";
-import { useAccount } from "wagmi";
+import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from "react";
+import { useAccount, useDisconnect, useSignMessage } from "wagmi";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "react-oidc-context";
 import PageShell from "../components/PageShell.jsx";
 import DashboardCard from "../components/DashboardCard.jsx";
 import XPProgressCard from "../components/XPProgressCard.jsx";
@@ -12,22 +13,52 @@ import {
     ClipboardDocumentIcon,
     ShareIcon,
     ChevronDownIcon,
+    WalletIcon,
 } from "@heroicons/react/24/outline";
 import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
 import LearningTimeline from "../components/LearningTimeline.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
 import IdentityBackupBanner from "../components/IdentityBackupBanner.jsx";
+import SocialLoginRecoveryPrompt from "../components/SocialLoginRecoveryPrompt.jsx";
+import SocialWalletHistoryPrompt from "../components/SocialWalletHistoryPrompt.jsx";
+import SocialWalletProgressImportSection from "../components/SocialWalletProgressImportSection.jsx";
 import { projects } from "../services/projectService.js";
 import {
     shortAddress,
     AddressIdenticon,
+    generateAvatarStyle,
 } from "../components/identity-ui.jsx";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity, warnIfIdentityNotInitialized } from "../context/IdentityContext.jsx";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { exportIdentity } from "../utils/identityExport.js";
-import { clearIdentityState } from "../utils/aaIdentity.js";
+import { getXpTotalFromBackend, isTruthyFounderFlag } from "../utils/progression.js";
+import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
+import {
+    getSocialIdentityAaAddress,
+    getSocialIdentityCustodyType,
+    getSocialIdentityOwnerAddress,
+    getSocialIdentityProvisioningStatus,
+    getSocialIdentityWalletAddress,
+} from "../utils/socialIdentityPayload.js";
+import { normalizeEvmAddress } from "../utils/evmAddress.js";
+import {
+    getSocialWalletOnboardingLocalChoice,
+    setSocialWalletOnboardingNoContinue,
+    setSocialWalletOnboardingYesWallet,
+    isSocialWalletOnboardingSnoozed,
+    setSocialWalletOnboardingSnoozeSession,
+} from "../utils/socialWalletOnboardingStorage.js";
+import {
+    isProgressImportSnoozed,
+    snoozeProgressImport,
+} from "../utils/socialProgressImportSnooze.js";
+import { useSocialAwareWalletConnect } from "../hooks/useSocialAwareWalletConnect.js";
+import { confirmLinkWallet, createLinkWalletChallenge } from "../api/socialIdentity.js";
+import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 
 const EDU_NET_EXPLORER = "https://blockexplorer.dimikog.org";
+const SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY = "web3edu-social-switch-from-local-aa";
+const DASHBOARD_SOCIAL_DEBUG_SESSION_KEY = "web3edu-debug-social-wallet-linkage";
 
 const parseCompletedAt = (value) => {
     if (!value) return 0;
@@ -151,55 +182,226 @@ const isCompletedProjectRecommendation = (recommendation, projectsCompleted) => 
     return Boolean(projectsCompleted?.[matchedProject.backendId]);
 };
 
+const resolveTopStatusCard = ({
+    showGuestWalletLinkUi,
+    showSocialProgressImport,
+    showTopWalletHistoryPrompt,
+    showTopBackupBanner,
+    showTopRecoveryPrompt,
+    socialSwitchNotice,
+}) => {
+    if (showGuestWalletLinkUi) return "link-wallet";
+    if (showSocialProgressImport) return "import-progress";
+    if (showTopWalletHistoryPrompt) return "wallet-history";
+    if (showTopBackupBanner) return "backup";
+    if (showTopRecoveryPrompt) return "recovery";
+    if (socialSwitchNotice) return "social-switch";
+    return null;
+};
+
 export default function Dashboard() {
-    const { address } = useAccount();
+    const auth = useAuth();
+    const [, bumpWalletOnboarding] = useReducer((c) => c + 1, 0);
+    const [, bumpProgressImportSnooze] = useReducer((c) => c + 1, 0);
+    const { address, isConnected } = useAccount();
+    const { disconnectAsync } = useDisconnect();
     const navigate = useNavigate();
-    const { smartAccount, tokenId: identityTokenId } = useIdentity();
+    const {
+        oidcAuthLoading,
+        isOidcAuthenticated,
+        idToken: oidcIdToken,
+        socialIdentity,
+        socialIdentityLoading,
+        socialIdentityError,
+        resolveNow,
+    } = useSocialIdentity();
+    const {
+        smartAccount,
+        owner,
+        tokenId: identityTokenId,
+        hasIdentity,
+        identityHydrated,
+        disconnectIdentity,
+        isIdentityReady,
+    } = useIdentity();
 
-    const identityAddress = smartAccount ?? null;
+    const socialAaAddress = getSocialIdentityAaAddress(socialIdentity);
+    const identityAddress = useMemo(() => {
+        const social = normalizeEvmAddress(socialAaAddress);
+        if (isOidcAuthenticated && social) return social;
+        const sc = normalizeEvmAddress(smartAccount);
+        if (isIdentityReady && sc) return sc;
+        return null;
+    }, [isOidcAuthenticated, socialAaAddress, smartAccount, isIdentityReady]);
 
-    const builderUnlockStorageKey = "web3edu-builder-unlock-shown";
+    const wagmiAddrNorm = normalizeEvmAddress(address);
+    const sessionAddrNorm = normalizeEvmAddress(readConnectedEoaAddress());
+    const connectedWalletNorm = wagmiAddrNorm ?? sessionAddrNorm ?? null;
+    const socialOwnerNorm = normalizeEvmAddress(getSocialIdentityOwnerAddress(socialIdentity));
+    const socialLinkedWalletNorm = normalizeEvmAddress(getSocialIdentityWalletAddress(socialIdentity));
+    const persistedOwnerNorm = normalizeEvmAddress(owner);
+    const canonicalSocialAaNorm = normalizeEvmAddress(socialAaAddress);
+    const isSocialCanonical = Boolean(isOidcAuthenticated && canonicalSocialAaNorm);
+    const walletAaCanonical =
+        Boolean(smartAccount && isIdentityReady) && Boolean(normalizeEvmAddress(smartAccount));
+
+    /**
+     * Guard against a brief stale/missing `walletAddress` right after social sign-in.
+     * If the payload doesn't yet include the linked wallet, refresh once before showing Stage A.
+     */
+    const [socialWalletLinkagePhase, setSocialWalletLinkagePhase] = useState("idle"); // idle | loading | done
+    const socialProvisioningStatusForLinkage = getSocialIdentityProvisioningStatus(socialIdentity);
+    const isSocialLinkageStateSettled = Boolean(
+        isSocialCanonical && !socialIdentityLoading && socialProvisioningStatusForLinkage === "active"
+    );
+    const shouldProbeSocialWalletLinkage = Boolean(
+        isSocialCanonical &&
+            isConnected &&
+            connectedWalletNorm &&
+            // Linkage field missing (stale payload window)
+            !socialLinkedWalletNorm
+    );
+    useEffect(() => {
+        if (!shouldProbeSocialWalletLinkage) {
+            if (socialWalletLinkagePhase !== "idle") setSocialWalletLinkagePhase("idle");
+            return;
+        }
+        if (socialWalletLinkagePhase !== "idle") return;
+        // If we're still resolving/provisioning, don't prematurely mark this done — just suppress UI.
+        if (!isSocialLinkageStateSettled) return;
+        setSocialWalletLinkagePhase("loading");
+        Promise.resolve(resolveNow?.())
+            .catch(() => null)
+            .finally(() => setSocialWalletLinkagePhase("done"));
+    }, [
+        shouldProbeSocialWalletLinkage,
+        socialWalletLinkagePhase,
+        isSocialLinkageStateSettled,
+        resolveNow,
+    ]);
+    const suppressStagedLinkageUi = Boolean(
+        shouldProbeSocialWalletLinkage &&
+            // If linkage isn't settled yet, *always* suppress (prevents the false Step 1 flash).
+            (!isSocialLinkageStateSettled || socialWalletLinkagePhase !== "done")
+    );
+
+    const showGuestWalletLinkUi =
+        Boolean(identityAddress && isConnected && connectedWalletNorm) &&
+        !suppressStagedLinkageUi &&
+        ((isSocialCanonical &&
+            (!socialLinkedWalletNorm || connectedWalletNorm !== socialLinkedWalletNorm)) ||
+            (!isSocialCanonical &&
+                walletAaCanonical &&
+                persistedOwnerNorm &&
+                connectedWalletNorm !== persistedOwnerNorm));
 
     const [metadata, setMetadata] = useState(null);
+    const [socialSwitchNotice, setSocialSwitchNotice] = useState(null);
     const [showTierPopup, setShowTierPopup] = useState(false);
     const [xpLeveledUp, setXpLeveledUp] = useState(false);
     const [profile, setProfile] = useState(null);
     const [lastSyncTime, setLastSyncTime] = useState(null);
-    const [showKeyTools, setShowKeyTools] = useState(false);
     const [addressCopyFeedback, setAddressCopyFeedback] = useState("");
     const [walletCardIdentityCopyTip, setWalletCardIdentityCopyTip] = useState("");
     const [walletCardEoaCopyTip, setWalletCardEoaCopyTip] = useState("");
     const [showBuilderUnlock, setShowBuilderUnlock] = useState(false);
-    const [, setBuilderRewardClaimed] = useState(
-        localStorage.getItem("web3edu-builder-claimed") === "true"
-    );
-    const [builderUnlockShown, setBuilderUnlockShown] = useState(
-        localStorage.getItem(builderUnlockStorageKey) === "true"
-    );
+    const {
+        metadata: resolvedMetadata,
+        profile: resolvedProfile,
+        canonicalIdentityKey,
+        refetch: refetchResolvedIdentity,
+    } = useResolvedIdentityContext();
+
+    const builderUnlockStorageKey = useMemo(() => {
+        const scope = canonicalIdentityKey || identityAddress || "anon";
+        return `web3edu-builder-unlock-shown:${scope}`;
+    }, [canonicalIdentityKey, identityAddress]);
+
+    const builderClaimedStorageKey = useMemo(() => {
+        const scope = canonicalIdentityKey || identityAddress || "anon";
+        return `web3edu-builder-claimed:${scope}`;
+    }, [canonicalIdentityKey, identityAddress]);
+
+    const [, setBuilderRewardClaimed] = useState(() => {
+        if (typeof window === "undefined") return false;
+        return localStorage.getItem(builderClaimedStorageKey) === "true";
+    });
+
+    const [builderUnlockShown, setBuilderUnlockShown] = useState(() => {
+        if (typeof window === "undefined") return false;
+        return localStorage.getItem(builderUnlockStorageKey) === "true";
+    });
     const [builderJustClaimed, setBuilderJustClaimed] = useState(false);
     const [showBuilderPath, setShowBuilderPath] = useState(false);
+    const [linkWalletPhase, setLinkWalletPhase] = useState("idle"); // idle | loading | success | error
+    const [linkWalletError, setLinkWalletError] = useState(null);
+
+    const { signMessageAsync } = useSignMessage();
+
+    const { connectWalletSessionAware, isPending: walletOnboardingConnectPending } =
+        useSocialAwareWalletConnect();
 
     const prevXpRef = useRef(null);
     const prevTierRef = useRef(null);
 
-    const { metadata: resolvedMetadata, profile: resolvedProfile } =
-        useResolvedIdentityContext();
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        setBuilderUnlockShown(localStorage.getItem(builderUnlockStorageKey) === "true");
+    }, [builderUnlockStorageKey]);
 
     useEffect(() => {
+        if (typeof window === "undefined") return;
+        setBuilderRewardClaimed(localStorage.getItem(builderClaimedStorageKey) === "true");
+    }, [builderClaimedStorageKey, setBuilderRewardClaimed]);
+
+    useEffect(() => {
+        if (!identityHydrated) return;
         if (!identityAddress) {
+            if (oidcAuthLoading) {
+                return;
+            }
+            // If user is OIDC-authenticated, allow the social flow to resolve/provision first.
+            if (isOidcAuthenticated) {
+                return;
+            }
+            warnIfIdentityNotInitialized("Dashboard", { smartAccount, owner });
             navigate("/join");
             return;
         }
         window.scrollTo(0, 0);
-    }, [identityAddress, navigate]);
+    }, [
+        identityHydrated,
+        identityAddress,
+        navigate,
+        smartAccount,
+        owner,
+        isOidcAuthenticated,
+        oidcAuthLoading,
+    ]);
 
     useEffect(() => {
-        if (resolvedMetadata) setMetadata(resolvedMetadata);
-        if (resolvedProfile) setProfile(resolvedProfile);
+        if (typeof window === "undefined") return;
+        if (!isOidcAuthenticated) return;
+        const socialCanon = normalizeEvmAddress(socialAaAddress);
+        if (!socialCanon) return;
+        const from = window.sessionStorage.getItem(SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY);
+        const fromNorm = normalizeEvmAddress(from);
+        if (!fromNorm) return;
+        if (fromNorm.toLowerCase() === socialCanon.toLowerCase()) {
+            window.sessionStorage.removeItem(SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY);
+            return;
+        }
+        setSocialSwitchNotice({ from: fromNorm, to: socialCanon });
+        window.sessionStorage.removeItem(SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY);
+    }, [isOidcAuthenticated, socialAaAddress]);
+
+    useEffect(() => {
+        setMetadata(resolvedMetadata ?? null);
+        setProfile(resolvedProfile ?? null);
         if (resolvedMetadata || resolvedProfile) {
             setLastSyncTime(new Date());
         }
-    }, [resolvedMetadata, resolvedProfile]);
+    }, [resolvedMetadata, resolvedProfile, canonicalIdentityKey]);
 
     useEffect(() => {
         if (!metadata || typeof metadata.xp_total !== "number") return;
@@ -233,7 +435,7 @@ export default function Dashboard() {
         }
 
         prevTierRef.current = metadata.tier;
-    }, [metadata, builderUnlockShown]);
+    }, [metadata, builderUnlockShown, builderUnlockStorageKey]);
 
     const fallbackMetadata = {
         tier: "Explorer",
@@ -259,12 +461,14 @@ export default function Dashboard() {
         const attrFounderTrue = attrs.some(
             a =>
                 (a?.trait_type || "").toLowerCase() === "founder" &&
-                (a?.value === true || String(a?.value).toLowerCase() === "true")
+                isTruthyFounderFlag(a?.value)
         );
 
         return (
-            m.founder === true ||
-            p.founder === true ||
+            isTruthyFounderFlag(m.founder) ||
+            isTruthyFounderFlag(p.founder) ||
+            isTruthyFounderFlag(m.isFounder) ||
+            isTruthyFounderFlag(p.isFounder) ||
             m.edition === "Founder Edition" ||
             p.edition === "Founder Edition" ||
             m.role === "Founder" ||
@@ -274,13 +478,8 @@ export default function Dashboard() {
     })();
 
     const formattedAddress = shortAddress(identityAddress);
-
-    const avatarSrc =
-        profile?.image &&
-        typeof profile.image === "string" &&
-        profile.image.startsWith("http")
-            ? profile.image
-            : null;
+    const isIdentityMetadataLoading = Boolean(identityAddress) && !metadata && !profile;
+    const isTimelineLoading = Boolean(identityAddress) && !metadata && !profile;
 
     const resolveTokenId = payload => {
         const candidates = [
@@ -519,6 +718,293 @@ export default function Dashboard() {
         return name.includes("genesis") || id.includes("genesis");
     });
 
+    const socialProvisioningStatus = getSocialIdentityProvisioningStatus(socialIdentity);
+    const socialOk = socialIdentity?.ok;
+    const socialIsActive = Boolean(
+        (socialOk === true || socialOk == null) &&
+        socialProvisioningStatus === "active" &&
+        identityAddress
+    );
+
+    const oidcSub =
+        typeof auth?.user?.profile?.sub === "string" && auth.user.profile.sub.trim()
+            ? auth.user.profile.sub.trim()
+            : null;
+    const socialAaNormForPrompt = normalizeEvmAddress(socialAaAddress);
+    const identityAddrNormForPrompt = normalizeEvmAddress(identityAddress);
+    const socialDashboardCanonicalForPrompt = Boolean(
+        isOidcAuthenticated &&
+            socialIsActive &&
+            socialAaNormForPrompt &&
+            identityAddrNormForPrompt &&
+            identityAddrNormForPrompt === socialAaNormForPrompt
+    );
+    const walletOnboardingChoice = oidcSub ? getSocialWalletOnboardingLocalChoice(oidcSub) : null;
+    const walletOnboardingSnoozed = oidcSub ? isSocialWalletOnboardingSnoozed(oidcSub) : false;
+
+    /**
+     * Heuristic: dashboard already reflects meaningful continuity, so don't show redundant
+     * wallet-history onboarding prompts (Founder social + Founder wallet case).
+     */
+    const socialContinuityAlreadyReflected = useMemo(() => {
+        if (!isSocialCanonical) return false;
+        const xp = getXpTotalFromBackend(resolvedMetadata ?? resolvedProfile ?? metadata ?? profile);
+        const tier = String(
+            (resolvedMetadata?.tier ?? resolvedProfile?.tier ?? metadata?.tier ?? profile?.tier ?? "")
+        ).trim();
+        const badgeCandidates = [
+            resolvedMetadata?.badges,
+            resolvedProfile?.badges,
+            metadata?.badges,
+            profile?.badges,
+            resolvedMetadata?.metadata?.badges,
+            resolvedProfile?.metadata?.badges,
+        ];
+        const hasBadges = badgeCandidates.some((b) => Array.isArray(b) && b.length > 0);
+        const hasMeaningfulTier = Boolean(tier && tier.toLowerCase() !== "explorer");
+        return Boolean((typeof xp === "number" && xp > 0) || hasBadges || hasMeaningfulTier);
+    }, [isSocialCanonical, resolvedMetadata, resolvedProfile, metadata, profile]);
+
+    const isConnectedWalletLinkedRecognized = Boolean(
+        isSocialCanonical &&
+            socialIsActive &&
+            connectedWalletNorm &&
+            socialLinkedWalletNorm &&
+            connectedWalletNorm === socialLinkedWalletNorm
+    );
+
+    const suppressTopWalletHistoryPrompt = Boolean(
+        socialDashboardCanonicalForPrompt &&
+            isConnectedWalletLinkedRecognized &&
+            socialContinuityAlreadyReflected
+    );
+    const showWalletHistoryPrompt =
+        socialDashboardCanonicalForPrompt &&
+        Boolean(oidcSub) &&
+        walletOnboardingChoice === null &&
+        !walletOnboardingSnoozed &&
+        !connectedWalletNorm &&
+        !suppressTopWalletHistoryPrompt;
+
+    const handleWalletHistoryYes = useCallback(async () => {
+        const ok = await connectWalletSessionAware(false);
+        if (ok && oidcSub) {
+            setSocialWalletOnboardingYesWallet(oidcSub);
+        }
+        bumpWalletOnboarding();
+    }, [connectWalletSessionAware, oidcSub, bumpWalletOnboarding]);
+
+    const handleWalletHistoryNo = useCallback(() => {
+        if (oidcSub) {
+            setSocialWalletOnboardingNoContinue(oidcSub);
+        }
+        bumpWalletOnboarding();
+    }, [oidcSub, bumpWalletOnboarding]);
+
+    const handleWalletHistoryLater = useCallback(() => {
+        if (oidcSub) {
+            setSocialWalletOnboardingSnoozeSession(oidcSub);
+        }
+        bumpWalletOnboarding();
+    }, [oidcSub, bumpWalletOnboarding]);
+
+    const progressImportSnoozed =
+        Boolean(connectedWalletNorm) &&
+        isProgressImportSnoozed(oidcSub, connectedWalletNorm.toLowerCase());
+    // "Linked/authorized" = backend-linked wallet matches the connected EOA.
+    // When this becomes true (after backend linking is implemented), we unlock Stage B (import).
+    const isSocialWalletLinkedAuthorized = Boolean(
+        isSocialCanonical &&
+            socialIsActive &&
+            connectedWalletNorm &&
+            socialLinkedWalletNorm &&
+            connectedWalletNorm === socialLinkedWalletNorm
+    );
+    const showSocialProgressImport =
+        isSocialWalletLinkedAuthorized &&
+        Boolean(oidcIdToken) &&
+        Boolean(connectedWalletNorm) &&
+        !progressImportSnoozed &&
+        !socialContinuityAlreadyReflected;
+
+    const handleProgressImportSnooze = useCallback(() => {
+        if (connectedWalletNorm) {
+            snoozeProgressImport(oidcSub, connectedWalletNorm.toLowerCase());
+        }
+        bumpProgressImportSnooze();
+    }, [oidcSub, connectedWalletNorm, bumpProgressImportSnooze]);
+
+    const handleLinkWallet = useCallback(async () => {
+        setLinkWalletError(null);
+
+        if (!oidcIdToken) {
+            setLinkWalletError("You must be signed in with social login to link a wallet.");
+            setLinkWalletPhase("error");
+            return;
+        }
+        if (!connectedWalletNorm) {
+            setLinkWalletError("Connect a wallet first.");
+            setLinkWalletPhase("error");
+            return;
+        }
+
+        setLinkWalletPhase("loading");
+        try {
+            const challenge = await createLinkWalletChallenge(oidcIdToken, {
+                walletAddress: connectedWalletNorm,
+            });
+            const messageToSign =
+                typeof challenge?.messageToSign === "string" && challenge.messageToSign.trim()
+                    ? challenge.messageToSign
+                    : null;
+            if (!messageToSign) {
+                throw new Error("Backend did not return a message to sign.");
+            }
+
+            const signature = await signMessageAsync({ message: messageToSign });
+            await confirmLinkWallet(oidcIdToken, {
+                walletAddress: connectedWalletNorm,
+                signature,
+            });
+
+            // Refresh social identity + resolved identity so Stage A disappears and Stage B is eligible.
+            try {
+                await resolveNow?.();
+            } catch {
+                /* optional */
+            }
+            try {
+                await refetchResolvedIdentity?.();
+            } catch {
+                /* optional */
+            }
+
+            setLinkWalletPhase("success");
+        } catch (err) {
+            const msg =
+                err?.payload?.error ||
+                err?.payload?.message ||
+                err?.message ||
+                "Wallet linking failed.";
+            setLinkWalletError(String(msg));
+            setLinkWalletPhase("error");
+        }
+    }, [oidcIdToken, connectedWalletNorm, signMessageAsync, resolveNow, refetchResolvedIdentity]);
+
+    const showOidcSocialGate =
+        identityHydrated && !identityAddress && (isOidcAuthenticated || oidcAuthLoading);
+    if (showOidcSocialGate) {
+        return (
+            <PageShell>
+                <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 py-20 text-center">
+                    <div className="w-full max-w-lg rounded-2xl border border-slate-200/80 bg-white/80 p-6 shadow-sm backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/40">
+                        <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+                            Setting up your Web3Edu Identity…
+                        </h1>
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                            We’re resolving your social-login AA identity with the backend.
+                        </p>
+
+                        {oidcAuthLoading ? (
+                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
+                                Completing sign-in with Keycloak…
+                            </p>
+                        ) : socialIdentityLoading ? (
+                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
+                                Loading…
+                            </p>
+                        ) : socialIdentityError ? (
+                            <div className="mt-4 rounded-xl border border-red-200/70 bg-red-50/70 p-4 text-left text-sm text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
+                                <p className="font-semibold">Could not resolve social identity</p>
+                                <p className="mt-1 opacity-90">{socialIdentityError}</p>
+                                <button
+                                    type="button"
+                                    onClick={() => void resolveNow()}
+                                    className="mt-3 inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-500"
+                                >
+                                    Retry
+                                </button>
+                            </div>
+                        ) : oidcIdToken ? (
+                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
+                                Starting identity lookup…
+                            </p>
+                        ) : (
+                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200">
+                                Waiting for session…
+                            </p>
+                        )}
+                    </div>
+                </div>
+            </PageShell>
+        );
+    }
+
+    const shouldShowBackupBanner = (() => {
+        if (typeof window === "undefined") return false;
+        if (!isIdentityReady) return false;
+        if (!hasIdentity && !smartAccount) return false;
+        if (localStorage.getItem("web3edu-identity-backup-banner-dismissed") === "true") {
+            return false;
+        }
+        // Mirror IdentityBackupBanner's `requireNoInjectedWalletSession` behavior for dashboard top-action gating.
+        if (readConnectedEoaAddress()) return false;
+        return true;
+    })();
+
+    const showLinkOrImportBanner = Boolean(showGuestWalletLinkUi || showSocialProgressImport);
+
+    // DEV-only, on-screen snapshot of first-render linkage values for the wallet-first → social transition.
+    const socialDebugTriggered = (() => {
+        if (typeof window === "undefined") return false;
+        return (
+            window.sessionStorage.getItem(DASHBOARD_SOCIAL_DEBUG_SESSION_KEY) === "true" ||
+            Boolean(window.sessionStorage.getItem(SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY))
+        );
+    })();
+    const [socialDebugSnapshot, setSocialDebugSnapshot] = useState(() => {
+        if (!import.meta.env.DEV || !socialDebugTriggered) return null;
+        return {
+            at: new Date().toISOString(),
+            isOidcAuthenticated,
+            identityAddress,
+            isSocialCanonical,
+            socialAaAddress,
+            wagmiAddrNorm,
+            socialLinkedWalletNorm,
+            socialIdentityLoading,
+            socialWalletLinkagePhase,
+            shouldProbeSocialWalletLinkage,
+            suppressStagedLinkageUi,
+            showGuestWalletLinkUi,
+            showLinkOrImportBanner,
+        };
+    });
+    useEffect(() => {
+        if (!import.meta.env.DEV) return;
+        if (!socialDebugTriggered) return;
+        try {
+            window.sessionStorage.setItem(DASHBOARD_SOCIAL_DEBUG_SESSION_KEY, "true");
+        } catch {
+            /* ignore */
+        }
+    }, [socialDebugTriggered]);
+    const showTopWalletHistoryPrompt = Boolean(
+        isOidcAuthenticated && showWalletHistoryPrompt && !showLinkOrImportBanner
+    );
+    const showTopBackupBanner = Boolean(!isOidcAuthenticated && shouldShowBackupBanner);
+    const showTopRecoveryPrompt = Boolean(!isOidcAuthenticated && !showTopBackupBanner);
+    const showDeviceBasedAccessNote = Boolean(
+        identityAddress && isIdentityReady && !isOidcAuthenticated && !connectedWalletNorm
+    );
+    const topStatusKey = resolveTopStatusCard({
+        showGuestWalletLinkUi,
+        showSocialProgressImport,
+        showTopWalletHistoryPrompt,
+        showTopBackupBanner,
+        showTopRecoveryPrompt,
+        socialSwitchNotice,
+    });
 
     return (
         <PageShell>
@@ -530,6 +1016,35 @@ export default function Dashboard() {
                     relative overflow-hidden transition-colors duration-500
                 "
             >
+                {import.meta.env.DEV && socialDebugSnapshot ? (
+                    <div className="relative z-50 w-full max-w-5xl mx-auto mb-4 px-2 md:px-0">
+                        <div className="rounded-2xl border border-fuchsia-200/70 bg-fuchsia-50/90 px-4 py-3 text-left text-xs text-fuchsia-950 shadow-sm backdrop-blur-sm dark:border-fuchsia-500/30 dark:bg-fuchsia-950/25 dark:text-fuchsia-50">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="font-semibold">
+                                    DEV snapshot: social wallet linkage first render
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        try {
+                                            window.sessionStorage.removeItem(DASHBOARD_SOCIAL_DEBUG_SESSION_KEY);
+                                        } catch {
+                                            /* ignore */
+                                        }
+                                        setSocialDebugSnapshot(null);
+                                    }}
+                                    className="inline-flex items-center justify-center rounded-lg border border-fuchsia-300/60 bg-white/70 px-3 py-1.5 text-[11px] font-semibold text-fuchsia-950 hover:bg-white dark:border-fuchsia-500/30 dark:bg-white/10 dark:text-fuchsia-50 dark:hover:bg-white/15"
+                                >
+                                    Hide
+                                </button>
+                            </div>
+                            <pre className="mt-2 overflow-auto rounded-xl border border-fuchsia-200/70 bg-white/70 p-3 text-[11px] leading-snug text-slate-900 dark:border-fuchsia-500/20 dark:bg-white/5 dark:text-fuchsia-50">
+                                {JSON.stringify(socialDebugSnapshot, null, 2)}
+                            </pre>
+                        </div>
+                    </div>
+                ) : null}
+
                 <style>
                     {`
                   @keyframes pulseGlow {
@@ -558,895 +1073,592 @@ export default function Dashboard() {
                 `}
                 </style>
 
-                <IdentityBackupBanner variant="en" />
-
                 {/* Glow */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-[18%] left-1/2 -translate-x-1/2 w-[420px] h-[420px] bg-purple-600/30 dark:bg-purple-600/20 blur-[130px] rounded-full"></div>
                     <div className="absolute bottom-[15%] right-[25%] w-[340px] h-[340px] bg-indigo-400/30 dark:bg-indigo-500/20 blur-[140px] rounded-full"></div>
                 </div>
 
-                {/* Dashboard Header */}
-                {profile && (
-                    <div
-                        className="
-            relative z-10 w-full max-w-5xl mx-auto text-center
-            mt-4 mb-16 animate-[fadeSlideUp_0.6s_ease-out]
-        "
-                    >
-                        {/* Mini Avatar + Shine */}
-                        <div className="flex justify-center mb-3">
-                            <div className="relative w-14 h-14">
-                                {avatarSrc ? (
-                                    <img
-                                        src={avatarSrc}
-                                        alt="avatar"
-                                        className="
-                        w-14 h-14 rounded-full object-cover shadow-md 
-                        border border-white/20 dark:border-white/10 
-                        transition-all duration-700
-                        dark:animate-[shine_3.4s_ease-in-out_infinite]
-                    "
-                                        loading="lazy"
-                                    />
-                                ) : (
-                                    <div
-                                        className="
-                        flex h-14 w-14 items-center justify-center rounded-full
-                        border border-white/20 dark:border-white/10 shadow-md
-                        bg-white/80 dark:bg-slate-900/80
-                    "
-                                    >
-                                        <AddressIdenticon address={identityAddress} />
-                                    </div>
+                {/* 1) User header — 1-line identity row */}
+                {identityAddress ? (
+                    <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-6 space-y-3 px-2 md:px-0">
+                        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200/70 bg-white/60 px-4 py-3 shadow-sm backdrop-blur-sm sm:flex-nowrap sm:gap-3 dark:border-slate-700/50 dark:bg-slate-900/35">
+                            <span className="group relative flex shrink-0">
+                                <button
+                                    type="button"
+                                    onClick={handleIdentityCopyAddress}
+                                    aria-label="Copy your AA address"
+                                    aria-describedby="dashboard-identicon-tooltip"
+                                    className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 ring-purple-400/60 transition-transform hover:scale-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-500/45"
+                                    style={generateAvatarStyle(identityAddress, displayedMetadata?.tier)}
+                                >
+                                    <AddressIdenticon address={identityAddress} />
+                                    <span className="absolute inset-x-0 bottom-0 flex h-4 items-center justify-center bg-slate-950/65 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                                        <ClipboardDocumentIcon className="h-3 w-3" />
+                                    </span>
+                                </button>
+                                <span
+                                    id="dashboard-identicon-tooltip"
+                                    role="tooltip"
+                                    className="pointer-events-none absolute left-0 top-full z-30 mt-2 w-64 rounded-lg border border-slate-200/80 bg-white px-3 py-2 text-left text-xs font-medium leading-snug text-slate-700 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                                >
+                                    Your unique identity pattern — generated from your AA address. Click to copy address.
+                                </span>
+                            </span>
+                            {/* Address block: AA address + wallet EOA (wallet users only) */}
+                            <span className="min-w-0 flex-1 flex flex-col gap-0.5">
+                                <span className="flex min-w-0 items-center gap-2">
+                                    <span className="truncate font-mono text-xs text-slate-600 dark:text-slate-300">
+                                        {formattedAddress}
+                                    </span>
+                                    {addressCopyFeedback ? (
+                                        <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-200" role="status">
+                                            {addressCopyFeedback}
+                                        </span>
+                                    ) : null}
+                                </span>
+                                {walletAaCanonical && (owner || wagmiAddrNorm) && (
+                                    <span className="flex items-center gap-1 text-[10px] font-mono text-slate-400 dark:text-slate-500 truncate">
+                                        <WalletIcon className="w-3 h-3 shrink-0" />
+                                        {shortAddress(owner || wagmiAddrNorm)}
+                                    </span>
                                 )}
-
-                                {/* Subtle highlight ring */}
-                                <div
-                                    className="
-                        absolute inset-0 rounded-full 
-                        dark:bg-white/5 blur-md 
-                        dark:animate-[shineGlow_3.4s_ease-in-out_infinite]
-                    "
-                                ></div>
+                            </span>
+                            <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2 sm:flex-nowrap">
+                                {isIdentityMetadataLoading ? (
+                                    <>
+                                        <span className="h-4 w-14 shrink-0 animate-pulse rounded bg-slate-200/80 dark:bg-slate-700/70" />
+                                        <span className="h-6 w-24 shrink-0 animate-pulse rounded-full bg-purple-100/80 dark:bg-purple-900/40" />
+                                    </>
+                                ) : (
+                                    <>
+                                        {displayTokenId != null && (
+                                            <span className="shrink-0 text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                                                #{displayTokenId}
+                                            </span>
+                                        )}
+                                        <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-purple-100/80 dark:bg-purple-900/40 border border-purple-300/40 dark:border-purple-600/60 px-3 py-1 text-[11px] font-semibold text-purple-700 dark:text-purple-200">
+                                            <span className="inline-flex h-2 w-2 rounded-full bg-purple-500 dark:bg-purple-400" />
+                                            {displayedMetadata?.tier ?? "Explorer"}
+                                        </span>
+                                    </>
+                                )}
+                                {/* Explorer link */}
+                                <button
+                                    type="button"
+                                    onClick={handleIdentityViewExplorer}
+                                    title="View on block explorer"
+                                    disabled={!identityAddress}
+                                    className="shrink-0 rounded-lg border border-slate-200/70 bg-slate-50/80 p-1.5 text-slate-500 hover:text-violet-700 hover:bg-violet-50/70 dark:border-slate-600/50 dark:bg-slate-800/60 dark:text-slate-400 dark:hover:text-violet-300 transition-colors disabled:opacity-40"
+                                >
+                                    <ArrowTopRightOnSquareIcon className="w-4 h-4" />
+                                </button>
+                                {isOidcAuthenticated && !socialIsActive && (
+                                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/40 border border-amber-300/50 dark:border-amber-600/40 px-2.5 py-1 text-[11px] font-semibold text-amber-800 dark:text-amber-200">
+                                        ⚠ Setting up…
+                                    </span>
+                                )}
                             </div>
                         </div>
-
-                        <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center justify-center gap-3">
-                            Welcome back, {profile.name || formattedAddress} 👋
-
-                            {/* Tier Badge */}
-                            {metadata?.tier && (
-                                <span
-                                    className="
-                inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
-                bg-gradient-to-r from-purple-600/80 to-fuchsia-500/80
-                dark:from-purple-500/60 dark:to-fuchsia-400/60
-                text-white shadow-md border border-white/10
-            "
-                                >
-                                    {metadata.tier}
-                                </span>
-                            )}
-                        </h2>
-                        {lastSyncTime && (
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                🕒 Synced {Math.max(1, Math.floor((Date.now() - lastSyncTime.getTime()) / 1000))}s ago • Web3Edu Identity
-                            </p>
-                        )}
-                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                            Mint your Web3Edu Identity to anchor your learning on-chain.
-                        </p>
-
-                        <div
-                            className="
-                w-20 h-1 mx-auto mt-3 rounded-full
-                bg-gradient-to-r from-[#8A57FF]/50 via-[#4ACBFF]/40 to-[#FF67D2]/50
-                shadow-[0_0_12px_rgba(138,87,255,0.45)]
-            "
-                        ></div>
-
-                        {/* Shine Animations */}
-                        <style>
-                            {`
-                @keyframes shine {
-                    0% { filter: brightness(1); }
-                    50% { filter: brightness(1.4); }
-                    100% { filter: brightness(1); }
-                }
-
-                @keyframes shineGlow {
-                    0% { opacity: 0.25; }
-                    50% { opacity: 0.45; }
-                    100% { opacity: 0.25; }
-                }
-            `}
-                        </style>
+                        {showDeviceBasedAccessNote ? (
+                            <div className="rounded-xl border border-slate-200/75 bg-white/55 px-4 py-3 text-left shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-slate-900/35">
+                                <p className="text-xs font-semibold text-slate-800 dark:text-slate-100">
+                                    Current access method: device-based identity
+                                </p>
+                                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    You can connect a Web3Edu account or wallet for easier sign-in later.
+                                </p>
+                            </div>
+                        ) : null}
                     </div>
-                )}
+                ) : null}
 
-                {/* Builder Unlock Promotion */}
-                {showBuilderUnlock && (
-                    <div className="relative z-10 w-full max-w-4xl mx-auto mb-10 px-4">
-                        <div className="
-                            rounded-3xl border border-purple-400/40
-                            bg-gradient-to-br from-purple-600/20 via-indigo-600/20 to-fuchsia-600/20
-                            backdrop-blur-xl shadow-2xl p-8 text-center
-                            animate-[xpBurst_1.2s_ease-out]
-                        ">
-                            <h2 className="text-2xl font-extrabold text-white mb-3">
-                                🏗️ Builder Level Unlocked
-                            </h2>
-
-                            <p className="text-sm text-slate-200 mb-6">
-                                You have completed the core requirements and unlocked
-                                <span className="font-semibold text-purple-300"> Builder </span>
-                                status.
-                                You are now eligible to participate in advanced governance tracks.
-                            </p>
-
-                            {builderJustClaimed ? (
-                                <div
-                                    className="
-                                        px-6 py-3 rounded-xl
-                                        bg-green-600/90 text-white font-semibold
-                                        shadow-lg animate-[xpBurst_1.2s_ease-out]
-                                        flex flex-col items-center gap-1
-                                    "
-                                >
-                                    <span>✅ Builder Badge Claimed</span>
-                                    <span className="text-[11px] opacity-90">
-                                        Next milestone: Architect Tier
-                                    </span>
-                                </div>
-                            ) : (
-                                <button
-                                    onClick={() => {
-                                        localStorage.setItem("web3edu-builder-claimed", "true");
-                                        setBuilderRewardClaimed(true);
-                                        setBuilderJustClaimed(true);
-
-                                        // Show claimed state briefly before hiding
-                                        setTimeout(() => {
-                                            setShowBuilderUnlock(false);
-                                            setBuilderJustClaimed(false);
-                                        }, 1400);
-                                    }}
-                                    className="
-                                        px-6 py-3 rounded-xl
-                                        bg-gradient-to-r from-purple-500 to-indigo-500
-                                        text-white font-semibold
-                                        hover:scale-105 transition shadow-lg
-                                    "
-                                >
-                                    Claim Builder Badge
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                )}
-
-                {/* 2-Column Premium Layout */}
-                <div className="relative z-10 w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-10 px-2 md:px-0">
-                    {/* Left Column — IdentityCard */}
-                    <div className="flex flex-col items-center justify-start mt-10 lg:mt-0 relative self-center">
-                        <div className="absolute -z-10 top-1/2 -translate-y-1/2 w-[420px] h-[420px] bg-purple-500/25 dark:bg-purple-500/20 blur-[200px] rounded-full"></div>
-                        {profile && (
-                            <>
-                                <IdentityCard
-                                    metadata={profile}
-                                    wallet={identityAddress}
-                                    tokenId={displayTokenId}
-                                />
-
-                                <div
-                                    className="
-                                        mt-5 w-full max-w-sm rounded-2xl border border-slate-200/80 dark:border-slate-700/50
-                                        bg-white/85 dark:bg-slate-900/45 backdrop-blur-sm shadow-sm
-                                        p-4 flex flex-col gap-3
-                                    "
-                                >
-                                    <p className="text-center text-[10px] uppercase tracking-[0.12em] text-slate-400 dark:text-slate-500 font-semibold">
-                                        On-chain identity
-                                    </p>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        <button
-                                            type="button"
-                                            title="Open your address in the Edu-Net block explorer"
-                                            onClick={handleIdentityViewExplorer}
-                                            disabled={!identityAddress}
-                                            className="
-                                                group flex flex-col items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 dark:border-slate-600/50
-                                                bg-slate-50/90 dark:bg-slate-800/60 py-3 px-1.5 min-h-[4.25rem]
-                                                text-[11px] font-medium text-slate-600 dark:text-slate-300
-                                                hover:border-violet-300/80 dark:hover:border-violet-500/35
-                                                hover:bg-violet-50/70 dark:hover:bg-violet-950/25 hover:text-violet-700 dark:hover:text-violet-200
-                                                transition-all duration-200 disabled:opacity-35 disabled:pointer-events-none
-                                            "
-                                        >
-                                            <ArrowTopRightOnSquareIcon className="w-5 h-5 text-violet-500 dark:text-violet-400 group-hover:scale-105 transition-transform" />
-                                            <span className="leading-tight text-center">Explorer</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            title="Copy smart account address"
-                                            onClick={handleIdentityCopyAddress}
-                                            disabled={!identityAddress}
-                                            className="
-                                                group flex flex-col items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 dark:border-slate-600/50
-                                                bg-slate-50/90 dark:bg-slate-800/60 py-3 px-1.5 min-h-[4.25rem]
-                                                text-[11px] font-medium text-slate-600 dark:text-slate-300
-                                                hover:border-violet-300/80 dark:hover:border-violet-500/35
-                                                hover:bg-violet-50/70 dark:hover:bg-violet-950/25 hover:text-violet-700 dark:hover:text-violet-200
-                                                transition-all duration-200 disabled:opacity-35 disabled:pointer-events-none
-                                            "
-                                        >
-                                            <ClipboardDocumentIcon className="w-5 h-5 text-violet-500 dark:text-violet-400 group-hover:scale-105 transition-transform" />
-                                            <span className="leading-tight text-center">Copy</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            title="Share a link to your public verify page"
-                                            onClick={handleIdentityShare}
-                                            disabled={!identityAddress}
-                                            className="
-                                                group flex flex-col items-center justify-center gap-1.5 rounded-xl border border-slate-200/90 dark:border-slate-600/50
-                                                bg-slate-50/90 dark:bg-slate-800/60 py-3 px-1.5 min-h-[4.25rem]
-                                                text-[11px] font-medium text-slate-600 dark:text-slate-300
-                                                hover:border-violet-300/80 dark:hover:border-violet-500/35
-                                                hover:bg-violet-50/70 dark:hover:bg-violet-950/25 hover:text-violet-700 dark:hover:text-violet-200
-                                                transition-all duration-200 disabled:opacity-35 disabled:pointer-events-none
-                                            "
-                                        >
-                                            <ShareIcon className="w-5 h-5 text-violet-500 dark:text-violet-400 group-hover:scale-105 transition-transform" />
-                                            <span className="leading-tight text-center">Share</span>
-                                        </button>
-                                    </div>
-                                    {addressCopyFeedback ? (
-                                        <p className="text-center text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-                                            {addressCopyFeedback}
-                                        </p>
-                                    ) : null}
-
+                {/* 2) Account status region — explicit priority resolver */}
+                {topStatusKey ? (
+                    <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-6 px-2 md:px-0">
+                        {topStatusKey === "social-switch" ? (
+                            <div className="rounded-2xl border border-sky-200/70 bg-sky-50/90 px-4 py-3 text-left text-sm text-sky-950 shadow-sm backdrop-blur-sm dark:border-sky-500/30 dark:bg-sky-950/25 dark:text-sky-50 md:px-4">
+                                <p className="font-semibold">Signed in successfully</p>
+                                <p className="mt-1 text-xs opacity-90 dark:opacity-95">
+                                    Your Web3Edu account has its own identity. This dashboard is now showing your account identity.
+                                </p>
+                                <p className="mt-2 text-[11px] font-mono opacity-80">
+                                    {shortAddress(socialSwitchNotice.from)} → {shortAddress(socialSwitchNotice.to)}
+                                </p>
+                                <div className="mt-3 flex flex-wrap items-center gap-2">
                                     <button
                                         type="button"
-                                        onClick={() => setShowKeyTools((prev) => !prev)}
-                                        aria-expanded={showKeyTools}
-                                        className="
-                                            flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-[11px] font-medium
-                                            text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-300
-                                            hover:bg-slate-100/80 dark:hover:bg-slate-800/50 transition-colors
-                                        "
+                                        onClick={() => setSocialSwitchNotice(null)}
+                                        className="inline-flex items-center justify-center rounded-lg border border-sky-300/60 bg-white/70 px-3 py-1.5 text-xs font-semibold text-sky-950 hover:bg-white dark:border-sky-500/30 dark:bg-white/10 dark:text-sky-50 dark:hover:bg-white/15"
                                     >
-                                        Identity Tools
-                                        <ChevronDownIcon
-                                            className={`w-3.5 h-3.5 text-slate-400 transition-transform ${showKeyTools ? "rotate-180" : ""}`}
-                                        />
+                                        Got it
                                     </button>
-
-                                    {showKeyTools ? (
-                                        <div className="flex flex-col gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-700/50">
-                                            <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center leading-snug">
-                                                Advanced options — handle with care.
-                                            </p>
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    const key = exportIdentity();
-                                                    if (!key) {
-                                                        alert("No identity found");
-                                                        return;
-                                                    }
-                                                    navigator.clipboard.writeText(key);
-                                                    alert("Private key copied ⚠️ Store it safely!");
-                                                }}
-                                                className="py-2.5 px-3 text-xs font-medium rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                                            >
-                                                Export private key
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    clearIdentityState();
-                                                    localStorage.removeItem(
-                                                        "web3edu-aa-owner-private-key"
-                                                    );
-                                                    localStorage.removeItem("web3edu-aa-identity");
-                                                    window.location.href = "/#/join";
-                                                }}
-                                                className="py-2.5 px-3 text-xs font-medium rounded-xl border border-amber-200/80 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200 hover:bg-amber-100/90 dark:hover:bg-amber-950/50 transition-colors"
-                                            >
-                                                Reset identity (dev)
-                                            </button>
-                                        </div>
-                                    ) : null}
                                 </div>
-                            </>
-                        )}
-                    </div>
+                            </div>
+                        ) : null}
 
-                    {/* Right Column — Dashboard Modules */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-8 md:gap-8">
-                        {/* Founder Badge Panel */}
-                        {isFounder && (
-                            <DashboardCard
-                                title="Founder Badge"
-                                className="
-                                    rounded-2xl border border-fuchsia-300/30 dark:border-fuchsia-700/30
-                                    bg-gradient-to-br from-white/95 via-fuchsia-50/70 to-slate-100/90
-                                    dark:from-[#110819]/90 dark:via-[#1a0f21]/85 dark:to-[#0c0814]/90
-                                    backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                                    hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                                "
-                                icon={<StarIcon className="w-5 h-5 text-white" />}
-                            >
-                                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                                    You hold a{" "}
-                                    <span className="font-semibold text-fuchsia-600 dark:text-fuchsia-400">
-                                        Founder SBT
-                                    </span>
-                                    . A special recognition for the core creators of Web3Edu.
+                        {topStatusKey === "link-wallet" ? (
+                            <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-left text-sm text-amber-950 shadow-sm backdrop-blur-sm dark:border-amber-500/35 dark:bg-amber-950/30 dark:text-amber-50 md:px-4">
+                                <p className="font-semibold">Wallet connected — Step 1 required: link it to your Web3Edu identity</p>
+                                <p className="mt-1 text-xs opacity-90 dark:opacity-95">
+                                    Import is only available after your wallet is authorized/linked. Connected EOA:{" "}
+                                    <span className="font-mono">{shortAddress(connectedWalletNorm)}</span>
                                 </p>
-                            </DashboardCard>
-                        )}
-
-                        {/* Mini Wallet Card */}
-                        <DashboardCard
-                            title="Your Wallet"
-                            className="
-                                rounded-2xl border border-cyan-300/30 dark:border-cyan-700/30
-                                bg-gradient-to-br from-white/95 via-cyan-50/70 to-slate-100/90
-                                dark:from-[#071d24]/90 dark:via-[#0a2730]/85 dark:to-[#06151a]/90
-                                backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                                hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                            "
-                            icon={<KeyIcon className="w-5 h-5 text-white" />}
-                        >
-                            <div className="flex flex-col gap-2">
-                                <div className="flex items-start gap-2">
-                                    <p className="min-w-0 flex-1 text-sm font-mono leading-snug text-slate-700 dark:text-slate-300 break-all">
-                                        {identityAddress || "—"}
-                                    </p>
-                                    {identityAddress ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => void handleWalletCardCopyIdentity()}
-                                            title="Copy smart account address"
-                                            className="mt-0.5 shrink-0 rounded-lg border border-cyan-200/60 bg-cyan-50/80 p-1.5 text-cyan-800 transition hover:bg-cyan-100/90 dark:border-cyan-700/50 dark:bg-cyan-950/40 dark:text-cyan-200 dark:hover:bg-cyan-900/50"
-                                        >
-                                            <ClipboardDocumentIcon className="h-5 w-5" aria-hidden />
-                                            <span className="sr-only">Copy smart account address</span>
-                                        </button>
-                                    ) : null}
-                                </div>
-                                {walletCardIdentityCopyTip ? (
-                                    <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                                        {walletCardIdentityCopyTip}
-                                    </p>
-                                ) : null}
-                                {address &&
-                                identityAddress &&
-                                address.toLowerCase() !== identityAddress.toLowerCase() ? (
-                                    <div className="mt-1 border-t border-slate-200/70 pt-3 dark:border-slate-600/50">
-                                        <p className="mb-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
-                                            Connected wallet (EOA)
-                                        </p>
-                                        <div className="flex items-start gap-2">
-                                            <p className="min-w-0 flex-1 text-xs font-mono leading-snug text-slate-600 dark:text-slate-300 break-all">
-                                                {address}
-                                            </p>
-                                            <button
-                                                type="button"
-                                                onClick={() => void handleWalletCardCopyEoa()}
-                                                title="Copy connected wallet address"
-                                                className="mt-0.5 shrink-0 rounded-lg border border-slate-200/80 bg-slate-50/90 p-1.5 text-slate-700 transition hover:bg-slate-100 dark:border-slate-600/50 dark:bg-slate-800/60 dark:text-slate-200 dark:hover:bg-slate-800"
-                                            >
-                                                <ClipboardDocumentIcon className="h-4 w-4" aria-hidden />
-                                                <span className="sr-only">Copy connected wallet address</span>
-                                            </button>
+                                <div className="mt-3 rounded-xl border border-amber-300/60 bg-amber-100/70 px-3 py-3 text-xs text-amber-950 dark:border-amber-600/30 dark:bg-amber-950/25 dark:text-amber-50">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="font-semibold">Step 1 — Link wallet</p>
+                                            <p className="mt-0.5 opacity-90">Authorize this connected wallet so it can be used for progress import.</p>
                                         </div>
-                                        {walletCardEoaCopyTip ? (
-                                            <p className="mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                                                {walletCardEoaCopyTip}
-                                            </p>
-                                        ) : null}
-                                    </div>
-                                ) : null}
-                            </div>
-                        </DashboardCard>
-
-                        {/* Animated Rank Panel */}
-                        <DashboardCard
-                            title="Rank"
-                            className="
-                                rounded-2xl border border-purple-300/30 dark:border-purple-700/30
-                                bg-gradient-to-br from-white/95 via-purple-50/70 to-slate-100/90
-                                dark:from-[#160f2a]/90 dark:via-[#120c23]/85 dark:to-[#0b0816]/90
-                                backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                                hover:scale-[1.005] hover:shadow-2xl transition-all duration-500 relative
-                            "
-                            icon={<UserIcon className="w-5 h-5 text-white" />}
-                        >
-                            <div
-                                className="flex flex-col items-start gap-3 cursor-pointer"
-                                onClick={() => setShowTierPopup(true)}
-                            >
-                                {/* Tier label pill */}
-                                <div
-                                    className="
-                                        inline-flex items-center gap-2 
-                                        px-3 py-1 rounded-full
-                                        bg-purple-100/70 dark:bg-purple-900/40
-                                        border border-purple-300/40 dark:border-purple-600/60
-                                    "
-                                >
-                                    <span className="inline-flex h-2.5 w-2.5 rounded-full bg-purple-500 dark:bg-purple-400" />
-                                    <span className="text-[11px] font-semibold tracking-[0.14em] uppercase text-purple-700 dark:text-purple-200">
-                                        Current Tier
-                                    </span>
-                                </div>
-
-                                {/* Tier value + subtle helper text */}
-                                <div className="flex flex-col gap-1">
-                                    <div className="flex items-baseline gap-2">
-                                        <p
-                                            className={`
-                                                text-2xl font-extrabold text-purple-700 dark:text-purple-200
-                                                ${metadata?.tier === "Builder" ? "animate-[xpBurst_1.2s_ease-out]" : ""}
-                                            `}
-                                        >
-                                            {metadata?.tier ?? "Explorer"}
-                                        </p>
-                                        {metadata?.tier && metadata.tier !== "Explorer" && (
-                                            <span className="text-[11px] font-medium text-purple-500/90 dark:text-purple-300/90">
-                                                {metadata.tier === "Builder"
-                                                    ? "DAO-ready in progress"
-                                                    : "DAO governance ready"}
-                                            </span>
-                                        )}
-                                    </div>
-                                    {/* Next Tier Hint */}
-                                    {metadata?.tier && metadata.tier !== "Architect" && (
-                                        <div className="mt-2 text-xs text-slate-600/90 dark:text-slate-400/90">
-                                            {(() => {
-                                                const currentTier = metadata.tier;
-                                                const remainingXp = metadata?.remainingXp ?? 0;
-
-                                                let nextTier = "Builder";
-                                                if (currentTier === "Builder") nextTier = "Architect";
-
-                                                return (
-                                                    <span>
-                                                        Next Tier:{" "}
-                                                        <span className="font-semibold text-purple-600 dark:text-purple-300">
-                                                            {nextTier}
-                                                        </span>{" "}
-                                                        • {remainingXp} XP remaining
-                                                    </span>
-                                                );
-                                            })()}
-                                        </div>
-                                    )}
-                                    <p className="text-xs text-slate-600/90 dark:text-slate-400/90">
-                                        Earn XP from lessons and quizzes to upgrade your tier.
-                                    </p>
-                                    <p className="mt-2 text-xs text-slate-600/90 dark:text-slate-400/90">
-                                        {metadata?.tier === "Builder" || metadata?.tier === "Architect"
-                                            ? "DAO governance access unlocked at your current tier."
-                                            : "Reach Builder tier to unlock DAO governance access."}
-                                    </p>
-                                    <div className="mt-2 text-xs font-semibold">
-                                        {metadata?.tier === "Builder" || metadata?.tier === "Architect" ? (
-                                            <span className="text-green-600 dark:text-green-400">
-                                                🟢 Governance Access: Active
-                                            </span>
-                                        ) : (
-                                            <span className="text-slate-500 dark:text-slate-400">
-                                                🔒 Governance Access: Locked
-                                            </span>
-                                        )}
-                                    </div>
-                                    {metadata?.tier === "Builder" && (
-                                        <p className="text-[11px] mt-1 text-slate-500 dark:text-slate-400">
-                                            Architect tier unlocks proposal publishing & advanced governance tools.
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </DashboardCard>
-
-
-                        {/* Progress Card */}
-                        <DashboardCard
-                            title="Progress"
-                            className="
-                            rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                            bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
-                            dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
-                            dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                            hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                        "
-                            icon={<StarIcon className="w-5 h-5 text-white" />}
-                        >
-                            <XPProgressCard
-                                xp={metadata?.xp_total ?? 0}
-                                xpPercent={metadata?.xpPercent ?? 0}
-                                remainingXp={metadata?.remainingXp ?? 0}
-                                nextTierPercent={metadata?.nextTierPercent ?? 0}
-                                tier={metadata?.tier ?? "Explorer"}
-                                xpLeveledUp={xpLeveledUp}
-                            />
-                        </DashboardCard>
-
-                        {/* Actions */}
-                        <DashboardCard
-                            title="Quick Actions"
-                            className="
-                            rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                            bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
-                            dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
-                            dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                            hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                        "
-                            icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
-                        >
-                            <p className="text-sm text-slate-700 dark:text-slate-200 mb-4 leading-relaxed">
-                                Here you can find the main actions for your Web3Edu identity and learning
-                                journey.
-                            </p>
-                            <div className="flex flex-col gap-3">
-                                <button
-                                    onClick={() => navigate("/sbt-view")}
-                                    className="py-3 px-6 rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#5F2BD8] text-white hover:scale-[1.03] hover:opacity-90 transition font-semibold shadow-md"
-                                >
-                                    View My SBT
-                                </button>
-
-                                <button
-                                    onClick={() => navigate("/labs")}
-                                    className="py-3 px-6 rounded-xl bg-gradient-to-r from-[#33D6FF] to-[#24A9D0] text-white hover:scale-[1.03] hover:opacity-90 transition font-semibold shadow-md"
-                                >
-                                    Continue Learning
-                                </button>
-
-                                <div className="mt-3">
-                                    <button
-                                        onClick={() => navigate("/start-here")}
-                                        className="
-  w-full py-3 px-6 rounded-xl
-  bg-gradient-to-r from-indigo-500/80 to-purple-500/80
-  text-white
-  hover:scale-[1.03] hover:opacity-90
-  transition
-  font-semibold shadow-md
-"
-                                    >
-                                        Start Here (guide)
-                                    </button>
-                                </div>
-                            </div>
-                        </DashboardCard>
-
-                        {/* Badges */}
-                        <DashboardCard
-                            title="Badges"
-                            className="
-                        rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                        bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
-                        dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
-                        dark:border-white/10 backdrop-blur-xl shadow-xl text-slate-900 dark:text-slate-100
-                        hover:scale-[1.005] hover:shadow-2xl transition-all duration-500
-                    "
-                            icon={<StarIcon className="w-5 h-5 text-white" />}
-                        >
-                            <p className="text-sm text-slate-700 dark:text-slate-200 mb-4 leading-relaxed">
-                                All your achievements and earned badges will appear here as you progress.
-                            </p>
-                            {(metadata?.badges?.length > 0 || eventBadges.length > 0) ? (
-                                <>
-                                    <div className="flex flex-wrap gap-2">
-                                        {/* Standard achievement badges */}
-                                        {metadata?.badges?.map((b, i) => {
-                                            let Icon = StarIcon;
-                                            const lower =
-                                                typeof b === "string"
-                                                    ? b.toLowerCase()
-                                                    : (b?.label?.toLowerCase?.() ||
-                                                        b?.en?.toLowerCase?.() ||
-                                                        b?.gr?.toLowerCase?.() ||
-                                                        "");
-
-                                            if (lower.includes("wallet")) Icon = KeyIcon;
-                                            if (lower.includes("lesson")) Icon = BookOpenIcon;
-                                            if (lower.includes("quiz")) Icon = TrophyIcon;
-
-                                            return (
-                                                <span
-                                                    key={`badge-${i}-${typeof b === "string" ? b : b?.id || "badge"}`}
-                                                    className="
-                            inline-flex items-center gap-2 
-                            px-3 py-1 rounded-full 
-                            text-xs font-semibold
-                            bg-indigo-200/60 dark:bg-indigo-900/40
-                            border border-indigo-300/30 dark:border-indigo-700/30
-                            text-slate-900 dark:text-slate-100
-                        "
-                                                >
-                                                    <Icon className="w-4 h-4 text-white/90" />
-                                                    {typeof b === "string"
-                                                        ? b
-                                                        : b?.en || b?.gr || b?.label || JSON.stringify(b)}
-                                                </span>
-                                            );
-                                        })}
-
-                                        {/* Event badges (e.g. Genesis) */}
-                                        {eventBadges.map((b, i) => {
-                                            const label = typeof b === "string" ? b : b?.name || "Event Badge";
-                                            const lower = String(label).toLowerCase();
-                                            const isGenesis = lower.includes("genesis");
-
-                                            return (
-                                                <span
-                                                    key={`event-badge-${i}`}
-                                                    className={`
-                                                        inline-flex items-center gap-2
-                                                        px-3 py-1 rounded-full
-                                                        text-xs font-semibold
-                                                        ${isGenesis
-                                                            ? "bg-gradient-to-r from-purple-500/80 to-fuchsia-500/80 text-white border border-purple-300/40 shadow-[0_0_10px_rgba(168,85,247,0.6)] animate-[genesisPulse_0.9s_ease-out]"
-                                                            : "bg-purple-200/70 dark:bg-purple-900/40 border border-purple-300/40 dark:border-purple-700/40 text-slate-900 dark:text-slate-100"
-                                                        }
-                                                    `}
-                                                >
-                                                    <StarIcon className={`w-4 h-4 ${isGenesis ? "text-yellow-300" : "text-white/90"}`} />
-                                                    {label}
-                                                </span>
-                                            );
-                                        })}
-                                    </div>
-
-                                    <div className="w-full mt-4">
-                                        <button
-                                            disabled={hasGenesisBadge}
-                                            onClick={() => {
-                                                if (hasGenesisBadge) return;
-                                                navigate("/events/genesis");
-                                            }}
-                                            className={`
-                                                w-full py-2 px-4 rounded-lg
-                                                text-xs font-semibold transition shadow-md
-                                                ${hasGenesisBadge
-                                                    ? "bg-green-500 text-white cursor-default"
-                                                    : "bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:scale-[1.02]"}
-                                            `}
-                                        >
-                                            {hasGenesisBadge
-                                                ? "Genesis Badge Minted ✓"
-                                                : "Mint Genesis Event Badge"}
-                                        </button>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <p className="text-slate-600 dark:text-slate-300">
-                                        No badges yet…
-                                    </p>
-                                    <div className="w-full mt-4">
-                                        <button
-                                            disabled={hasGenesisBadge}
-                                            onClick={() => {
-                                                if (hasGenesisBadge) return;
-                                                navigate("/events/genesis");
-                                            }}
-                                            className={`
-                                                w-full py-2 px-4 rounded-lg
-                                                text-xs font-semibold transition shadow-md
-                                                ${hasGenesisBadge
-                                                    ? "bg-green-500 text-white cursor-default"
-                                                    : "bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:scale-[1.02]"}
-                                            `}
-                                        >
-                                            {hasGenesisBadge
-                                                ? "Genesis Badge Minted ✓"
-                                                : "Mint Genesis Event Badge"}
-                                        </button>
-                                    </div>
-                                </>
-                            )}
-                        </DashboardCard>
-
-                    </div>
-                </div>
-
-
-                {/* Recommended Next Module — Full Width */}
-                {recommended && (
-                    <div className="relative z-10 w-full max-w-6xl mx-auto mt-6 mb-8 px-2 md:px-0">
-                        <DashboardCard
-                            title="Recommended Next Module"
-                            className="
-                rounded-2xl border border-indigo-300/30 dark:border-indigo-700/30
-                bg-gradient-to-br from-white/95 via-indigo-50/75 to-slate-100/90
-                dark:from-[#0E1426]/90 dark:via-[#0B1020]/85 dark:to-[#070C18]/90
-                dark:border-white/10 backdrop-blur-xl shadow-xl
-                hover:scale-[1.002] hover:shadow-2xl transition-all duration-500
-            "
-                            icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
-                        >
-                            {builderChecklist && (
-                                <div className="mb-4 rounded-xl border border-purple-300/30 dark:border-purple-700/40 
-                                                bg-purple-50/70 dark:bg-purple-900/20 p-4">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs font-semibold uppercase tracking-wide text-purple-700 dark:text-purple-300">
-                                            🏗 Builder Path
+                                        <span className="shrink-0 rounded-full bg-amber-200/80 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:bg-amber-900/40 dark:text-amber-50">
+                                            Required
                                         </span>
+                                    </div>
+                                    <div className="mt-3 flex items-start justify-between gap-3 border-t border-amber-300/50 pt-3 dark:border-amber-600/30">
+                                        <div className="min-w-0">
+                                            <p className="font-semibold opacity-70">Step 2 — Import progress</p>
+                                            <p className="mt-0.5 opacity-70">We’ll show this after linking succeeds.</p>
+                                        </div>
+                                        <span className="shrink-0 rounded-full bg-slate-200/70 px-2 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-900/40 dark:text-slate-200">
+                                            Later
+                                        </span>
+                                    </div>
+                                </div>
 
-                                        {metadata?.tier === "Explorer" && (
+                                <button
+                                    type="button"
+                                    onClick={() => void handleLinkWallet()}
+                                    disabled={linkWalletPhase === "loading"}
+                                    className="mt-3 inline-flex items-center justify-center rounded-lg bg-amber-700 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-amber-600 dark:hover:bg-amber-500"
+                                >
+                                    {linkWalletPhase === "loading" ? "Linking…" : "Link Wallet"}
+                                </button>
+                                {linkWalletPhase === "success" ? (
+                                    <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200" role="status">
+                                        Wallet linked. You can now import progress.
+                                    </p>
+                                ) : linkWalletPhase === "error" && linkWalletError ? (
+                                    <p className="mt-2 text-xs text-red-800 dark:text-red-200" role="status">
+                                        {linkWalletError}
+                                    </p>
+                                ) : null}
+                            </div>
+                        ) : null}
+
+                        {topStatusKey === "import-progress" ? (
+                            <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-left text-sm text-amber-950 shadow-sm backdrop-blur-sm dark:border-amber-500/35 dark:bg-amber-950/30 dark:text-amber-50 md:px-4">
+                                <SocialWalletProgressImportSection
+                                    idToken={oidcIdToken}
+                                    connectedAddress={connectedWalletNorm ?? address}
+                                    onSnooze={handleProgressImportSnooze}
+                                    onRefetch={refetchResolvedIdentity}
+                                    resolveSocialIdentity={resolveNow}
+                                />
+                            </div>
+                        ) : null}
+
+                        {topStatusKey === "wallet-history" ? (
+                            <SocialWalletHistoryPrompt
+                                isGr={false}
+                                isPending={walletOnboardingConnectPending}
+                                onYesConnectWallet={handleWalletHistoryYes}
+                                onNoContinue={handleWalletHistoryNo}
+                                onLater={handleWalletHistoryLater}
+                            />
+                        ) : null}
+
+                        {topStatusKey === "backup" ? (
+                            <IdentityBackupBanner variant="en" requireNoInjectedWalletSession />
+                        ) : null}
+
+                        {topStatusKey === "recovery" ? <SocialLoginRecoveryPrompt variant="en" /> : null}
+                    </div>
+                ) : null}
+
+                {/* 3) HERO: Next Action — full width, most important element */}
+                <div className="relative z-10 w-full max-w-5xl mx-auto mt-4 mb-6 px-2 md:px-0">
+                    <DashboardCard
+                        title="Your next step"
+                        className="p-5"
+                        icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
+                    >
+                        {showBuilderUnlock ? (
+                            <div className="space-y-3">
+                                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                    Builder milestone unlocked
+                                </p>
+                                <p className="text-xs text-slate-600 dark:text-slate-300">
+                                    You reached Builder. Claim the milestone to acknowledge it on this device.
+                                </p>
+                                {builderJustClaimed ? (
+                                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                                        ✅ Builder milestone saved
+                                    </p>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            localStorage.setItem(builderClaimedStorageKey, "true");
+                                            setBuilderRewardClaimed(true);
+                                            setBuilderJustClaimed(true);
+                                            setTimeout(() => {
+                                                setShowBuilderUnlock(false);
+                                                setBuilderJustClaimed(false);
+                                            }, 1400);
+                                        }}
+                                        className="rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:opacity-95"
+                                    >
+                                        Claim Builder milestone
+                                    </button>
+                                )}
+                            </div>
+                        ) : recommended ? (
+                            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.9fr)_minmax(17rem,1fr)] lg:items-start">
+                                <div
+                                    className="cursor-pointer rounded-2xl border border-slate-200/60 bg-white/45 p-4 shadow-sm backdrop-blur-sm transition hover:bg-white/55 dark:border-white/10 dark:bg-white/[0.04] dark:hover:bg-white/[0.06]"
+                                    onClick={() => {
+                                        if (recommended.type === "guide" && recommended.slug) { navigate(`/${recommended.slug}`); return; }
+                                        if (recommended.type === "lab" && recommendedLabPath) { navigate(recommendedLabPath); return; }
+                                        if (recommended.type === "lesson" && recommended.slug) { navigate(`/lessons/${recommended.slug}`); return; }
+                                        if (recommended.type === "project" && recommended.slug) { navigate(`/projects/${recommended.slug}`); return; }
+                                        navigate("/education");
+                                    }}
+                                >
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                        <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
+                                            {isFallbackRecommendation ? "Continue your path" : "Your next step"}
+                                        </p>
+                                        {isBuilderRequired && (
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100/80 dark:bg-purple-900/40 border border-purple-300/40 dark:border-purple-600/60 text-purple-700 dark:text-purple-300">
+                                                Builder Path
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="mt-2 text-xl font-bold text-slate-900 dark:text-white leading-snug">
+                                        {typeof recommended.title === "object" ? recommended.title.en || recommended.title.gr : recommended.title}
+                                    </p>
+                                    {recommended.why && (
+                                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
+                                            {typeof recommended.why === "object" ? recommended.why.en || recommended.why.gr : recommended.why}
+                                        </p>
+                                    )}
+                                    <div className="mt-4 flex flex-wrap items-center gap-6 text-sm text-slate-600 dark:text-slate-400">
+                                        {recommended.estimatedTime && <span>⏱ {recommended.estimatedTime} min</span>}
+                                        {recommended.xp && <span>🏅 +{recommended.xp} XP</span>}
+                                    </div>
+                                    <div className="mt-4">
+                                        <span className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#5F2BD8] px-4 py-2.5 text-sm font-semibold text-white shadow-md">
+                                            Continue →
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {builderChecklist ? (
+                                    <div className="rounded-2xl border border-purple-300/30 dark:border-purple-700/40 bg-purple-50/70 dark:bg-purple-900/20 p-4">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-purple-700 dark:text-purple-300">
+                                                    Builder Path
+                                                </p>
+                                                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+                                                    {builderChecklist.coreLabs?.done && builderChecklist.daoLabs?.done && builderChecklist.proofOfEscape?.done && builderChecklist.xpRequirement?.done
+                                                        ? "Builder unlocked"
+                                                        : "Progress in motion"}
+                                                </p>
+                                            </div>
                                             <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setShowBuilderPath(prev => !prev);
-                                                }}
+                                                onClick={(e) => { e.stopPropagation(); setShowBuilderPath(prev => !prev); }}
                                                 className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                                             >
                                                 {showBuilderPath ? "Hide details" : "View requirements"}
                                             </button>
-                                        )}
-
-                                        {metadata?.tier !== "Explorer" && (
-                                            builderChecklist.coreLabs?.done &&
-                                                builderChecklist.daoLabs?.done &&
-                                                builderChecklist.proofOfEscape?.done &&
-                                                builderChecklist.xpRequirement?.done ? (
-                                                <span className="text-green-600 dark:text-green-400 text-xs font-semibold">
-                                                    ✔ Builder Unlocked
-                                                </span>
-                                            ) : (
-                                                <span className="text-xs text-slate-500 dark:text-slate-400">
-                                                    In Progress
-                                                </span>
-                                            )
-                                        )}
-                                    </div>
-
-                                    {showBuilderPath && (
-                                        <>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                                <div>
-                                                    {builderChecklist.coreLabs?.done ? "✔" : "⏳"} Core Labs
-                                                    ({builderChecklist.coreLabs?.completed}/{builderChecklist.coreLabs?.required})
-                                                </div>
-                                                <div>
-                                                    {builderChecklist.daoLabs?.done ? "✔" : "⏳"} DAO Labs
-                                                    ({builderChecklist.daoLabs?.completed}/{builderChecklist.daoLabs?.required})
-                                                </div>
-                                                <div>
-                                                    {builderChecklist.proofOfEscape?.done ? "✔" : "⏳"} Proof of Escape
-                                                </div>
-                                                <div>
-                                                    {builderChecklist.xpRequirement?.done ? "✔" : "⏳"} XP
-                                                    ({builderChecklist.xpRequirement?.current}/{builderChecklist.xpRequirement?.required})
-                                                </div>
-                                            </div>
-                                            {(() => {
-                                                // XP is naturally achieved by completing the labs,
-                                                // so we treat Builder as 3 structural requirements.
-                                                const total = 3;
-
-                                                const completed =
-                                                    (builderChecklist.coreLabs?.done ? 1 : 0) +
-                                                    (builderChecklist.daoLabs?.done ? 1 : 0) +
-                                                    (builderChecklist.proofOfEscape?.done ? 1 : 0);
-
-                                                const percent = Math.round((completed / total) * 100);
-
-                                                return (
-                                                    <div className="mt-4">
-                                                        <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 mb-1">
-                                                            <span>Builder Progress</span>
-                                                            <span>{completed}/{total} requirements</span>
-                                                        </div>
-                                                        <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                                                            <div
-                                                                className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-500"
-                                                                style={{ width: `${percent}%` }}
-                                                            />
-                                                        </div>
+                                        </div>
+                                        {(() => {
+                                            const total = 3;
+                                            const completed = (builderChecklist.coreLabs?.done ? 1 : 0) + (builderChecklist.daoLabs?.done ? 1 : 0) + (builderChecklist.proofOfEscape?.done ? 1 : 0);
+                                            const percent = Math.round((completed / total) * 100);
+                                            return (
+                                                <div className="mt-4">
+                                                    <div className="mb-1 flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
+                                                        <span>Builder Progress</span>
+                                                        <span>{completed}/{total} requirements</span>
                                                     </div>
-                                                );
-                                            })()}
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                            <div
-                                className="space-y-3 cursor-pointer"
-                                onClick={() => {
-                                    if (recommended.type === "guide" && recommended.slug) {
-                                        navigate(`/${recommended.slug}`);
-                                        return;
-                                    }
-                                    if (recommended.type === "lab" && recommendedLabPath) {
-                                        navigate(recommendedLabPath);
-                                        return;
-                                    }
-                                    if (recommended.type === "lesson" && recommended.slug) {
-                                        navigate(`/lessons/${recommended.slug}`);
-                                        return;
-                                    }
-                                    if (recommended.type === "project" && recommended.slug) {
-                                        navigate(`/projects/${recommended.slug}`);
-                                        return;
-                                    }
-                                    navigate("/education");
-                                }}
+                                                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                                                        <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-500" style={{ width: `${percent}%` }} />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
+                                        <div className="mt-4 grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
+                                            <div>{builderChecklist.coreLabs?.done ? "✔" : "⏳"} Core Labs ({builderChecklist.coreLabs?.completed}/{builderChecklist.coreLabs?.required})</div>
+                                            <div>{builderChecklist.daoLabs?.done ? "✔" : "⏳"} DAO Labs ({builderChecklist.daoLabs?.completed}/{builderChecklist.daoLabs?.required})</div>
+                                            <div>{builderChecklist.proofOfEscape?.done ? "✔" : "⏳"} Proof of Escape</div>
+                                            <div>{builderChecklist.xpRequirement?.done ? "✔" : "⏳"} XP ({builderChecklist.xpRequirement?.current}/{builderChecklist.xpRequirement?.required})</div>
+                                        </div>
+                                        {showBuilderPath ? (
+                                            <div className="mt-4 rounded-xl border border-purple-300/30 bg-white/55 px-3 py-3 text-xs text-slate-600 dark:border-purple-700/30 dark:bg-white/[0.04] dark:text-slate-300">
+                                                Complete the remaining milestones to move through the Builder track and unlock the full path.
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                ) : null}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-600 dark:text-slate-300">Loading recommendation…</p>
+                        )}
+                    </DashboardCard>
+                </div>
+
+                {/* 4) Lower dashboard layout: Progress + Quick Actions | Badges */}
+                <div className="relative z-10 w-full max-w-5xl mx-auto mb-6 px-2 md:px-0">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                        <div>
+
+                            {/* Progress + Rank */}
+                            <DashboardCard
+                                title="Progress"
+                                className="p-5"
+                                icon={<StarIcon className="w-5 h-5 text-white" />}
                             >
-                                <div className="flex items-center gap-3">
-                                    <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
-                                        {isFallbackRecommendation ? "Start Here" : "Recommended for you"}
-                                    </p>
-
-                                    {isBuilderRequired && (
-                                        <span className="
-                                            inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold
-                                            bg-purple-100/80 dark:bg-purple-900/40
-                                            border border-purple-300/40 dark:border-purple-600/60
-                                            text-purple-700 dark:text-purple-300
-                                        ">
-                                            🏗 Builder Path
-                                        </span>
-                                    )}
-
-                                    {isBuilderRequired && (
-                                        <span className="
-                                            text-[10px] font-medium text-slate-500 dark:text-slate-400
-                                        ">
-                                            Final Builder Requirement
-                                        </span>
+                                <div
+                                    className="cursor-pointer rounded-2xl border border-slate-200/60 bg-white/45 p-4 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04]"
+                                    onClick={() => setShowTierPopup(true)}
+                                    title="View tier benefits"
+                                >
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 font-semibold">Current Tier</p>
+                                            <p className="mt-1 text-2xl font-bold text-purple-700 dark:text-purple-200">
+                                                {metadata?.tier ?? "Explorer"}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 font-semibold">Total XP</p>
+                                            <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                                                {metadata?.xp_total ?? 0}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {metadata?.tier && metadata.tier !== "Architect" ? (
+                                        <div className="mt-4 rounded-xl border border-purple-200/60 bg-purple-50/70 px-3 py-3 text-sm dark:border-purple-700/30 dark:bg-purple-900/20">
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-purple-700 dark:text-purple-300">
+                                                Next Milestone
+                                            </p>
+                                            <p className="mt-1 font-semibold text-slate-900 dark:text-white">
+                                                {metadata.tier === "Builder" ? "Architect" : "Builder"}
+                                            </p>
+                                            <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                                                {metadata?.remainingXp ?? 0} XP to go
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="mt-4 rounded-xl border border-emerald-200/60 bg-emerald-50/70 px-3 py-3 text-sm dark:border-emerald-700/30 dark:bg-emerald-900/20">
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+                                                Tier Status
+                                            </p>
+                                            <p className="mt-1 font-semibold text-slate-900 dark:text-white">
+                                                Top tier unlocked
+                                            </p>
+                                        </div>
                                     )}
                                 </div>
-
-                                <p className="text-xl font-bold text-slate-900 dark:text-white leading-snug">
-                                    {typeof recommended.title === "object"
-                                        ? recommended.title.en || recommended.title.gr
-                                        : recommended.title}
-                                </p>
-
-                                {recommended.why && (
-                                    <div className="mt-1">
-                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500 mb-1">
-                                            {isFallbackRecommendation ? "Suggested next step" : "Why this is recommended"}
-                                        </p>
-                                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
-                                            {typeof recommended.why === "object"
-                                                ? recommended.why.en || recommended.why.gr
-                                                : recommended.why}
-                                        </p>
+                                <div className="mt-3">
+                                    <XPProgressCard
+                                        xp={metadata?.xp_total ?? 0}
+                                        xpPercent={metadata?.xpPercent ?? 0}
+                                        remainingXp={metadata?.remainingXp ?? 0}
+                                        nextTierPercent={metadata?.nextTierPercent ?? 0}
+                                        tier={metadata?.tier ?? "Explorer"}
+                                        xpLeveledUp={xpLeveledUp}
+                                    />
+                                </div>
+                                {(metadata?.tier === "Builder" || metadata?.tier === "Architect") ? (
+                                    <div className="mt-2 rounded-xl border border-emerald-200/60 bg-emerald-50/70 px-3 py-2.5 text-xs font-semibold text-emerald-700 dark:border-emerald-700/30 dark:bg-emerald-900/20 dark:text-emerald-300">
+                                        🟢 DAO Governance Active
+                                    </div>
+                                ) : (
+                                    <div className="mt-2 rounded-xl border border-slate-200/70 bg-white/45 px-3 py-2.5 text-xs text-slate-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-400">
+                                        🔒 Reach Builder to unlock DAO governance
                                     </div>
                                 )}
+                            </DashboardCard>
+                        </div>
 
-                                <div className="flex flex-wrap items-center gap-6 pt-1 text-sm text-slate-600 dark:text-slate-400">
-                                    {recommended.estimatedTime && (
-                                        <span>⏱ {recommended.estimatedTime} min</span>
-                                    )}
-                                    {recommended.xp && <span>🏅 +{recommended.xp} XP</span>}
-                                </div>
+                        {/* Badges */}
+                        <DashboardCard
+                            title="Badges"
+                            className="p-5"
+                            icon={<StarIcon className="w-5 h-5 text-white" />}
+                        >
+                            {(() => {
+                                const earnedBadges = Array.isArray(metadata?.badges) ? metadata.badges : [];
+                                const earnedEventBadges = Array.isArray(eventBadges) ? eventBadges : [];
+                                const totalBadges = earnedBadges.length + earnedEventBadges.length;
 
-                                <div className="pt-2">
-                                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-                                        Continue →
-                                    </span>
-                                </div>
-                            </div>
+                                const renderBadgeLabel = (badge) =>
+                                    typeof badge === "string" ? badge : badge?.en || badge?.gr || badge?.label || JSON.stringify(badge);
+
+                                const renderBadgeIcon = (badge) => {
+                                    let Icon = StarIcon;
+                                    const lower = typeof badge === "string"
+                                        ? badge.toLowerCase()
+                                        : (badge?.label?.toLowerCase?.() || badge?.en?.toLowerCase?.() || badge?.gr?.toLowerCase?.() || "");
+                                    if (lower.includes("wallet")) Icon = KeyIcon;
+                                    if (lower.includes("lesson")) Icon = BookOpenIcon;
+                                    if (lower.includes("quiz")) Icon = TrophyIcon;
+                                    return Icon;
+                                };
+
+                                const featuredGenesisBadge = earnedEventBadges.find((badge) => {
+                                    const label = typeof badge === "string" ? badge : badge?.name || badge?.label || badge?.en || badge?.gr || "";
+                                    return String(label).toLowerCase().includes("genesis");
+                                });
+
+                                const regularBadges = earnedBadges.slice(0, 4);
+                                const additionalBadgeCount = Math.max(totalBadges - regularBadges.length - (featuredGenesisBadge ? 1 : 0), 0);
+
+                                return (
+                                    <div className="space-y-4">
+                                        {featuredGenesisBadge ? (
+                                            <div className="rounded-2xl border border-purple-300/40 bg-gradient-to-r from-purple-500/85 to-fuchsia-500/85 p-4 text-white shadow-[0_0_20px_rgba(168,85,247,0.35)]">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/75">
+                                                            Featured Achievement
+                                                        </p>
+                                                        <p className="mt-1 text-base font-bold">
+                                                            {typeof featuredGenesisBadge === "string" ? featuredGenesisBadge : featuredGenesisBadge?.name || "Genesis Badge"}
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-white/80">
+                                                            Your Genesis event badge is already part of your identity collection.
+                                                        </p>
+                                                    </div>
+                                                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/20 bg-white/15 px-2.5 py-1 text-[10px] font-semibold">
+                                                        Earned
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="rounded-2xl border border-purple-200/60 bg-purple-50/70 p-4 dark:border-purple-700/30 dark:bg-purple-900/20">
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-700 dark:text-purple-300">
+                                                            Available Reward
+                                                        </p>
+                                                        <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                                                            Genesis Event Badge
+                                                        </p>
+                                                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                                                            Claim the Genesis badge to add your first featured achievement to this identity.
+                                                        </p>
+                                                    </div>
+                                                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-purple-300/40 bg-white/70 px-2.5 py-1 text-[10px] font-semibold text-purple-700 dark:border-purple-600/40 dark:bg-white/10 dark:text-purple-200">
+                                                        Ready
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {totalBadges === 0 ? (
+                                            <div className="rounded-2xl border border-slate-200/70 bg-white/50 px-4 py-4 text-sm text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
+                                                <p className="font-semibold text-slate-900 dark:text-white">No achievements yet</p>
+                                                <p className="mt-1">
+                                                    Earn badges by completing labs, lessons, and events. Your first milestone can start with the Genesis event.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                                        Recent achievements
+                                                    </p>
+                                                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                                                        {totalBadges} total
+                                                    </span>
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-2">
+                                                    {regularBadges.map((badge, index) => {
+                                                        const Icon = renderBadgeIcon(badge);
+                                                        return (
+                                                            <div
+                                                                key={`badge-${index}-${typeof badge === "string" ? badge : badge?.id || "badge"}`}
+                                                                className="flex items-center gap-2 rounded-xl border border-indigo-200/60 bg-indigo-50/70 px-3 py-2 text-xs font-semibold text-slate-800 dark:border-indigo-700/30 dark:bg-indigo-900/20 dark:text-slate-100"
+                                                            >
+                                                                <Icon className="h-4 w-4 shrink-0 text-indigo-500 dark:text-indigo-300" />
+                                                                <span className="truncate">{renderBadgeLabel(badge)}</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                    {earnedEventBadges.filter((badge) => badge !== featuredGenesisBadge).slice(0, 2).map((badge, index) => {
+                                                        const label = typeof badge === "string" ? badge : badge?.name || "Event Badge";
+                                                        return (
+                                                            <div
+                                                                key={`event-badge-${index}`}
+                                                                className="flex items-center gap-2 rounded-xl border border-purple-200/60 bg-purple-50/70 px-3 py-2 text-xs font-semibold text-slate-900 dark:border-purple-700/30 dark:bg-purple-900/20 dark:text-slate-100"
+                                                            >
+                                                                <StarIcon className="h-4 w-4 shrink-0 text-purple-500 dark:text-purple-300" />
+                                                                <span className="truncate">{label}</span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                                {additionalBadgeCount > 0 ? (
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        +{additionalBadgeCount} more achievement{additionalBadgeCount === 1 ? "" : "s"} in your collection
+                                                    </p>
+                                                ) : null}
+                                            </div>
+                                        )}
+
+                                        {!hasGenesisBadge ? (
+                                            <button
+                                                onClick={() => navigate("/events/genesis")}
+                                                className="w-full rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 px-4 py-2 text-xs font-semibold text-white transition shadow-md hover:scale-[1.02]"
+                                            >
+                                                Mint Genesis Event Badge
+                                            </button>
+                                        ) : null}
+
+                                        <div className="border-t border-slate-200/70 pt-4 dark:border-white/10">
+                                            <div className="mb-3 flex items-center justify-between gap-3">
+                                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                                    Quick Actions
+                                                </p>
+                                                <span className="text-xs text-slate-500 dark:text-slate-400">
+                                                    Jump back in
+                                                </span>
+                                            </div>
+                                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                                <button
+                                                    onClick={() => navigate("/sbt-view")}
+                                                    className="rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#5F2BD8] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
+                                                >
+                                                    🏅 View My SBT
+                                                </button>
+                                                <button
+                                                    onClick={() => navigate("/labs")}
+                                                    className="rounded-xl bg-gradient-to-r from-[#33D6FF] to-[#24A9D0] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
+                                                >
+                                                    📚 Continue Learning
+                                                </button>
+                                                <button
+                                                    onClick={() => navigate("/start-here")}
+                                                    className="rounded-xl bg-gradient-to-r from-indigo-500/80 to-purple-500/80 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
+                                                >
+                                                    🚀 Start Here
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                         </DashboardCard>
                     </div>
-                )}
+                </div>
 
-                {/* Full-width Learning Timeline */}
-                <div className="relative z-10 w-full max-w-6xl mx-auto mt-12 px-2 md:px-0">
-                    <LearningTimeline timeline={timelineEntries} />
+                {/* 5) Learning Timeline — proof of participation */}
+                <div className="relative z-10 w-full max-w-5xl mx-auto mb-10 px-2 md:px-0">
+                    <LearningTimeline timeline={timelineEntries} isLoading={isTimelineLoading} />
                 </div>
 
                 {/* Side Gradient Glow */}

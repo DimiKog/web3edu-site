@@ -30,10 +30,12 @@ export default function TeamPageEN() {
 
                             <div className="mb-10 flex justify-center">
                                 <div className="inline-flex items-center gap-3 px-7 py-3 rounded-full
-                                                bg-gradient-to-r from-[#8A57FF]/20 via-[#4ACBFF]/20 to-[#FF67D2]/20
-                                                border border-white/20 backdrop-blur-xl
-                                                text-white text-xl font-bold tracking-wide shadow-lg
-                                                animate-pulse-slow">
+                                                bg-gradient-to-r from-[#8A57FF]/30 via-[#4ACBFF]/25 to-[#FF67D2]/25
+                                                dark:from-[#8A57FF]/20 dark:via-[#4ACBFF]/20 dark:to-[#FF67D2]/20
+                                                border border-slate-200/70 dark:border-white/20
+                                                backdrop-blur-xl
+                                                text-slate-900 dark:text-white text-xl font-bold tracking-wide
+                                                shadow-sm">
                                     <span className="text-2xl">⚡</span>
                                     <span>Web3Edu Core Team</span>
                                 </div>
@@ -55,7 +57,7 @@ export default function TeamPageEN() {
                             </div>
                         </div>
 
-                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
+                        <div className="h-px w-full bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent my-12 sm:my-16"></div>
 
 
                         <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
@@ -84,11 +86,7 @@ Founder`}
 Dimitris is a blockchain researcher specializing in Web3 educational ecosystems, Besu-based networks, zero-knowledge proofs, and secure decentralized architectures. As the founder and lead architect of Web3Edu, he defines the platform’s strategic direction and designs hands-on learning frameworks that connect academic research with real-world decentralized applications.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
-
-                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
-
-                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
                         <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Academic Strategy & Outreach
                         </h2>
@@ -111,11 +109,7 @@ Founder`}
 Nelly brings extensive academic and research experience in networking, digital ecosystems, and emerging technologies. As Web3Edu’s lead in Academic Strategy and Outreach, she shapes the platform’s pedagogical direction, builds institutional collaborations, and supports the development of robust, high-impact educational experiences.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
-
-                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
-
-                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
                         <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Governance & Community Operations
                         </h2>
@@ -138,11 +132,7 @@ Founder`}
 Tonia specializes in decentralized governance and DAO participation systems. She leads Web3Edu’s Governance and DAO Research sector, contributing to the design of sustainable governance mechanisms, community engagement models, and the operational coordination that enables a healthy decentralized ecosystem.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
-
-                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
-
-                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
                         <h2 className="text-3xl font-bold text-center mt-16 mb-10 sm:mt-24 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Infrastructure & Network Operations
                         </h2>
@@ -165,9 +155,7 @@ Founder`}
 Michael leads Web3Edu’s Infrastructure and Community Operations sector. He supports the technical backbone of the Besu EduNet, contributes to research and development in decentralized systems, and ensures that the platform’s infrastructure, tools, and community layers operate securely and reliably.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
-
-                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
 
                         <div className="text-center max-w-3xl mx-auto mt-24 mb-16 text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
                             <h3 className="text-3xl font-bold mb-6">

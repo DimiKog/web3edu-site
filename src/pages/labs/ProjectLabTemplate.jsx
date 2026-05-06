@@ -2,6 +2,17 @@ import React, { useEffect, useState, useRef } from "react";
 import PageShell from "../../components/PageShell";
 import { useAccount } from "wagmi";
 import FeedbackModal from "../../components/FeedbackModal";
+import { useIdentity } from "../../context/IdentityContext.jsx";
+import { useResolvedIdentityContext } from "../../hooks/useResolvedIdentityContext.js";
+import { useSocialIdentity } from "../../context/SocialIdentityContext.jsx";
+import { normalizeEvmAddress } from "../../utils/evmAddress.js";
+import {
+    getSocialIdentityAaAddress,
+    getSocialIdentityOwnerAddress,
+    getSocialIdentityWalletAddress,
+} from "../../utils/socialIdentityPayload.js";
+import { readConnectedEoaAddress } from "../../utils/aaIdentity.js";
+import { buildResolveOwner } from "../../lib/web3eduBackend.js";
 
 /**
  * ProjectLabTemplate
@@ -33,6 +44,24 @@ const ProjectLabTemplate = ({
     verifyEndpoint = null,      // optional backend verification
 }) => {
     const { address, isConnected } = useAccount();
+    const { smartAccount, owner, identityHydrated } = useIdentity();
+    const { canonicalIdentityAddress } = useResolvedIdentityContext();
+    const { socialIdentity } = useSocialIdentity();
+
+    const socialAaAddress = normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity));
+    const socialOwner = normalizeEvmAddress(getSocialIdentityOwnerAddress(socialIdentity));
+
+    const identityAddress =
+        canonicalIdentityAddress ??
+        socialAaAddress ??
+        (identityHydrated ? normalizeEvmAddress(smartAccount) : null);
+
+    const resolveOwner = (() => {
+        if (!identityHydrated) return null;
+        if (socialAaAddress) return socialOwner ?? null;
+        const sessionOwner = normalizeEvmAddress(readConnectedEoaAddress());
+        return sessionOwner ?? buildResolveOwner(address, owner) ?? socialOwner ?? null;
+    })();
 
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [completed, setCompleted] = useState(false);
@@ -57,15 +86,30 @@ const ProjectLabTemplate = ({
      * - DAO invite SBT
      */
     useEffect(() => {
-        if (!address || !verifyEndpoint) {
+        if (!verifyEndpoint) {
             setCheckingStatus(false);
             return;
         }
 
         const checkCompletion = async () => {
             try {
+                // PoE / applied projects typically validate an on-chain NFT held by an EOA,
+                // not by the AA smart account address. Prefer the linked wallet (social),
+                // else the resolveOwner/session EOA, else wagmi EOA.
+                const socialWallet = normalizeEvmAddress(getSocialIdentityWalletAddress(socialIdentity));
+                const effectiveAddress =
+                    socialWallet ??
+                    resolveOwner ??
+                    normalizeEvmAddress(address) ??
+                    identityAddress ??
+                    null;
+                if (!effectiveAddress) {
+                    setCheckingStatus(false);
+                    return;
+                }
+                const params = new URLSearchParams({ address: effectiveAddress });
                 const res = await fetch(
-                    `${verifyEndpoint}?address=${address}`
+                    `${verifyEndpoint}?${params.toString()}`
                 );
 
                 if (!res.ok) return;
@@ -87,7 +131,7 @@ const ProjectLabTemplate = ({
         };
 
         checkCompletion();
-    }, [address, isConnected, projectId, verifyEndpoint]);
+    }, [address, isConnected, projectId, verifyEndpoint, identityAddress, resolveOwner, identityHydrated, socialIdentity]);
 
     return (
         <PageShell>

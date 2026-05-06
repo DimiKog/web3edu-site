@@ -2,8 +2,38 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import AdminBackButton from "../../components/admin/AdminBackButton";
+import { fetchAdminLabDetails } from "../../services/adminApi";
 
-const API_BASE = import.meta.env.VITE_BACKEND_URL;
+function Badge({ tone = "slate", children }) {
+    const tones = {
+        slate: "border-slate-300/40 bg-slate-500/10 text-slate-700 dark:text-slate-200",
+        indigo: "border-indigo-300/40 bg-indigo-500/10 text-indigo-800 dark:text-indigo-200",
+        emerald: "border-emerald-300/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
+        amber: "border-amber-300/40 bg-amber-500/10 text-amber-800 dark:text-amber-200",
+    };
+    return (
+        <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${tones[tone] || tones.slate}`}>
+            {children}
+        </span>
+    );
+}
+
+function getEntryBadges(entry) {
+    const identity = entry?.identity && typeof entry.identity === "object" ? entry.identity : {};
+    const continuity = entry?.continuity && typeof entry.continuity === "object" ? entry.continuity : {};
+
+    const linked = Boolean(identity?.walletLinked) || Boolean(identity?.linkedWalletAddress);
+    const hasSocial = Boolean(identity?.social) || Boolean(entry?.social) || Boolean(identity?.socialSub);
+    const imported = Boolean(continuity?.hasImportedProgress) || Boolean(continuity?.importType);
+    const provisioning = String(identity?.provisioningStatus || "").trim();
+
+    return [
+        linked ? { label: "Linked", tone: "indigo" } : null,
+        hasSocial ? { label: "Social", tone: "emerald" } : null,
+        imported ? { label: "Imported", tone: "amber" } : null,
+        provisioning ? { label: provisioning, tone: "slate" } : null,
+    ].filter(Boolean);
+}
 
 export default function AdminLabDetails() {
     const { labId } = useParams();
@@ -29,15 +59,7 @@ export default function AdminLabDetails() {
                     setLoading(false);
                     return;
                 }
-                const res = await fetch(
-                    `${API_BASE}/admin/labs/details?wallet=${address}&labId=${labId}`
-                );
-
-                if (!res.ok) {
-                    throw new Error("Failed to fetch lab details");
-                }
-
-                const json = await res.json();
+                const json = await fetchAdminLabDetails(address, labId);
                 setData(json);
             } catch (err) {
                 console.error(err);
@@ -75,6 +97,11 @@ export default function AdminLabDetails() {
                     </h1>
                     <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                         Lab ID: <span className="font-semibold font-mono">{labId}</span>
+                        {data?.enriched ? (
+                            <span className="ml-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-200">
+                                enriched
+                            </span>
+                        ) : null}
                     </p>
                 </div>
                 <AdminBackButton to="/admin/labs" label="Back to Labs" />
@@ -119,7 +146,7 @@ export default function AdminLabDetails() {
                             <table className="w-full text-sm">
                                 <thead className="bg-white/80 dark:bg-[#111827]/80">
                                     <tr>
-                                        <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Wallet</th>
+                                        <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Account</th>
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Started</th>
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Completed</th>
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Started At</th>
@@ -133,6 +160,7 @@ export default function AdminLabDetails() {
                                             ? `${entry.wallet.slice(0, 6)}...${entry.wallet.slice(-4)}`
                                             : "-";
                                         const isCopied = copiedWallet === entry.wallet;
+                                        const badges = getEntryBadges(entry);
 
                                         function handleCopy() {
                                             navigator.clipboard.writeText(entry.wallet);
@@ -146,16 +174,27 @@ export default function AdminLabDetails() {
                                                 className="border-t border-white/10 hover:bg-white/60 dark:hover:bg-white/5 transition"
                                             >
                                                 <td className="p-3 font-mono text-xs text-slate-700 dark:text-slate-300">
-                                                    <span className="inline-flex items-center gap-2">
-                                                        {short}
-                                                        <button
-                                                            onClick={handleCopy}
-                                                            title={entry.wallet}
-                                                            className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition text-[10px]"
-                                                        >
-                                                            {isCopied ? "✓" : "⎘"}
-                                                        </button>
-                                                    </span>
+                                                    <div className="space-y-1">
+                                                        <span className="inline-flex items-center gap-2">
+                                                            {short}
+                                                            <button
+                                                                onClick={handleCopy}
+                                                                title={entry.wallet}
+                                                                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition text-[10px]"
+                                                            >
+                                                                {isCopied ? "✓" : "⎘"}
+                                                            </button>
+                                                        </span>
+                                                        {badges.length ? (
+                                                            <div className="flex flex-wrap gap-1 font-sans">
+                                                                {badges.map((b) => (
+                                                                    <Badge key={`${entry.wallet}-${b.label}`} tone={b.tone}>
+                                                                        {b.label}
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        ) : null}
+                                                    </div>
                                                 </td>
                                                 <td className="p-3 font-semibold">
                                                     {entry.started

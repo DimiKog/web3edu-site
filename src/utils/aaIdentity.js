@@ -10,6 +10,14 @@ const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
  * Used as AA `owner` when a wallet is connected — distinct from the ephemeral
  * `web3edu-aa-owner-private-key` identity used only when no wallet session exists.
  */
+/** Same keys as PageShell / Web3RouteControls — call after wagmi connect. */
+export function persistWagmiWalletSession(address) {
+  if (typeof window === "undefined" || !address) return;
+  window.localStorage.setItem(WALLET_SESSION_KEY, "true");
+  window.localStorage.setItem(WALLET_ADDRESS_KEY, address);
+  window.dispatchEvent(new Event("web3edu-wallet-state"));
+}
+
 export function readConnectedEoaAddress() {
   if (typeof window === "undefined") return null;
   if (window.localStorage.getItem(WALLET_SESSION_KEY) !== "true") return null;
@@ -134,5 +142,16 @@ export function hasIdentityState() {
   const identity = loadIdentityState();
   if (!identity) return false;
   return identity?.hasIdentity === true || identity?.alreadyMinted === true;
+}
+
+/**
+ * Persisted wallet-backed AA (minted / restored) — distinct from social-login AA
+ * which may not write `smartAccount` into local identity storage.
+ */
+export function hasPersistedWalletAaIdentity(identity) {
+  if (!identity || typeof identity !== "object") return false;
+  const sc = identity.smartAccount;
+  if (typeof sc !== "string" || !/^0x[a-fA-F0-9]{40}$/i.test(sc)) return false;
+  return identity.hasIdentity === true || identity.alreadyMinted === true;
 }
 

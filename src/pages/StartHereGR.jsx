@@ -76,13 +76,40 @@ const StartHereGR = () => {
                         }
                     >
                         <div className="space-y-6">
+                            {/* Two ways to start */}
+                            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                                <h3 className="text-lg font-semibold text-white mb-2">
+                                    Διάλεξε πώς θα ξεκινήσεις
+                                </h3>
+                                <p className="text-sm text-white/70">
+                                    Μπορείς να ξεκινήσεις <strong>χωρίς wallet</strong> δημιουργώντας Web3Edu Identity με ασφαλές κλειδί στον browser,
+                                    ή να ξεκινήσεις <strong>με wallet</strong> (MetaMask) αν ήδη χρησιμοποιείς.
+                                </p>
+                                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                                    <div className="rounded-xl border border-[#8A57FF]/30 bg-[#8A57FF]/10 p-4">
+                                        <p className="text-sm font-semibold text-white">Επιλογή A — Χωρίς wallet</p>
+                                        <p className="mt-1 text-xs text-white/70">
+                                            Δημιούργησε Web3Edu Identity (smart account) και έκδωσε ένα <strong>δυναμικό</strong> Identity SBT.
+                                            Κάνε backup για να το επαναφέρεις σε άλλη συσκευή.
+                                        </p>
+                                    </div>
+                                    <div className="rounded-xl border border-[#4ACBFF]/30 bg-[#4ACBFF]/10 p-4">
+                                        <p className="text-sm font-semibold text-white">Επιλογή B — Με MetaMask</p>
+                                        <p className="mt-1 text-xs text-white/70">
+                                            Σύνδεσε το wallet σου, ενέκρινε το εκπαιδευτικό δίκτυο και ξεκίνα τα labs.
+                                            Μπορείς να έχεις την ίδια εμπειρία Web3Edu Identity.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Simple Checklist */}
                             <div className="grid md:grid-cols-3 gap-4">
-                                <SetupStep number="1" title="Εγκατάσταση MetaMask">
-                                    Επέκταση browser ή εφαρμογή MetaMask σε κινητό
+                                <SetupStep number="1" title="Δημιουργία Identity (Χωρίς Wallet)">
+                                    Πήγαινε στο Join → “Δημιουργία Identity (Χωρίς Wallet)” για ασφαλές κλειδί στον browser και έκδοση δυναμικού Identity SBT.
                                 </SetupStep>
-                                <SetupStep number="2" title="Σύνδεση πορτοφολιού">
-                                    Desktop: "Σύνδεση Πορτοφολιού". Mobile: ανοίξτε το Web3Edu από το MetaMask Browser.
+                                <SetupStep number="2" title="Ή Σύνδεση MetaMask">
+                                    Αν προτιμάς wallet, εγκατέστησε MetaMask και σύνδεσέ το. Σε κινητό: άνοιξε το Web3Edu από το MetaMask Browser.
                                 </SetupStep>
                                 <SetupStep number="3" title="Έγκριση δικτύου">
                                     Αποδεχτείτε το Besu Edu‑Net. Αν δεν εμφανιστεί prompt, προσθέστε το χειροκίνητα.
@@ -98,7 +125,8 @@ const StartHereGR = () => {
                                     <span>
                                         <strong>Δεν χρειάζεται πραγματικό ETH ή πραγματικά χρήματα</strong> — αυτό είναι εκπαιδευτικό δίκτυο.
                                         Χρησιμοποιείται το δοκιμαστικό token <strong>EDU‑D</strong>, το οποίο δεν έχει καμία χρηματική αξία.
-                                        Το πορτοφόλι σας λειτουργεί ως μαθησιακή ταυτότητα. <strong>Μη μοιράζεστε ποτέ το private key σας.</strong>
+                                        Η Web3Edu ταυτότητά σου εκπροσωπείται από ένα <strong>δυναμικό</strong> on-chain Identity SBT (soulbound &amp; μη μεταβιβάσιμο) που ενημερώνεται καθώς προχωράς.
+                                        <strong>Μη μοιράζεσαι ποτέ το private key</strong> (wallet) ή οποιοδήποτε exported backup (χωρίς wallet).
                                     </span>
                                 </p>
                             </div>
@@ -254,6 +282,10 @@ const StartHereGR = () => {
                                             </h4>
                                             <div className="space-y-3 text-sm">
                                                 <FAQItem
+                                                    question="Πώς λειτουργεί η είσοδος αν ξεκινήσω χωρίς πορτοφόλι ή λογαριασμό Web3Edu;"
+                                                    answer="Έτσι δημιουργείται μια απλή ταυτότητα σε αυτό το πρόγραμμα και τη συσκευή σου. Μπορείς να μαθαίνεις κανονικά εδώ, και αν αργότερα συνδέσεις λογαριασμό Web3Edu ή πορτοφόλι, η επανείσοδος γίνεται συνήθως πιο εύκολη."
+                                                />
+                                                <FAQItem
                                                     question="Χρειάζομαι πραγματικό ETH;"
                                                     answer="Όχι. Το Besu Edu‑Net είναι απομονωμένο εκπαιδευτικό blockchain. Δεν υπάρχει πραγματικό χρήμα."
                                                 />
@@ -271,7 +303,7 @@ const StartHereGR = () => {
                                                 />
                                                 <FAQItem
                                                     question="Τι γίνεται αν χάσω την πρόσβαση στο πορτοφόλι μου;"
-                                                    answer="Μπορείτε να δημιουργήσετε νέο πορτοφόλι και να ξεκινήσετε από την αρχή. Η πρόοδός σας συνδέεται με τη διεύθυνση πορτοφολιού."
+                                                    answer="Μπορείς να δημιουργήσεις νέο wallet και να ξεκινήσεις από την αρχή. Αν χρησιμοποίησες την επιλογή χωρίς wallet, κάνε επαναφορά του Web3Edu Identity από το exported backup για πρόσβαση από νέα συσκευή."
                                                 />
                                             </div>
                                         </div>

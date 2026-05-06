@@ -47,8 +47,9 @@ export default function ProjectDetail() {
     const { id } = useParams();
     const { pathname } = useLocation();
     const isGR = pathname.startsWith("/projects-gr");
-    const { owner, smartAccount } = useIdentity();
-    const { metadata: resolvedSbtMetadata } = useResolvedIdentityContext();
+    const { smartAccount, isIdentityReady } = useIdentity();
+    const { metadata: resolvedSbtMetadata, canonicalIdentityAddress } =
+        useResolvedIdentityContext();
     const project = localizeProject(getProjectById(id), isGR);
     const projectCompletionId = project?.backendId ?? project?.id;
 
@@ -260,11 +261,9 @@ export default function ProjectDetail() {
         }
     };
 
-    const wallet = useMemo(
-        () => localStorage.getItem("web3edu-wallet-address") || "",
-        []
-    );
-    const identityAddress = smartAccount ?? owner ?? (wallet || null);
+    const identityAddress =
+        canonicalIdentityAddress ||
+        (isIdentityReady && smartAccount ? smartAccount : null);
 
     const [userRole, setUserRole] = useState("learner");   // identity
     const [userTier, setUserTier] = useState("explorer");  // progression

@@ -7,7 +7,6 @@ import {
     Tooltip,
     Legend,
     ResponsiveContainer,
-    Cell,
 } from "recharts";
 
 export default function LabsCompletionChart({ labs }) {
@@ -63,16 +62,20 @@ export default function LabsCompletionChart({ labs }) {
                             <span className="text-slate-600 dark:text-slate-300 text-sm">{value}</span>
                         )}
                     />
-                    <Bar dataKey="completed" name="Completed" stackId="a" radius={[0, 0, 0, 0]}>
-                        {chartData.map((entry, index) => (
-                            <Cell key={`cell-completed-${index}`} fill="#10b981" />
-                        ))}
-                    </Bar>
-                    <Bar dataKey="dropOff" name="Drop-off" stackId="a" radius={[0, 4, 4, 0]}>
-                        {chartData.map((entry, index) => (
-                            <Cell key={`cell-dropoff-${index}`} fill="#f43f5e" />
-                        ))}
-                    </Bar>
+                    <Bar
+                        dataKey="completed"
+                        name="Completed"
+                        stackId="a"
+                        fill="#10b981"
+                        radius={[0, 0, 0, 0]}
+                    />
+                    <Bar
+                        dataKey="dropOff"
+                        name="Drop-off"
+                        stackId="a"
+                        fill="#f43f5e"
+                        radius={[0, 4, 4, 0]}
+                    />
                 </BarChart>
             </ResponsiveContainer>
         </div>

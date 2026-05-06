@@ -10,10 +10,14 @@ import {
   generateAvatarStyle,
   shortAddress,
 } from "./identity-ui.jsx";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAccount, useDisconnect } from "wagmi";
+import ConnectWalletButton from "./ConnectWalletButton.jsx";
 import { useIdentity } from "../context/IdentityContext.jsx";
+import { useSocialAwareWalletConnect } from "../hooks/useSocialAwareWalletConnect.js";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
+import { useAuth } from "react-oidc-context";
+import { loadIdentityState } from "../utils/aaIdentity.js";
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
 const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
@@ -28,10 +32,31 @@ const ADMIN_WALLETS = (
 const isAdminWallet = (address) =>
   Boolean(address && ADMIN_WALLETS.includes(address.toLowerCase()));
 
+/** Outline / secondary — matches SectionBadge + TeamMemberCard lavender tokens */
+const navAuthSecondaryClass =
+  "px-3 py-1.5 rounded-full border border-[#8A57FF]/35 bg-[#EDE8FF]/95 text-[#5B2DC8] shadow-sm backdrop-blur " +
+  "cursor-pointer transition-all duration-200 hover:scale-105 hover:bg-[#E2D8FF] hover:border-[#8A57FF]/50 " +
+  "dark:border-indigo-400/35 dark:bg-indigo-950/80 dark:text-indigo-100 dark:shadow-lg dark:shadow-indigo-900/20 " +
+  "dark:hover:bg-indigo-900/85 dark:hover:border-indigo-300/45";
+
+/** Primary CTA — saturated gradient so label stays readable on light lavender nav */
+const navAuthPrimaryClass =
+  "px-4 py-1.5 rounded-full text-sm font-semibold text-white shadow-md shadow-[#8A57FF]/25 " +
+  "bg-gradient-to-r from-[#9333ea] via-[#6366f1] to-[#0891b2] ring-1 ring-white/35 " +
+  "cursor-pointer transition-all duration-200 hover:scale-105 hover:brightness-110 hover:shadow-lg hover:shadow-indigo-500/35 " +
+  "dark:from-violet-600 dark:via-indigo-600 dark:to-cyan-600 dark:ring-white/20";
+
+const SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY = "web3edu-social-switch-from-local-aa";
+
 const getLangFromHash = (hash) => {
   if (!hash) return null;
   if (hash.includes("-gr") || hash.startsWith("#/gr")) return "gr";
   return null;
+};
+
+const hasPersistedIdentityState = () => {
+  const state = loadIdentityState();
+  return Boolean(state?.hasIdentity === true || state?.alreadyMinted === true);
 };
 
 const buildHash = (firstSegment, rest) => {
@@ -74,6 +99,9 @@ export default function PageShell({
   footerContent,
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const auth = useAuth();
+  const { connectWalletSessionAware, isPending: isConnectPending } = useSocialAwareWalletConnect();
   const { disconnectAsync } = useDisconnect();
   const [identityMenuOpen, setIdentityMenuOpen] = React.useState(false);
   const identityMenuRef = React.useRef(null);
@@ -88,22 +116,26 @@ export default function PageShell({
     if (typeof window === "undefined") return "";
     return localStorage.getItem(WALLET_ADDRESS_KEY) || "";
   });
-  const { walletTier, syncIssueVisible, refetch } = useResolvedIdentityContext();
+  const [hasPersistedIdentity, setHasPersistedIdentity] = React.useState(() => {
+    if (typeof window === "undefined") return false;
+    return hasPersistedIdentityState();
+  });
+  const { walletTier, syncIssueVisible, refetch, canonicalIdentityAddress } = useResolvedIdentityContext();
 
   const [currentHash, setCurrentHash] = React.useState(
     typeof window !== "undefined" ? window.location.hash || "#/" : "#/"
   );
 
-  const { owner, smartAccount, disconnectIdentity } = useIdentity();
+  const { disconnectIdentity, isIdentityReady: onboarded } = useIdentity();
   const { address: wagmiAddress, isConnected } = useAccount();
-  const identityAddress = React.useMemo(
-    () => smartAccount ?? owner ?? wagmiAddress ?? null,
-    [smartAccount, owner, wagmiAddress]
-  );
-  const displayAddress = React.useMemo(
-    () => smartAccount ?? wagmiAddress ?? owner ?? null,
-    [smartAccount, wagmiAddress, owner]
-  );
+  /**
+   * Canonical identity address — resolves both social-login AA and wallet AA.
+   * Social-login users have a backend-provisioned AA address that is not tracked
+   * by `isIdentityReady` (wallet-only flag), so we use canonicalIdentityAddress
+   * from ResolvedIdentityProvider which handles both paths.
+   */
+  const identityAddress = canonicalIdentityAddress ?? null;
+  const displayAddress = canonicalIdentityAddress ?? wagmiAddress ?? walletAddress ?? null;
   // THE ONLY source of truth for language — prefer URL hint, then stored value
   const [lang, setLang] = React.useState(() => {
     if (typeof window !== "undefined") {
@@ -116,6 +148,10 @@ export default function PageShell({
   });
 
   const isGR = lang === "gr";
+
+  const handleNavbarWalletConnect = React.useCallback(() => {
+    void connectWalletSessionAware(isGR);
+  }, [connectWalletSessionAware, isGR]);
 
   React.useEffect(() => {
     localStorage.setItem("lang", lang);
@@ -179,22 +215,23 @@ export default function PageShell({
   }, []);
 
   React.useEffect(() => {
-    const syncWalletState = () => {
+    const syncSessionState = () => {
       const fromStorage = localStorage.getItem(WALLET_SESSION_KEY) === "true";
       const storedAddress = localStorage.getItem(WALLET_ADDRESS_KEY) || "";
       setHasWalletSession(fromStorage);
       setWalletAddress(storedAddress);
+      setHasPersistedIdentity(hasPersistedIdentityState());
     };
 
-    syncWalletState();
-    window.addEventListener("storage", syncWalletState);
-    window.addEventListener("focus", syncWalletState);
-    window.addEventListener("web3edu-wallet-state", syncWalletState);
+    syncSessionState();
+    window.addEventListener("storage", syncSessionState);
+    window.addEventListener("focus", syncSessionState);
+    window.addEventListener("web3edu-wallet-state", syncSessionState);
 
     return () => {
-      window.removeEventListener("storage", syncWalletState);
-      window.removeEventListener("focus", syncWalletState);
-      window.removeEventListener("web3edu-wallet-state", syncWalletState);
+      window.removeEventListener("storage", syncSessionState);
+      window.removeEventListener("focus", syncSessionState);
+      window.removeEventListener("web3edu-wallet-state", syncSessionState);
     };
   }, []);
 
@@ -245,6 +282,9 @@ export default function PageShell({
   };
 
   const normalizedHash = currentHash.split("?")[0];
+  const isAdminRoute =
+    String(location?.pathname || "").startsWith("/admin") ||
+    normalizedHash.startsWith("#/admin");
   const isJoinPage =
     normalizedHash.startsWith("#/join") || normalizedHash.startsWith("#/join-gr");
   const isLabsLandingPage =
@@ -252,6 +292,14 @@ export default function PageShell({
     normalizedHash === "#/labs/" ||
     normalizedHash === "#/labs-gr" ||
     normalizedHash === "#/labs-gr/";
+
+  /**
+   * Dashboard entry point should be visible whenever the user has an active session:
+   * - wallet-first AA identity (onboarded + smartAccount)
+   * - social login session (OIDC authenticated; AA lives in SocialIdentityContext)
+   */
+  const hasActiveSession = Boolean(onboarded || auth?.isAuthenticated);
+  const dashboardHash = isGR ? "#/dashboard-gr" : "#/dashboard";
 
   // Hide Join button on pages with Web3RouteControls (to avoid duplicates)
   const isWeb3ProtectedRoute =
@@ -262,17 +310,48 @@ export default function PageShell({
     normalizedHash.startsWith("#/dashboard") ||
     normalizedHash.startsWith("#/sbt-view") ||
     normalizedHash.startsWith("#/verify") ||
+    normalizedHash.startsWith("#/settings") ||
     normalizedHash.startsWith("#/admin");
 
+  /** Routes wrapped by `Web3Layout` (where `Web3RouteControls` mounts). Keep in sync with `routeTable.jsx` web3.routes. */
+  const isWeb3LayoutRoute =
+    normalizedHash.startsWith("#/join") ||
+    normalizedHash.startsWith("#/mint-identity") ||
+    normalizedHash.startsWith("#/welcome") ||
+    normalizedHash.startsWith("#/dashboard") ||
+    normalizedHash.startsWith("#/sbt-view") ||
+    normalizedHash.startsWith("#/verify") ||
+    normalizedHash.startsWith("#/labs");
+
+  const showNavbarConnectWallet = !isConnected && !isJoinPage;
+
+  /** Reserve space only when the floating Web3 account chrome is actually visible. */
+  const reserveWeb3FloatingChrome = isWeb3LayoutRoute && onboarded;
+  const reserveWeb3FloatingChromeClasses = reserveWeb3FloatingChrome
+    ? isAdminWallet(wagmiAddress || walletAddress)
+      ? "md:pr-52 lg:pr-64 xl:pr-72"
+      : "md:pr-40 lg:pr-52"
+    : "";
+
   const showJoinCta =
-    !identityAddress && !isJoinPage && !isLabsLandingPage && !isWeb3ProtectedRoute;
-  const showIdentityCtaDesktop =
-    Boolean(identityAddress) &&
+    !identityAddress &&
+    !hasActiveSession &&
     !isJoinPage &&
     !isLabsLandingPage &&
-    !isWeb3ProtectedRoute;
-  const showIdentityCtaMobile =
-    Boolean(identityAddress) && !isJoinPage && !isLabsLandingPage;
+    !isWeb3ProtectedRoute &&
+    !isAdminRoute;
+  const identityEntryLabel = hasPersistedIdentity
+    ? (isGR ? "Συνέχεια Ταυτότητας" : "Continue Identity")
+    : (isGR ? "Web3Edu Identity" : "Web3Edu Identity");
+  const socialConnectLabel = isGR
+    ? "🔐 Σύνδεση Web3Edu λογαριασμού"
+    : "🔐 Connect Web3Edu account";
+  /**
+   * Identity dropdown should be available everywhere once a canonical identity exists,
+   * including `/labs` (so users can jump to Dashboard from the learning hub).
+   */
+  const showIdentityCtaDesktop = Boolean(identityAddress) && !isJoinPage;
+  const showIdentityCtaMobile = Boolean(identityAddress) && !isJoinPage;
 
   const handleDisconnectIdentity = React.useCallback(async () => {
     setIdentityMenuOpen(false);
@@ -285,8 +364,17 @@ export default function PageShell({
       }
     }
     disconnectIdentity();
-    navigate("/");
-  }, [disconnectAsync, disconnectIdentity, isConnected, navigate]);
+    if (auth?.isAuthenticated) {
+      try {
+        await auth.signoutRedirect();
+        // signoutRedirect navigates away; post_logout_redirect_uri returns to /#/join
+      } catch {
+        navigate("/");
+      }
+    } else {
+      navigate("/");
+    }
+  }, [disconnectAsync, disconnectIdentity, isConnected, navigate, auth]);
 
   React.useEffect(() => {
     if (!identityMenuOpen) return undefined;
@@ -309,7 +397,14 @@ export default function PageShell({
       }}
       className="w-full min-h-screen transition-colors duration-500 overflow-x-hidden"
     >
-      <div className="w-full fixed top-0 left-0 right-0 px-4 sm:px-8 pt-4 z-50">
+      <div
+        className={[
+          "w-full fixed top-0 left-0 right-0 z-50 px-4 pt-4 sm:px-8",
+          reserveWeb3FloatingChromeClasses,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
 
         {/* NAV */}
         <nav
@@ -398,13 +493,28 @@ export default function PageShell({
                 >
                   Διακυβέρνηση DAO
                 </a>
-                <a href="/#/team-gr" className="relative font-medium 
+                <a href="/#/team-gr" className="relative font-medium
   text-slate-800 dark:text-slate-100
   hover:text-indigo-700 dark:hover:text-white
   after:absolute after:-bottom-1 after:left-0 after:h-[2px]
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
   after:transition-transform hover:after:scale-x-100">Ομάδα</a>
+                {/* Πίνακας link only for OIDC-only users who have no identity avatar dropdown */}
+                {hasActiveSession && !identityAddress ? (
+                  <a
+                    href={`/${dashboardHash}`}
+                    className="relative font-semibold
+  text-slate-900 dark:text-white
+  hover:text-indigo-700 dark:hover:text-white
+  after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+  after:w-full after:scale-x-0 after:bg-gradient-to-r
+  after:from-[#7b3df8] after:to-[#00d4ff]
+  after:transition-transform hover:after:scale-x-100"
+                  >
+                    Πίνακας
+                  </a>
+                ) : null}
               </>
             ) : (
               <>
@@ -463,29 +573,49 @@ export default function PageShell({
                 >
                   DAO Governance
                 </a>
-                <a href="/#/team" className="relative font-medium 
+                <a href="/#/team" className="relative font-medium
   text-slate-800 dark:text-slate-100
   hover:text-indigo-700 dark:hover:text-white
   after:absolute after:-bottom-1 after:left-0 after:h-[2px]
   after:w-full after:scale-x-0 after:bg-gradient-to-r
   after:from-[#7b3df8] after:to-[#00d4ff]
   after:transition-transform hover:after:scale-x-100">Team</a>
+                {/* Dashboard link only for OIDC-only users who have no identity avatar dropdown */}
+                {hasActiveSession && !identityAddress ? (
+                  <a
+                    href={`/${dashboardHash}`}
+                    className="relative font-semibold
+  text-slate-900 dark:text-white
+  hover:text-indigo-700 dark:hover:text-white
+  after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+  after:w-full after:scale-x-0 after:bg-gradient-to-r
+  after:from-[#7b3df8] after:to-[#00d4ff]
+  after:transition-transform hover:after:scale-x-100"
+                  >
+                    Dashboard
+                  </a>
+                ) : null}
               </>
             )}
           </div>
 
           {/* Action buttons */}
           <div className="hidden lg:flex items-center gap-4">
+            {showNavbarConnectWallet ? (
+              <ConnectWalletButton
+                isGr={isGR}
+                isPending={isConnectPending}
+                onClick={() => void handleNavbarWalletConnect()}
+              />
+            ) : null}
             {showJoinCta && (
                 <button
                   onClick={() => {
                     window.location.hash = isGR ? "#/join-gr" : "#/join";
                   }}
-                  className="px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/40 to-blue-500/40
-                 hover:from-pink-500/60 hover:to-blue-500/60
-                 text-white shadow-lg shadow-indigo-500/20 border border-white/10 cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40"
+                  className={navAuthPrimaryClass}
                 >
-                  {isGR ? "Σύνδεση" : "Join"}
+                  {identityEntryLabel}
                 </button>
               )}
             {showIdentityCtaDesktop && displayAddress && (
@@ -514,8 +644,29 @@ export default function PageShell({
                 {identityMenuOpen ? (
                   <div
                     role="menu"
-                    className="absolute right-0 top-[calc(100%+0.5rem)] z-[100] min-w-[11rem] rounded-xl border border-white/15 bg-slate-900/95 py-1 text-left shadow-xl shadow-black/40 backdrop-blur-md dark:bg-slate-950/95"
+                    className="absolute right-0 top-[calc(100%+0.5rem)] z-[100] min-w-[12rem] rounded-xl border border-white/15 bg-slate-900/95 py-1 text-left shadow-xl shadow-black/40 backdrop-blur-md dark:bg-slate-950/95"
                   >
+                    {!auth?.isAuthenticated ? (
+                      !isAdminRoute ? (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="block w-full px-4 py-2.5 text-left text-sm text-white transition hover:bg-white/10"
+                        onClick={() => {
+                          setIdentityMenuOpen(false);
+                          if (typeof window !== "undefined" && displayAddress) {
+                            window.sessionStorage.setItem(
+                              SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY,
+                              String(displayAddress)
+                            );
+                          }
+                          void auth?.signinRedirect?.();
+                        }}
+                      >
+                        {socialConnectLabel}
+                      </button>
+                      ) : null
+                    ) : null}
                     <button
                       type="button"
                       role="menuitem"
@@ -525,12 +676,34 @@ export default function PageShell({
                         window.location.hash = isGR ? "#/dashboard-gr" : "#/dashboard";
                       }}
                     >
-                      {isGR ? "Πίνακας" : "Dashboard"}
+                      {isGR ? "📊 Πίνακας" : "📊 Dashboard"}
                     </button>
                     <button
                       type="button"
                       role="menuitem"
-                      className="block w-full px-4 py-2.5 text-left text-sm text-red-200 transition hover:bg-red-500/20"
+                      className="block w-full px-4 py-2.5 text-left text-sm text-white transition hover:bg-white/10"
+                      onClick={() => {
+                        setIdentityMenuOpen(false);
+                        window.location.hash = isGR ? "#/sbt-view-gr" : "#/sbt-view";
+                      }}
+                    >
+                      {isGR ? "🏅 Η Ταυτότητά μου" : "🏅 My Identity"}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="block w-full px-4 py-2.5 text-left text-sm text-white transition hover:bg-white/10"
+                      onClick={() => {
+                        setIdentityMenuOpen(false);
+                        window.location.hash = isGR ? "#/settings-gr" : "#/settings";
+                      }}
+                    >
+                      {isGR ? "⚙ Ρυθμίσεις" : "⚙ Settings"}
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="block w-full border-t border-white/10 px-4 py-2.5 text-left text-sm text-red-200 transition hover:bg-red-500/20"
                       onClick={() => void handleDisconnectIdentity()}
                     >
                       {isGR ? "Αποσύνδεση" : "Disconnect"}
@@ -561,14 +734,27 @@ export default function PageShell({
             </button>
 
             {/* Language toggle (clean, separate, no interaction with theme) */}
-            <button
-              onClick={toggleLanguage}
-              aria-label={isGR ? "Switch language to English" : "Αλλαγή γλώσσας στα Ελληνικά"}
-              title={isGR ? "Switch to English" : "Αλλαγή σε Ελληνικά"}
-              className="px-3 py-1.5 rounded-full bg-slate-200/70 hover:bg-slate-300/70 text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg"
-            >
-              {isGR ? "EN" : "GR"}
-            </button>
+            {!isAdminRoute ? (
+              <>
+                <button
+                  onClick={toggleLanguage}
+                  aria-label={isGR ? "Switch language to English" : "Αλλαγή γλώσσας στα Ελληνικά"}
+                  title={isGR ? "Switch to English" : "Αλλαγή σε Ελληνικά"}
+                  className="px-3 py-1.5 rounded-full bg-slate-200/70 hover:bg-slate-300/70 text-slate-900 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white border border-white/10 backdrop-blur-md cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg"
+                >
+                  {isGR ? "EN" : "GR"}
+                </button>
+                {auth?.isAuthenticated ? (
+                  <button
+                    type="button"
+                    onClick={() => void auth?.signoutRedirect?.()}
+                    className={navAuthSecondaryClass}
+                  >
+                    {isGR ? "Έξοδος" : "Sign out"}
+                  </button>
+                ) : null}
+              </>
+            ) : null}
           </div>
 
           {/* Mobile */}
@@ -654,6 +840,15 @@ export default function PageShell({
                     >
                       Ομάδα
                     </button>
+                    {/* Πίνακας only for OIDC-only users without identity dropdown */}
+                    {hasActiveSession && !identityAddress ? (
+                      <button
+                        onClick={() => navigateTo(dashboardHash)}
+                        className="w-full rounded-xl bg-slate-900 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/20"
+                      >
+                        Πίνακας
+                      </button>
+                    ) : null}
                   </>
                 ) : (
                   <>
@@ -699,16 +894,33 @@ export default function PageShell({
                     >
                       Team
                     </button>
+                    {/* Dashboard only for OIDC-only users without identity dropdown */}
+                    {hasActiveSession && !identityAddress ? (
+                      <button
+                        onClick={() => navigateTo(dashboardHash)}
+                        className="w-full rounded-xl bg-slate-900 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/20"
+                      >
+                        Dashboard
+                      </button>
+                    ) : null}
                   </>
                 )}
               </div>
 
+              {showNavbarConnectWallet ? (
+                <ConnectWalletButton
+                  isGr={isGR}
+                  isPending={isConnectPending}
+                  onClick={() => void handleNavbarWalletConnect()}
+                  className="w-full justify-center py-3"
+                />
+              ) : null}
               {showJoinCta && (
                   <button
                     onClick={() => navigateTo(isGR ? "#/join-gr" : "#/join")}
-                    className="w-full rounded-xl bg-gradient-to-r from-pink-500/60 to-blue-500/60 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:from-pink-500/70 hover:to-blue-500/70 transition"
+                    className={`${navAuthPrimaryClass.replace("rounded-full", "rounded-xl").replace("py-1.5", "py-3")} w-full shadow-lg`}
                   >
-                    {isGR ? "Σύνδεση" : "Join"}
+                    {identityEntryLabel}
                   </button>
                 )}
               {showIdentityCtaMobile && displayAddress && (
@@ -737,6 +949,28 @@ export default function PageShell({
                       role="menu"
                       className="w-full overflow-hidden rounded-xl border border-white/15 bg-white/95 dark:bg-slate-900/95"
                     >
+                      {!auth?.isAuthenticated ? (
+                        !isAdminRoute ? (
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="block w-full px-4 py-3 text-left text-sm font-semibold text-slate-900 transition hover:bg-slate-200/80 dark:text-white dark:hover:bg-white/10"
+                          onClick={() => {
+                            setIdentityMenuOpen(false);
+                            setMobileOpen(false);
+                            if (typeof window !== "undefined" && displayAddress) {
+                              window.sessionStorage.setItem(
+                                SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY,
+                                String(displayAddress)
+                              );
+                            }
+                            void auth?.signinRedirect?.();
+                          }}
+                        >
+                          {socialConnectLabel}
+                        </button>
+                        ) : null
+                      ) : null}
                       <button
                         type="button"
                         role="menuitem"
@@ -746,7 +980,29 @@ export default function PageShell({
                           navigateTo(isGR ? "#/dashboard-gr" : "#/dashboard");
                         }}
                       >
-                        {isGR ? "Πίνακας" : "Dashboard"}
+                        {isGR ? "📊 Πίνακας" : "📊 Dashboard"}
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="block w-full border-t border-white/10 px-4 py-3 text-left text-sm font-semibold text-slate-900 transition hover:bg-slate-200/80 dark:text-white dark:hover:bg-white/10"
+                        onClick={() => {
+                          setIdentityMenuOpen(false);
+                          navigateTo(isGR ? "#/sbt-view-gr" : "#/sbt-view");
+                        }}
+                      >
+                        {isGR ? "🏅 Η Ταυτότητά μου" : "🏅 My Identity"}
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="block w-full border-t border-white/10 px-4 py-3 text-left text-sm font-semibold text-slate-900 transition hover:bg-slate-200/80 dark:text-white dark:hover:bg-white/10"
+                        onClick={() => {
+                          setIdentityMenuOpen(false);
+                          navigateTo(isGR ? "#/settings-gr" : "#/settings");
+                        }}
+                      >
+                        {isGR ? "⚙ Ρυθμίσεις" : "⚙ Settings"}
                       </button>
                       <button
                         type="button"
@@ -770,16 +1026,20 @@ export default function PageShell({
               )}
 
               <div className="grid grid-cols-2 gap-3 pt-1">
-                <button
-                  onClick={() => {
-                    toggleLanguage();
-                    setMobileOpen(false);
-                  }}
-                  aria-label={isGR ? "Switch language to English" : "Αλλαγή γλώσσας στα Ελληνικά"}
-                  className="w-full rounded-xl border border-white/20 bg-white/80 dark:bg-slate-800/80 py-2.5 text-sm font-semibold text-slate-800 dark:text-white"
-                >
-                  {isGR ? "EN" : "GR"}
-                </button>
+                {!isAdminRoute ? (
+                  <button
+                    onClick={() => {
+                      toggleLanguage();
+                      setMobileOpen(false);
+                    }}
+                    aria-label={isGR ? "Switch language to English" : "Αλλαγή γλώσσας στα Ελληνικά"}
+                    className="w-full rounded-xl border border-white/20 bg-white/80 dark:bg-slate-800/80 py-2.5 text-sm font-semibold text-slate-800 dark:text-white"
+                  >
+                    {isGR ? "EN" : "GR"}
+                  </button>
+                ) : (
+                  <div className="w-full" />
+                )}
                 <button
                   onClick={() => {
                     setIsDark((prev) => !prev);
@@ -791,6 +1051,15 @@ export default function PageShell({
                   {isDark ? "🌞" : "🌙"}
                 </button>
               </div>
+              {!isAdminRoute && auth?.isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={() => void auth?.signoutRedirect?.()}
+                  className="w-full rounded-xl border border-white/20 bg-white/80 dark:bg-slate-800/80 py-2.5 text-sm font-semibold text-slate-800 dark:text-white"
+                >
+                  {isGR ? "Έξοδος" : "Sign out"}
+                </button>
+              ) : null}
             </div>
           </div>
         )}

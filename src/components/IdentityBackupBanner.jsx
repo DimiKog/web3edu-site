@@ -2,23 +2,34 @@ import { useCallback, useMemo, useState } from "react";
 import { ShieldExclamationIcon } from "@heroicons/react/24/outline";
 import { useIdentity } from "../context/IdentityContext.jsx";
 import { exportIdentity } from "../utils/identityExport.js";
+import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 
 const STORAGE_KEY = "web3edu-identity-backup-banner-dismissed";
 
 /**
  * Dismissible reminder: AA / walletless identity is anchored to the local owner key.
  * Clearing storage without a backup locks the user out of their smart account.
+ *
+ * @param {{ variant?: "en" | "gr", requireNoInjectedWalletSession?: boolean }} props
+ * When `requireNoInjectedWalletSession` is true, the banner only appears if there is no
+ * active injected-wallet session flag in storage (browser-key–style path).
  */
-export default function IdentityBackupBanner({ variant = "en" }) {
-  const { hasIdentity, smartAccount } = useIdentity();
+export default function IdentityBackupBanner({
+  variant = "en",
+  requireNoInjectedWalletSession = false,
+}) {
+  const { hasIdentity, smartAccount, isIdentityReady } = useIdentity();
   const [dismissed, setDismissed] = useState(
     () => typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY) === "true"
   );
 
   const shouldShow = useMemo(() => {
     if (dismissed) return false;
-    return Boolean(hasIdentity || smartAccount);
-  }, [dismissed, hasIdentity, smartAccount]);
+    if (!isIdentityReady) return false;
+    if (!hasIdentity && !smartAccount) return false;
+    if (requireNoInjectedWalletSession && readConnectedEoaAddress()) return false;
+    return true;
+  }, [dismissed, hasIdentity, smartAccount, requireNoInjectedWalletSession, isIdentityReady]);
 
   const dismiss = useCallback(() => {
     localStorage.setItem(STORAGE_KEY, "true");

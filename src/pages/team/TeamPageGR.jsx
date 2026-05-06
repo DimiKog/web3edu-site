@@ -22,10 +22,12 @@ export default function TeamPageGR() {
                         <div className="text-center mb-10 sm:mb-16 animate-fadeInUp">
                             <div className="mb-10 flex justify-center">
                                 <div className="inline-flex items-center gap-3 px-7 py-3 rounded-full
-                                                bg-gradient-to-r from-[#8A57FF]/20 via-[#4ACBFF]/20 to-[#FF67D2]/20
-                                                border border-white/20 backdrop-blur-xl
-                                                text-white text-xl font-bold tracking-wide shadow-lg
-                                                animate-pulse-slow">
+                                                bg-gradient-to-r from-[#8A57FF]/30 via-[#4ACBFF]/25 to-[#FF67D2]/25
+                                                dark:from-[#8A57FF]/20 dark:via-[#4ACBFF]/20 dark:to-[#FF67D2]/20
+                                                border border-slate-200/70 dark:border-white/20
+                                                backdrop-blur-xl
+                                                text-slate-900 dark:text-white text-xl font-bold tracking-wide
+                                                shadow-sm">
                                     <span className="text-2xl">⚡</span>
                                     <span>Πυρήνας Web3Edu</span>
                                 </div>
@@ -48,9 +50,9 @@ export default function TeamPageGR() {
                             </div>
                         </div>
 
-                        <div className="my-10 sm:my-14 h-px bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent"></div>
+                        <div className="my-10 sm:my-14 h-px bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
 
-                        <h2 className="text-3xl font-bold text-center mt-32 mb-12 text-slate-800 dark:text-slate-200">
+                        <h2 className="text-3xl font-bold text-center mt-16 sm:mt-24 mb-10 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Όραμα & Ερευνητικές Κατευθύνσεις
                         </h2>
                         <div className="flex flex-col md:flex-row items-center gap-10 sm:gap-14 mb-20 sm:mb-32 text-lg w-full max-w-6xl mx-auto relative z-10 space-y-4 md:space-y-0">
@@ -81,11 +83,9 @@ export default function TeamPageGR() {
 Ο Δημήτρης είναι ερευνητής blockchain με ειδίκευση στα εκπαιδευτικά οικοσυστήματα Web3, στα Besu δίκτυα, στα Zero-Knowledge Proofs και στις ασφαλείς αποκεντρωμένες αρχιτεκτονικές. Ως ιδρυτής και lead architect του Web3Edu, σχεδιάζει hands-on μαθησιακά πλαίσια και προηγμένα εκπαιδευτικά εργαλεία που γεφυρώνουν την ακαδημαϊκή έρευνα με τις πραγματικές blockchain εφαρμογές.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
 
-                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
-
-                        <h2 className="text-3xl font-bold text-center mt-32 mb-12 text-slate-800 dark:text-slate-200">
+                        <h2 className="text-3xl font-bold text-center mt-16 sm:mt-24 mb-10 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Ακαδημαϊκή Στρατηγική & Εξωστρέφεια
                         </h2>
                         <div className="flex flex-col md:flex-row items-center gap-10 mb-20 sm:mb-28 text-lg w-full max-w-6xl mx-auto space-y-4 md:space-y-0">
@@ -112,11 +112,9 @@ export default function TeamPageGR() {
 Η Νέλλη φέρνει βαθιά εμπειρία σε δίκτυα, ψηφιακά οικοσυστήματα και αναδυόμενες τεχνολογίες. Ως επικεφαλής Ακαδημαϊκής Στρατηγικής και Outreach στο Web3Edu, υποστηρίζει την ερευνητική πορεία της πλατφόρμας, δημιουργεί συνέργειες με πανεπιστήμια και ενισχύει την ανάπτυξη εκπαιδευτικών πρωτοβουλιών υψηλού αντικτύπου.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
 
-                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
-
-                        <h2 className="text-3xl font-bold text-center mt-32 mb-12 text-slate-800 dark:text-slate-200">
+                        <h2 className="text-3xl font-bold text-center mt-16 sm:mt-24 mb-10 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Διακυβέρνηση & Κοινότητα
                         </h2>
                         <div className="flex flex-col md:flex-row-reverse items-center gap-10 mb-20 sm:mb-28 text-lg w-full max-w-6xl mx-auto space-y-4 md:space-y-0">
@@ -143,11 +141,9 @@ export default function TeamPageGR() {
 Η Τόνια ειδικεύεται στα μοντέλα αποκεντρωμένης διακυβέρνησης και συμμετοχής DAO. Ηγείται του Governance & DAO Research τομέα στο Web3Edu, συμβάλλοντας στη δημιουργία υπεύθυνων μηχανισμών διακυβέρνησης, βιώσιμων μοντέλων συμμετοχής και στον λειτουργικό συντονισμό της κοινότητας.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
 
-                        <div className="h-[2px] w-full bg-gradient-to-r from-[#8A57FF]/40 via-[#4ACBFF]/40 to-[#FF67D2]/40 rounded-full my-16"></div>
-
-                        <h2 className="text-3xl font-bold text-center mt-32 mb-12 text-slate-800 dark:text-slate-200">
+                        <h2 className="text-3xl font-bold text-center mt-16 sm:mt-24 mb-10 sm:mb-12 text-slate-800 dark:text-slate-200">
                             Υποδομή & Λειτουργίες
                         </h2>
                         <div className="flex flex-col md:flex-row items-center gap-10 mb-20 sm:mb-28 text-lg w-full max-w-6xl mx-auto space-y-4 md:space-y-0">
@@ -174,9 +170,7 @@ export default function TeamPageGR() {
 Ο Μιχάλης ηγείται του τομέα Network Infrastructure & Community Operations στο Web3Edu. Υποστηρίζει το τεχνικό υπόβαθρο του Besu EduNet, συμβάλλει στην έρευνα και ανάπτυξη αποκεντρωμένων συστημάτων και εξασφαλίζει την αξιοπιστία, ασφάλεια και λειτουργική συνέχεια του δικτύου και των κοινοτικών συστημάτων.`}
                             />
                         </div>
-                        <div className="w-[4px] h-32 mx-auto bg-gradient-to-b from-transparent via-[#8A57FF]/60 to-transparent animate-pulse-slow rounded-full"></div>
-
-                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
 
                         <div className="text-center max-w-3xl mx-auto mt-24 mb-16 text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
                             <h3 className="text-3xl font-bold mb-6">
@@ -196,7 +190,7 @@ export default function TeamPageGR() {
                             </p>
                         </div>
 
-                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/60 to-transparent animate-pulse"></div>
+                        <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
 
                         <p className="text-center text-slate-700 dark:text-slate-400 text-lg mt-8 mb-8">
                             Περισσότερα μέλη, συνεργάτες και contributors θα προστεθούν καθώς το Web3Edu επεκτείνει

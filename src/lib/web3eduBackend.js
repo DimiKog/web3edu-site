@@ -11,15 +11,19 @@ export function getWeb3eduBackendUrl() {
 }
 
 /**
- * Connected wallet first, then AA owner — for `owner=` on backend reads only
+ * IdentityContext owner first, then wagmi address — for `owner=` on backend reads only
  * (legacy rows are keyed by EOA). Empty strings are treated as absent.
+ *
+ * Rationale: wagmi `address` can temporarily lag behind the app's own wallet-session
+ * bookkeeping (localStorage + `web3edu-wallet-state`). The IdentityContext `owner`
+ * is the canonical "who just connected" signal for AA + resolve flows.
  * @param {string|null|undefined} address wagmi `address` or session EOA
  * @param {string|null|undefined} owner AA owner from IdentityContext
  */
 export function buildResolveOwner(address, owner) {
   const a = normalizeEvmAddress(address);
   const o = normalizeEvmAddress(owner);
-  return a ?? o ?? null;
+  return o ?? a ?? null;
 }
 
 /**
@@ -30,10 +34,9 @@ export function resolveReadOwnerQueryParam(address) {
 }
 
 /**
- * GET /web3sbt/resolve/:routeAddress for the current viewer: adds `?owner=` only when
- * the URL address matches the viewer's identity (`smartAccount` or persisted `owner` EOA).
- * `routeAddress` may be a smart account or an EOA; `?owner=` supplies the EOA key the backend
- * uses for legacy rows when the path is the viewer's own smart account and wagmi is disconnected.
+ * GET /web3sbt/resolve/:routeAddress for the current viewer.
+ * When the viewer has a smart account (v2), reads use the path only — never `?owner=`.
+ * Pre-AA / legacy: when there is no smart account, `?owner=` may be added when viewing own EOA.
  */
 export function buildWeb3SbtResolveUrlForViewer(
   routeAddress,
@@ -45,10 +48,14 @@ export function buildWeb3SbtResolveUrlForViewer(
   if (!path) {
     throw new Error("identityAddress is required for /web3sbt/resolve");
   }
-  const myId =
-    normalizeEvmAddress(smartAccount) ?? normalizeEvmAddress(contextOwner);
-  const ownerQuery =
-    myId && path === myId
+  const mySc = normalizeEvmAddress(smartAccount);
+  const myEoa = normalizeEvmAddress(contextOwner);
+  const isViewingSelf =
+    Boolean(mySc && path === mySc) ||
+    Boolean(!mySc && myEoa && path === myEoa);
+  const ownerQuery = mySc
+    ? null
+    : isViewingSelf
       ? buildResolveOwner(walletAddress, contextOwner)
       : null;
   return buildWeb3SbtResolveUrl(routeAddress, ownerQuery);

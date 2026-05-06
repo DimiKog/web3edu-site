@@ -16,16 +16,13 @@ import {
     getXpTotalFromBackend,
     isUserStateUnavailableError,
 } from "../utils/progression.js";
-import { useIdentity } from "../context/IdentityContext.jsx";
-import {
-    buildWeb3SbtResolveUrl,
-    resolveReadOwnerQueryParam,
-} from "../lib/web3eduBackend.js";
+import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
+import { buildWeb3SbtResolveUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 
 export default function SbtView() {
-    const { address, isConnected } = useAccount();
-    const { owner, smartAccount } = useIdentity();
+    const { address } = useAccount();
+    const { canonicalIdentityAddress } = useResolvedIdentityContext();
     const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
@@ -33,28 +30,32 @@ export default function SbtView() {
     const [profile, setProfile] = useState(null);
 
     const resolveUrl = useMemo(() => {
-        const path =
-            normalizeEvmAddress(smartAccount) ?? normalizeEvmAddress(owner);
+        const path = normalizeEvmAddress(canonicalIdentityAddress);
         if (!path) return null;
-        return buildWeb3SbtResolveUrl(
-            path,
-            resolveReadOwnerQueryParam(address)
-        );
-    }, [smartAccount, owner, address]);
+        return buildWeb3SbtResolveUrl(path, null);
+    }, [canonicalIdentityAddress]);
 
     useEffect(() => {
-        if (!isConnected) {
+        if (!canonicalIdentityAddress) {
             navigate("/join");
             return;
         }
         window.scrollTo(0, 0);
-    }, [isConnected, navigate]);
+    }, [canonicalIdentityAddress, navigate]);
+
+    useEffect(() => {
+        // Identity switched → ensure we never render stale founder/avatar/metadata.
+        setProfile(null);
+        setError("");
+        setLoading(true);
+    }, [canonicalIdentityAddress]);
 
     useEffect(() => {
         if (!resolveUrl) return;
 
         setLoading(true);
         setError("");
+        setProfile(null);
         fetch(resolveUrl)
             .then(res => {
                 if (!res.ok) {
@@ -81,7 +82,7 @@ export default function SbtView() {
             });
     }, [resolveUrl]);
 
-    const shortAddr = shortAddress(address);
+    const shortAddr = shortAddress(canonicalIdentityAddress || address);
 
     const handleCopy = () => {
         if (!verifyUrl) return;
@@ -127,7 +128,8 @@ export default function SbtView() {
         (isLocalhost ? window.location.origin : PUBLIC_SITE);
 
     // Always use the hash router version:
-    const verifyUrl = address ? `${verifyBase}/#/verify/${address}` : "";
+    const verifyAddress = canonicalIdentityAddress || address;
+    const verifyUrl = verifyAddress ? `${verifyBase}/#/verify/${verifyAddress}` : "";
 
     return (
         <PageShell>
@@ -198,7 +200,7 @@ export default function SbtView() {
                         )}
 
                         {/* Header (Upgraded) */}
-                        <div className="relative flex items-center gap-6 mb-8">
+                        <div className="relative flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
 
                             {/* Avatar with soft glow */}
                             <div className="relative">
@@ -249,11 +251,13 @@ export default function SbtView() {
                             </div>
                         </div>
 
-                        {/* Info Card */}
-                        <div className="rounded-2xl border border-indigo-200/40 dark:border-indigo-800/40
+                        {/* Identity Details + QR */}
+                        <div className="flex flex-col lg:flex-row lg:items-stretch gap-6 mb-6">
+                            {/* Info Card */}
+                            <div className="flex-1 rounded-2xl border border-indigo-200/40 dark:border-indigo-800/40
                             bg-gradient-to-br from-white/90 to-indigo-100/40
                             dark:bg-gradient-to-br dark:from-slate-900/70 dark:via-indigo-900/30 dark:to-slate-900/60
-                            shadow-md backdrop-blur-xl p-5 mb-6
+                            shadow-md backdrop-blur-xl p-5
                             text-slate-700 dark:text-slate-200
                         ">
                             <h2 className="text-xs font-semibold tracking-wider uppercase text-slate-600 dark:text-slate-300 mb-4">
@@ -337,6 +341,39 @@ export default function SbtView() {
                                 </div>
                             </div>
                         </div>
+                            {verifyUrl ? (
+                                <div className="lg:w-[240px] flex items-center justify-center">
+                                    <div className="
+                                        w-full max-w-[240px]
+                                        relative p-4 rounded-2xl shadow-lg
+                                        bg-gradient-to-br from-white via-indigo-50 to-slate-100
+                                        dark:bg-gradient-to-br dark:from-[#111827] dark:via-[#1f2758]/40 dark:to-[#111827]/70
+                                        border border-indigo-200/50 dark:border-indigo-700/40
+                                        backdrop-blur-xl
+                                    ">
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                            <span className="text-indigo-400/35 dark:text-indigo-300/25 text-xs font-semibold tracking-widest rotate-[-18deg]">
+                                                VERIFIED
+                                            </span>
+                                        </div>
+                                        <div className="relative flex justify-center">
+                                            <QRCodeSVG
+                                                value={verifyUrl}
+                                                size={176}
+                                                bgColor={window.matchMedia("(prefers-color-scheme: dark)").matches ? "#ffffff" : "transparent"}
+                                                fgColor={window.matchMedia("(prefers-color-scheme: dark)").matches ? "#000000" : "#1e1b4b"}
+                                                level="M"
+                                                includeMargin={false}
+                                                className="rounded-xl shadow-md w-44 h-44 p-2 bg-white dark:bg-white"
+                                            />
+                                        </div>
+                                        <p className="text-[10px] text-center text-slate-500 dark:text-slate-400 mt-2">
+                                            Scan to verify identity
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : null}
+                        </div>
 
                         {/* Verification */}
                         <div className="rounded-2xl border border-indigo-200/40 dark:border-indigo-800/40
@@ -350,40 +387,6 @@ export default function SbtView() {
                             </h2>
 
                             <div className="flex flex-col sm:flex-row items-center gap-6">
-
-                                {/* QR Code Card */}
-                                {verifyUrl && (
-                                    <div className="
-                                        relative p-4 rounded-2xl shadow-lg
-                                        bg-gradient-to-br from-white via-indigo-50 to-slate-100
-                                        dark:bg-gradient-to-br dark:from-[#111827] dark:via-[#1f2758]/40 dark:to-[#111827]/70
-                                        border border-indigo-200/50 dark:border-indigo-700/40
-                                        backdrop-blur-xl
-                                    ">
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                            <span className="text-indigo-400/40 dark:text-indigo-300/30 text-sm font-semibold tracking-widest rotate-[-20deg]">
-                                                WEB3EDU VERIFIED
-                                            </span>
-                                        </div>
-                                        <div className="relative">
-                                            <QRCodeSVG
-                                                value={verifyUrl}
-                                                size={160}
-                                                bgColor={window.matchMedia("(prefers-color-scheme: dark)").matches ? "#ffffff" : "transparent"}
-                                                fgColor={window.matchMedia("(prefers-color-scheme: dark)").matches ? "#000000" : "#1e1b4b"}
-                                                level="M"
-                                                includeMargin={false}
-                                                className="rounded-xl shadow-md w-40 h-40 p-2 
-               bg-white dark:bg-white"   // important for dark mode readability
-                                            />
-                                        </div>
-
-                                        <p className="text-[10px] text-center text-slate-500 dark:text-slate-400 mt-2">
-                                            Scan to verify identity
-                                        </p>
-                                    </div>
-                                )}
-
                                 <div className="flex-1">
                                     <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">
                                         Verification Link

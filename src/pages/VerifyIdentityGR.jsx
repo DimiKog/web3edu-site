@@ -36,10 +36,8 @@ export default function VerifyIdentityGR() {
     const [profile, setProfile] = useState(null);
 
     /**
-     * `routeAddress` may be an EOA or a smart account. Public resolve uses the path alone;
-     * when the URL matches the viewer's own identity (SC or stored owner), we append
-     * `?owner=` via {@link buildWeb3SbtResolveUrlForViewer} so the backend can resolve legacy
-     * rows even if wagmi is disconnected (owner comes from IdentityContext).
+     * `routeAddress` may be an EOA or a smart account. With a smart account (v2), resolve
+     * uses the path only. Pre-AA viewers may still get `?owner=` when resolving their own EOA.
      */
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -214,8 +212,10 @@ export default function VerifyIdentityGR() {
             derivedLessonsFromTimeline
         )
     ) ?? 0;
-    // The verification URL is always the current page URL (public verification link)
-    const verifyUrl = window.location.href;
+    const VERIFY_BASE =
+        import.meta.env.VITE_VERIFY_BASE ??
+        window.location.origin;
+    const verifyUrl = routeAddress ? `${VERIFY_BASE}/#/verify-gr/${routeAddress}` : "";
 
     const tokenId = profile?.tokenId ?? null;
 

@@ -32,9 +32,8 @@ export default function TeamMemberCard({
                 group rounded-3xl p-[2px] 
                 bg-gradient-to-br ${theme} 
                 shadow-xl transition-all duration-500 w-full mx-auto ${className}
-                hover:shadow-[0_0_55px_rgba(138,87,255,0.55)]
+                hover:shadow-[0_0_45px_rgba(138,87,255,0.45)]
                 hover:-translate-y-1
-                hover:scale-[1.01]
             `}
             style={style}
         >
@@ -60,14 +59,14 @@ export default function TeamMemberCard({
                         `} loading="lazy" />
 
                     {/* Socials Under Avatar */}
-                    <div className={`flex gap-4 mt-3 justify-center ${isHorizontal ? "" : "mb-2"}`}>
+                    <div className={`flex gap-3 mt-3 justify-center ${isHorizontal ? "" : "mb-2"}`}>
                         <a
                             href={socials.github || "#"}
                             target="_blank" rel="noopener noreferrer"
                             className={`${socials.github
-                                ? "text-slate-700 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF]"
+                                ? "text-slate-800 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF] hover:bg-slate-900/5 dark:hover:bg-white/10"
                                 : "opacity-30 cursor-not-allowed text-slate-500 dark:text-slate-600"
-                                } transition`}
+                                } transition-colors rounded-full p-2`}
                         >
                             <FaGithub size={22} />
                         </a>
@@ -76,9 +75,9 @@ export default function TeamMemberCard({
                             href={socials.linkedin || "#"}
                             target="_blank" rel="noopener noreferrer"
                             className={`${socials.linkedin
-                                ? "text-slate-700 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF]"
+                                ? "text-slate-800 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF] hover:bg-slate-900/5 dark:hover:bg-white/10"
                                 : "opacity-30 cursor-not-allowed text-slate-500 dark:text-slate-600"
-                                } transition`}
+                                } transition-colors rounded-full p-2`}
                         >
                             <FaLinkedin size={22} />
                         </a>
@@ -87,9 +86,9 @@ export default function TeamMemberCard({
                             href={socials.discord || "#"}
                             target="_blank" rel="noopener noreferrer"
                             className={`${socials.discord
-                                ? "text-slate-700 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF]"
+                                ? "text-slate-800 hover:text-[#8A57FF] dark:text-slate-200 dark:hover:text-[#4ACBFF] hover:bg-slate-900/5 dark:hover:bg-white/10"
                                 : "opacity-30 cursor-not-allowed text-slate-500 dark:text-slate-600"
-                                } transition`}
+                                } transition-colors rounded-full p-2`}
                         >
                             <FaDiscord size={22} />
                         </a>
@@ -143,7 +142,7 @@ export default function TeamMemberCard({
                             {badges.map((b, i) => (
                                 <span
                                     key={i}
-                                    className="px-3 py-1.5 text-sm md:text-base font-semibold rounded-full bg-[#EDE8FF] text-[#8A57FF] dark:bg-[#1a1630] dark:text-[#C9B8FF] border border-[#8A57FF]/30"
+                                    className="px-3 py-1 text-sm md:text-base font-semibold rounded-full bg-[#EDE8FF] text-[#8A57FF] dark:bg-[#1a1630] dark:text-[#C9B8FF] border border-[#8A57FF]/30"
                                 >
                                     {b}
                                 </span>

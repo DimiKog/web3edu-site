@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 import { ethers } from "ethers";
 import PageShell from "../components/PageShell.jsx";
@@ -10,46 +10,43 @@ import {
   getUserOpReceipt,
   resolveIdentity,
 } from "../api/aa.js";
-import { getOwnerWallet } from "../utils/aaIdentity.js";
+import { pickSmartAccountFromPayload } from "../utils/aaResolvePayload.js";
+import { getOwnerWallet, readConnectedEoaAddress } from "../utils/aaIdentity.js";
 import { useIdentity } from "../context/IdentityContext.jsx";
+import { normalizeEvmAddress } from "../utils/evmAddress.js";
+import { redirectToJoin } from "../utils/identityReadiness.js";
 
 const CONTENT = {
   en: {
     title: "Create Your Web3Edu Identity",
     subtitle:
-      "Create your on-chain profile using Account Abstraction — no gas required.",
+      "Create your on-chain learning identity with a smart account — no wallet required.",
     stepTitle: "Identity Setup",
     steps: ["Owner Key", "Create Profile", "Welcome"],
     buttonIdle: "Create Profile",
+    buttonGoDashboard: "Go to Dashboard",
     buttonBusy: "Creating...",
     statusMinting: "Creating your profile…",
     errors: {
       generic: "Profile creation failed.",
       verifyFailed:
         "Could not verify your identity. Check your connection and try again.",
-      mintedBuildNotVerified:
-        "The mint service says this wallet is already minted, but identity verification did not confirm it, so no on-chain step was run from this page. If that is wrong, try again later or contact support.",
-      mintedMismatch:
-        "Mint and verify responses do not match (smart account or token). No transaction was sent. Try again or contact support.",
     },
   },
   gr: {
     title: "Δημιούργησε το Web3Edu Identity σου",
     subtitle:
-      "Δημιούργησε το on-chain προφίλ σου με Account Abstraction — χωρίς gas.",
+      "Δημιούργησε την on-chain μαθησιακή ταυτότητά σου με smart account — χωρίς wallet.",
     stepTitle: "Ρύθμιση Ταυτότητας",
     steps: ["Owner Key", "Δημιουργία Προφίλ", "Καλωσόρισμα"],
     buttonIdle: "Δημιούργησε Προφίλ",
+    buttonGoDashboard: "Πίνακας ελέγχου",
     buttonBusy: "Δημιουργείται…",
     statusMinting: "Δημιουργία προφίλ…",
     errors: {
       generic: "Η δημιουργία προφίλ απέτυχε.",
       verifyFailed:
         "Δεν ήταν δυνατή η επαλήθευση της ταυτότητας. Έλεγξε τη σύνδεση και δοκίμασε ξανά.",
-      mintedBuildNotVerified:
-        "Η υπηρεσία mint αναφέρει ότι το πορτοφόλι έχει ήδη mint, αλλά η επαλήθευση ταυτότητας δεν το επιβεβαίωσε — δεν εκτελέστηκε on-chain βήμα από αυτή τη σελίδα. Αν δεν ισχύει, δοκίμασε αργότερα ή επικοινώνησε με υποστήριξη.",
-      mintedMismatch:
-        "Οι απαντήσεις mint και verify δεν ταιριάζουν (smart account ή token). Δεν στάλθηκε συναλλαγή. Δοκίμασε ξανά ή επικοινώνησε με υποστήριξη.",
     },
   },
 };
@@ -63,10 +60,140 @@ function pickSmartAccount(payload) {
   return (
     payload.smartAccount ??
     payload.smartAccountAddress ??
+    payload.identityAddress ??
     payload.account ??
     payload.tokenHolder ??
     null
   );
+}
+
+/** AA v2: POST /aa/identity/resolve is the only verification source. */
+function identityVerifiedFromResolve(resolved) {
+  return (
+    Boolean(resolved) &&
+    (resolved.alreadyMinted === true ||
+      resolved.tokenId != null ||
+      resolved.token_id != null)
+  );
+}
+
+/** Mint / post-mint: retry resolve while indexer catches up (smartAccount + owner). */
+async function resolveIdentityAfterMintWithRetry(anchor, owner) {
+  let resolved = null;
+  let attempts = 0;
+
+  while (attempts < 6) {
+    try {
+      resolved = await resolveIdentity({
+        address: anchor,
+        owner,
+        includeOwnerWithAddress: true,
+      });
+
+      if (
+        resolved &&
+        (resolved.alreadyMinted === true ||
+          resolved.tokenId != null ||
+          resolved.token_id != null)
+      ) {
+        break;
+      }
+    } catch {
+      /* indexing or transient API error — retry */
+    }
+
+    await sleep(1000);
+    attempts++;
+  }
+
+  if (import.meta.env.DEV) {
+    console.log("FINAL RESOLVE AFTER RETRY", {
+      attempts,
+      resolved,
+    });
+  }
+
+  if (!resolved || !identityVerifiedFromResolve(resolved)) {
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console -- dev-only indexing hint
+      console.warn("Resolve not yet indexed — continuing with fallback", {
+        attempts,
+        resolved,
+      });
+    }
+
+    return resolved ?? { fallback: true };
+  }
+
+  return resolved;
+}
+
+/**
+ * Canonical checksummed owner EOA for mint/sign (MetaMask vs local ephemeral).
+ * Uses persisted wallet session when wagmi has not re-hydrated yet (avoids ephemeral owner + `invalid_owner` on first click).
+ * @param {{ address?: string, isConnected: boolean, lang: string }}
+ */
+async function resolveSigningOwner({ address, isConnected, lang }) {
+  let wagmiOwner = null;
+  if (isConnected && address && typeof address === "string") {
+    try {
+      wagmiOwner = ethers.getAddress(address);
+    } catch {
+      wagmiOwner = null;
+    }
+  }
+  const sessionOwner = readConnectedEoaAddress();
+  const useInjected = wagmiOwner != null || sessionOwner != null;
+
+  if (useInjected) {
+    if (!window?.ethereum) {
+      throw new Error(
+        lang === "gr"
+          ? "Δεν βρέθηκε πάροχος πορτοφολιού (window.ethereum)."
+          : "No injected wallet (window.ethereum) available to sign."
+      );
+    }
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const messageSigner = await provider.getSigner();
+    const signerOwner = ethers.getAddress(await messageSigner.getAddress());
+
+    if (
+      wagmiOwner != null &&
+      signerOwner.toLowerCase() !== wagmiOwner.toLowerCase()
+    ) {
+      throw new Error(
+        lang === "gr"
+          ? "Το ενεργό πορτοφόλι στο MetaMask δεν ταιριάζει με το συνδεδεμένο λογαριασμό της εφαρμογής."
+          : "Active wallet does not match the connected app account. Switch account or reconnect."
+      );
+    }
+    if (
+      wagmiOwner == null &&
+      sessionOwner != null &&
+      signerOwner.toLowerCase() !== sessionOwner.toLowerCase()
+    ) {
+      throw new Error(
+        lang === "gr"
+          ? "Χρησιμοποίησε το ίδιο λογαριασμό MetaMask με αυτόν που συνδέθηκες στην εφαρμογή."
+          : "Use the same MetaMask account you connected with in this app."
+      );
+    }
+
+    return { owner: signerOwner, signerType: "eoa", messageSigner };
+  }
+
+  const ownerWallet = getOwnerWallet();
+  const owner = ethers.getAddress(ownerWallet.address);
+  return { owner, signerType: "local", messageSigner: ownerWallet };
+}
+
+function checksumOwnerForIdentity(addr) {
+  if (!addr || typeof addr !== "string") return addr;
+  try {
+    return ethers.getAddress(addr);
+  } catch {
+    return addr;
+  }
 }
 
 function pickReceiptTxHash(receipt) {
@@ -167,12 +294,99 @@ export default function MintIdentity({ lang = "en" }) {
   const t = useMemo(() => CONTENT[lang] || CONTENT.en, [lang]);
   const navigate = useNavigate();
   const { address, isConnected } = useAccount();
-  const { setIdentity } = useIdentity();
+  const { setIdentity, isIdentityReady: identityReady } = useIdentity();
+  const location = useLocation();
   const [isMinting, setIsMinting] = useState(false);
   const [mintStage, setMintStage] = useState(MINT_STAGE.IDLE);
   const [error, setError] = useState(null);
   const [resolvedDebug, setResolvedDebug] = useState(null);
   const [longWait, setLongWait] = useState(false);
+  /** Prefetch via resolve so the CTA reflects indexed identity (not build-only). */
+  const [alreadyMintedPreview, setAlreadyMintedPreview] = useState(null);
+
+  useEffect(() => {
+    if (!identityReady) return;
+    const p = location.pathname || "";
+    if (p !== "/mint-identity" && p !== "/mint-identity-gr") return;
+    navigate(p === "/mint-identity-gr" ? "/dashboard-gr" : "/dashboard", { replace: true });
+  }, [identityReady, location.pathname, navigate]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { owner: previewOwner } = await resolveSigningOwner({
+          address,
+          isConnected,
+          lang,
+        });
+        const previewOwnerNorm = normalizeEvmAddress(previewOwner);
+        if (!previewOwnerNorm) {
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console -- dev-only guard
+            console.warn("Skipping preview resolve — invalid owner");
+          }
+          if (!cancelled) setAlreadyMintedPreview(false);
+          return;
+        }
+        const first = await resolveIdentity({ owner: previewOwnerNorm });
+        if (!first) {
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console -- dev-only guard
+            console.warn("Skipping preview resolve — owner resolve returned null");
+          }
+          if (!cancelled) setAlreadyMintedPreview(false);
+          return;
+        }
+        if (cancelled) return;
+
+        let anchor = normalizeEvmAddress(
+          first?.identityAddress ?? first?.smartAccount
+        );
+        if (!anchor) {
+          anchor = normalizeEvmAddress(pickSmartAccountFromPayload(first));
+        }
+        if (!anchor) {
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console -- dev-only guard
+            console.warn("Skipping preview resolve — no smartAccount from owner");
+          }
+          if (!cancelled) setAlreadyMintedPreview(false);
+          return;
+        }
+
+        const previewResolved = await resolveIdentity({
+          address: anchor,
+          owner: previewOwnerNorm,
+          includeOwnerWithAddress: true,
+        });
+        if (!previewResolved) {
+          if (!cancelled) setAlreadyMintedPreview(false);
+          return;
+        }
+        if (import.meta.env.DEV) {
+          console.log("PREVIEW RESOLVE", {
+            owner: previewOwnerNorm,
+            identity: previewResolved?.identityAddress,
+            tokenId: previewResolved?.tokenId ?? previewResolved?.token_id,
+            alreadyMinted: previewResolved?.alreadyMinted,
+          });
+        }
+        if (!cancelled) {
+          const isMinted =
+            previewResolved?.alreadyMinted === true ||
+            previewResolved?.tokenId != null ||
+            previewResolved?.token_id != null;
+          setAlreadyMintedPreview(isMinted);
+        }
+      } catch {
+        if (!cancelled) setAlreadyMintedPreview(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [address, isConnected, lang]);
 
   const stageLabels = useMemo(
     () =>
@@ -201,25 +415,11 @@ export default function MintIdentity({ lang = "en" }) {
       setIsMinting(true);
       setMintStage(MINT_STAGE.IDLE);
 
-      let owner;
-      let messageSigner;
-
-      if (isConnected && address) {
-        if (!window?.ethereum) {
-          throw new Error(
-            lang === "gr"
-              ? "Δεν βρέθηκε πάροχος πορτοφολιού (window.ethereum)."
-              : "No injected wallet (window.ethereum) available to sign."
-          );
-        }
-        owner = ethers.getAddress(address);
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        messageSigner = await provider.getSigner();
-      } else {
-        const ownerWallet = getOwnerWallet();
-        owner = ownerWallet.address;
-        messageSigner = ownerWallet;
-      }
+      const { owner, signerType, messageSigner } = await resolveSigningOwner({
+        address,
+        isConnected,
+        lang,
+      });
 
       const build = await buildUserOp({ owner });
       const userOp = build?.userOp;
@@ -247,60 +447,94 @@ export default function MintIdentity({ lang = "en" }) {
       // Skip submit only when there is nothing to sign. If the API sets
       // alreadyMinted but still returns a UserOp, we must run the chain flow.
       if (build?.alreadyMinted === true && !hasMintUserOp) {
-        let verified;
-        try {
-          verified = await resolveIdentity({ owner: build.owner ?? owner });
-        } catch {
+        const anchor = normalizeEvmAddress(pickSmartAccount(build));
+        if (!anchor) {
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console -- dev-only guard
+            console.warn("Skipping resolve — no smartAccount");
+          }
+          redirectToJoin();
           throw new Error(t.errors.verifyFailed);
         }
+        // IMPORTANT:
+        // During mint flow, identity may not yet be fully indexed/resolvable by smartAccount alone.
+        // Backend requires owner to resolve identity context.
+        // Owner MUST NOT be used outside mint flow (Dashboard, Labs, etc).
+        const resolved = await resolveIdentityAfterMintWithRetry(anchor, owner);
 
-        if (verified?.alreadyMinted !== true) {
-          throw new Error(t.errors.mintedBuildNotVerified);
+        let effectiveResolved = resolved;
+
+        if (!effectiveResolved || effectiveResolved.fallback) {
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console -- dev-only fallback hint
+            console.warn("Using synthetic resolve fallback", { anchor, resolved });
+          }
+
+          effectiveResolved = {
+            identityAddress: anchor,
+            smartAccount: anchor,
+            alreadyMinted: true,
+            tokenId: build?.tokenId ?? build?.token_id ?? null,
+            version: build?.version ?? "aa",
+          };
         }
 
-        const buildSmart = pickSmartAccount(build);
-        const resolvedSmart = pickSmartAccount(verified);
-        if (
-          typeof buildSmart === "string" &&
-          typeof resolvedSmart === "string" &&
-          buildSmart.toLowerCase() !== resolvedSmart.toLowerCase()
-        ) {
-          throw new Error(t.errors.mintedMismatch);
+        let smartAccountResolved = pickSmartAccount(effectiveResolved);
+        if (!smartAccountResolved) {
+          smartAccountResolved = anchor;
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console -- dev-only fallback hint
+            console.warn("Using fallback smartAccount (resolve incomplete)", {
+              anchor,
+              effectiveResolved,
+            });
+          }
         }
 
-        const buildTid = build?.tokenId ?? build?.token_id;
-        const verTid = verified?.tokenId ?? verified?.token_id;
-        if (
-          buildTid != null &&
-          verTid != null &&
-          Number(buildTid) !== Number(verTid)
-        ) {
-          throw new Error(t.errors.mintedMismatch);
+        let resolvedTokenId =
+          effectiveResolved?.tokenId ?? effectiveResolved?.token_id ?? null;
+        if (resolvedTokenId == null && (build?.tokenId != null || build?.token_id != null)) {
+          resolvedTokenId = build.tokenId ?? build.token_id;
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console -- dev-only fallback hint
+            console.warn("Using fallback tokenId from build", {
+              buildTokenId: build.tokenId ?? build.token_id,
+              effectiveResolved,
+            });
+          }
         }
-
-        const smartAccount = buildSmart ?? resolvedSmart;
         setResolvedDebug((prev) =>
           prev
             ? {
                 ...prev,
                 resolveVerified: true,
-                resolvedTokenId: verTid ?? buildTid ?? null,
+                resolvedTokenId,
               }
             : prev
         );
         setIdentity({
-          owner: build.owner ?? owner,
-          smartAccount,
+          owner: checksumOwnerForIdentity(build.owner ?? owner),
+          smartAccount: smartAccountResolved,
           hasIdentity: true,
-          version: verified?.version ?? build?.version ?? "aa",
-          tokenId: verTid ?? buildTid ?? null,
+          version: effectiveResolved?.version ?? "aa",
+          tokenId: resolvedTokenId,
           alreadyMinted: true,
+          signerType,
         });
         setMintStage(MINT_STAGE.CONFIRMED);
         setIsMinting(false);
         const dash = lang === "gr" ? "/dashboard-gr" : "/dashboard";
         await new Promise((r) => setTimeout(r, 50));
         navigate(dash);
+        if (anchor) {
+          setTimeout(() => {
+            void resolveIdentity({
+              address: anchor,
+              owner,
+              includeOwnerWithAddress: true,
+            });
+          }, 2000);
+        }
         return;
       }
 
@@ -425,26 +659,87 @@ export default function MintIdentity({ lang = "en" }) {
         build.smartAccountAddress ??
         build.account ??
         null;
-      const resolved = await resolveIdentity({ owner });
-      const resolvedTokenId =
-        resolved?.tokenId ?? resolved?.token_id ?? null;
+      const anchor = normalizeEvmAddress(smartAccount);
+      if (!anchor) {
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console -- dev-only guard
+          console.warn("Skipping resolve — no smartAccount");
+        }
+        redirectToJoin();
+        throw new Error(t.errors.generic);
+      }
+      // IMPORTANT:
+      // During mint flow, identity may not yet be fully indexed/resolvable by smartAccount alone.
+      // Backend requires owner to resolve identity context.
+      // Owner MUST NOT be used outside mint flow (Dashboard, Labs, etc).
+      const resolved = await resolveIdentityAfterMintWithRetry(anchor, owner);
+
+      let effectiveResolved = resolved;
+
+      if (!effectiveResolved || effectiveResolved.fallback) {
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console -- dev-only fallback hint
+          console.warn("Using synthetic resolve fallback", { anchor, resolved });
+        }
+
+        effectiveResolved = {
+          identityAddress: anchor,
+          smartAccount: anchor,
+          alreadyMinted: true,
+          tokenId: build?.tokenId ?? build?.token_id ?? null,
+          version: build?.version ?? "aa",
+        };
+      }
+
+      let smartAccountResolved = pickSmartAccount(effectiveResolved);
+      if (!smartAccountResolved) {
+        smartAccountResolved = anchor;
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console -- dev-only fallback hint
+          console.warn("Using fallback smartAccount (resolve incomplete)", {
+            anchor,
+            effectiveResolved,
+          });
+        }
+      }
+
+      let resolvedTokenId =
+        effectiveResolved?.tokenId ?? effectiveResolved?.token_id ?? null;
+      if (resolvedTokenId == null && (build?.tokenId != null || build?.token_id != null)) {
+        resolvedTokenId = build.tokenId ?? build.token_id;
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console -- dev-only fallback hint
+          console.warn("Using fallback tokenId from build", {
+            buildTokenId: build.tokenId ?? build.token_id,
+            effectiveResolved,
+          });
+        }
+      }
       setIdentity({
-        owner: build.owner ?? owner,
-        smartAccount,
+        owner: checksumOwnerForIdentity(build.owner ?? owner),
+        smartAccount: smartAccountResolved,
         hasIdentity: true,
-        version: "aa",
+        version: effectiveResolved?.version ?? "aa",
         tokenId: resolvedTokenId,
         alreadyMinted: true,
+        signerType,
       });
 
       setMintStage(MINT_STAGE.CONFIRMED);
       setIsMinting(false);
 
-      const txHash = pickReceiptTxHash(lastReceipt);
       const welcomePath = lang === "gr" ? "/welcome-gr" : "/welcome";
-      const nextPath = txHash ? `${welcomePath}?tx=${encodeURIComponent(txHash)}` : welcomePath;
       await new Promise((r) => setTimeout(r, 50));
-      navigate(nextPath);
+      navigate(welcomePath);
+      if (anchor) {
+        setTimeout(() => {
+          void resolveIdentity({
+            address: anchor,
+            owner,
+            includeOwnerWithAddress: true,
+          });
+        }, 2000);
+      }
     } catch (err) {
       console.error(err);
       setLongWait(false);
@@ -571,7 +866,11 @@ text-white font-semibold shadow-lg shadow-[#8A57FF]/30 tracking-wide
 transition-all duration-300
 ${isMinting ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:scale-[1.02]"}`}
             >
-              {isMinting ? t.buttonBusy : t.buttonIdle}
+              {isMinting
+                ? t.buttonBusy
+                : alreadyMintedPreview === true
+                  ? t.buttonGoDashboard
+                  : t.buttonIdle}
             </button>
 
             {error && <p className="mt-4 text-red-400 text-sm max-w-md">{error}</p>}

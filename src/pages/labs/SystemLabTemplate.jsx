@@ -6,7 +6,6 @@ import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { useIdentity } from "../../context/IdentityContext.jsx";
 import {
     buildLabsStatusUrl,
-    buildResolveOwner,
     getWeb3eduBackendUrl,
 } from "../../lib/web3eduBackend.js";
 
@@ -188,10 +187,6 @@ const SystemLabTemplate = ({
     const { address, isConnected } = useAccount();
     const { smartAccount, owner: identityOwner } = useIdentity();
     const identityAddress = smartAccount ?? null;
-    const resolveOwner = useMemo(
-        () => buildResolveOwner(address, identityOwner),
-        [address, identityOwner]
-    );
     const resolvedApiBase = apiBase ?? getWeb3eduBackendUrl();
 
     const [claimed, setClaimed] = useState(false);
@@ -207,9 +202,9 @@ const SystemLabTemplate = ({
         const checkCompletion = async () => {
             try {
                 // eslint-disable-next-line no-console -- AA / backend integration debug
-                console.log("API CALL", { identityAddress, resolveOwner });
+                console.log("API CALL", { identityAddress, resolveOwner: null });
                 const res = await fetch(
-                    buildLabsStatusUrl(identityAddress, labId, resolveOwner)
+                    buildLabsStatusUrl(identityAddress, labId, null)
                 );
 
                 if (!res.ok) {
@@ -232,7 +227,7 @@ const SystemLabTemplate = ({
         };
 
         checkCompletion();
-    }, [isConnected, identityAddress, resolveOwner, labId, resolvedApiBase]);
+    }, [isConnected, identityAddress, labId, resolvedApiBase]);
 
     return (
         <PageShell>

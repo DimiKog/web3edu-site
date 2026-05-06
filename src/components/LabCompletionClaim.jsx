@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 import FeedbackModal from "./FeedbackModal";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity, warnIfIdentityNotInitialized } from "../context/IdentityContext.jsx";
 import {
     buildLabsStatusUrl,
     buildResolveOwner,
@@ -53,7 +53,7 @@ export default function LabCompletionClaim({
         () => getLabsStatusReadIdentity({ smartAccount }),
         [smartAccount]
     );
-    const ownerForLab = useMemo(
+    const ownerForWrites = useMemo(
         () => buildResolveOwner(address, identityOwner),
         [address, identityOwner]
     );
@@ -68,7 +68,15 @@ export default function LabCompletionClaim({
     const [showFeedback, setShowFeedback] = useState(false);
 
     useEffect(() => {
-        if (!identityAddress || !labId) {
+        if (!labId) {
+            setCheckingStatus(false);
+            return;
+        }
+        if (!identityAddress) {
+            warnIfIdentityNotInitialized("LabCompletionClaim:readStatus", {
+                smartAccount,
+                owner: identityOwner,
+            });
             setCheckingStatus(false);
             return;
         }
@@ -76,9 +84,9 @@ export default function LabCompletionClaim({
         const checkCompletion = async () => {
             try {
                 // eslint-disable-next-line no-console -- AA / backend integration debug
-                console.log("API CALL", { identityAddress, ownerForLab });
+                console.log("API CALL", { identityAddress, statusOwner: null });
                 const res = await fetch(
-                    buildLabsStatusUrl(identityAddress, labId, ownerForLab)
+                    buildLabsStatusUrl(identityAddress, labId, null)
                 );
                 if (!res.ok) return;
 
@@ -96,7 +104,7 @@ export default function LabCompletionClaim({
         };
 
         checkCompletion();
-    }, [identityAddress, ownerForLab, labId]);
+    }, [identityAddress, labId, smartAccount, identityOwner]);
 
     useEffect(() => {
         if (!showCelebration) return undefined;
@@ -170,19 +178,23 @@ export default function LabCompletionClaim({
 
     useEffect(() => {
         if (checkingStatus || !claimed || !labId) return;
-        if (!address && !ownerForLab) return;
+        if (!address && !ownerForWrites) return;
 
         const submitted = localStorage.getItem(`feedback_${labId}`) === "true";
         const prompted = localStorage.getItem(`feedback_prompted_${labId}`) === "true";
         if (submitted || prompted) return;
 
         setShowFeedback(true);
-    }, [checkingStatus, claimed, labId, address, ownerForLab]);
+    }, [checkingStatus, claimed, labId, address, ownerForWrites]);
 
     const handleClaimCompletion = async () => {
         if (claimed) return;
 
         if (!smartAccount) {
+            warnIfIdentityNotInitialized("LabCompletionClaim", {
+                smartAccount,
+                owner: identityOwner,
+            });
             setError(labels.walletNotConnectedError);
             return;
         }
@@ -228,7 +240,7 @@ export default function LabCompletionClaim({
                 },
                 body: JSON.stringify({
                     wallet: smartAccount,
-                    owner: ownerForLab,
+                    owner: ownerForWrites,
                     labId,
                     message,
                     signature,
@@ -320,7 +332,7 @@ export default function LabCompletionClaim({
                 labId={labId}
                 labTitle={labTitle}
                 language={language}
-                submitterAddressOverride={address ?? ownerForLab}
+                submitterAddressOverride={address ?? ownerForWrites}
                 onSubmit={async (feedback) => {
                     const res = await fetch(`${BACKEND}/feedback`, {
                         method: "POST",

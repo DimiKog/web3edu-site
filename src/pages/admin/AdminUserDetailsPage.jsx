@@ -2,8 +2,35 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 import AdminBackButton from "../../components/admin/AdminBackButton";
+import { fetchAdminUserDetails, fetchAdminUsers } from "../../services/adminApi";
 
-const API_BASE = import.meta.env.VITE_BACKEND_URL;
+function isNonEmptyString(value) {
+    return typeof value === "string" && value.trim().length > 0;
+}
+
+function formatBool(value) {
+    if (value === true) return "Yes";
+    if (value === false) return "No";
+    return "—";
+}
+
+function formatAddress(value) {
+    if (!isNonEmptyString(value)) return "—";
+    return value;
+}
+
+function formatDateLike(value) {
+    if (!value) return "—";
+    if (typeof value === "number" && Number.isFinite(value)) {
+        try {
+            return new Date(value).toLocaleString();
+        } catch {
+            return String(value);
+        }
+    }
+    const s = String(value).trim();
+    return s || "—";
+}
 
 export default function AdminUserDetailsPage() {
     const { address } = useAccount();
@@ -16,11 +43,7 @@ export default function AdminUserDetailsPage() {
 
     useEffect(() => {
         const adminWallet =
-            localStorage.getItem("adminWallet") ||
-            localStorage.getItem("web3edu-wallet-address") ||
-            localStorage.getItem("walletAddress") ||
-            localStorage.getItem("wallet") ||
-            address;
+            address || localStorage.getItem("web3edu-wallet-address") || "";
 
         if (!adminWallet || !targetWallet) {
             setError("Missing wallet context.");
@@ -32,47 +55,40 @@ export default function AdminUserDetailsPage() {
 
         async function loadUserDetails() {
             try {
-                // First: try dedicated details endpoint if backend supports it.
-                const detailsRes = await fetch(
-                    `${API_BASE}/admin/users/details?wallet=${adminWallet}&user=${targetWallet}`
-                );
-
-                if (detailsRes.ok) {
-                    const detailsJson = await detailsRes.json();
-                    if (active) {
-                        setData(detailsJson);
-                        setError(null);
-                        setLoading(false);
-                    }
-                    return;
-                }
-
-                // Fallback: fetch users list and locate the selected wallet.
-                const listRes = await fetch(`${API_BASE}/admin/users?wallet=${adminWallet}`);
-                if (!listRes.ok) {
-                    throw new Error("Failed to fetch user details");
-                }
-
-                const listJson = await listRes.json();
-                const users = Array.isArray(listJson) ? listJson : Array.isArray(listJson?.users) ? listJson.users : [];
-                const matched = users.find((u) => {
-                    const w = String(u?.wallet || u?.address || "").toLowerCase();
-                    return w === String(targetWallet).toLowerCase();
-                });
-
-                if (!matched) {
-                    throw new Error("User not found");
-                }
-
+                const detailsJson = await fetchAdminUserDetails(adminWallet, targetWallet);
                 if (active) {
-                    setData({ user: matched });
+                    setData(detailsJson);
                     setError(null);
                     setLoading(false);
                 }
             } catch {
-                if (active) {
-                    setError("Could not load user details.");
-                    setLoading(false);
+                try {
+                    // Fallback: fetch users list and locate the selected wallet.
+                    const listJson = await fetchAdminUsers(adminWallet);
+                    const users = Array.isArray(listJson)
+                        ? listJson
+                        : Array.isArray(listJson?.users)
+                            ? listJson.users
+                            : [];
+                    const matched = users.find((u) => {
+                        const w = String(u?.wallet || u?.address || "").toLowerCase();
+                        return w === String(targetWallet).toLowerCase();
+                    });
+
+                    if (!matched) {
+                        throw new Error("User not found");
+                    }
+
+                    if (active) {
+                        setData({ user: matched });
+                        setError(null);
+                        setLoading(false);
+                    }
+                } catch {
+                    if (active) {
+                        setError("Could not load user details.");
+                        setLoading(false);
+                    }
                 }
             }
         }
@@ -97,6 +113,52 @@ export default function AdminUserDetailsPage() {
     const xpBreakdownObj = useMemo(() => {
         return data?.xpBreakdown || null;
     }, [data]);
+
+    const identitySummary = useMemo(() => {
+        const raw = data || {};
+        const identity = raw?.identity || raw?.user?.identity || {};
+        const social = raw?.social || raw?.user?.social || null;
+
+        // Convenience cache only — do not over-trust.
+        const tokenIdCached =
+            raw?.tokenIdCached ??
+            raw?.identity?.tokenIdCached ??
+            raw?.user?.tokenIdCached ??
+            null;
+
+        const hasSocial = Boolean(social && (typeof social === "object" ? Object.keys(social).length : true));
+
+        const hasImportedProgress = Boolean(raw?.hasImportedProgress);
+
+        const rows = [
+            { label: "Displayed account", value: formatAddress(targetWallet) },
+            { label: "AA / smart account", value: formatAddress(identity?.aaAddress) },
+            { label: "Owner address", value: formatAddress(identity?.ownerAddress) },
+            { label: "Linked wallet address", value: formatAddress(identity?.linkedWalletAddress) },
+            { label: "Wallet linked", value: formatBool(identity?.walletLinked) },
+            { label: "Custody type", value: isNonEmptyString(identity?.custodyType) ? identity.custodyType : "—" },
+            { label: "Provisioning status", value: isNonEmptyString(identity?.provisioningStatus) ? identity.provisioningStatus : "—" },
+            { label: "Social user", value: formatBool(hasSocial) },
+            { label: "Import type", value: isNonEmptyString(raw?.importType) ? raw.importType : "—" },
+            { label: "Imported from owner", value: formatBool(raw?.importedFromOwner) },
+            { label: "Imported at", value: formatDateLike(raw?.importedAt) },
+            { label: "Migrated from owner", value: formatBool(raw?.migratedFromOwner) },
+            { label: "Migrated at", value: formatDateLike(raw?.migratedAt) },
+            { label: "Has imported progress", value: formatBool(hasImportedProgress) },
+            { label: "Token ID (cached)", value: tokenIdCached !== null && tokenIdCached !== undefined ? String(tokenIdCached) : "—" },
+        ];
+
+        const badges = [
+            identity?.walletLinked ? { label: "Linked", tone: "indigo" } : null,
+            hasSocial ? { label: "Social", tone: "emerald" } : null,
+            hasImportedProgress || raw?.importType ? { label: "Imported", tone: "amber" } : null,
+            isNonEmptyString(identity?.provisioningStatus)
+                ? { label: identity.provisioningStatus, tone: "slate" }
+                : null,
+        ].filter(Boolean);
+
+        return { rows, badges };
+    }, [data, targetWallet]);
 
     const timeline = useMemo(() => {
         if (!data?.timeline) return [];
@@ -149,6 +211,24 @@ export default function AdminUserDetailsPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Panel title="Identity & continuity">
+                    <div className="space-y-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                            {identitySummary.badges.map((b) => (
+                                <Badge key={b.label} tone={b.tone}>
+                                    {b.label}
+                                </Badge>
+                            ))}
+                            {!identitySummary.badges.length ? (
+                                <span className="text-sm text-slate-600 dark:text-slate-300">
+                                    No identity markers available for this user.
+                                </span>
+                            ) : null}
+                        </div>
+                        <KeyValueGrid rows={identitySummary.rows} />
+                    </div>
+                </Panel>
+
                 <Panel title="Labs Completed List">
                     <List items={labsCompleted} emptyMessage="No completed labs available." />
                 </Panel>
@@ -282,5 +362,46 @@ function List({ items, emptyMessage }) {
                 );
             })}
         </ul>
+    );
+}
+
+function KeyValueGrid({ rows }) {
+    return (
+        <div className="grid grid-cols-1 gap-3 text-sm">
+            {rows.map((row) => (
+                <div
+                    key={row.label}
+                    className="rounded-xl border border-white/10 bg-white/60 dark:bg-slate-900/40 p-3"
+                >
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                            {row.label}
+                        </div>
+                        {row.source === "inferred" ? (
+                            <span className="shrink-0 rounded-full border border-amber-400/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-200">
+                                inferred
+                            </span>
+                        ) : null}
+                    </div>
+                    <div className="mt-1 font-mono text-xs text-slate-800 dark:text-slate-100 break-all">
+                        {row.value}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+function Badge({ tone = "slate", children }) {
+    const tones = {
+        slate: "border-slate-300/40 bg-slate-500/10 text-slate-700 dark:text-slate-200",
+        indigo: "border-indigo-300/40 bg-indigo-500/10 text-indigo-800 dark:text-indigo-200",
+        emerald: "border-emerald-300/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
+        amber: "border-amber-300/40 bg-amber-500/10 text-amber-800 dark:text-amber-200",
+    };
+    return (
+        <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${tones[tone] || tones.slate}`}>
+            {children}
+        </span>
     );
 }

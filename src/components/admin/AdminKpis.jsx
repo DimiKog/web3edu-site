@@ -5,28 +5,24 @@ export default function AdminKpis({ overview, platform, onCardClick }) {
                 id="totalUsers"
                 label="Total Users"
                 value={overview?.totalUsers}
-                delta="7d delta: —"
                 onClick={onCardClick}
             />
             <KpiCard
                 id="startedAnyLab"
                 label="Started Any Lab"
                 value={platform?.usersStartedAnyLab ?? 0}
-                delta="7d delta: —"
                 onClick={onCardClick}
             />
             <KpiCard
                 id="completedAnyLab"
                 label="Completed Any Lab"
                 value={platform?.usersCompletedAnyLab ?? 0}
-                delta="7d delta: —"
                 onClick={onCardClick}
             />
             <KpiCard
                 id="retention3plus"
                 label="3+ Labs (Retention)"
                 value={overview?.usersWith3PlusLabs}
-                delta="7d delta: —"
                 onClick={onCardClick}
             />
         </div>
@@ -46,9 +42,11 @@ function KpiCard({ id, label, value, delta, onClick }) {
             <div className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mt-1">
                 {value}
             </div>
-            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                {delta}
-            </div>
+            {delta ? (
+                <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    {delta}
+                </div>
+            ) : null}
         </button>
     );
 }

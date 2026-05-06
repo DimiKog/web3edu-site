@@ -99,6 +99,8 @@ export default defineConfig({
 
   // Ensure Vite dev server ignores all files inside these folders
   server: {
+    port: 5173,
+    strictPort: true,
     watch: {
       ignored: [
         "**/dao-invite/**",

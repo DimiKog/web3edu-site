@@ -1,5 +1,6 @@
 import { buildResolveOwner, getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "./evmAddress.js";
+import { warnIfIdentityNotInitialized } from "./identityReadiness.js";
 
 const LAB_START_SESSION_PREFIX = "web3edu:labsStart:v1:";
 /** @type {Map<string, Promise<Response>>} */
@@ -38,6 +39,7 @@ export async function postLabsStart({
 } = {}) {
   const storageKey = labStartSessionStorageKey(labId, smartAccount);
   if (!storageKey) {
+    warnIfIdentityNotInitialized("postLabsStart", { smartAccount, owner });
     return new Response(
       JSON.stringify({ error: "smartAccount and labId are required for /labs/start" }),
       { status: 400, headers: { "Content-Type": "application/json" } }
@@ -75,7 +77,7 @@ export async function postLabsStart({
         }),
       });
       const data = await res.json().catch(() => ({}));
-      if (data?.identityKey != null && data?.identityKey !== undefined) {
+      if (import.meta.env.DEV && data?.identityKey != null) {
         // eslint-disable-next-line no-console -- backend integration diagnostic
         console.log("LAB IDENTITY KEY", data.identityKey);
       }

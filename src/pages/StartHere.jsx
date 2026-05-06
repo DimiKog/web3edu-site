@@ -76,13 +76,40 @@ const StartHere = () => {
                         }
                     >
                         <div className="space-y-6">
+                            {/* Two ways to start */}
+                            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6">
+                                <h3 className="text-lg font-semibold text-white mb-2">
+                                    Choose your start path
+                                </h3>
+                                <p className="text-sm text-white/70">
+                                    You can start <strong>without a wallet</strong> by creating a Web3Edu Identity using a secure browser key,
+                                    or start <strong>with a wallet</strong> (MetaMask) if you already have one.
+                                </p>
+                                <div className="mt-4 grid gap-3 md:grid-cols-2">
+                                    <div className="rounded-xl border border-[#8A57FF]/30 bg-[#8A57FF]/10 p-4">
+                                        <p className="text-sm font-semibold text-white">Option A — No wallet</p>
+                                        <p className="mt-1 text-xs text-white/70">
+                                            Create your Web3Edu Identity (smart account) and mint a <strong>dynamic</strong> Identity SBT.
+                                            Save a backup so you can restore it on another device.
+                                        </p>
+                                    </div>
+                                    <div className="rounded-xl border border-[#4ACBFF]/30 bg-[#4ACBFF]/10 p-4">
+                                        <p className="text-sm font-semibold text-white">Option B — With MetaMask</p>
+                                        <p className="mt-1 text-xs text-white/70">
+                                            Connect your wallet, approve the educational network, and start the labs.
+                                            You can still use the same Web3Edu Identity experience.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Simple Checklist */}
                             <div className="grid md:grid-cols-3 gap-4">
-                                <SetupStep number="1" title="Install MetaMask">
-                                    Browser extension or MetaMask mobile app
+                                <SetupStep number="1" title="Create Identity (No Wallet)">
+                                    Go to Join → “Create Identity (No Wallet)” to generate a secure browser key and mint your dynamic Identity SBT.
                                 </SetupStep>
-                                <SetupStep number="2" title="Connect Wallet">
-                                    Desktop: click "Connect Wallet". Mobile: open Web3Edu inside MetaMask Browser first.
+                                <SetupStep number="2" title="Or Connect MetaMask">
+                                    If you prefer a wallet, install MetaMask and connect it. On mobile: open Web3Edu inside the MetaMask Browser.
                                 </SetupStep>
                                 <SetupStep number="3" title="Approve Network">
                                     Accept Besu Edu‑Net. If no prompt appears, add it manually.
@@ -98,7 +125,8 @@ const StartHere = () => {
                                     <span>
                                         <strong>No real ETH or real money is used.</strong><br />
                                         Web3Edu runs on an educational blockchain (Besu Edu‑Net) using <strong>EDU‑D</strong>, a <strong>test‑only, non‑monetary token</strong> created solely for learning.<br />
-                                        Your wallet acts as your learning identity. <strong>Never share your private key.</strong>
+                                        Your Web3Edu Identity is represented by a <strong>dynamic</strong> on-chain Identity SBT (soulbound &amp; non-transferable) that updates as you progress.<br />
+                                        <strong>Never share your private key</strong> (wallet) or any exported backup (no-wallet identity).
                                     </span>
                                 </p>
                             </div>
@@ -255,6 +283,10 @@ const StartHere = () => {
                                             </h4>
                                             <div className="space-y-3 text-sm">
                                                 <FAQItem
+                                                    question="How does sign-in work if I skip a wallet or Web3Edu account?"
+                                                    answer="Starting that way creates a simple device-based identity on this browser or device. You can keep learning here, and if you later connect a Web3Edu account or a wallet, signing in again is often easier."
+                                                />
+                                                <FAQItem
                                                     question="Do I need real ETH?"
                                                     answer="No. Besu Edu-Net is an isolated educational blockchain. No real money involved."
                                                 />
@@ -272,7 +304,7 @@ const StartHere = () => {
                                                 />
                                                 <FAQItem
                                                     question="What if I lose access to my wallet?"
-                                                    answer="You can always create a new wallet and start fresh. Your progress is tied to your wallet address."
+                                                    answer="You can create a new wallet and start fresh. If you used the no-wallet option, restore your Web3Edu Identity from your exported backup to recover access on a new device."
                                                 />
                                             </div>
                                         </div>

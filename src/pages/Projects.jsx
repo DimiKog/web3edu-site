@@ -9,16 +9,14 @@ import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.
 export default function Projects() {
   const { pathname } = useLocation();
   const isGR = pathname.startsWith("/projects-gr");
-  const { owner, smartAccount } = useIdentity();
-  const { metadata } = useResolvedIdentityContext();
+  const { smartAccount, isIdentityReady } = useIdentity();
+  const { metadata, canonicalIdentityAddress } = useResolvedIdentityContext();
   const [completedProjects, setCompletedProjects] = useState({});
   const [userTier, setUserTier] = useState("explorer");
 
-  const wallet = useMemo(
-    () => localStorage.getItem("web3edu-wallet-address") || "",
-    []
-  );
-  const identityAddress = smartAccount ?? owner ?? (wallet || null);
+  const identityAddress =
+    canonicalIdentityAddress ||
+    (isIdentityReady && smartAccount ? smartAccount : null);
   const activeProjects = useMemo(
     () => projects.filter((project) => project.status === "active"),
     []

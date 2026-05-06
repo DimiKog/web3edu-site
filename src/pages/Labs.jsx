@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAccount } from "wagmi";
 import { useIdentity } from "../context/IdentityContext.jsx";
 import PageShell from "../components/PageShell.jsx";
 import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.webp";
@@ -10,6 +9,16 @@ import {
     getWeb3eduBackendUrl,
 } from "../lib/web3eduBackend.js";
 import { LABS_LOCALES } from "../content/labsPageLocale.js";
+import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
+import { useAccount } from "wagmi";
+import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
+import {
+    getSocialIdentityAaAddress,
+    getSocialIdentityOwnerAddress,
+    getSocialIdentityWalletAddress,
+} from "../utils/socialIdentityPayload.js";
+import { normalizeEvmAddress } from "../utils/evmAddress.js";
+import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 
 const BACKEND = getWeb3eduBackendUrl();
 
@@ -99,13 +108,31 @@ const sortLabs = (labs) =>
     });
 
 export default function Labs({ lang = "en" }) {
-    const { smartAccount, owner: identityOwner } = useIdentity();
+    const { smartAccount, owner, identityHydrated, identity } = useIdentity();
     const { address } = useAccount();
-    const identityAddress = smartAccount ?? null;
-    const resolveOwner = useMemo(
-        () => buildResolveOwner(address, identityOwner),
-        [address, identityOwner]
+    const { canonicalIdentityAddress } = useResolvedIdentityContext();
+    const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
+
+    const socialAaAddress = useMemo(
+        () => normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity)),
+        [socialIdentity]
     );
+
+    const identityAddress =
+        canonicalIdentityAddress ??
+        socialAaAddress ??
+        (identityHydrated ? normalizeEvmAddress(smartAccount) : null);
+
+    const resolveOwner = useMemo(() => {
+        if (!identityHydrated) return null;
+        const socialOwner = normalizeEvmAddress(getSocialIdentityOwnerAddress(socialIdentity));
+        if (socialAaAddress) {
+            // Social AA canonical reads should never fall back to stale wallet owners.
+            return socialOwner ?? null;
+        }
+        const sessionOwner = normalizeEvmAddress(readConnectedEoaAddress());
+        return sessionOwner ?? buildResolveOwner(address, owner) ?? socialOwner ?? null;
+    }, [identityHydrated, socialIdentity, socialAaAddress, address, owner]);
     const L = lang === "gr" ? LABS_LOCALES.gr : LABS_LOCALES.en;
     const labRoutes = useMemo(() => buildLabRoutes(L.pathPrefix), [L.pathPrefix]);
     const [labsRegistry, setLabsRegistry] = useState([]);
@@ -159,7 +186,7 @@ export default function Labs({ lang = "en" }) {
         setStatusLoading(true);
 
         // eslint-disable-next-line no-console -- AA / backend integration debug
-        console.log("API CALL", { identityAddress, resolveOwner });
+        console.log("API CALL", { identityAddress, resolveOwner, isOidcAuthenticated });
 
         Promise.all(
             labsRegistry.map(async (lab) => {
@@ -187,19 +214,18 @@ export default function Labs({ lang = "en" }) {
             });
 
         return () => controller.abort();
-    }, [identityAddress, resolveOwner, labsRegistry]);
+    }, [identityAddress, resolveOwner, labsRegistry, isOidcAuthenticated]);
 
     useEffect(() => {
-        if (!identityAddress) {
+        const socialWallet = normalizeEvmAddress(getSocialIdentityWalletAddress(socialIdentity));
+        const poeAddress = socialWallet ?? resolveOwner ?? identityAddress ?? null;
+        if (!poeAddress) {
             return;
         }
 
         const controller = new AbortController();
 
-        const poeParams = new URLSearchParams({ address: identityAddress });
-        if (resolveOwner) {
-            poeParams.set("owner", resolveOwner);
-        }
+        const poeParams = new URLSearchParams({ address: poeAddress });
 
         fetch(`${BACKEND}/projects/poe/status?${poeParams.toString()}`, {
             signal: controller.signal,
@@ -218,7 +244,7 @@ export default function Labs({ lang = "en" }) {
             });
 
         return () => controller.abort();
-    }, [identityAddress, resolveOwner]);
+    }, [identityAddress, resolveOwner, socialIdentity]);
 
     const groupedLabs = useMemo(() => {
         const groups = new Map();

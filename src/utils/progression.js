@@ -35,21 +35,46 @@ export const parseObjectish = (value) => {
 
 export const extractBackendMetadata = (payload) => {
     const directMetadata = parseObjectish(payload?.metadata);
+    const innerFromMeta = parseObjectish(directMetadata?.profile);
     const nestedMetadata = parseObjectish(directMetadata?.metadata);
     return {
-        ...directMetadata,
+        ...innerFromMeta,
         ...nestedMetadata,
+        ...directMetadata,
     };
 };
 
 export const extractBackendProfile = (payload) => {
     const directProfile = parseObjectish(payload?.profile);
+    /** Same nesting as verify page: `profile.profile` holds passport fields (e.g. founder, image). */
+    const innerProfile = parseObjectish(directProfile?.profile);
     const nestedProfile = parseObjectish(directProfile?.metadata);
     return {
-        ...directProfile,
+        ...innerProfile,
         ...nestedProfile,
+        ...directProfile,
     };
 };
+
+/** /web3sbt/resolve sometimes puts founder/edition only on the JSON root (not under metadata/profile). */
+export const extractRootIdentityHints = (payload) => {
+    if (!payload || typeof payload !== "object") return {};
+    const out = {};
+    for (const key of ["founder", "edition", "role", "isFounder"]) {
+        const v = payload[key];
+        if (v !== undefined && v !== null) {
+            out[key] = v;
+        }
+    }
+    return out;
+};
+
+/** Loose match for API boolean-ish founder flags. */
+export const isTruthyFounderFlag = (value) =>
+    value === true ||
+    value === 1 ||
+    value === "1" ||
+    String(value ?? "").toLowerCase() === "true";
 
 export const getXpTotalFromBackend = (payload) => {
     const metadata = extractBackendMetadata(payload);
