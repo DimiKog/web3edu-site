@@ -23,11 +23,15 @@ const STATIC = {
 export function createOidcConfig() {
     const origin =
         typeof window !== "undefined" ? window.location.origin : "http://localhost:5173";
+    const authorityFromEnv = import.meta.env.VITE_OIDC_AUTHORITY;
+    const clientIdFromEnv = import.meta.env.VITE_OIDC_CLIENT_ID;
     const redirectFromEnv = import.meta.env.VITE_OIDC_REDIRECT_URI;
     const postLogoutFromEnv = import.meta.env.VITE_OIDC_POST_LOGOUT_URI;
 
     return {
         ...STATIC,
+        authority: authorityFromEnv || STATIC.authority,
+        client_id: clientIdFromEnv || STATIC.client_id,
         redirect_uri: redirectFromEnv || `${origin}/`,
         post_logout_redirect_uri: postLogoutFromEnv || `${origin}/#/join`,
     };
