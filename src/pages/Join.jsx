@@ -101,6 +101,10 @@ export default function Join() {
 
     /** No local AA payload and not OIDC-authenticated → show device-based mint path. */
     const showNewUserDeviceAaPath = !hasPersistedAa && !auth?.isAuthenticated;
+    const forceOidcPromptLogin =
+        (typeof window !== "undefined" &&
+            new URLSearchParams(window.location.search).get("oidc_prompt") === "login") ||
+        import.meta.env.VITE_OIDC_FORCE_PROMPT_LOGIN === "true";
 
     return (
         <PageShell>
@@ -222,7 +226,14 @@ ring-1 ring-slate-900/5 dark:ring-white/10">
                                     {!auth?.isAuthenticated ? (
                                         <button
                                             type="button"
-                                            onClick={() => { saveReturnUrl(location.state?.from); void auth?.signinRedirect?.(); }}
+                                            onClick={() => {
+                                                saveReturnUrl(location.state?.from);
+                                                void auth?.signinRedirect?.(
+                                                    forceOidcPromptLogin
+                                                        ? { extraQueryParams: { prompt: "login" } }
+                                                        : undefined
+                                                );
+                                            }}
                                             className={primaryButtonClassName}
                                         >
                                             Sign in

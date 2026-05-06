@@ -18,6 +18,7 @@ import { useSocialAwareWalletConnect } from "../hooks/useSocialAwareWalletConnec
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { useAuth } from "react-oidc-context";
 import { loadIdentityState } from "../utils/aaIdentity.js";
+import { createOidcConfig } from "../auth/oidcConfig.js";
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
 const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
@@ -366,7 +367,11 @@ export default function PageShell({
     disconnectIdentity();
     if (auth?.isAuthenticated) {
       try {
-        await auth.signoutRedirect();
+        const cfg = createOidcConfig();
+        await auth.signoutRedirect({
+          post_logout_redirect_uri: cfg.post_logout_redirect_uri,
+          extraQueryParams: { client_id: cfg.client_id },
+        });
         // signoutRedirect navigates away; post_logout_redirect_uri returns to /#/join
       } catch {
         navigate("/");

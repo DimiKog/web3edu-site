@@ -16,6 +16,7 @@ import { isGreekPathname } from "../utils/lang.js";
 import { useIdentity } from "../context/IdentityContext.jsx";
 import { resolveIdentityV2 } from "../api/aa.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
+import { createOidcConfig } from "../auth/oidcConfig.js";
 
 const ADMIN_WALLETS = (
   import.meta.env.VITE_ADMIN_WALLETS ??
@@ -148,7 +149,11 @@ export default function Web3RouteControls() {
     disconnectIdentity();
     if (auth?.isAuthenticated) {
       try {
-        await auth.signoutRedirect();
+        const cfg = createOidcConfig();
+        await auth.signoutRedirect({
+          post_logout_redirect_uri: cfg.post_logout_redirect_uri,
+          extraQueryParams: { client_id: cfg.client_id },
+        });
         // signoutRedirect navigates away; post_logout_redirect_uri returns to /#/join
       } catch {
         navigate("/");

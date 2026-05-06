@@ -1,4 +1,5 @@
 import { useAuth } from "react-oidc-context";
+import { createOidcConfig } from "../auth/oidcConfig.js";
 
 export default function LogoutButton() {
     const auth = useAuth();
@@ -8,7 +9,15 @@ export default function LogoutButton() {
     }
 
     return (
-        <button onClick={() => auth.signoutRedirect()}>
+        <button
+            onClick={() => {
+                const cfg = createOidcConfig();
+                return auth.signoutRedirect({
+                    post_logout_redirect_uri: cfg.post_logout_redirect_uri,
+                    extraQueryParams: { client_id: cfg.client_id },
+                });
+            }}
+        >
             Sign out
         </button>
     );
