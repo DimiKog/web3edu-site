@@ -13,6 +13,7 @@ export default function LogoutButton() {
             onClick={() => {
                 const cfg = createOidcConfig();
                 return auth.signoutRedirect({
+                    id_token_hint: auth?.user?.id_token,
                     post_logout_redirect_uri: cfg.post_logout_redirect_uri,
                     extraQueryParams: { client_id: cfg.client_id },
                 });
