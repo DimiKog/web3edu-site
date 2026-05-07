@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import PageShell from "../../components/PageShell";
 import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import PoSVisualizer from "../tools/PoSVisualizer.jsx";
@@ -112,6 +112,8 @@ export default function SystemLabS3Interaction({ lang = "en" }) {
     const isComplete = step === copy.steps.length;
     const stepCompletion = copy.steps.map((_, index) => index < step);
     const card = "rounded-xl border border-slate-200 dark:border-slate-700 p-6 bg-slate-50 dark:bg-slate-900/40";
+    const claimRef = useRef(null);
+    const autoScrolledRef = useRef(false);
 
     // --- Minimal checkpoint state ---
     const [checkpointAnswer, setCheckpointAnswer] = useState(null);
@@ -125,6 +127,17 @@ export default function SystemLabS3Interaction({ lang = "en" }) {
         if (isComplete) return null;
         return copy.instructions[step];
     }, [copy.instructions, isComplete, step]);
+
+    useEffect(() => {
+        if (!isComplete) return;
+        if (autoScrolledRef.current) return;
+        autoScrolledRef.current = true;
+        // Small delay so the claim section is in the DOM.
+        const t = window.setTimeout(() => {
+            claimRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        }, 50);
+        return () => window.clearTimeout(t);
+    }, [isComplete]);
 
     return (
         <PageShell>
@@ -197,6 +210,27 @@ export default function SystemLabS3Interaction({ lang = "en" }) {
                         </div>
                     )}
                 </section>
+
+                {isComplete && (
+                    <section
+                        ref={claimRef}
+                        className="rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-700 dark:bg-green-900/20"
+                    >
+                        <h2 className="mb-2 text-lg font-semibold text-green-800 dark:text-green-200">
+                            {copy.completedLabel}
+                        </h2>
+                        <p className="mb-4 text-slate-700 dark:text-slate-200">
+                            {copy.completedDescription}
+                        </p>
+                        <LabCompletionClaim
+                            labId="system-s3"
+                            language={lang}
+                            backHref={copy.backHref}
+                            backLabel={copy.backLabel}
+                            labTitle={copy.title}
+                        />
+                    </section>
+                )}
 
                 <section className={card}>
                     <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -406,23 +440,6 @@ export default function SystemLabS3Interaction({ lang = "en" }) {
                     </section>
                 )}
 
-                {isComplete && (
-                    <section className="rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-700 dark:bg-green-900/20">
-                        <h2 className="mb-2 text-lg font-semibold text-green-800 dark:text-green-200">
-                            {copy.completedLabel}
-                        </h2>
-                        <p className="mb-4 text-slate-700 dark:text-slate-200">
-                            {copy.completedDescription}
-                        </p>
-                        <LabCompletionClaim
-                            labId="system-s3"
-                            language={lang}
-                            backHref={copy.backHref}
-                            backLabel={copy.backLabel}
-                            labTitle={copy.title}
-                        />
-                    </section>
-                )}
             </div>
         </PageShell>
     );

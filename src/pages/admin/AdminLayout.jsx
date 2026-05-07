@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 import { useEffect, useState } from "react";
 import { fetchAdminOverview, getAdminApiBase } from "../../services/adminApi";
@@ -11,6 +11,7 @@ function shortAddress(address) {
 }
 
 export default function AdminLayout() {
+    const location = useLocation();
     const navigate = useNavigate();
     const { address } = useAccount();
     const [loading, setLoading] = useState(true);
@@ -64,11 +65,12 @@ export default function AdminLayout() {
     const dashboardPath = langPref === "gr" ? "/dashboard-gr" : "/dashboard";
     const settingsPath = langPref === "gr" ? "/settings-gr" : "/settings";
     const identityPath = langPref === "gr" ? "/sbt-view-gr" : "/sbt-view";
+    const isWideAdminPage = String(location?.pathname || "").startsWith("/admin/feedback");
 
     return (
         <PageShell>
-            <div className="min-h-screen px-4 md:px-6 py-8 md:py-12">
-                <div className="mx-auto flex w-full max-w-7xl gap-6">
+            <div className={isWideAdminPage ? "min-h-screen px-3 md:px-4 py-8 md:py-12" : "min-h-screen px-4 md:px-6 py-8 md:py-12"}>
+                <div className={isWideAdminPage ? "mx-auto flex w-full max-w-[95rem] gap-5" : "mx-auto flex w-full max-w-7xl gap-6"}>
                     <aside className="w-64 shrink-0 rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl p-4 h-fit sticky top-24">
                         <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400 mb-4">
                             Admin
@@ -83,6 +85,9 @@ export default function AdminLayout() {
                             </SidebarLink>
                             <SidebarLink to="/admin/users">
                                 Users
+                            </SidebarLink>
+                            <SidebarLink to="/admin/feedback">
+                                Feedback
                             </SidebarLink>
                         </nav>
                     </aside>

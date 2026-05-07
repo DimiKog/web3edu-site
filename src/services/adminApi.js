@@ -74,3 +74,12 @@ export async function fetchAdminLabDetails(wallet, labId) {
     if (!res.ok) throw new Error("Not authorized");
     return res.json();
 }
+
+export async function fetchAdminFeedback(wallet) {
+    const adminWallet = normalizeAdminWallet(wallet);
+    if (!adminWallet) throw new Error("Admin wallet missing");
+
+    const res = await fetch(`${API_BASE}/admin/feedback?wallet=${adminWallet}`);
+    if (!res.ok) throw new Error("Not authorized");
+    return res.json();
+}

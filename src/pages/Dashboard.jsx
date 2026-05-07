@@ -235,6 +235,10 @@ export default function Dashboard() {
     const sessionAddrNorm = normalizeEvmAddress(readConnectedEoaAddress());
     const connectedWalletNorm = wagmiAddrNorm ?? sessionAddrNorm ?? null;
     const socialLinkedWalletNorm = normalizeEvmAddress(getSocialIdentityWalletAddress(socialIdentity));
+    // Backend linkage can be eventually-consistent; after a successful link we optimistically treat
+    // the connected wallet as linked so the UI can advance without a full refresh.
+    const [optimisticSocialLinkedWalletNorm, setOptimisticSocialLinkedWalletNorm] = useState(null);
+    const effectiveSocialLinkedWalletNorm = socialLinkedWalletNorm ?? optimisticSocialLinkedWalletNorm;
     const persistedOwnerNorm = normalizeEvmAddress(owner);
     const canonicalSocialAaNorm = normalizeEvmAddress(socialAaAddress);
     const isSocialCanonical = Boolean(isOidcAuthenticated && canonicalSocialAaNorm);
@@ -255,7 +259,7 @@ export default function Dashboard() {
             isConnected &&
             connectedWalletNorm &&
             // Linkage field missing (stale payload window)
-            !socialLinkedWalletNorm
+            !effectiveSocialLinkedWalletNorm
     );
     useEffect(() => {
         if (!shouldProbeSocialWalletLinkage) {
@@ -285,7 +289,7 @@ export default function Dashboard() {
         Boolean(identityAddress && isConnected && connectedWalletNorm) &&
         !suppressStagedLinkageUi &&
         ((isSocialCanonical &&
-            (!socialLinkedWalletNorm || connectedWalletNorm !== socialLinkedWalletNorm)) ||
+            (!effectiveSocialLinkedWalletNorm || connectedWalletNorm !== effectiveSocialLinkedWalletNorm)) ||
             (!isSocialCanonical &&
                 walletAaCanonical &&
                 persistedOwnerNorm &&
@@ -403,6 +407,22 @@ export default function Dashboard() {
         if (typeof window === "undefined") return;
         setBuilderRewardClaimed(localStorage.getItem(builderClaimedStorageKey) === "true");
     }, [builderClaimedStorageKey, setBuilderRewardClaimed]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return undefined;
+        const onProgress = () => {
+            // Keep dashboard in sync after in-app actions (e.g. lab completion claim) without reload.
+            Promise.resolve(resolveNow?.()).catch(() => null);
+            Promise.resolve(refetchResolvedIdentity?.()).catch(() => null);
+        };
+        window.addEventListener("web3edu-progress-updated", onProgress);
+        return () => window.removeEventListener("web3edu-progress-updated", onProgress);
+    }, [resolveNow, refetchResolvedIdentity]);
+
+    useEffect(() => {
+        // Once backend starts returning the linked wallet reliably, drop the optimistic override.
+        if (socialLinkedWalletNorm) setOptimisticSocialLinkedWalletNorm(null);
+    }, [socialLinkedWalletNorm]);
 
     useEffect(() => {
         if (!identityHydrated) return;
@@ -753,8 +773,8 @@ export default function Dashboard() {
         isSocialCanonical &&
             socialIsActive &&
             connectedWalletNorm &&
-            socialLinkedWalletNorm &&
-            connectedWalletNorm === socialLinkedWalletNorm
+            effectiveSocialLinkedWalletNorm &&
+            connectedWalletNorm === effectiveSocialLinkedWalletNorm
     );
 
     const suppressTopWalletHistoryPrompt = Boolean(
@@ -801,8 +821,8 @@ export default function Dashboard() {
         isSocialCanonical &&
             socialIsActive &&
             connectedWalletNorm &&
-            socialLinkedWalletNorm &&
-            connectedWalletNorm === socialLinkedWalletNorm
+            effectiveSocialLinkedWalletNorm &&
+            connectedWalletNorm === effectiveSocialLinkedWalletNorm
     );
     const showSocialProgressImport =
         isSocialWalletLinkedAuthorized &&
@@ -863,6 +883,8 @@ export default function Dashboard() {
                 /* optional */
             }
 
+            setOptimisticSocialLinkedWalletNorm(connectedWalletNorm);
+
             setLinkWalletPhase("success");
         } catch (err) {
             const msg =
@@ -906,7 +928,7 @@ export default function Dashboard() {
             isSocialCanonical,
             socialAaAddress,
             wagmiAddrNorm,
-            socialLinkedWalletNorm,
+            socialLinkedWalletNorm: effectiveSocialLinkedWalletNorm,
             socialIdentityLoading,
             socialWalletLinkagePhase,
             shouldProbeSocialWalletLinkage,

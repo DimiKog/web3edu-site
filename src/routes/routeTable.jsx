@@ -100,6 +100,7 @@ const AdminLabsPage = lazy(() => import("../pages/admin/AdminLabsPage.jsx"));
 const AdminUsersPage = lazy(() => import("../pages/admin/AdminUsersPage.jsx"));
 const AdminUserDetailsPage = lazy(() => import("../pages/admin/AdminUserDetailsPage.jsx"));
 const AdminLabDetails = lazy(() => import("../pages/admin/AdminLabDetails.jsx"));
+const AdminFeedbackPage = lazy(() => import("../pages/admin/AdminFeedbackPage.jsx"));
 
 // Layouts
 const Web3Layout = lazy(() => import("./Web3Layout.jsx"));
@@ -247,6 +248,7 @@ export const routeTable = {
       { index: true, component: AdminDashboard },
       { path: "labs", component: AdminLabsPage },
       { path: "users", component: AdminUsersPage },
+      { path: "feedback", component: AdminFeedbackPage },
       { path: "users/:wallet", component: AdminUserDetailsPage },
       { path: "labs/:labId", component: AdminLabDetails },
     ],
