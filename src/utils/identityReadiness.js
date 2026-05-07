@@ -4,6 +4,7 @@
  */
 
 import { normalizeEvmAddress } from "./evmAddress.js";
+import { isNeutralAfterLogout } from "./viewerMode.js";
 
 const DEV_MESSAGE = "Identity not initialized — check onboarding flow";
 
@@ -33,6 +34,8 @@ export function isWalletMintedIdentityRecord(identity) {
 export function isIdentityReady(smartAccount, identity, viewer = {}) {
   const socialAa = normalizeEvmAddress(viewer.socialAaAddress);
   if (viewer.isOidcAuthenticated && socialAa) return true;
+  // After OIDC logout, prevent silent auto-picking a wallet/device profile until the user explicitly chooses.
+  if (isNeutralAfterLogout()) return false;
   const sc = normalizeEvmAddress(smartAccount);
   if (!sc) return false;
   return isWalletMintedIdentityRecord(identity);

@@ -3,7 +3,7 @@ import PageShell from "../../components/PageShell";
 import { useAccount } from "wagmi";
 import { Link } from "react-router-dom";
 import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
-import { useIdentity } from "../../context/IdentityContext.jsx";
+import { useIdentity } from "../../context/useIdentity.js";
 import {
     buildLabsStatusUrl,
     getWeb3eduBackendUrl,
@@ -184,8 +184,8 @@ const SystemLabTemplate = ({
         [labels]
     );
 
-    const { address, isConnected } = useAccount();
-    const { smartAccount, owner: identityOwner } = useIdentity();
+    const { isConnected } = useAccount();
+    const { smartAccount } = useIdentity();
     const identityAddress = smartAccount ?? null;
     const resolvedApiBase = apiBase ?? getWeb3eduBackendUrl();
 
@@ -201,8 +201,10 @@ const SystemLabTemplate = ({
 
         const checkCompletion = async () => {
             try {
-                // eslint-disable-next-line no-console -- AA / backend integration debug
-                console.log("API CALL", { identityAddress, resolveOwner: null });
+                if (import.meta.env.DEV) {
+                    // eslint-disable-next-line no-console -- AA / backend integration debug
+                    console.log("API CALL", { identityAddress, resolveOwner: null });
+                }
                 const res = await fetch(
                     buildLabsStatusUrl(identityAddress, labId, null)
                 );

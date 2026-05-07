@@ -24,7 +24,7 @@ import {
     buildWeb3SbtResolveUrlForViewer,
     getWeb3eduBackendUrl,
 } from "../lib/web3eduBackend.js";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 
 export default function VerifyIdentityGR() {
     const { address: routeAddress } = useParams();

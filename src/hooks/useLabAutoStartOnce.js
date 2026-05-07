@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import { postLabsStart } from "../utils/labWriteApi.js";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 
 /**
  * Fires POST /labs/start at most once per (labId, smartAccount) for this component

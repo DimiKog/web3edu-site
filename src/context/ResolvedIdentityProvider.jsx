@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { useAccount } from "wagmi";
-import { useIdentity } from "./IdentityContext.jsx";
+import { useIdentity } from "./useIdentity.js";
 import { ResolvedIdentityContext } from "./resolvedIdentityContext.js";
 import { useResolvedIdentity } from "../hooks/useResolvedIdentity.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
@@ -12,6 +12,7 @@ import {
 } from "../utils/socialIdentityPayload.js";
 import { isWalletMintedIdentityRecord } from "../utils/identityReadiness.js";
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
+import { isNeutralAfterLogout } from "../utils/viewerMode.js";
 
 /**
  * Single app-wide /web3sbt/resolve subscriber (one network fetch per identity key).
@@ -36,6 +37,8 @@ export function ResolvedIdentityProvider({ children }) {
      * login provisions a distinct social AA identity.
      */
     if (socialAaAddress) return socialAaAddress;
+    // Neutral post-logout guard: do not silently restore wallet/device canonical identity.
+    if (isNeutralAfterLogout()) return null;
     const walletSc =
       identityHydrated && isWalletMintedIdentityRecord(identity)
         ? normalizeEvmAddress(smartAccount)

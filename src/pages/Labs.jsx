@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import PageShell from "../components/PageShell.jsx";
 import lab01IdentityImg from "../assets/labs/lab01-identity-diagram.webp";
 import {
@@ -108,7 +108,7 @@ const sortLabs = (labs) =>
     });
 
 export default function Labs({ lang = "en" }) {
-    const { smartAccount, owner, identityHydrated, identity } = useIdentity();
+    const { smartAccount, owner, identityHydrated } = useIdentity();
     const { address } = useAccount();
     const { canonicalIdentityAddress } = useResolvedIdentityContext();
     const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
@@ -185,8 +185,10 @@ export default function Labs({ lang = "en" }) {
         const controller = new AbortController();
         setStatusLoading(true);
 
-        // eslint-disable-next-line no-console -- AA / backend integration debug
-        console.log("API CALL", { identityAddress, resolveOwner, isOidcAuthenticated });
+        if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console -- AA / backend integration debug
+            console.log("API CALL", { identityAddress, resolveOwner, isOidcAuthenticated });
+        }
 
         Promise.all(
             labsRegistry.map(async (lab) => {

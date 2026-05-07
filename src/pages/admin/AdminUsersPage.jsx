@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 import UserDistributionChart from "../../components/admin/UserDistributionChart";
@@ -7,10 +7,6 @@ import { fetchAdminUsers } from "../../services/adminApi";
 function toNumber(value, fallback = 0) {
     const num = Number(value);
     return Number.isFinite(num) ? num : fallback;
-}
-
-function isNonEmptyString(value) {
-    return typeof value === "string" && value.trim().length > 0;
 }
 
 function asArray(value) {
@@ -150,8 +146,9 @@ export default function AdminUsersPage() {
     const [socialFilter, setSocialFilter] = useState(searchParams.get("social") || "all"); // all|has|none
     const [importFilter, setImportFilter] = useState(searchParams.get("imported") || "all"); // all|has|none
     const [provisioningFilter, setProvisioningFilter] = useState(searchParams.get("prov") || "all"); // all|<status>
+    const dropoffOnly = searchParams.get("dropoffOnly") === "1";
 
-    const loadUsers = () => {
+    const loadUsers = useCallback(() => {
         const adminWallet =
             address || localStorage.getItem("web3edu-wallet-address") || "";
 
@@ -178,11 +175,11 @@ export default function AdminUsersPage() {
                 setError("Could not load users analytics.");
                 setUsers([]);
             });
-    };
+    }, [address]);
 
     useEffect(() => {
         loadUsers();
-    }, [address]);
+    }, [loadUsers]);
 
     const {
         normalizedUsers,
@@ -209,7 +206,6 @@ export default function AdminUsersPage() {
             return wallet.includes(q) || tokenId.includes(q) || tokenIdCached.includes(q) || socialSub.includes(q);
         });
 
-        const dropoffOnly = searchParams.get("dropoffOnly") === "1";
         const scopedUsers = filteredUsers
             .filter((u) => (dropoffOnly ? u.isDropOff : true))
             .filter((u) => {
@@ -267,7 +263,7 @@ export default function AdminUsersPage() {
         });
 
         return { normalizedUsers, totalUsers, builders, explorers, dropOffUsers, sortedUsers, provisioningOptions };
-    }, [users, searchTerm, searchParams, tierFilter, tokenFilter, linkedFilter, socialFilter, importFilter, provisioningFilter, sortKey, sortDir]);
+    }, [users, searchTerm, dropoffOnly, tierFilter, tokenFilter, linkedFilter, socialFilter, importFilter, provisioningFilter, sortKey, sortDir]);
 
     if (error) {
         return (

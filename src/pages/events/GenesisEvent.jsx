@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
 import { useAccount } from "wagmi";
-import { useIdentity } from "../../context/IdentityContext.jsx";
+import { useIdentity } from "../../context/useIdentity.js";
 
 const texts = {
     en: {
@@ -13,6 +13,9 @@ const texts = {
         badgeTitle: "Genesis Badge",
         badgeDesc: "This badge recognizes the early adopters who joined the first Web3Edu launch workshop.",
         date: "March 2026 • Web3Edu Genesis Workshop",
+        preMintTitle: "Before you mint",
+        preMintBody: "Check your wallet balance — you need a small amount of ETH for gas fees. If your wallet is empty, get test ETH from the faucet:",
+        faucetCta: "Open faucet",
         contractLabel: "Contract:",
         explorer: "View badge contract on explorer",
         mint: "Mint Genesis Badge",
@@ -43,6 +46,9 @@ const texts = {
         badgeTitle: "Genesis Badge",
         badgeDesc: "Το badge αυτό αναγνωρίζει τους πρώτους συμμετέχοντες που έλαβαν μέρος στο πρώτο workshop του Web3Edu.",
         date: "Μάρτιος 2026 • Web3Edu Genesis Workshop",
+        preMintTitle: "Πριν κάνεις mint",
+        preMintBody: "Έλεγξε το υπόλοιπο του wallet σου — χρειάζεσαι ένα μικρό ποσό ETH για gas fees. Αν το wallet είναι άδειο, πάρε test ETH από το faucet:",
+        faucetCta: "Άνοιγμα faucet",
         contractLabel: "Contract:",
         explorer: "Προβολή του contract στον explorer",
         mint: "Κάνε Mint το Genesis Badge",
@@ -144,6 +150,13 @@ export default function GenesisEvent() {
 
             setHasMinted(true);
             setMintStatus("success");
+            try {
+                if (typeof window !== "undefined") {
+                    window.sessionStorage.setItem("web3edu:badge-minted:genesis", "1");
+                }
+            } catch {
+                /* ignore */
+            }
 
         } catch (err) {
             console.error(err);
@@ -264,6 +277,23 @@ export default function GenesisEvent() {
                     >
                         {t.explorer}
                     </a>
+
+                    <div className="mb-5 rounded-xl border border-slate-200/70 bg-white/70 px-4 py-3 text-left text-sm text-slate-800 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+                        <p className="font-semibold">
+                            {t.preMintTitle}
+                        </p>
+                        <p className="mt-1 text-slate-700 dark:text-slate-300">
+                            {t.preMintBody}{" "}
+                            <a
+                                href="https://faucet.dimikog.org"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-semibold text-indigo-600 underline hover:opacity-80 dark:text-indigo-300"
+                            >
+                                {t.faucetCta} ↗
+                            </a>
+                        </p>
+                    </div>
 
                     {!canMint ? (
                         <div className="mb-4 rounded-xl border border-amber-300/40 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 dark:border-amber-600/40 dark:bg-amber-950/30 dark:text-amber-100">

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { buildWeb3SbtResolveUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import PageShell from "../components/PageShell.jsx";

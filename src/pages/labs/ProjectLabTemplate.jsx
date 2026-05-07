@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import PageShell from "../../components/PageShell";
 import { useAccount } from "wagmi";
 import FeedbackModal from "../../components/FeedbackModal";
-import { useIdentity } from "../../context/IdentityContext.jsx";
+import { useIdentity } from "../../context/useIdentity.js";
 import { useResolvedIdentityContext } from "../../hooks/useResolvedIdentityContext.js";
 import { useSocialIdentity } from "../../context/SocialIdentityContext.jsx";
 import { normalizeEvmAddress } from "../../utils/evmAddress.js";

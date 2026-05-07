@@ -13,10 +13,11 @@ import {
   isUserStateUnavailableError,
 } from "../utils/progression.js";
 import { isGreekPathname } from "../utils/lang.js";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { resolveIdentityV2 } from "../api/aa.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import { createOidcConfig } from "../auth/oidcConfig.js";
+import { setNeutralAfterLogout } from "../utils/viewerMode.js";
 
 const ADMIN_WALLETS = (
   import.meta.env.VITE_ADMIN_WALLETS ??
@@ -43,7 +44,7 @@ export default function Web3RouteControls() {
   const { smartAccount, disconnectIdentity, isIdentityReady: onboarded } = useIdentity();
   const [identityMenuOpen, setIdentityMenuOpen] = useState(false);
   const identityMenuRef = useRef(null);
-  const addrForUi = onboarded ? smartAccount : null;
+  const addrForUi = onboarded ? smartAccount : isConnected ? address : null;
 
   const currentPath = location.pathname || "/";
   const isGreek = isGreekPathname(currentPath);
@@ -150,6 +151,7 @@ export default function Web3RouteControls() {
     if (auth?.isAuthenticated) {
       try {
         const cfg = createOidcConfig();
+        setNeutralAfterLogout();
         await auth.signoutRedirect({
           id_token_hint: auth?.user?.id_token,
           post_logout_redirect_uri: cfg.post_logout_redirect_uri,
@@ -164,7 +166,69 @@ export default function Web3RouteControls() {
     }
   };
 
-  if (!onboarded) return null;
+  // If the user has no onboarded identity but *does* have a connected wallet (common after sign-out),
+  // we still need to provide a clean wallet disconnect path.
+  if (!onboarded) {
+    if (!isConnected || !addrForUi) return null;
+    return (
+      <div className="pointer-events-none fixed top-4 right-4 z-[60] flex flex-col items-end gap-2 sm:top-6 sm:right-8">
+        <div
+          ref={identityMenuRef}
+          className="pointer-events-auto relative flex max-w-[calc(100vw-2rem)] flex-nowrap items-center justify-end gap-2 sm:max-w-none sm:gap-2.5"
+        >
+          <button
+            type="button"
+            aria-expanded={identityMenuOpen}
+            aria-haspopup="menu"
+            aria-label={isGreek ? "Μενού πορτοφολιού" : "Wallet menu"}
+            onClick={() => setIdentityMenuOpen((o) => !o)}
+            className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-900/85 px-2 py-1.5 text-white shadow-lg shadow-indigo-500/25 backdrop-blur cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40 hover:border-white/40"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-slate-300/30">
+              <AddressIdenticon address={addrForUi} />
+            </span>
+            <span className="hidden text-xs font-mono sm:inline">
+              {shortAddress(addrForUi)}
+            </span>
+            <span className="hidden text-[10px] opacity-70 sm:inline" aria-hidden>
+              ▾
+            </span>
+          </button>
+          {identityMenuOpen ? (
+            <div
+              role="menu"
+              className="absolute right-0 top-[calc(100%+0.35rem)] z-[70] min-w-[10.5rem] rounded-xl border border-white/15 bg-slate-900/95 py-1 text-left shadow-xl backdrop-blur-md dark:bg-slate-950/95"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                className="block w-full px-3 py-2 text-left text-xs text-red-200 transition hover:bg-red-500/20 sm:text-sm"
+                onClick={async () => {
+                  setIdentityMenuOpen(false);
+                  try {
+                    await disconnectAsync();
+                  } catch {
+                    /* ignore */
+                  }
+                  if (typeof window !== "undefined") {
+                    try {
+                      localStorage.removeItem(WALLET_SESSION_KEY);
+                      localStorage.removeItem(WALLET_ADDRESS_KEY);
+                      window.dispatchEvent(new Event("web3edu-wallet-state"));
+                    } catch {
+                      /* ignore */
+                    }
+                  }
+                }}
+              >
+                {isGreek ? "Αποσύνδεση πορτοφολιού" : "Disconnect wallet"}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pointer-events-none fixed top-4 right-4 z-[60] flex flex-col items-end gap-2 sm:top-6 sm:right-8">

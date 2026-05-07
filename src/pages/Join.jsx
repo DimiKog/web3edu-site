@@ -4,13 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import PageShell from "../components/PageShell.jsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { loadIdentityState } from "../utils/aaIdentity.js";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { tryProvisionMintedWalletIdentityFromOwner } from "../utils/provisionWalletIdentityFromOwner.js";
 import { useAuth } from "react-oidc-context";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import { saveReturnUrl } from "../auth/oidcConfig.js";
 import { useLang } from "../i18n/useLang.js";
 import { JOIN_STRINGS, JOIN_ROUTES } from "../i18n/strings/join.js";
+import { setViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 
 function readHasPersistedAaIdentity() {
     const s = loadIdentityState();
@@ -65,14 +66,19 @@ export default function Join() {
         if (!isIdentityReady) return;
         const p = location.pathname || "";
         if (p !== "/join" && p !== "/join-gr") return;
+        // If a wallet is currently connected, avoid auto-forwarding from Join based on a potentially
+        // stale persisted identity (common after sign-out). The user should explicitly continue
+        // via the wallet flow (restore/mint) or the device flow.
+        if (isConnected && !auth?.isAuthenticated) return;
         navigate(p === "/join-gr" ? "/dashboard-gr" : "/dashboard", { replace: true });
-    }, [isIdentityReady, location.pathname, navigate]);
+    }, [isIdentityReady, location.pathname, navigate, isConnected, auth?.isAuthenticated]);
 
     const handleLegacyContinue = async () => {
         if (!address) {
             alert(t.alerts.noWallet);
             return;
         }
+        setViewerMode(VIEWER_MODES.wallet);
         setCheckingSBT(true);
         try {
             const status = await tryProvisionMintedWalletIdentityFromOwner(address, setIdentity);
@@ -97,7 +103,7 @@ export default function Join() {
     const secondaryButtonClassName = "w-full rounded-xl border border-slate-300/80 bg-white/85 px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/15";
     const optionCardClassName = "relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white/65 p-5 text-left shadow-[0_12px_32px_rgba(15,23,42,0.10)] backdrop-blur-md ring-1 ring-white/60 transition-colors duration-300 dark:border-white/10 dark:bg-white/[0.06] dark:ring-white/10";
 
-    const showNewUserDeviceAaPath = !hasPersistedAa && !auth?.isAuthenticated;
+    const showDeviceAaPath = !auth?.isAuthenticated;
     const forceOidcPromptLogin =
         (typeof window !== "undefined" &&
             new URLSearchParams(window.location.search).get("oidc_prompt") === "login") ||
@@ -135,48 +141,6 @@ shadow-[0_18px_60px_rgba(15,23,42,0.10)]
 backdrop-blur-xl rounded-[28px] px-6 sm:px-10 py-10 sm:py-12
 max-w-4xl w-full flex flex-col items-center animate-[fadeInUp_0.6s_ease-out] transition-colors duration-500
 ring-1 ring-slate-900/5 dark:ring-white/10">
-
-                    {hasPersistedAa && !isConnected ? (
-                        <div className="mb-8 mt-2 w-full max-w-[42rem] rounded-2xl border border-emerald-200/75 bg-emerald-50/90 px-5 py-5 text-left shadow-sm ring-1 ring-emerald-500/15 dark:border-emerald-500/35 dark:bg-emerald-950/35 dark:ring-emerald-500/20">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-800/90 dark:text-emerald-200/90">
-                                {t.returning.label}
-                            </p>
-                            <p className="mt-2 text-base font-semibold text-slate-900 dark:text-white">
-                                {t.returning.heading}
-                            </p>
-                            <p className="mt-2 text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
-                                {t.returning.body}
-                            </p>
-                            <div className="mt-4 flex flex-col gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => navigate(routes.dashboard)}
-                                    className={primaryButtonClassName}
-                                >
-                                    {t.returning.continueBtn}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => openConnectModal?.()}
-                                    className="w-full rounded-xl border border-slate-300/80 bg-white/90 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-white dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
-                                >
-                                    {t.returning.connectWalletBtn}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        localStorage.removeItem("web3edu-aa-owner-private-key");
-                                        localStorage.removeItem("web3edu-aa-identity");
-                                        clearIdentity();
-                                        setHasPersistedAa(false);
-                                    }}
-                                    className="w-full rounded-xl border border-red-200/60 bg-red-50/90 py-2.5 text-xs font-semibold text-red-800 dark:border-red-400/30 dark:bg-red-950/30 dark:text-red-100"
-                                >
-                                    {t.returning.resetBtn}
-                                </button>
-                            </div>
-                        </div>
-                    ) : null}
 
                     <div className="w-full flex flex-col items-center">
                         <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
@@ -218,6 +182,7 @@ ring-1 ring-slate-900/5 dark:ring-white/10">
                                         <button
                                             type="button"
                                             onClick={() => {
+                                                setViewerMode(VIEWER_MODES.social);
                                                 saveReturnUrl(location.state?.from);
                                                 void auth?.signinRedirect?.(
                                                     forceOidcPromptLogin
@@ -356,22 +321,40 @@ ${checkingSBT ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 hover:scale-
                         </div>
                     </div>
 
-                    {showNewUserDeviceAaPath ? (
+                    {showDeviceAaPath ? (
                         <div className="mt-8 w-full max-w-[42rem] relative z-10 text-left">
                             <div className="rounded-2xl border border-slate-200/60 bg-white/35 p-5 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04] ring-1 ring-white/40 dark:ring-white/10">
                                 <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                    {t.device.heading}
+                                    {hasPersistedAa ? t.returning.heading : t.device.heading}
                                 </p>
                                 <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                                    {t.device.body}
+                                    {hasPersistedAa ? t.returning.body : t.device.body}
                                 </p>
                                 <button
                                     type="button"
-                                    onClick={() => navigate(routes.mint)}
+                                    onClick={() => {
+                                        setViewerMode(VIEWER_MODES.device);
+                                        navigate(hasPersistedAa ? routes.dashboard : routes.mint);
+                                    }}
                                     className={`mt-4 ${secondaryButtonClassName}`}
                                 >
-                                    {t.device.continueBtn}
+                                    {hasPersistedAa ? t.returning.continueBtn : t.device.continueBtn}
                                 </button>
+
+                                {hasPersistedAa ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            localStorage.removeItem("web3edu-aa-owner-private-key");
+                                            localStorage.removeItem("web3edu-aa-identity");
+                                            clearIdentity();
+                                            setHasPersistedAa(false);
+                                        }}
+                                        className="mt-3 w-full rounded-xl border border-red-200/60 bg-red-50/90 py-2.5 text-xs font-semibold text-red-800 dark:border-red-400/30 dark:bg-red-950/30 dark:text-red-100"
+                                    >
+                                        {t.returning.resetBtn}
+                                    </button>
+                                ) : null}
                             </div>
                         </div>
                     ) : null}

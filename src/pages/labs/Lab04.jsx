@@ -1,6 +1,6 @@
 import React from "react";
 import { useAccount } from "wagmi";
-import { useIdentity } from "../../context/IdentityContext.jsx";
+import { useIdentity } from "../../context/useIdentity.js";
 import LabTemplate from "./LabTemplate";
 
 import lab04HeroImg from "../../assets/labs/lab04-transactions-gas-diagram.webp";

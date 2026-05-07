@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import { tryProvisionMintedWalletIdentityFromOwner } from "../utils/provisionWalletIdentityFromOwner.js";

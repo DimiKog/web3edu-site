@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 import FeedbackModal from "./FeedbackModal";
-import { useIdentity, warnIfIdentityNotInitialized } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
+import { warnIfIdentityNotInitialized } from "../utils/identityReadiness.js";
+import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import {
     buildLabsStatusUrl,
     buildResolveOwner,
@@ -9,6 +11,8 @@ import {
 } from "../lib/web3eduBackend.js";
 import { getLabsStatusReadIdentity, postLabsStart } from "../utils/labWriteApi.js";
 import { getOwnerWallet } from "../utils/aaIdentity.js";
+import { getSocialIdentityAaAddress } from "../utils/socialIdentityPayload.js";
+import { normalizeEvmAddress } from "../utils/evmAddress.js";
 
 const COPY = {
     en: {
@@ -49,9 +53,17 @@ export default function LabCompletionClaim({
 
     const { address, isConnected } = useAccount();
     const { smartAccount, owner: identityOwner } = useIdentity();
+    const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
+
+    const effectiveSmartAccount = useMemo(() => {
+        const localSc = normalizeEvmAddress(smartAccount);
+        if (localSc) return localSc;
+        if (!isOidcAuthenticated) return null;
+        return normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity));
+    }, [smartAccount, isOidcAuthenticated, socialIdentity]);
     const { identityAddress } = useMemo(
-        () => getLabsStatusReadIdentity({ smartAccount }),
-        [smartAccount]
+        () => getLabsStatusReadIdentity({ smartAccount: effectiveSmartAccount }),
+        [effectiveSmartAccount]
     );
     const ownerForWrites = useMemo(
         () => buildResolveOwner(address, identityOwner),
@@ -83,8 +95,10 @@ export default function LabCompletionClaim({
 
         const checkCompletion = async () => {
             try {
-                // eslint-disable-next-line no-console -- AA / backend integration debug
-                console.log("API CALL", { identityAddress, statusOwner: null });
+                if (import.meta.env.DEV) {
+                    // eslint-disable-next-line no-console -- AA / backend integration debug
+                    console.log("API CALL", { identityAddress, statusOwner: null });
+                }
                 const res = await fetch(
                     buildLabsStatusUrl(identityAddress, labId, null)
                 );
@@ -190,9 +204,9 @@ export default function LabCompletionClaim({
     const handleClaimCompletion = async () => {
         if (claimed) return;
 
-        if (!smartAccount) {
+        if (!effectiveSmartAccount) {
             warnIfIdentityNotInitialized("LabCompletionClaim", {
-                smartAccount,
+                smartAccount: effectiveSmartAccount,
                 owner: identityOwner,
             });
             setError(labels.walletNotConnectedError);
@@ -210,7 +224,7 @@ export default function LabCompletionClaim({
         try {
             const startRes = await postLabsStart({
                 apiBase: BACKEND,
-                smartAccount,
+                smartAccount: effectiveSmartAccount,
                 address,
                 owner: identityOwner,
                 labId,
@@ -239,7 +253,7 @@ export default function LabCompletionClaim({
                     "X-API-KEY": import.meta.env.VITE_XP_SECRET,
                 },
                 body: JSON.stringify({
-                    wallet: smartAccount,
+                    wallet: effectiveSmartAccount,
                     owner: ownerForWrites,
                     labId,
                     message,
@@ -257,7 +271,6 @@ export default function LabCompletionClaim({
             }
 
             if (!res.ok) {
-                // eslint-disable-next-line no-console -- lab complete error visibility
                 console.error("LAB COMPLETE ERROR RESPONSE", completePayload);
                 throw new Error(
                     completePayload?.error || "Backend rejected completion"
@@ -268,6 +281,13 @@ export default function LabCompletionClaim({
             setCompletedAt(new Date().toISOString());
             setShowCelebration(true);
             setShowFeedback(true);
+            try {
+                if (typeof window !== "undefined") {
+                    window.dispatchEvent(new Event("web3edu-progress-updated"));
+                }
+            } catch {
+                /* ignore */
+            }
         } catch (err) {
             console.error(err);
             setError(err?.message || labels.backendError);

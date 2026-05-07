@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAccount, useDisconnect } from "wagmi";
 import { useNavigate } from "react-router-dom";
 import PageShell from "../components/PageShell.jsx";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";

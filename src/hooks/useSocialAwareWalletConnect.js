@@ -4,7 +4,7 @@ import { useConfig } from "wagmi";
 import { getAccount } from "wagmi/actions";
 import { ethers } from "ethers";
 import { useInjectedWalletConnect } from "./useInjectedWalletConnect.js";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { isWalletMintedIdentityRecord } from "../utils/identityReadiness.js";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";

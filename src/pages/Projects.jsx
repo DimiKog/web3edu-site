@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { localizeProject, projects } from "../services/projectService";
 import { useEffect, useMemo, useState } from "react";
 import SectionBadge from "../components/SectionBadge.jsx";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 
 export default function Projects() {

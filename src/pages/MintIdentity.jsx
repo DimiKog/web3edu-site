@@ -12,7 +12,7 @@ import {
 } from "../api/aa.js";
 import { pickSmartAccountFromPayload } from "../utils/aaResolvePayload.js";
 import { getOwnerWallet, readConnectedEoaAddress } from "../utils/aaIdentity.js";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import { redirectToJoin } from "../utils/identityReadiness.js";
 

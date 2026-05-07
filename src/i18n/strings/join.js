@@ -33,9 +33,9 @@ export const JOIN_STRINGS = {
       verifyingPulse: "Verifying your identity…",
     },
     device: {
-      heading: "Start or continue without a wallet",
+      heading: "Start without a wallet",
       body: "Create a device-based identity now. You can connect a Web3Edu account or wallet later for easier sign-in.",
-      continueBtn: "Continue without a wallet",
+      continueBtn: "Start without a wallet",
     },
     alerts: {
       noWallet: "Connect your wallet first to check an existing Identity SBT.",
@@ -78,9 +78,9 @@ export const JOIN_STRINGS = {
       verifyingPulse: "Γίνεται έλεγχος ταυτότητας…",
     },
     device: {
-      heading: "Ξεκίνα ή συνέχισε χωρίς πορτοφόλι",
+      heading: "Ξεκίνα χωρίς πορτοφόλι",
       body: "Δημιούργησε τώρα μια ταυτότητα βασισμένη στη συσκευή. Μπορείς αργότερα να συνδέσεις λογαριασμό Web3Edu ή πορτοφόλι για ευκολότερη είσοδο.",
-      continueBtn: "Συνέχεια χωρίς πορτοφόλι",
+      continueBtn: "Ξεκίνα χωρίς πορτοφόλι",
     },
     alerts: {
       noWallet: "Σύνδεσε πρώτα το πορτοφόλι σου για έλεγχο υπάρχοντος Identity SBT.",

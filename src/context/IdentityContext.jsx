@@ -1,7 +1,5 @@
 import React, {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -30,8 +28,7 @@ import {
   warnIfIdentityNotInitialized,
   redirectToJoin,
 } from "../utils/identityReadiness.js";
-
-const IdentityContext = createContext(null);
+import { IdentityContext } from "./identityContext.js";
 
 const BLANK_IDENTITY = {
   owner: null,
@@ -58,6 +55,7 @@ export function IdentityProvider({ children }) {
    * otherwise → connected EOA, else persisted.
    */
   const owner = useMemo(() => {
+    void walletSurfaceTick;
     const connected = readConnectedEoaAddress();
     let persisted = null;
     if (identity?.owner && typeof identity.owner === "string" && /^0x[a-fA-F0-9]{40}$/i.test(identity.owner)) {
@@ -354,19 +352,3 @@ export function IdentityProvider({ children }) {
 
   return <IdentityContext.Provider value={value}>{children}</IdentityContext.Provider>;
 }
-
-// eslint-disable-next-line react-refresh/only-export-components -- paired hook for this context module
-export function useIdentity() {
-  const ctx = useContext(IdentityContext);
-  if (!ctx) {
-    throw new Error("useIdentity must be used within an IdentityProvider");
-  }
-  return ctx;
-}
-
-// eslint-disable-next-line react-refresh/only-export-components -- helpers used outside this hook
-export {
-  isIdentityReady,
-  isWalletMintedIdentityRecord,
-  warnIfIdentityNotInitialized,
-} from "../utils/identityReadiness.js";

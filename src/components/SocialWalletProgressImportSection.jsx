@@ -8,6 +8,7 @@ function classifyImportError(err) {
   if (raw.includes("already_imported")) return "already_imported";
   if (raw.includes("target_has_progress")) return "target_has_progress";
   if (raw.includes("source_not_authorized")) return "source_not_authorized";
+  if (raw.includes("source_missing")) return "source_missing";
   return "generic";
 }
 
@@ -71,6 +72,18 @@ export default function SocialWalletProgressImportSection({
         window.setTimeout(() => finishAndHide(), 4500);
         return;
       }
+      if (kind === "source_missing") {
+        // Neutral outcome: the connected wallet has no state to import.
+        // Snooze the import offer for this wallet so we don't keep prompting.
+        try {
+          onSnooze?.();
+        } catch {
+          /* optional */
+        }
+        setPhase("no_source");
+        window.setTimeout(() => finishAndHide(), 4500);
+        return;
+      }
       if (kind === "target_has_progress") {
         setPhase("err_target");
         return;
@@ -107,6 +120,17 @@ export default function SocialWalletProgressImportSection({
         {isGr
           ? "Η πρόοδος από αυτό το πορτοφόλι έχει ήδη εισαχθεί. Τα δεδομένα ενημερώθηκαν."
           : "Progress from this wallet was already imported. Data is up to date."}
+      </div>
+    );
+  }
+
+  if (phase === "no_source") {
+    return (
+      <div
+        className="mt-4 rounded-xl border border-slate-300/70 bg-slate-50/95 px-3 py-3 text-xs text-slate-900 dark:border-slate-700/60 dark:bg-slate-950/35 dark:text-slate-100"
+        role="status"
+      >
+        {isGr ? "Δεν βρέθηκε προηγούμενη πρόοδος σε αυτό το πορτοφόλι." : "No previous wallet progress found."}
       </div>
     );
   }

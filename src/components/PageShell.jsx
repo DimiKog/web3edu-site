@@ -13,12 +13,13 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAccount, useDisconnect } from "wagmi";
 import ConnectWalletButton from "./ConnectWalletButton.jsx";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { useSocialAwareWalletConnect } from "../hooks/useSocialAwareWalletConnect.js";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { useAuth } from "react-oidc-context";
 import { loadIdentityState } from "../utils/aaIdentity.js";
 import { createOidcConfig } from "../auth/oidcConfig.js";
+import { isNeutralAfterLogout, setNeutralAfterLogout, setViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
 const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
@@ -368,6 +369,7 @@ export default function PageShell({
     if (auth?.isAuthenticated) {
       try {
         const cfg = createOidcConfig();
+        setNeutralAfterLogout();
         await auth.signoutRedirect({
           id_token_hint: auth?.user?.id_token,
           post_logout_redirect_uri: cfg.post_logout_redirect_uri,
@@ -792,6 +794,65 @@ export default function PageShell({
                 className="inline-flex items-center justify-center rounded-full border border-amber-400/30 bg-amber-500/15 px-4 py-1.5 font-semibold text-amber-950 transition hover:bg-amber-500/25 dark:text-amber-100"
               >
                 {isGR ? "Δοκίμασε ξανά" : "Retry now"}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {!auth?.isAuthenticated && isNeutralAfterLogout() && (hasWalletSession || hasPersistedIdentity) ? (
+          <div className="mx-auto mt-2 max-w-5xl rounded-2xl border border-sky-300/40 bg-sky-50/80 px-4 py-3 text-left text-sm text-sky-950 shadow-lg backdrop-blur dark:border-sky-500/25 dark:bg-sky-950/25 dark:text-sky-50">
+            <p className="font-semibold">
+              {isGR
+                ? "Έχεις αποσυνδεθεί από τον λογαριασμό Web3Edu."
+                : "You’re signed out of your Web3Edu account."}
+            </p>
+            <p className="mt-1 text-xs opacity-90">
+              {isGR
+                ? "Για να αποφύγουμε αλλαγή προφίλ χωρίς προειδοποίηση, διάλεξε πώς θέλεις να συνεχίσεις."
+                : "To avoid unexpected profile switching, choose how you want to continue."}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setViewerMode(VIEWER_MODES.social);
+                  void auth?.signinRedirect?.();
+                }}
+                className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500"
+              >
+                {isGR ? "Είσοδος με Web3Edu" : "Sign in with Web3Edu"}
+              </button>
+
+              {hasWalletSession ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewerMode(VIEWER_MODES.wallet);
+                    navigate(isGR ? "/join-gr" : "/join");
+                  }}
+                  className="inline-flex items-center justify-center rounded-lg border border-sky-300/60 bg-white/80 px-4 py-2 text-xs font-semibold text-sky-950 hover:bg-white dark:border-sky-500/30 dark:bg-white/10 dark:text-sky-50 dark:hover:bg-white/15"
+                >
+                  {isGR ? "Συνέχεια με συνδεδεμένο πορτοφόλι" : "Continue with connected wallet"}
+                </button>
+              ) : hasPersistedIdentity ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setViewerMode(VIEWER_MODES.device);
+                    navigate(isGR ? "/join-gr" : "/join");
+                  }}
+                  className="inline-flex items-center justify-center rounded-lg border border-sky-300/60 bg-white/80 px-4 py-2 text-xs font-semibold text-sky-950 hover:bg-white dark:border-sky-500/30 dark:bg-white/10 dark:text-sky-50 dark:hover:bg-white/15"
+                >
+                  {isGR ? "Συνέχεια σε αυτή τη συσκευή" : "Continue on this device"}
+                </button>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={() => navigate(isGR ? "/join-gr" : "/join")}
+                className="inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-semibold text-sky-700 hover:underline dark:text-sky-200"
+              >
+                {isGR ? "Προβολή επιλογών" : "View options"}
               </button>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { ShieldExclamationIcon } from "@heroicons/react/24/outline";
-import { useIdentity } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
 import { exportIdentity } from "../utils/identityExport.js";
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 

@@ -3,7 +3,7 @@ import { FaDiscord } from "react-icons/fa";
 import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
 
-const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => {
+const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
     const [isDark, setIsDark] = useState(
         typeof document !== "undefined" &&
         document.documentElement.classList.contains("dark")
@@ -17,9 +17,24 @@ const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => 
         return () => observer.disconnect();
     }, []);
 
-    const ctaLabel = ctaOverride ?? content.cta ?? "Get Your Web3Edu Identity";
-    const headline = content.headline ?? "A Web3-native learning identity\nthat grows with the ecosystem";
+    if (!content) return null;
+
+    const isGreek = content?.lang === "gr";
+    const resolvedCtaHref = ctaHref ?? (isGreek ? "/#/start-here-gr" : "/#/start-here");
+    const ctaLabel = ctaOverride ?? content.cta ?? (
+        isGreek
+            ? "Απέκτησε την Ταυτότητα σου στο Web3Edu"
+            : "Get Your Web3Edu Identity"
+    );
+    const headline = content.headline ?? (
+        isGreek
+            ? "Ένα Web3-native μαθησιακό identity\nπου εξελίσσεται με το οικοσύστημα"
+            : "A Web3-native learning identity\nthat grows with the ecosystem"
+    );
     const headlineLines = headline.split("\n");
+    const discordLabel = isGreek
+        ? "Μπείτε στην Κοινότητα Web3Edu"
+        : "Join the Web3Edu Community";
 
     return (
         <header className="w-full py-20 sm:py-28 px-4 sm:px-6 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#081018] overflow-hidden rounded-b-[80px] lg:rounded-b-[120px] relative z-10">
@@ -84,7 +99,7 @@ const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => 
 
                     <div className="flex flex-col sm:flex-row items-center gap-3 animate-fade-up delay-300">
                         <a
-                            href={ctaHref}
+                            href={resolvedCtaHref}
                             aria-label={ctaLabel}
                             className="inline-flex items-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300"
                         >
@@ -94,11 +109,11 @@ const Hero = ({ content, ctaHref = "/#/start-here", ctaLabel: ctaOverride }) => 
                             href="https://discord.gg/V3DuwaTUM5"
                             target="_blank"
                             rel="noopener noreferrer"
-                            aria-label="Join the Web3Edu Community"
+                            aria-label={discordLabel}
                             className="inline-flex items-center gap-2 px-7 py-3 sm:px-8 sm:py-4 rounded-full border border-white/35 bg-white/10 hover:bg-white/15 text-white font-semibold backdrop-blur-md transition duration-300"
                         >
                             <FaDiscord className="h-4 w-4" aria-hidden="true" />
-                            Join the Web3Edu Community
+                            {discordLabel}
                         </a>
                     </div>
                 </div>

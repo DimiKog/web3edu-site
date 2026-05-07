@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from "react";
-import { useAccount, useDisconnect, useSignMessage } from "wagmi";
+import { useAccount, useSignMessage } from "wagmi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import PageShell from "../components/PageShell.jsx";
@@ -28,18 +28,17 @@ import {
     AddressIdenticon,
     generateAvatarStyle,
 } from "../components/identity-ui.jsx";
-import { useIdentity, warnIfIdentityNotInitialized } from "../context/IdentityContext.jsx";
+import { useIdentity } from "../context/useIdentity.js";
+import { warnIfIdentityNotInitialized } from "../utils/identityReadiness.js";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
-import { exportIdentity } from "../utils/identityExport.js";
-import { getXpTotalFromBackend, isTruthyFounderFlag } from "../utils/progression.js";
+import { getXpTotalFromBackend } from "../utils/progression.js";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import {
     getSocialIdentityAaAddress,
-    getSocialIdentityCustodyType,
-    getSocialIdentityOwnerAddress,
     getSocialIdentityProvisioningStatus,
     getSocialIdentityWalletAddress,
 } from "../utils/socialIdentityPayload.js";
+import { ethers } from "ethers";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import {
     getSocialWalletOnboardingLocalChoice,
@@ -204,7 +203,6 @@ export default function Dashboard() {
     const [, bumpWalletOnboarding] = useReducer((c) => c + 1, 0);
     const [, bumpProgressImportSnooze] = useReducer((c) => c + 1, 0);
     const { address, isConnected } = useAccount();
-    const { disconnectAsync } = useDisconnect();
     const navigate = useNavigate();
     const {
         oidcAuthLoading,
@@ -221,7 +219,6 @@ export default function Dashboard() {
         tokenId: identityTokenId,
         hasIdentity,
         identityHydrated,
-        disconnectIdentity,
         isIdentityReady,
     } = useIdentity();
 
@@ -237,7 +234,6 @@ export default function Dashboard() {
     const wagmiAddrNorm = normalizeEvmAddress(address);
     const sessionAddrNorm = normalizeEvmAddress(readConnectedEoaAddress());
     const connectedWalletNorm = wagmiAddrNorm ?? sessionAddrNorm ?? null;
-    const socialOwnerNorm = normalizeEvmAddress(getSocialIdentityOwnerAddress(socialIdentity));
     const socialLinkedWalletNorm = normalizeEvmAddress(getSocialIdentityWalletAddress(socialIdentity));
     const persistedOwnerNorm = normalizeEvmAddress(owner);
     const canonicalSocialAaNorm = normalizeEvmAddress(socialAaAddress);
@@ -300,10 +296,7 @@ export default function Dashboard() {
     const [showTierPopup, setShowTierPopup] = useState(false);
     const [xpLeveledUp, setXpLeveledUp] = useState(false);
     const [profile, setProfile] = useState(null);
-    const [lastSyncTime, setLastSyncTime] = useState(null);
     const [addressCopyFeedback, setAddressCopyFeedback] = useState("");
-    const [walletCardIdentityCopyTip, setWalletCardIdentityCopyTip] = useState("");
-    const [walletCardEoaCopyTip, setWalletCardEoaCopyTip] = useState("");
     const [showBuilderUnlock, setShowBuilderUnlock] = useState(false);
     const {
         metadata: resolvedMetadata,
@@ -311,6 +304,63 @@ export default function Dashboard() {
         canonicalIdentityKey,
         refetch: refetchResolvedIdentity,
     } = useResolvedIdentityContext();
+    const [genesisBadgeOnchain, setGenesisBadgeOnchain] = useState(false);
+    const [genesisBadgeOptimistic, setGenesisBadgeOptimistic] = useState(false);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        // Optimistic UI: flip immediately after returning from the mint screen (no backend refetch).
+        if (window.sessionStorage.getItem("web3edu:badge-minted:genesis") !== "1") return;
+        window.sessionStorage.removeItem("web3edu:badge-minted:genesis");
+        setGenesisBadgeOptimistic(true);
+    }, []);
+
+    useEffect(() => {
+        // On-chain check so dashboard reflects minted state even if backend metadata lags.
+        // Genesis is minted to the connected wallet (EOA), not the AA smart account, so prefer EOA.
+        const target = address || identityAddress || null;
+        if (!target) return;
+        if (!window.ethereum?.request) return;
+
+        let cancelled = false;
+        (async () => {
+            try {
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                const contract = new ethers.Contract(
+                    "0x1e9e1515a472aFf340b79dfd3c5b47D307632Fbc",
+                    [
+                        // ERC1155 style
+                        "function balanceOf(address account, uint256 id) view returns (uint256)",
+                        // ERC721 style
+                        "function balanceOf(address owner) view returns (uint256)",
+                    ],
+                    provider
+                );
+
+                let minted = false;
+                try {
+                    const bal1155 = await contract["balanceOf(address,uint256)"](target, 1);
+                    minted = minted || (typeof bal1155?.toString === "function" ? BigInt(bal1155.toString()) > 0n : false);
+                } catch {
+                    /* ignore */
+                }
+                if (!minted) {
+                    try {
+                        const bal721 = await contract["balanceOf(address)"](target);
+                        minted = minted || (typeof bal721?.toString === "function" ? BigInt(bal721.toString()) > 0n : false);
+                    } catch {
+                        /* ignore */
+                    }
+                }
+
+                if (!cancelled) setGenesisBadgeOnchain(Boolean(minted));
+            } catch {
+                /* ignore */
+            }
+        })();
+
+        return () => { cancelled = true; };
+    }, [identityAddress, address]);
 
     const builderUnlockStorageKey = useMemo(() => {
         const scope = canonicalIdentityKey || identityAddress || "anon";
@@ -398,10 +448,17 @@ export default function Dashboard() {
     useEffect(() => {
         setMetadata(resolvedMetadata ?? null);
         setProfile(resolvedProfile ?? null);
-        if (resolvedMetadata || resolvedProfile) {
-            setLastSyncTime(new Date());
-        }
     }, [resolvedMetadata, resolvedProfile, canonicalIdentityKey]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return undefined;
+        const onProgress = () => {
+            // After lab completion writes, refresh the resolved identity snapshot so dashboard updates immediately.
+            Promise.resolve(refetchResolvedIdentity?.()).catch(() => null);
+        };
+        window.addEventListener("web3edu-progress-updated", onProgress);
+        return () => window.removeEventListener("web3edu-progress-updated", onProgress);
+    }, [refetchResolvedIdentity]);
 
     useEffect(() => {
         if (!metadata || typeof metadata.xp_total !== "number") return;
@@ -449,33 +506,6 @@ export default function Dashboard() {
     const safeMetadata =
         metadata && typeof metadata === "object" && !Array.isArray(metadata) ? metadata : {};
     const displayedMetadata = { ...fallbackMetadata, ...safeMetadata };
-
-    const isFounder = (() => {
-        const m = displayedMetadata || {};
-        const p = profile || {};
-        const attrs = [
-            ...(Array.isArray(m.attributes) ? m.attributes : []),
-            ...(Array.isArray(p.attributes) ? p.attributes : []),
-        ];
-
-        const attrFounderTrue = attrs.some(
-            a =>
-                (a?.trait_type || "").toLowerCase() === "founder" &&
-                isTruthyFounderFlag(a?.value)
-        );
-
-        return (
-            isTruthyFounderFlag(m.founder) ||
-            isTruthyFounderFlag(p.founder) ||
-            isTruthyFounderFlag(m.isFounder) ||
-            isTruthyFounderFlag(p.isFounder) ||
-            m.edition === "Founder Edition" ||
-            p.edition === "Founder Edition" ||
-            m.role === "Founder" ||
-            p.role === "Founder" ||
-            attrFounderTrue
-        );
-    })();
 
     const formattedAddress = shortAddress(identityAddress);
     const isIdentityMetadataLoading = Boolean(identityAddress) && !metadata && !profile;
@@ -525,53 +555,6 @@ export default function Dashboard() {
             window.setTimeout(() => setAddressCopyFeedback(""), 2000);
         } catch {
             alert("Could not copy address.");
-        }
-    }, [identityAddress]);
-
-    const handleWalletCardCopyIdentity = useCallback(async () => {
-        if (!identityAddress) return;
-        try {
-            await navigator.clipboard.writeText(identityAddress);
-            setWalletCardIdentityCopyTip("Copied!");
-            window.setTimeout(() => setWalletCardIdentityCopyTip(""), 2000);
-        } catch {
-            alert("Could not copy address.");
-        }
-    }, [identityAddress]);
-
-    const handleWalletCardCopyEoa = useCallback(async () => {
-        if (!address) return;
-        try {
-            await navigator.clipboard.writeText(address);
-            setWalletCardEoaCopyTip("Copied!");
-            window.setTimeout(() => setWalletCardEoaCopyTip(""), 2000);
-        } catch {
-            alert("Could not copy address.");
-        }
-    }, [address]);
-
-    const handleIdentityShare = useCallback(async () => {
-        if (!identityAddress) return;
-        const shareUrl = `${window.location.origin}${window.location.pathname}#/verify/${identityAddress}`;
-        try {
-            if (typeof navigator.share === "function") {
-                await navigator.share({
-                    title: "Web3Edu Identity",
-                    text: "View this Web3Edu identity profile",
-                    url: shareUrl,
-                });
-            } else {
-                await navigator.clipboard.writeText(shareUrl);
-                alert("Verify page link copied to clipboard.");
-            }
-        } catch (e) {
-            if (e?.name === "AbortError") return;
-            try {
-                await navigator.clipboard.writeText(shareUrl);
-                alert("Verify page link copied to clipboard.");
-            } catch {
-                alert("Could not share or copy link.");
-            }
         }
     }, [identityAddress]);
 
@@ -717,6 +700,7 @@ export default function Dashboard() {
         const id = String(b?.id || b?.slug || "").toLowerCase();
         return name.includes("genesis") || id.includes("genesis");
     });
+    const hasGenesisBadgeEffective = hasGenesisBadge || genesisBadgeOptimistic || genesisBadgeOnchain;
 
     const socialProvisioningStatus = getSocialIdentityProvisioningStatus(socialIdentity);
     const socialOk = socialIdentity?.ok;
@@ -891,55 +875,6 @@ export default function Dashboard() {
         }
     }, [oidcIdToken, connectedWalletNorm, signMessageAsync, resolveNow, refetchResolvedIdentity]);
 
-    const showOidcSocialGate =
-        identityHydrated && !identityAddress && (isOidcAuthenticated || oidcAuthLoading);
-    if (showOidcSocialGate) {
-        return (
-            <PageShell>
-                <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 py-20 text-center">
-                    <div className="w-full max-w-lg rounded-2xl border border-slate-200/80 bg-white/80 p-6 shadow-sm backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/40">
-                        <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-                            Setting up your Web3Edu Identity…
-                        </h1>
-                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                            We’re resolving your social-login AA identity with the backend.
-                        </p>
-
-                        {oidcAuthLoading ? (
-                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
-                                Completing sign-in with Keycloak…
-                            </p>
-                        ) : socialIdentityLoading ? (
-                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
-                                Loading…
-                            </p>
-                        ) : socialIdentityError ? (
-                            <div className="mt-4 rounded-xl border border-red-200/70 bg-red-50/70 p-4 text-left text-sm text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
-                                <p className="font-semibold">Could not resolve social identity</p>
-                                <p className="mt-1 opacity-90">{socialIdentityError}</p>
-                                <button
-                                    type="button"
-                                    onClick={() => void resolveNow()}
-                                    className="mt-3 inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-500"
-                                >
-                                    Retry
-                                </button>
-                            </div>
-                        ) : oidcIdToken ? (
-                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
-                                Starting identity lookup…
-                            </p>
-                        ) : (
-                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200">
-                                Waiting for session…
-                            </p>
-                        )}
-                    </div>
-                </div>
-            </PageShell>
-        );
-    }
-
     const shouldShowBackupBanner = (() => {
         if (typeof window === "undefined") return false;
         if (!isIdentityReady) return false;
@@ -989,6 +924,55 @@ export default function Dashboard() {
             /* ignore */
         }
     }, [socialDebugTriggered]);
+
+    const showOidcSocialGate =
+        identityHydrated && !identityAddress && (isOidcAuthenticated || oidcAuthLoading);
+    if (showOidcSocialGate) {
+        return (
+            <PageShell>
+                <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 py-20 text-center">
+                    <div className="w-full max-w-lg rounded-2xl border border-slate-200/80 bg-white/80 p-6 shadow-sm backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/40">
+                        <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+                            Setting up your Web3Edu Identity…
+                        </h1>
+                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                            We’re resolving your social-login AA identity with the backend.
+                        </p>
+
+                        {oidcAuthLoading ? (
+                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
+                                Completing sign-in with Keycloak…
+                            </p>
+                        ) : socialIdentityLoading ? (
+                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
+                                Loading…
+                            </p>
+                        ) : socialIdentityError ? (
+                            <div className="mt-4 rounded-xl border border-red-200/70 bg-red-50/70 p-4 text-left text-sm text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-100">
+                                <p className="font-semibold">Could not resolve social identity</p>
+                                <p className="mt-1 opacity-90">{socialIdentityError}</p>
+                                <button
+                                    type="button"
+                                    onClick={() => void resolveNow()}
+                                    className="mt-3 inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-500"
+                                >
+                                    Retry
+                                </button>
+                            </div>
+                        ) : oidcIdToken ? (
+                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
+                                Starting identity lookup…
+                            </p>
+                        ) : (
+                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200">
+                                Waiting for session…
+                            </p>
+                        )}
+                    </div>
+                </div>
+            </PageShell>
+        );
+    }
     const showTopWalletHistoryPrompt = Boolean(
         isOidcAuthenticated && showWalletHistoryPrompt && !showLinkOrImportBanner
     );
@@ -1519,7 +1503,7 @@ export default function Dashboard() {
 
                                 return (
                                     <div className="space-y-4">
-                                        {featuredGenesisBadge ? (
+                                        {(featuredGenesisBadge || (hasGenesisBadgeEffective && !featuredGenesisBadge)) ? (
                                             <div className="rounded-2xl border border-purple-300/40 bg-gradient-to-r from-purple-500/85 to-fuchsia-500/85 p-4 text-white shadow-[0_0_20px_rgba(168,85,247,0.35)]">
                                                 <div className="flex items-start justify-between gap-3">
                                                     <div>
@@ -1610,7 +1594,7 @@ export default function Dashboard() {
                                             </div>
                                         )}
 
-                                        {!hasGenesisBadge ? (
+                                        {!hasGenesisBadgeEffective ? (
                                             <button
                                                 onClick={() => navigate("/events/genesis")}
                                                 className="w-full rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 px-4 py-2 text-xs font-semibold text-white transition shadow-md hover:scale-[1.02]"

@@ -2,7 +2,7 @@ import React from "react";
 import PageShell from "../../components/PageShell";
 import { useAccount } from "wagmi";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useIdentity } from "../../context/IdentityContext.jsx";
+import { useIdentity } from "../../context/useIdentity.js";
 import {
     buildLabsStatusUrl,
     getWeb3eduBackendUrl,
