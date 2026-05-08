@@ -53,13 +53,13 @@ const StartHere = () => {
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] rounded-2xl opacity-25 group-hover:opacity-45 blur-sm transition-opacity duration-500" />
                             <div className="relative rounded-2xl bg-gradient-to-br from-[#0A0F1A]/90 via-[#111626]/90 to-[#131B2D]/90 border border-white/10 backdrop-blur-xl shadow-[0_0_60px_rgba(138,87,255,0.2)] p-8">
                                 <p className="max-w-3xl mx-auto text-lg md:text-xl leading-relaxed text-white/90 text-center">
-                                    Web3Edu is an experimental learning environment where Web3 is not explained — it is experienced.
+                                    Web3Edu is an experimental learning environment where technical learning becomes hands-on, evidence-backed, and verifiable.
                                 </p>
                                 <p className="max-w-3xl mx-auto mt-4 text-base text-white/70 text-center">
-                                    You don't read about wallets, blockchains, or identity. You use them, step by step, on real infrastructure.
+                                    Start with Google Sign-In or connect a wallet, then learn step by step through real labs, tools, and guided interaction with educational blockchain infrastructure.
                                 </p>
                                 <p className="max-w-3xl mx-auto mt-4 text-base text-white/80 text-center font-medium">
-                                    This page tells you exactly how to begin.
+                                    This page shows you how to begin safely.
                                 </p>
                             </div>
                         </div>
@@ -67,7 +67,7 @@ const StartHere = () => {
 
                     {/* QUICK SETUP - MINIMAL VERSION */}
                     <StartCard
-                        title="Quick Setup (3 minutes)"
+                        title="Start with Web3Edu Identity"
                         color="#4ACBFF"
                         icon={
                             <svg className="w-6 h-6 text-[#4ACBFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,38 +82,41 @@ const StartHere = () => {
                                     Choose your start path
                                 </h3>
                                 <p className="text-sm text-white/70">
-                                    You can start <strong>without a wallet</strong> by creating a Web3Edu Identity using a secure browser key,
-                                    or start <strong>with a wallet</strong> (MetaMask) if you already have one.
+                                    The recommended path is <strong>Web3Edu Identity with Google Sign-In</strong>. It gives new learners faster access while keeping the wallet-first path available for users who prefer direct Web3 interaction.
                                 </p>
                                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                                     <div className="rounded-xl border border-[#8A57FF]/30 bg-[#8A57FF]/10 p-4">
-                                        <p className="text-sm font-semibold text-white">Option A — No wallet</p>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="text-sm font-semibold text-white">Option A — Web3Edu Identity</p>
+                                            <span className="rounded-full border border-[#4ACBFF]/30 bg-[#4ACBFF]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#4ACBFF]">
+                                                Recommended
+                                            </span>
+                                        </div>
                                         <p className="mt-1 text-xs text-white/70">
-                                            Create your Web3Edu Identity (smart account) and mint a <strong>dynamic</strong> Identity SBT.
-                                            Save a backup so you can restore it on another device.
+                                            Use Google Sign-In for faster access. Account Abstraction supports a smoother path toward wallet-based learning identity.
                                         </p>
                                     </div>
                                     <div className="rounded-xl border border-[#4ACBFF]/30 bg-[#4ACBFF]/10 p-4">
-                                        <p className="text-sm font-semibold text-white">Option B — With MetaMask</p>
+                                        <p className="text-sm font-semibold text-white">Option B — Wallet Sign-In</p>
                                         <p className="mt-1 text-xs text-white/70">
-                                            Connect your wallet, approve the educational network, and start the labs.
-                                            You can still use the same Web3Edu Identity experience.
+                                            Connect MetaMask directly, approve the educational network, and follow a wallet-first learning path.
                                         </p>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Simple Checklist */}
-                            <div className="grid md:grid-cols-3 gap-4">
-                                <SetupStep number="1" title="Create Identity (No Wallet)">
-                                    Go to Join → “Create Identity (No Wallet)” to generate a secure browser key and mint your dynamic Identity SBT.
-                                </SetupStep>
-                                <SetupStep number="2" title="Or Connect MetaMask">
-                                    If you prefer a wallet, install MetaMask and connect it. On mobile: open Web3Edu inside the MetaMask Browser.
-                                </SetupStep>
-                                <SetupStep number="3" title="Approve Network">
-                                    Accept Besu Edu‑Net. If no prompt appears, add it manually.
-                                </SetupStep>
+                                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                                    <button
+                                        onClick={() => navigate("/join")}
+                                        className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#8A57FF]/20 transition hover:-translate-y-0.5 hover:shadow-[#8A57FF]/30"
+                                    >
+                                        Continue with Web3Edu Identity
+                                    </button>
+                                    <button
+                                        onClick={() => navigate("/labs")}
+                                        className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white/85 transition hover:border-[#4ACBFF]/40 hover:text-white"
+                                    >
+                                        Browse Labs First
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Quick Tips */}
@@ -124,11 +127,24 @@ const StartHere = () => {
                                     </svg>
                                     <span>
                                         <strong>No real ETH or real money is used.</strong><br />
-                                        Web3Edu runs on an educational blockchain (Besu Edu‑Net) using <strong>EDU‑D</strong>, a <strong>test‑only, non‑monetary token</strong> created solely for learning.<br />
-                                        Your Web3Edu Identity is represented by a <strong>dynamic</strong> on-chain Identity SBT (soulbound &amp; non-transferable) that updates as you progress.<br />
-                                        <strong>Never share your private key</strong> (wallet) or any exported backup (no-wallet identity).
+                                        Web3Edu runs on an educational blockchain, Besu Edu‑Net, using <strong>EDU‑D</strong> — a <strong>test‑only, non‑monetary token</strong> created only for learning.<br />
+                                        Your Web3Edu Identity tracks learning progress and can support wallet-based evidence where appropriate.<br />
+                                        <strong>Never share your private key</strong>, recovery phrase, or exported identity backup.
                                     </span>
                                 </p>
+                            </div>
+
+                            {/* Simple Checklist */}
+                            <div className="grid md:grid-cols-3 gap-4">
+                                <SetupStep number="1" title="Sign in with Web3Edu Identity">
+                                    Use Google Sign-In to create or access your Web3Edu learning profile.
+                                </SetupStep>
+                                <SetupStep number="2" title="Open your Dashboard">
+                                    Check your identity state, XP, completed labs, and next recommendations.
+                                </SetupStep>
+                                <SetupStep number="3" title="Start Foundational Labs">
+                                    Begin with Lab 01 and build verifiable progress step by step.
+                                </SetupStep>
                             </div>
 
                             {/* Network Check Callout - ENHANCED */}
@@ -145,13 +161,13 @@ const StartHere = () => {
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <h4 className="font-semibold text-white text-sm">Verify Your Setup</h4>
+                                                <h4 className="font-semibold text-white text-sm">Using MetaMask? Check your wallet setup</h4>
                                                 <span className="px-2 py-0.5 rounded-full bg-[#4ACBFF]/20 text-[#4ACBFF] text-xs font-medium border border-[#4ACBFF]/30">
-                                                    Recommended
+                                                    Wallet Path
                                                 </span>
                                             </div>
                                             <p className="text-sm text-white/80 mb-3">
-                                                Not sure if everything is configured correctly? Run a quick diagnostic to verify your MetaMask, network connection, and wallet balance.
+                                                Google Sign-In users can continue directly. If you use MetaMask, run a quick diagnostic to verify your network connection and wallet balance.
                                             </p>
                                             <NetworkCheckButton
                                                 variant="primary"
@@ -179,7 +195,7 @@ const StartHere = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
                                     <span className="group-hover:underline">
-                                        {showSetupDetails ? 'Hide' : 'Show'} detailed setup guide & troubleshooting
+                                        {showSetupDetails ? 'Hide' : 'Show'} wallet path setup & troubleshooting (MetaMask)
                                     </span>
                                 </button>
 
@@ -283,8 +299,8 @@ const StartHere = () => {
                                             </h4>
                                             <div className="space-y-3 text-sm">
                                                 <FAQItem
-                                                    question="How does sign-in work if I skip a wallet or Web3Edu account?"
-                                                    answer="Starting that way creates a simple device-based identity on this browser or device. You can keep learning here, and if you later connect a Web3Edu account or a wallet, signing in again is often easier."
+                                                    question="Do I need a wallet to start?"
+                                                    answer="No. Web3Edu Identity with Google Sign-In is the fastest path. You can connect a wallet later when a lab or activity needs wallet-based evidence."
                                                 />
                                                 <FAQItem
                                                     question="Do I need real ETH?"
@@ -296,7 +312,7 @@ const StartHere = () => {
                                                 />
                                                 <FAQItem
                                                     question="Can I use a different wallet?"
-                                                    answer="MetaMask is required for the best experience. Other Web3 wallets may work but aren't officially supported."
+                                                    answer="For the Google Sign-In path, no wallet is needed. If you use the Wallet path, MetaMask is required for the best experience. Other Web3 wallets may work but are not officially supported."
                                                 />
                                                 <FAQItem
                                                     question="Can I join from mobile?"
@@ -304,7 +320,7 @@ const StartHere = () => {
                                                 />
                                                 <FAQItem
                                                     question="What if I lose access to my wallet?"
-                                                    answer="You can create a new wallet and start fresh. If you used the no-wallet option, restore your Web3Edu Identity from your exported backup to recover access on a new device."
+                                                    answer="You can create a new wallet and continue with your Web3Edu account. Wallet-based activity may need to be re-linked depending on the lab or credential."
                                                 />
                                             </div>
                                         </div>
@@ -314,9 +330,40 @@ const StartHere = () => {
                         </div>
                     </StartCard>
 
+                    {/* WHAT HAPPENS NEXT */}
+                    <StartCard
+                        title="What happens after sign-in"
+                        color="#4ACBFF"
+                        icon={
+                            <svg className="w-6 h-6 text-[#4ACBFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        }
+                    >
+                        <div className="grid gap-3 md:grid-cols-5">
+                            {[
+                                ["1", "Sign in"],
+                                ["2", "Dashboard"],
+                                ["3", "Foundational Labs"],
+                                ["4", "Verifiable Progress"],
+                                ["5", "Builder Projects"],
+                            ].map(([number, label]) => (
+                                <div key={label} className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center">
+                                    <div className="mx-auto mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#8A57FF]/40 to-[#4ACBFF]/40 text-sm font-bold text-white">
+                                        {number}
+                                    </div>
+                                    <p className="text-sm font-semibold text-white">{label}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <p className="mt-5 text-center text-sm text-white/65">
+                            Start with identity, use the dashboard to see your next step, then build evidence-backed progress through labs and projects.
+                        </p>
+                    </StartCard>
+
                     {/* WHO THIS IS FOR */}
                     <StartCard
-                        title="Who this is for (v1)"
+                        title="Who this is for"
                         color="#8A57FF"
                         icon={
                             <svg className="w-6 h-6 text-[#8A57FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,7 +372,7 @@ const StartHere = () => {
                         }
                     >
                         <p className="text-lg text-white/90 mb-6">
-                            Right now, Web3Edu is designed for <strong>students and early learners</strong>.
+                            Right now, Web3Edu is designed mainly for <strong>students, early learners, and curious builders</strong> who want to understand Web3 by using real infrastructure safely.
                         </p>
 
                         <div className="space-y-3">
@@ -336,13 +383,10 @@ const StartHere = () => {
                                 Willing to experiment and break things safely
                             </ListItem>
                             <ListItem icon="✓" color="#8A57FF">
-                                Interested in understanding how things actually work
+                                Interested in understanding how wallets, transactions, identity, and on-chain evidence actually work
                             </ListItem>
                         </div>
 
-                        <p className="mt-6 text-sm text-white/60 italic">
-                            Educator and Builder paths will be added later. For v1, we focus on doing one thing well.
-                        </p>
                     </StartCard>
 
                     {/* HOW WEB3EDU WORKS */}
@@ -379,7 +423,7 @@ const StartHere = () => {
                         </div>
 
                         <p className="mt-6 text-base text-white/70 text-center italic">
-                            There are no quizzes, no slides, and no fake demos. Progress is earned by doing.
+                            Web3Edu focuses on doing: labs, tools, and real interaction instead of passive completion.
                         </p>
                     </StartCard>
 
@@ -497,7 +541,7 @@ const StartHere = () => {
                                 <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <span className="text-base text-white/70">A course platform</span>
+                                <span className="text-base text-white/70">A traditional course platform</span>
                             </div>
                             <div className="flex items-center gap-3 rounded-lg p-4 border border-white/10 bg-white/[0.02]">
                                 <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -509,13 +553,13 @@ const StartHere = () => {
                                 <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <span className="text-base text-white/70">A marketing funnel</span>
+                                <span className="text-base text-white/70">A financial or investment platform</span>
                             </div>
                             <div className="flex items-center gap-3 rounded-lg p-4 border border-white/10 bg-white/[0.02]">
                                 <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <span className="text-base text-white/70">A simulation</span>
+                                <span className="text-base text-white/70">A fake simulation environment</span>
                             </div>
                         </div>
                     </StartCard>
@@ -548,7 +592,7 @@ const StartHere = () => {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         <span>
-                                            Not sure if your wallet is ready?{" "}
+                                            Using MetaMask and not sure it is ready?{" "}
                                             <NetworkCheckButton variant="inline">
                                                 Run a quick check
                                             </NetworkCheckButton>
@@ -556,10 +600,19 @@ const StartHere = () => {
                                         </span>
                                     </p>
                                 </div>
-                                <div className="flex-shrink-0">
+                                <div className="flex-shrink-0 flex flex-col gap-3 sm:flex-row md:flex-col">
+                                    <button
+                                        onClick={() => navigate("/join")}
+                                        className="px-8 py-4 bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-white font-semibold rounded-xl shadow-lg hover:shadow-[0_0_30px_rgba(138,87,255,0.4)] transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                    >
+                                        <span>Continue with Web3Edu Identity</span>
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </button>
                                     <button
                                         onClick={() => navigate("/labs")}
-                                        className="px-8 py-4 bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-white font-semibold rounded-xl shadow-lg hover:shadow-[0_0_30px_rgba(138,87,255,0.4)] transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
+                                        className="px-8 py-4 border border-white/15 bg-white/[0.04] text-white/85 font-semibold rounded-xl hover:border-[#4ACBFF]/40 hover:text-white transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
                                     >
                                         <span>Go to Labs</span>
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

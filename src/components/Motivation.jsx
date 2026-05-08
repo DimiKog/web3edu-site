@@ -37,7 +37,7 @@ const Motivation = ({ content }) => {
             "gamified challenges",
             "decentralized systems",
             "verifiable credentials",
-            "DAO participation",
+            "participation research",
             // Greek phrases
             "μαθήματα",
             "πρακτικά εργαλεία",
@@ -46,7 +46,7 @@ const Motivation = ({ content }) => {
             "παιχνιδοποιημένα challenges",
             "αποκεντρωμένα συστήματα",
             "επαληθεύσιμα διαπιστευτήρια",
-            "συμμετοχή στο DAO",
+            "participation research",
         ];
 
         const escapeRegex = (str) =>

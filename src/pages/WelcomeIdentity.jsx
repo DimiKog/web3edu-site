@@ -176,7 +176,7 @@ const WelcomeIdentity = () => {
                         your <strong>on-chain learning identity</strong> (soulbound &amp; non-transferable) that
                         updates as you learn.
                         This token unlocks access to your <strong>progress tracking</strong>, <strong>achievements</strong>,
-                        and upcoming <strong>DAO participation features</strong> across the Web3Edu ecosystem.
+                        and upcoming <strong>participation research features</strong> across the Web3Edu ecosystem.
                     </p>
 
                     {/* Middle: Completed steps summary */}

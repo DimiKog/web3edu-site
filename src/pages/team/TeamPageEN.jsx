@@ -81,7 +81,7 @@ Founder`}
                                     discord: "https://discordapp.com/users/758370279919058986"
                                 }}
                                 bio={`— Leading the vision and research direction of Web3Edu.
-— Architecting the full learning → certification → DAO participation pathway.
+— Architecting the full learning → certification → participation research pathway.
 
 Dimitris is a blockchain researcher specializing in Web3 educational ecosystems, Besu-based networks, zero-knowledge proofs, and secure decentralized architectures. As the founder and lead architect of Web3Edu, he defines the platform’s strategic direction and designs hands-on learning frameworks that connect academic research with real-world decentralized applications.`}
                             />
@@ -127,9 +127,9 @@ Founder`}
                                 badges={["Decentralized Governance", "Participation Models", "Community Operations"]}
                                 socials={{ github: "", linkedin: "https://www.linkedin.com/in/tonia-damvakeraki-1a028a/", discord: "" }}
                                 bio={`— Designing responsible governance and participation models for Web3Edu.
-— Bridging governance research with real operational practices inside the DAO.
+— Bridging governance research with real operational practices and community feedback loops.
 
-Tonia specializes in decentralized governance and DAO participation systems. She leads Web3Edu’s Governance and DAO Research sector, contributing to the design of sustainable governance mechanisms, community engagement models, and the operational coordination that enables a healthy decentralized ecosystem.`}
+Tonia specializes in decentralized governance and participation models. She leads Web3Edu’s Governance and DAO Research sector, contributing to the design of sustainable governance mechanisms, community engagement models, and the operational coordination that enables a healthy decentralized ecosystem.`}
                             />
                         </div>
                         <div className="w-full h-px my-12 sm:my-16 bg-gradient-to-r from-transparent via-[#8A57FF]/35 to-transparent"></div>
@@ -166,7 +166,7 @@ Michael leads Web3Edu’s Infrastructure and Community Operations sector. He sup
                             </p>
                             <p className="mb-3">
                                 Knowledge, participation, and contribution are transformed into
-                                <strong> verifiable credentials</strong>, linked to Soulbound Tokens and DAO participation.
+                                <strong> verifiable credentials</strong>, linked to Soulbound Tokens and participation research.
                             </p>
                             <p>
                                 The Web3Edu team designs and supports this infrastructure, bridging

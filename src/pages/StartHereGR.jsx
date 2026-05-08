@@ -53,13 +53,13 @@ const StartHereGR = () => {
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] rounded-2xl opacity-25 group-hover:opacity-45 blur-sm transition-opacity duration-500" />
                             <div className="relative rounded-2xl bg-gradient-to-br from-[#0A0F1A]/90 via-[#111626]/90 to-[#131B2D]/90 border border-white/10 backdrop-blur-xl shadow-[0_0_60px_rgba(138,87,255,0.2)] p-8">
                                 <p className="max-w-3xl mx-auto text-lg md:text-xl leading-relaxed text-white/90 text-center">
-                                    Το Web3Edu είναι ένα πειραματικό μαθησιακό περιβάλλον όπου το Web3 δεν εξηγείται — βιώνεται.
+                                    Το Web3Edu είναι ένα πειραματικό μαθησιακό περιβάλλον όπου η τεχνική μάθηση γίνεται hands-on, evidence-backed και επαληθεύσιμη.
                                 </p>
                                 <p className="max-w-3xl mx-auto mt-4 text-base text-white/70 text-center">
-                                    Δεν διαβάζετε για πορτοφόλια, blockchains ή ταυτότητα. Τα χρησιμοποιείτε, βήμα-βήμα, πάνω σε πραγματική υποδομή.
+                                    Ξεκίνα με Google Sign-In ή σύνδεσε wallet, και μάθε βήμα προς βήμα μέσα από πραγματικά labs, εργαλεία και καθοδηγούμενη αλληλεπίδραση με εκπαιδευτική blockchain υποδομή.
                                 </p>
                                 <p className="max-w-3xl mx-auto mt-4 text-base text-white/80 text-center font-medium">
-                                    Αυτή η σελίδα σας λέει ακριβώς πώς να ξεκινήσετε.
+                                    Αυτή η σελίδα δείχνει πώς να ξεκινήσεις με ασφάλεια.
                                 </p>
                             </div>
                         </div>
@@ -67,7 +67,7 @@ const StartHereGR = () => {
 
                     {/* QUICK SETUP - MINIMAL VERSION */}
                     <StartCard
-                        title="Γρήγορη Ρύθμιση (3 λεπτά)"
+                        title="Ξεκίνα με Web3Edu Identity"
                         color="#4ACBFF"
                         icon={
                             <svg className="w-6 h-6 text-[#4ACBFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,38 +82,41 @@ const StartHereGR = () => {
                                     Διάλεξε πώς θα ξεκινήσεις
                                 </h3>
                                 <p className="text-sm text-white/70">
-                                    Μπορείς να ξεκινήσεις <strong>χωρίς wallet</strong> δημιουργώντας Web3Edu Identity με ασφαλές κλειδί στον browser,
-                                    ή να ξεκινήσεις <strong>με wallet</strong> (MetaMask) αν ήδη χρησιμοποιείς.
+                                    Η προτεινόμενη διαδρομή είναι το <strong>Web3Edu Identity με Google Sign-In</strong>. Δίνει στους νέους learners πιο γρήγορη πρόσβαση, ενώ κρατά διαθέσιμο το wallet-first path για όσους προτιμούν άμεση Web3 αλληλεπίδραση.
                                 </p>
                                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                                     <div className="rounded-xl border border-[#8A57FF]/30 bg-[#8A57FF]/10 p-4">
-                                        <p className="text-sm font-semibold text-white">Επιλογή A — Χωρίς wallet</p>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="text-sm font-semibold text-white">Επιλογή A — Web3Edu Identity</p>
+                                            <span className="rounded-full border border-[#4ACBFF]/30 bg-[#4ACBFF]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#4ACBFF]">
+                                                Προτείνεται
+                                            </span>
+                                        </div>
                                         <p className="mt-1 text-xs text-white/70">
-                                            Δημιούργησε Web3Edu Identity (smart account) και έκδωσε ένα <strong>δυναμικό</strong> Identity SBT.
-                                            Κάνε backup για να το επαναφέρεις σε άλλη συσκευή.
+                                            Χρησιμοποίησε Google Sign-In για πιο γρήγορη πρόσβαση. Το Account Abstraction υποστηρίζει πιο ομαλή πορεία προς wallet-based μαθησιακή ταυτότητα.
                                         </p>
                                     </div>
                                     <div className="rounded-xl border border-[#4ACBFF]/30 bg-[#4ACBFF]/10 p-4">
-                                        <p className="text-sm font-semibold text-white">Επιλογή B — Με MetaMask</p>
+                                        <p className="text-sm font-semibold text-white">Επιλογή B — Wallet Sign-In</p>
                                         <p className="mt-1 text-xs text-white/70">
-                                            Σύνδεσε το wallet σου, ενέκρινε το εκπαιδευτικό δίκτυο και ξεκίνα τα labs.
-                                            Μπορείς να έχεις την ίδια εμπειρία Web3Edu Identity.
+                                            Σύνδεσε απευθείας MetaMask, ενέκρινε το εκπαιδευτικό δίκτυο και ακολούθησε wallet-first μαθησιακή διαδρομή.
                                         </p>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* Simple Checklist */}
-                            <div className="grid md:grid-cols-3 gap-4">
-                                <SetupStep number="1" title="Δημιουργία Identity (Χωρίς Wallet)">
-                                    Πήγαινε στο Join → “Δημιουργία Identity (Χωρίς Wallet)” για ασφαλές κλειδί στον browser και έκδοση δυναμικού Identity SBT.
-                                </SetupStep>
-                                <SetupStep number="2" title="Ή Σύνδεση MetaMask">
-                                    Αν προτιμάς wallet, εγκατέστησε MetaMask και σύνδεσέ το. Σε κινητό: άνοιξε το Web3Edu από το MetaMask Browser.
-                                </SetupStep>
-                                <SetupStep number="3" title="Έγκριση δικτύου">
-                                    Αποδεχτείτε το Besu Edu‑Net. Αν δεν εμφανιστεί prompt, προσθέστε το χειροκίνητα.
-                                </SetupStep>
+                                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                                    <button
+                                        onClick={() => navigate("/join-gr")}
+                                        className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#8A57FF]/20 transition hover:-translate-y-0.5 hover:shadow-[#8A57FF]/30"
+                                    >
+                                        Συνέχεια με Web3Edu Identity
+                                    </button>
+                                    <button
+                                        onClick={() => navigate("/labs-gr")}
+                                        className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white/85 transition hover:border-[#4ACBFF]/40 hover:text-white"
+                                    >
+                                        Δες πρώτα τα Labs
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Quick Tips */}
@@ -123,12 +126,25 @@ const StartHereGR = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <span>
-                                        <strong>Δεν χρειάζεται πραγματικό ETH ή πραγματικά χρήματα</strong> — αυτό είναι εκπαιδευτικό δίκτυο.
-                                        Χρησιμοποιείται το δοκιμαστικό token <strong>EDU‑D</strong>, το οποίο δεν έχει καμία χρηματική αξία.
-                                        Η Web3Edu ταυτότητά σου εκπροσωπείται από ένα <strong>δυναμικό</strong> on-chain Identity SBT (soulbound &amp; μη μεταβιβάσιμο) που ενημερώνεται καθώς προχωράς.
-                                        <strong>Μη μοιράζεσαι ποτέ το private key</strong> (wallet) ή οποιοδήποτε exported backup (χωρίς wallet).
+                                        <strong>Δεν χρειάζεται πραγματικό ETH ή πραγματικά χρήματα.</strong><br />
+                                        Το Web3Edu τρέχει σε εκπαιδευτικό blockchain, το Besu Edu‑Net, χρησιμοποιώντας <strong>EDU‑D</strong> — ένα <strong>test-only, μη χρηματικό token</strong> που δημιουργήθηκε μόνο για μάθηση.<br />
+                                        Το Web3Edu Identity παρακολουθεί την πρόοδο και μπορεί να υποστηρίξει wallet-based evidence όπου χρειάζεται.<br />
+                                        <strong>Μη μοιράζεσαι ποτέ private key</strong>, recovery phrase ή exported identity backup.
                                     </span>
                                 </p>
+                            </div>
+
+                            {/* Simple Checklist */}
+                            <div className="grid md:grid-cols-3 gap-4">
+                                <SetupStep number="1" title="Σύνδεση με Web3Edu Identity">
+                                    Χρησιμοποίησε Google Sign-In για να δημιουργήσεις ή να ανοίξεις το Web3Edu learning profile σου.
+                                </SetupStep>
+                                <SetupStep number="2" title="Άνοιγμα Dashboard">
+                                    Δες την ταυτότητα, το XP, τα ολοκληρωμένα labs και τις επόμενες προτάσεις.
+                                </SetupStep>
+                                <SetupStep number="3" title="Έναρξη Foundational Labs">
+                                    Ξεκίνα από το Lab 01 και χτίσε επαληθεύσιμη πρόοδο βήμα προς βήμα.
+                                </SetupStep>
                             </div>
                             {/* Network Check Callout - ENHANCED */}
                             <div className="relative group/netcheck">
@@ -144,13 +160,13 @@ const StartHereGR = () => {
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
-                                                <h4 className="font-semibold text-white text-sm">Επαληθεύστε τη ρύθμισή σας</h4>
+                                                <h4 className="font-semibold text-white text-sm">Χρησιμοποιείς MetaMask; Έλεγξε το wallet setup</h4>
                                                 <span className="px-2 py-0.5 rounded-full bg-[#4ACBFF]/20 text-[#4ACBFF] text-xs font-medium border border-[#4ACBFF]/30">
-                                                    Προτείνεται
+                                                    Wallet Path
                                                 </span>
                                             </div>
                                             <p className="text-sm text-white/80 mb-3">
-                                                Δεν είστε σίγουροι ότι όλα έχουν ρυθμιστεί σωστά; Τρέξτε έναν γρήγορο έλεγχο για να επιβεβαιώσετε το MetaMask, τη σύνδεση δικτύου και το υπόλοιπο του πορτοφολιού σας.
+                                                Οι χρήστες Google Sign-In μπορούν να συνεχίσουν απευθείας. Αν χρησιμοποιείς MetaMask, τρέξε έναν γρήγορο έλεγχο για σύνδεση δικτύου και υπόλοιπο wallet.
                                             </p>
                                             <NetworkCheckButton
                                                 variant="primary"
@@ -178,7 +194,7 @@ const StartHereGR = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
                                     <span className="group-hover:underline">
-                                        {showSetupDetails ? 'Απόκρυψη' : 'Εμφάνιση'} λεπτομερούς οδηγού ρύθμισης & αντιμετώπισης προβλημάτων
+                                        {showSetupDetails ? 'Απόκρυψη' : 'Εμφάνιση'} οδηγού Wallet Path & αντιμετώπισης προβλημάτων (MetaMask)
                                     </span>
                                 </button>
 
@@ -282,8 +298,8 @@ const StartHereGR = () => {
                                             </h4>
                                             <div className="space-y-3 text-sm">
                                                 <FAQItem
-                                                    question="Πώς λειτουργεί η είσοδος αν ξεκινήσω χωρίς πορτοφόλι ή λογαριασμό Web3Edu;"
-                                                    answer="Έτσι δημιουργείται μια απλή ταυτότητα σε αυτό το πρόγραμμα και τη συσκευή σου. Μπορείς να μαθαίνεις κανονικά εδώ, και αν αργότερα συνδέσεις λογαριασμό Web3Edu ή πορτοφόλι, η επανείσοδος γίνεται συνήθως πιο εύκολη."
+                                                    question="Χρειάζομαι wallet για να ξεκινήσω;"
+                                                    answer="Όχι. Το Web3Edu Identity με Google Sign-In είναι η πιο γρήγορη διαδρομή. Μπορείς να συνδέσεις wallet αργότερα όταν κάποιο lab ή δραστηριότητα χρειάζεται wallet-based evidence."
                                                 />
                                                 <FAQItem
                                                     question="Χρειάζομαι πραγματικό ETH;"
@@ -295,7 +311,7 @@ const StartHereGR = () => {
                                                 />
                                                 <FAQItem
                                                     question="Μπορώ να χρησιμοποιήσω άλλο πορτοφόλι;"
-                                                    answer="Το MetaMask απαιτείται για την καλύτερη εμπειρία. Άλλα Web3 πορτοφόλια ίσως λειτουργούν, αλλά δεν υποστηρίζονται επίσημα."
+                                                    answer="Για τη διαδρομή Google Sign-In δεν χρειάζεται wallet. Αν χρησιμοποιείς το Wallet Path, το MetaMask απαιτείται για την καλύτερη εμπειρία. Άλλα Web3 wallets ίσως λειτουργούν, αλλά δεν υποστηρίζονται επίσημα."
                                                 />
                                                 <FAQItem
                                                     question="Μπορώ να συμμετέχω από κινητό;"
@@ -303,7 +319,7 @@ const StartHereGR = () => {
                                                 />
                                                 <FAQItem
                                                     question="Τι γίνεται αν χάσω την πρόσβαση στο πορτοφόλι μου;"
-                                                    answer="Μπορείς να δημιουργήσεις νέο wallet και να ξεκινήσεις από την αρχή. Αν χρησιμοποίησες την επιλογή χωρίς wallet, κάνε επαναφορά του Web3Edu Identity από το exported backup για πρόσβαση από νέα συσκευή."
+                                                    answer="Μπορείς να δημιουργήσεις νέο wallet και να συνεχίσεις με τον Web3Edu λογαριασμό σου. Wallet-based δραστηριότητα ίσως χρειαστεί επανασύνδεση, ανάλογα με το lab ή credential."
                                                 />
                                             </div>
                                         </div>
@@ -313,9 +329,40 @@ const StartHereGR = () => {
                         </div>
                     </StartCard>
 
+                    {/* WHAT HAPPENS NEXT */}
+                    <StartCard
+                        title="Τι συμβαίνει μετά τη σύνδεση"
+                        color="#4ACBFF"
+                        icon={
+                            <svg className="w-6 h-6 text-[#4ACBFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        }
+                    >
+                        <div className="grid gap-3 md:grid-cols-5">
+                            {[
+                                ["1", "Σύνδεση"],
+                                ["2", "Dashboard"],
+                                ["3", "Foundational Labs"],
+                                ["4", "Επαληθεύσιμη Πρόοδος"],
+                                ["5", "Builder Projects"],
+                            ].map(([number, label]) => (
+                                <div key={label} className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-center">
+                                    <div className="mx-auto mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#8A57FF]/40 to-[#4ACBFF]/40 text-sm font-bold text-white">
+                                        {number}
+                                    </div>
+                                    <p className="text-sm font-semibold text-white">{label}</p>
+                                </div>
+                            ))}
+                        </div>
+                        <p className="mt-5 text-center text-sm text-white/65">
+                            Ξεκίνα με την ταυτότητα, χρησιμοποίησε το dashboard για το επόμενο βήμα και χτίσε evidence-backed πρόοδο μέσα από labs και projects.
+                        </p>
+                    </StartCard>
+
                     {/* WHO THIS IS FOR */}
                     <StartCard
-                        title="Για ποιον είναι (v1)"
+                        title="Για ποιον είναι"
                         color="#8A57FF"
                         icon={
                             <svg className="w-6 h-6 text-[#8A57FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,7 +371,7 @@ const StartHereGR = () => {
                         }
                     >
                         <p className="text-lg text-white/90 mb-6">
-                            Προς το παρόν, το Web3Edu είναι σχεδιασμένο για <strong>φοιτητές και αρχάριους μαθητές</strong>.
+                            Προς το παρόν, το Web3Edu είναι σχεδιασμένο κυρίως για <strong>φοιτητές, αρχάριους learners και curious builders</strong> που θέλουν να κατανοήσουν το Web3 χρησιμοποιώντας πραγματική υποδομή με ασφάλεια.
                         </p>
 
                         <div className="space-y-3">
@@ -335,13 +382,10 @@ const StartHereGR = () => {
                                 Πρόθυμοι να πειραματιστείτε και να «σπάσετε» πράγματα με ασφάλεια
                             </ListItem>
                             <ListItem icon="✓" color="#8A57FF">
-                                Ενδιαφέρεστε να κατανοήσετε πώς λειτουργούν πραγματικά τα πράγματα
+                                Ενδιαφέρεστε να κατανοήσετε πώς λειτουργούν πραγματικά τα wallets, οι συναλλαγές, η ταυτότητα και το on-chain evidence
                             </ListItem>
                         </div>
 
-                        <p className="mt-6 text-sm text-white/60 italic">
-                            Οι διαδρομές για Εκπαιδευτικούς και Builders θα προστεθούν αργότερα. Για την v1, εστιάζουμε στο να κάνουμε ένα πράγμα καλά.
-                        </p>
                     </StartCard>
 
                     {/* HOW WEB3EDU WORKS */}
@@ -378,7 +422,7 @@ const StartHereGR = () => {
                         </div>
 
                         <p className="mt-6 text-base text-white/70 text-center italic">
-                            Δεν υπάρχουν κουίζ, διαφάνειες ή ψεύτικα demos. Η πρόοδος κερδίζεται με την πράξη.
+                            Το Web3Edu εστιάζει στην πράξη: labs, εργαλεία και πραγματική αλληλεπίδραση αντί για παθητική ολοκλήρωση.
                         </p>
                     </StartCard>
 
@@ -496,7 +540,7 @@ const StartHereGR = () => {
                                 <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <span className="text-base text-white/70">Πλατφόρμα μαθημάτων</span>
+                                <span className="text-base text-white/70">Παραδοσιακή πλατφόρμα μαθημάτων</span>
                             </div>
                             <div className="flex items-center gap-3 rounded-lg p-4 border border-white/10 bg-white/[0.02]">
                                 <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -508,13 +552,13 @@ const StartHereGR = () => {
                                 <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <span className="text-base text-white/70">Marketing funnel</span>
+                                <span className="text-base text-white/70">Χρηματοοικονομική ή επενδυτική πλατφόρμα</span>
                             </div>
                             <div className="flex items-center gap-3 rounded-lg p-4 border border-white/10 bg-white/[0.02]">
                                 <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
-                                <span className="text-base text-white/70">Μια προσομοίωση</span>
+                                <span className="text-base text-white/70">Περιβάλλον ψεύτικης προσομοίωσης</span>
                             </div>
                         </div>
                     </StartCard>
@@ -547,7 +591,7 @@ const StartHereGR = () => {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         <span>
-                                            Δεν είστε σίγουροι ότι το πορτοφόλι σας είναι έτοιμο;{" "}
+                                            Χρησιμοποιείς MetaMask και δεν είσαι σίγουρος/η ότι είναι έτοιμο;{" "}
                                             <NetworkCheckButton variant="inline">
                                                 Κάντε έναν γρήγορο έλεγχο
                                             </NetworkCheckButton>
@@ -555,10 +599,19 @@ const StartHereGR = () => {
                                         </span>
                                     </p>
                                 </div>
-                                <div className="flex-shrink-0">
+                                <div className="flex-shrink-0 flex flex-col gap-3 sm:flex-row md:flex-col">
                                     <button
-                                        onClick={() => navigate("/labs")}
-                                        className="px-8 py-4 bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-white font-semibold rounded-xl shadow-lg hover:shadow-[0_0_30px_rgba(138,87,255,0.4)] transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
+                                        onClick={() => navigate("/join-gr")}
+                                        className="px-8 py-4 bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-white font-semibold rounded-xl shadow-lg hover:shadow-[0_0_30px_rgba(138,87,255,0.4)] transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                    >
+                                        <span>Συνέχεια με Web3Edu Identity</span>
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => navigate("/labs-gr")}
+                                        className="px-8 py-4 border border-white/15 bg-white/[0.04] text-white/85 font-semibold rounded-xl hover:border-[#4ACBFF]/40 hover:text-white transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
                                     >
                                         <span>Μετάβαση στα Εργαστήρια</span>
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

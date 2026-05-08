@@ -116,6 +116,11 @@ const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
                             {discordLabel}
                         </a>
                     </div>
+                    {content.entryNote && (
+                        <p className="max-w-xl text-sm font-medium leading-6 text-slate-200/85 animate-fade-up delay-300">
+                            {content.entryNote}
+                        </p>
+                    )}
                 </div>
 
             </div>

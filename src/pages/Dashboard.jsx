@@ -1512,11 +1512,11 @@ export default function Dashboard() {
                                 </div>
                                 {(metadata?.tier === "Builder" || metadata?.tier === "Architect") ? (
                                     <div className="mt-2 rounded-xl border border-emerald-200/60 bg-emerald-50/70 px-3 py-2.5 text-xs font-semibold text-emerald-700 dark:border-emerald-700/30 dark:bg-emerald-900/20 dark:text-emerald-300">
-                                        🟢 DAO Governance Active
+                                        🟢 Governance Research Active
                                     </div>
                                 ) : (
                                     <div className="mt-2 rounded-xl border border-slate-200/70 bg-white/45 px-3 py-2.5 text-xs text-slate-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-400">
-                                        🔒 Reach Builder to unlock DAO governance
+                                        🔒 Reach Builder to unlock governance research
                                     </div>
                                 )}
                             </DashboardCard>

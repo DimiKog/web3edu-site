@@ -9,19 +9,19 @@ const DEFAULT_STEPS = [
         desc: "Create your Web3 identity and learn the core concepts needed to interact safely with decentralized systems."
     },
     {
-        title: "Access the DAO",
-        emoji: "🏛️",
-        desc: "Unlock DAO access, verify your progress, and join a learner-driven Web3 community."
+        title: "Learn by Doing",
+        emoji: "🧪",
+        desc: "Move from concepts into guided labs, tasks, and applied technical practice."
     },
     {
-        title: "Participate",
-        emoji: "🤝",
-        desc: "Vote, propose ideas, collaborate, and contribute to real Web3 experiments."
+        title: "Build Verifiable Progress",
+        emoji: "✅",
+        desc: "Turn completed activity into evidence-backed progress records that can be reviewed and extended."
     },
     {
-        title: "Build",
+        title: "Projects & Contribution",
         emoji: "🛠️",
-        desc: "Turn concepts into prototypes and build your own Web3 applications."
+        desc: "Apply your learning in projects, prototypes, and contribution opportunities."
     }
 ];
 

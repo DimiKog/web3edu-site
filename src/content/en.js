@@ -4,9 +4,10 @@ const en = {
     // -------------------------
     hero: {
         welcome: "Welcome to Web3Edu",
-        headline: "A Web3-native learning identity that grows with the ecosystem",
+        headline: "Evidence-backed technical learning that grows with your progress",
         tagline: "Proof of learning, not proof of attendance",
-        desc: "Build real Web3 skills through hands-on labs and experiments, earn verifiable on-chain credentials, and carry your learning identity across networks, tools, and communities.",
+        desc: "Explore hands-on technical learning with verifiable, evidence-backed progress records across labs, tools, and applied projects.",
+        entryNote: "Start with Google sign-in through Web3Edu Identity, or connect a wallet if you prefer a wallet-first path.",
         cta: "Start Learning",
     },
 
@@ -17,11 +18,26 @@ const en = {
         heading: "Why Web3Edu?",
         detailHeading: "Our Mission",
         badgeText: "Because learning Web3 should be empowering.",
+        summary: "Web3Edu turns learning into a practical, verifiable identity. Learners use real Web3 workflows, complete hands-on labs, and carry their progress across the platform.",
+        points: [
+            {
+                title: "Learn by interacting",
+                description: "Labs and tools ask learners to use wallets, signatures, transactions, consensus, and governance directly.",
+            },
+            {
+                title: "Make progress verifiable",
+                description: "Completion, XP, and identity state give each learner a durable record of what they have done.",
+            },
+            {
+                title: "Move toward contribution",
+                description: "The path leads from fundamentals into participation research, builder projects, and applied experimentation.",
+            },
+        ],
         body: `Web3Edu treats learning as a first-class Web3 concept — not as content to consume, but as identity to build.
 
 Learners develop real blockchain skills through hands-on labs, experiments, and direct interaction with decentralized systems. Each step of progress becomes verifiable, composable, and reusable across the ecosystem.
 
-With on-chain credentials and participation in the Web3Edu DAO, learning does not end at completion. It evolves through contribution, collaboration, and shared governance — shaping both the learner and the platform itself.`,
+With evidence-backed progress records and structured contribution paths, learning does not end at completion. It evolves through collaboration, applied experimentation, and participation research.`,
     },
 
     // -------------------------
@@ -38,74 +54,132 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
                 desc: "Establish your Web3 learning identity and grasp the core blockchain concepts."
             },
             {
-                emoji: "🏛️",
-                title: "Access the DAO",
-                desc: "Join the Web3Edu DAO and unlock participation in a learner-driven ecosystem."
-            },
-            {
                 emoji: "📘",
                 title: "Learn by Doing",
                 desc: "Explore blockchain concepts through hands-on labs and guided experiments."
             },
             {
+                emoji: "✅",
+                title: "Build Verifiable Progress",
+                desc: "Record completed work, XP, and learning evidence as your Web3Edu profile develops."
+            },
+            {
                 emoji: "🛠️",
-                title: "Build & Contribute",
-                desc: "Apply what you learned by building prototypes and shaping what comes next."
+                title: "Projects & Contribution",
+                desc: "Apply what you learned through Builder projects, prototypes, and guided technical contribution."
             }
         ],
         ctaLabel: "Start Your Web3 Journey →",
     },
 
     // -------------------------
+    // HOMEPAGE PATHS
+    // -------------------------
+    choosePath: {
+        badge: "Choose Your Path",
+        title: "Start with the path that fits your goal",
+        description:
+            "Web3Edu has multiple entry points. Pick the one that matches where you are now, then move through the platform step by step.",
+        cards: [
+            {
+                icon: "learner",
+                title: "New Learner",
+                description: "Create your Web3Edu Identity with Google sign-in, check your setup, and begin with the first guided lab.",
+                href: "/#/start-here",
+                cta: "Start Here",
+            },
+            {
+                icon: "labs",
+                title: "Explore Labs",
+                description: "Work through core, system, DAO, coding, and project labs with progress tracking.",
+                href: "/#/labs",
+                cta: "Browse Labs",
+            },
+            {
+                icon: "tools",
+                title: "Use Tools",
+                description: "Open protocol visualizers for mining and proof-of-stake mechanics.",
+                href: "/#/tools",
+                cta: "Open Tools",
+            },
+            {
+                icon: "builder",
+                title: "Builder Path",
+                description: "Move into applied projects once your learning profile reaches Builder readiness.",
+                href: "/#/projects",
+                cta: "View Projects",
+            },
+        ],
+    },
+
+    availableNow: {
+        badge: "Available Now",
+        title: "What you can use today",
+        description:
+            "Start with the live learning areas: labs, visual tools, Proof of Escape, identity tracking, and Builder projects that unlock as you progress.",
+        items: [
+            {
+                icon: "labs",
+                title: "Labs",
+                description: "Foundational, system, DAO, coding, and project labs in one learning area.",
+                href: "/#/labs",
+                cta: "Explore Labs",
+                meta: "Live",
+            },
+            {
+                icon: "poe",
+                title: "Proof of Escape",
+                description: "An applied on-chain challenge that validates Web3 concepts through interaction.",
+                href: "/#/labs/proof-of-escape",
+                cta: "Open Challenge",
+                meta: "Live",
+            },
+            {
+                icon: "tools",
+                title: "Developer Tools",
+                description: "Mining and PoS visualizers for inspecting protocol behavior step by step.",
+                href: "/#/tools",
+                cta: "Open Tools",
+                meta: "2 tools",
+            },
+            {
+                icon: "projects",
+                title: "Projects",
+                description: "Builder-level investigation challenges that unlock as learners progress.",
+                href: "/#/projects",
+                cta: "View Projects",
+                meta: "Gated",
+            },
+            {
+                icon: "identity",
+                title: "Identity & Dashboard",
+                description: "Use Google sign-in or wallet access to track identity, XP, completed labs, and next recommendations.",
+                href: "/#/dashboard",
+                cta: "Go to Dashboard",
+                meta: "Live",
+            },
+        ],
+    },
+
+    teamTrust: {
+        title: "Built through research and operational pilots",
+        description:
+            "Web3Edu combines educational pilots, blockchain infrastructure, decentralized identity research, and hands-on technical experimentation within real learning environments.",
+        href: "/#/team",
+        cta: "Meet the Team",
+    },
+
+    // -------------------------
     // DAO SECTION
     // -------------------------
     dao: {
-        title: "Web3Edu DAO — The Governance Layer",
-        desc: "The Web3Edu DAO connects educators, students, and researchers in shaping the future of blockchain education. Members propose improvements, vote on new modules, and directly shape the platform’s evolution.",
-        imageCaption: "A living governance layer where students, mentors and partners collectively shape the evolution of the Web3Edu ecosystem.",
+        title: "Future Participation & Governance Research",
+        desc: "Web3Edu explores how learners, educators, and researchers can participate in decisions around learning paths, pilots, and platform rules after progress has been established through evidence-backed activity.",
+        imageCaption: "A research track for participation models, governance experiments, and community feedback loops.",
         buttons: {
-            learn: "Learn About the Governance Model",
-            enter: "Explore DAO",
+            learn: "Read the Governance Research",
+            enter: "Explore Participation Preview",
         },
-    },
-
-    /// -------------------------
-    // APP CARDS
-    // -------------------------
-    apps: {
-        heading: "Web3Edu Ecosystem",
-
-        poe: {
-            title: "Proof of Escape",
-            desc: "An applied, on-chain challenge that validates core Web3 concepts through interaction rather than quizzes."
-        },
-
-        education: {
-            title: "Web3 Laboratories",
-            desc: "A structured laboratory environment for exploring foundational Web3 concepts, from wallets and cryptography to smart contracts and consensus."
-        },
-
-        nft: {
-            title: "NFT Verifier",
-            desc: "A utility module for verifying NFT ownership and on-chain credentials issued within the Web3Edu ecosystem."
-        },
-
-        dao: {
-            title: "DAO Playground",
-            desc: "An experimental governance sandbox for exploring proposals, voting mechanisms, and decentralized participation models."
-        },
-
-        zkp: {
-            title: "Zero-Knowledge Module",
-            desc: "A research-oriented module focused on privacy-preserving techniques and zero-knowledge proofs in applied Web3 systems."
-        },
-
-        tools: {
-            title: "Developer Tools",
-            desc: "Interactive protocol visualizers and sandboxes for inspecting blockchain mechanics step by step."
-        },
-
-        cta: "Explore"
     },
 
     // -------------------------
@@ -114,6 +188,15 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
     // -------------------------
     whatsNew: {
         items: [
+            {
+                id: "easier-web3edu-sign-in",
+                category: "identity",
+                date: "2026-05-08",
+                title: "Easier Web3Edu Sign-In",
+                description: "Use Google Sign-In to access Web3Edu faster, with Account Abstraction supporting a smoother path toward wallet-based learning identity.",
+                href: "#/start-here",
+                cta: "Start Sign-In",
+            },
             {
                 id: "pos-visualizer-v2",
                 category: "tool",
@@ -220,7 +303,7 @@ With on-chain credentials and participation in the Web3Edu DAO, learning does no
             home: "Home",
             about: "About",
             team: "Team",
-            dao: "DAO",
+            dao: "Governance Research",
             contact: "Contact",
             news: "News",
             startHere: "Start Here",

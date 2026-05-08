@@ -499,7 +499,7 @@ export default function PageShell({
     after:from-[#7b3df8] after:to-[#00d4ff]
     after:transition-transform hover:after:scale-x-100"
                 >
-                  Διακυβέρνηση DAO
+                  Έρευνα Διακυβέρνησης
                 </a>
                 <a href="/#/team-gr" className="relative font-medium
   text-slate-800 dark:text-slate-100
@@ -579,7 +579,7 @@ export default function PageShell({
     after:from-[#7b3df8] after:to-[#00d4ff]
     after:transition-transform hover:after:scale-x-100"
                 >
-                  DAO Governance
+                  Governance Research
                 </a>
                 <a href="/#/team" className="relative font-medium
   text-slate-800 dark:text-slate-100
@@ -899,7 +899,7 @@ export default function PageShell({
                       onClick={() => navigateTo("#/dao-info-gr")}
                       className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50 flex items-center justify-center"
                     >
-                      Διακυβέρνηση DAO
+                      Έρευνα Διακυβέρνησης
                     </button>
                     <button
                       onClick={() => navigateTo("#/team-gr")}
@@ -953,7 +953,7 @@ export default function PageShell({
                       onClick={() => navigateTo("#/dao-info")}
                       className="w-full rounded-xl border border-slate-300/40 dark:border-slate-700/60 bg-white/70 dark:bg-slate-800/80 py-3 text-sm font-semibold text-slate-800 dark:text-blue-100 hover:border-indigo-400/50 flex items-center justify-center"
                     >
-                      DAO Governance
+                      Governance Research
                     </button>
                     <button
                       onClick={() => navigateTo("#/team")}

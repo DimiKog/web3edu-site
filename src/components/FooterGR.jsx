@@ -94,7 +94,7 @@ const FooterGr = ({ content }) => {
                             Web3Edu
                         </div>
                         <div className="text-[#4ACBFF] dark:text-slate-300 text-[11px]">
-                            Επίπεδο Ταυτοποίησης για την Εκπαίδευση Web3
+                            Evidence-Backed Technical Learning
                         </div>
 
                         <div className="mt-2 inline-flex px-3 py-1 rounded-full text-[10px] 
@@ -110,7 +110,7 @@ const FooterGr = ({ content }) => {
                     <a href="/#/team-gr" className="hover:text-[#8A57FF] transition">{nav.team ?? "Ομάδα"}</a>
                     <a href="/#/start-here-gr" className="hover:text-[#8A57FF] transition">{nav.startHere ?? "Ξεκίνα Εδώ"}</a>
                     <a href="/#/dao-info-gr" className="hover:text-[#FF67D2] transition">
-                        DAO Διακυβέρνηση
+                        Έρευνα Διακυβέρνησης
                     </a>
                 </nav>
 
@@ -151,7 +151,7 @@ const FooterGr = ({ content }) => {
             </div>
 
             <div className="mt-6 text-center text-[10px] text-[#8A57FF] dark:text-white/80 tracking-wide">
-                Εξερευνήστε: Proof of Escape · Εργαστήρια Web3 · Μαθησιακό Μονοπάτι · DAO Διακυβέρνηση
+                Εξερευνήστε: Proof of Escape · Εργαστήρια Web3 · Μαθησιακό Μονοπάτι · Έρευνα Διακυβέρνησης
             </div>
 
             <div className="w-20 h-[2px] bg-gradient-to-r from-[#8A57FF]/20 via-[#4ACBFF]/20 to-[#FF67D2]/20 mx-auto mb-4"></div>
