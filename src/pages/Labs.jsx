@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useIdentity } from "../context/useIdentity.js";
 import PageShell from "../components/PageShell.jsx";
@@ -141,6 +141,45 @@ export default function Labs({ lang = "en" }) {
     const [loading, setLoading] = useState(true);
     const [, setStatusLoading] = useState(false);
 
+    const refetchLabStatuses = useCallback(
+        async (signal) => {
+            if (labsRegistry.length === 0) {
+                setCompletionMap({});
+                return;
+            }
+            if (!identityAddress) return;
+
+            setStatusLoading(true);
+            try {
+                if (import.meta.env.DEV) {
+                    // eslint-disable-next-line no-console -- AA / backend integration debug
+                    console.log("API CALL", { identityAddress, resolveOwner, isOidcAuthenticated });
+                }
+                const entries = await Promise.all(
+                    labsRegistry.map(async (lab) => {
+                        const res = await fetch(
+                            buildLabsStatusUrl(identityAddress, lab.id, resolveOwner),
+                            { signal }
+                        );
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const data = await res.json();
+                        return [lab.id, Boolean(data?.completed)];
+                    })
+                );
+                setCompletionMap(Object.fromEntries(entries));
+            } catch (err) {
+                if (err.name !== "AbortError") {
+                    console.error("Failed to load lab completion statuses", err);
+                }
+            } finally {
+                if (!signal?.aborted) {
+                    setStatusLoading(false);
+                }
+            }
+        },
+        [identityAddress, resolveOwner, labsRegistry, isOidcAuthenticated]
+    );
+
     useEffect(() => {
         const controller = new AbortController();
 
@@ -173,50 +212,22 @@ export default function Labs({ lang = "en" }) {
     }, []);
 
     useEffect(() => {
-        if (labsRegistry.length === 0) {
-            setCompletionMap({});
-            return;
-        }
-
-        if (!identityAddress) {
-            return;
-        }
-
         const controller = new AbortController();
-        setStatusLoading(true);
-
-        if (import.meta.env.DEV) {
-            // eslint-disable-next-line no-console -- AA / backend integration debug
-            console.log("API CALL", { identityAddress, resolveOwner, isOidcAuthenticated });
-        }
-
-        Promise.all(
-            labsRegistry.map(async (lab) => {
-                const res = await fetch(
-                    buildLabsStatusUrl(identityAddress, lab.id, resolveOwner),
-                    { signal: controller.signal }
-                );
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                return [lab.id, Boolean(data?.completed)];
-            })
-        )
-            .then((entries) => {
-                setCompletionMap(Object.fromEntries(entries));
-            })
-            .catch((err) => {
-                if (err.name !== "AbortError") {
-                    console.error("Failed to load lab completion statuses", err);
-                }
-            })
-            .finally(() => {
-                if (!controller.signal.aborted) {
-                    setStatusLoading(false);
-                }
-            });
+        void refetchLabStatuses(controller.signal);
 
         return () => controller.abort();
-    }, [identityAddress, resolveOwner, labsRegistry, isOidcAuthenticated]);
+    }, [refetchLabStatuses]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return undefined;
+        const onProgress = () => {
+            const controller = new AbortController();
+            void refetchLabStatuses(controller.signal);
+            // Allow in-flight fetch to finish; next navigation/unmount will abort via effect cleanups.
+        };
+        window.addEventListener("web3edu-progress-updated", onProgress);
+        return () => window.removeEventListener("web3edu-progress-updated", onProgress);
+    }, [refetchLabStatuses]);
 
     useEffect(() => {
         const socialWallet = normalizeEvmAddress(getSocialIdentityWalletAddress(socialIdentity));

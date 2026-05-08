@@ -648,6 +648,26 @@ export default function Dashboard() {
     const isBuilderRequired = !!recommended?.builderRequired;
     const recommendedLabPath = resolveRecommendedLabPath(recommended?.slug);
 
+    const navigateHashSafe = useCallback(
+        (path) => {
+            if (!path) return;
+            // The app uses hash routing across the site. `navigate()` should work, but on some
+            // deployments mixed routing can cause click targets to appear inert.
+            // For “next step” we force hash navigation for maximum compatibility.
+            try {
+                if (typeof window !== "undefined") {
+                    const normalized = String(path).startsWith("/") ? String(path) : `/${path}`;
+                    window.location.hash = `#${normalized}`;
+                    return;
+                }
+            } catch {
+                /* ignore and fall back */
+            }
+            navigate(path);
+        },
+        [navigate]
+    );
+
     const builderChecklist = metadata?.builderChecklist || null;
     const timelineEntries = (() => {
         const baseTimeline = Array.isArray(metadata?.timeline) ? metadata.timeline : [];
@@ -1323,11 +1343,23 @@ export default function Dashboard() {
                                 <div
                                     className="cursor-pointer rounded-2xl border border-slate-200/60 bg-white/45 p-4 shadow-sm backdrop-blur-sm transition hover:bg-white/55 dark:border-white/10 dark:bg-white/[0.04] dark:hover:bg-white/[0.06]"
                                     onClick={() => {
-                                        if (recommended.type === "guide" && recommended.slug) { navigate(`/${recommended.slug}`); return; }
-                                        if (recommended.type === "lab" && recommendedLabPath) { navigate(recommendedLabPath); return; }
-                                        if (recommended.type === "lesson" && recommended.slug) { navigate(`/lessons/${recommended.slug}`); return; }
-                                        if (recommended.type === "project" && recommended.slug) { navigate(`/projects/${recommended.slug}`); return; }
-                                        navigate("/education");
+                                        if (recommended.type === "guide" && recommended.slug) {
+                                            navigateHashSafe(`/${recommended.slug}`);
+                                            return;
+                                        }
+                                        if (recommended.type === "lab" && recommendedLabPath) {
+                                            navigateHashSafe(recommendedLabPath);
+                                            return;
+                                        }
+                                        if (recommended.type === "lesson" && recommended.slug) {
+                                            navigateHashSafe(`/lessons/${recommended.slug}`);
+                                            return;
+                                        }
+                                        if (recommended.type === "project" && recommended.slug) {
+                                            navigateHashSafe(`/projects/${recommended.slug}`);
+                                            return;
+                                        }
+                                        navigateHashSafe("/education");
                                     }}
                                 >
                                     <div className="flex items-center gap-3 flex-wrap">
