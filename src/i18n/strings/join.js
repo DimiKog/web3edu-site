@@ -13,7 +13,7 @@ export const JOIN_STRINGS = {
     },
     oidc: {
       heading: "Sign in with Web3Edu",
-      subtitle: "New or returning — sign in with Keycloak.",
+      subtitle: "New or returning — sign in with Web3Edu or Google.",
       signInBtn: "Sign in",
       signedIn: "You're signed in.",
       continueBtn: "Continue",
@@ -58,7 +58,7 @@ export const JOIN_STRINGS = {
     },
     oidc: {
       heading: "Είσοδος με Web3Edu",
-      subtitle: "Νέοι ή επιστρέφοντες — είσοδος μέσω Keycloak.",
+      subtitle: "Νέοι ή επιστρέφοντες — είσοδος με Web3Edu ή Google.",
       signInBtn: "Είσοδος",
       signedIn: "Έχεις συνδεθεί.",
       continueBtn: "Συνέχεια",

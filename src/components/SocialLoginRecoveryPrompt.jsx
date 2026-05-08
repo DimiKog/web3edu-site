@@ -55,8 +55,8 @@ export default function SocialLoginRecoveryPrompt({ variant = "en" }) {
           </h3>
           <p className="mt-1 text-xs leading-relaxed text-slate-700 dark:text-slate-300 sm:text-sm">
             {isGr
-              ? "Η σύνδεση με τον λογαριασμό Web3Edu (Keycloak) σου επιτρέπει να ξαναμπείς στον πίνακα χωρίς να στηρίζεσαι μόνο στο τοπικό κλειδί του browser — ιδανικό αν αλλάζεις συσκευή ή καθαρίζεις δεδομένα."
-              : "Signing in with your Web3Edu account (Keycloak) makes it easier to return to your dashboard without relying only on your browser’s local key — especially when you switch devices or clear site data."}
+              ? "Η σύνδεση με λογαριασμό Web3Edu (Google sign-in) σου επιτρέπει να ξαναμπείς στον πίνακα χωρίς να στηρίζεσαι μόνο στο τοπικό κλειδί του browser — ιδανικό αν αλλάζεις συσκευή ή καθαρίζεις δεδομένα."
+              : "Signing in with your Web3Edu account (Google sign-in) makes it easier to return to your dashboard without relying only on your browser’s local key — especially when you switch devices or clear site data."}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button
