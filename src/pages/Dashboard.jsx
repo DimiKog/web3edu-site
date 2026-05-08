@@ -963,7 +963,7 @@ export default function Dashboard() {
 
                         {oidcAuthLoading ? (
                             <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
-                                Completing sign-in with Keycloak…
+                                Completing sign-in with Web3Edu or Google…
                             </p>
                         ) : socialIdentityLoading ? (
                             <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">

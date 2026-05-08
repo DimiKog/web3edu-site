@@ -35,7 +35,7 @@ export default function AuthCallback() {
             <div className="min-h-[40vh] px-6 py-16 text-center text-slate-800 dark:text-slate-100">
                 <p className="text-sm font-medium">Completing sign-in…</p>
                 <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                    If this hangs, confirm Keycloak allows redirect URI{" "}
+                    If this hangs, confirm your Web3Edu account (Google) sign-in provider allows redirect URI{" "}
                     <code className="rounded bg-slate-200/80 px-1 py-0.5 text-[11px] dark:bg-slate-800">
                         {typeof window !== "undefined" ? `${window.location.origin}/` : ""}
                     </code>
