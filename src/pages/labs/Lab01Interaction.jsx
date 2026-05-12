@@ -194,7 +194,8 @@ const Lab01Interaction = () => {
     const canRevealKeyRelationship = labState.addressInspected && !labState.keyRelationshipRevealed;
     // Action 5: Enable "Detect Network Again" after first detection and after keys revealed
     const canDetectNetworkAgain = labState.keyRelationshipRevealed && labState.networkDetected;
-    const canAcknowledgeIdentityWithoutAccounts = labState.identityComparedAcrossNetworks && !labState.identityWithoutAccountsAcknowledged;
+    const canAcknowledgeIdentityWithoutAccounts =
+        labState.keyRelationshipRevealed && !labState.identityWithoutAccountsAcknowledged;
 
     const explanationUnlocked =
         labState.networkDetected &&
@@ -202,7 +203,6 @@ const Lab01Interaction = () => {
         labState.addressValid &&
         labState.addressInspected &&
         labState.keyRelationshipRevealed &&
-        labState.identityComparedAcrossNetworks &&
         labState.identityWithoutAccountsAcknowledged;
 
     const canResetLab =
@@ -226,7 +226,7 @@ const Lab01Interaction = () => {
                         Lab 01 — Wallets & Web3 Identity
                     </h1>
                     <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
-                        Discover how a Web3 identity is represented by a wallet-managed public address and exists before transactions, accounts, or smart contracts.
+                        Web3Edu can start with lighter onboarding (for example social login), but wallet-based public identity becomes important for wallet-native actions such as signing and claiming rewards. This lab introduces how that identity works: a wallet-managed address that exists before transactions, usernames, or smart contracts.
                     </p>
                 </section>
 
@@ -250,7 +250,8 @@ const Lab01Interaction = () => {
                             Key relationship understood: {labState.keyRelationshipRevealed ? "✅" : "❌"}
                         </li>
                         <li>
-                            Identity compared across networks: {labState.identityComparedAcrossNetworks ? "✅" : "❌"}
+                            Optional — compared identity across networks:{" "}
+                            {labState.identityComparedAcrossNetworks ? "✅" : "— (not required)"}
                         </li>
                         <li>
                             Identity without accounts acknowledged: {labState.identityWithoutAccountsAcknowledged ? "✅" : "❌"}
@@ -267,7 +268,7 @@ const Lab01Interaction = () => {
                         {/* Wallet connection info hint */}
                         <div className="mb-2">
                             <div className="text-xs italic rounded bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-2 mb-2">
-                                ℹ️ Before continuing, make sure your browser wallet (e.g. MetaMask) is installed and connected to this page.
+                                ℹ️ You may already use Web3Edu with social login; this lab still focuses on the wallet side. For the steps below, connect a browser wallet (e.g. MetaMask) to this page so we can read network context and your public address.
                             </div>
                         </div>
                         {/* Action 1 */}
@@ -424,23 +425,36 @@ const Lab01Interaction = () => {
                             )}
                         </div>
 
-                        {/* Action 5 */}
-                        <div className="rounded-xl border p-5">
-                            {/* MetaMask network switching guidance */}
+                        {/* Action 5 — optional network comparison */}
+                        <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-5 bg-slate-50/50 dark:bg-slate-900/20">
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                                <span className="text-[0.65rem] font-semibold uppercase tracking-wide rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-0.5">
+                                    Optional extension
+                                </span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                    Compare your identity across networks
+                                </span>
+                            </div>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 max-w-3xl">
+                                If you like, try switching networks in your wallet and detecting again. Your address stays the same while the network context changes—useful to see, but skipping this does not block lab completion.
+                            </p>
+                            {/* MetaMask network switching guidance (optional) */}
                             {labState.networkDetected === true && (
-                                <div className="mb-3 px-4 py-3 rounded bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700">
-                                    <div className="font-semibold text-yellow-900 dark:text-yellow-200 mb-1">How to switch networks in MetaMask</div>
-                                    <ol className="list-decimal ml-5 text-sm text-yellow-900 dark:text-yellow-100 space-y-1">
+                                <div className="mb-3 px-4 py-3 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900/60">
+                                    <div className="font-medium text-slate-800 dark:text-slate-100 mb-1">
+                                        If you want to try it: switching networks in MetaMask
+                                    </div>
+                                    <ol className="list-decimal ml-5 text-sm text-slate-700 dark:text-slate-300 space-y-1">
                                         <li>Open MetaMask</li>
-                                        <li>Click the network selector at the top</li>
+                                        <li>Use the network menu at the bottom of MetaMask (in recent versions)</li>
                                         <li>
-                                            Choose:<br />
+                                            Pick, for example:<br />
                                             <span className="ml-3">• Besu Edu-Net<br />• or Ethereum Mainnet</span>
                                         </li>
-                                        <li>Return here and click <span className="font-semibold">Detect Network Again</span></li>
+                                        <li>Come back and tap <span className="font-semibold">Detect Network Again</span> whenever you are ready—no rush</li>
                                     </ol>
-                                    <div className="mt-2 text-xs text-yellow-800 dark:text-yellow-200 italic">
-                                        You are not creating a new identity — only changing the network context.
+                                    <div className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+                                        This only changes which chain MetaMask is pointing at. Your address and keys do not change; you are not signing up for a new identity.
                                     </div>
                                 </div>
                             )}
@@ -460,8 +474,8 @@ const Lab01Interaction = () => {
                                 </div>
                             )}
                             {lastAction === "detect-network-same" && (
-                                <div className="mt-2 text-xs rounded bg-yellow-50 dark:bg-slate-800 text-yellow-900 dark:text-yellow-200 px-3 py-1">
-                                    ℹ️ Network unchanged — switch networks in your wallet and try again.
+                                <div className="mt-2 text-xs rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1">
+                                    ℹ️ Same network as before—that is fine. If you want the comparison view, switch networks in your wallet when convenient, then use Detect Network Again.
                                 </div>
                             )}
                             {/* Comparison block: only when identityComparedAcrossNetworks === true AND previousNetwork !== activeNetwork */}
@@ -519,7 +533,7 @@ const Lab01Interaction = () => {
                                 Observe Identity Without Accounts
                             </button>
                             <div className="text-xs text-slate-500 dark:text-slate-400 italic mt-1">
-                                Review what was not required to establish your Web3 identity.
+                                Review what was not required to establish wallet-native Web3 identity—distinct from app login, and what you rely on for on-chain steps like rewards.
                             </div>
                             {labState.identityWithoutAccountsAcknowledged === true && (
                                 <div className="mt-4 rounded bg-slate-50 dark:bg-slate-800 px-4 py-3">
@@ -568,14 +582,15 @@ const Lab01Interaction = () => {
                     <h2 className="text-lg font-semibold mb-2">🧠 Explanation</h2>
                     {explanationUnlocked ? (
                         <p className="text-slate-700 dark:text-slate-200">
-                            A Web3 identity is represented by a public address managed by a wallet.<br />
+                            A wallet-native Web3 identity is represented by a public address managed by a wallet.<br />
                             The wallet securely manages cryptographic keys on your behalf, while the address serves as your visible identity on a given network.<br />
                             This identity exists before any transaction, smart contract interaction, or account registration.<br />
-                            The same address can appear across multiple networks, but its meaning and trust are defined by the network context — not by usernames or centralized accounts.
+                            Easier onboarding (such as social login) can get you into Web3Edu, but understanding this address-based layer helps when you take wallet-native actions—for example signing or claiming rewards on-chain.<br />
+                            The same address can appear across multiple networks; its meaning and trust follow the network context, not usernames or centralized accounts.
                         </p>
                     ) : (
                         <p className="text-slate-500 dark:text-slate-400 italic">
-                            Complete all actions to unlock the explanation.
+                            Finish the core path through “Observe Identity Without Accounts” to unlock the explanation. The optional network comparison is not required.
                         </p>
                     )}
                 </section>
@@ -586,9 +601,12 @@ const Lab01Interaction = () => {
                         <h2 className="text-lg font-semibold mb-2 text-green-800 dark:text-green-200">
                             🎉 Lab Completed
                         </h2>
-                        <p className="text-slate-700 dark:text-slate-200 mb-4">
+                        <p className="text-slate-700 dark:text-slate-200 mb-2">
                             You have completed <strong>Lab 01 — Wallets & Web3 Identity</strong>.
                             Claim your completion below.
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
+                            Claiming records progress with your connected wallet identity—another reason the address-based model you practiced here matters alongside lighter login options.
                         </p>
                         <LabCompletionClaim
                             labId="lab01"

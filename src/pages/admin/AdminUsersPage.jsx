@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 import UserDistributionChart from "../../components/admin/UserDistributionChart";
 import { fetchAdminUsers } from "../../services/adminApi";
+import { getSocialIdentityCustodyType } from "../../utils/socialIdentityPayload.js";
 
 function toNumber(value, fallback = 0) {
     const num = Number(value);
@@ -30,17 +31,189 @@ function pickAny(obj, paths) {
     return undefined;
 }
 
-function normalizeUser(user) {
-    const started = toNumber(user?.started ?? user?.startedLabs ?? user?.labsStarted, 0);
-    const completed = toNumber(user?.completed ?? user?.completedLabs ?? user?.labsCompleted, 0);
-    const dropOffCount = toNumber(user?.dropOff ?? user?.dropOffCount, Math.max(0, started - completed));
-    const isDropOff = typeof user?.isDropOff === "boolean" ? user.isDropOff : dropOffCount > 0;
+/**
+ * `/admin/users` rows may be flat or wrap the account under `user` / `account` / `profile`
+ * while aggregates (started, xp, …) sit on the outer object. Merge so identity/social
+ * match the admin detail payload shape.
+ */
+function mergeAdminListRow(row) {
+    if (!row || typeof row !== "object" || Array.isArray(row)) return row;
+    const inner = row.user ?? row.account ?? row.profile;
+    if (!inner || typeof inner !== "object" || Array.isArray(inner)) return row;
 
-    const identity = user?.identity && typeof user.identity === "object" ? user.identity : {};
-    const social = user?.social ?? null;
+    const { user: _u, account: _a, profile: _p, ...rest } = row;
+    return {
+        ...inner,
+        ...rest,
+        identity: rest.identity ?? inner.identity,
+        social: rest.social ?? inner.social,
+        continuity: rest.continuity ?? inner.continuity,
+    };
+}
+
+/** Coerce API values that may be boolean, count, or string into an "imported" yes/no. */
+function normalizeImportedValue(value) {
+    if (value === true) return true;
+    if (value === false || value == null) return false;
+    if (typeof value === "number") return value > 0;
+    if (typeof value === "string") {
+        const v = value.trim().toLowerCase();
+        return v === "true" || v === "yes" || v === "1" || v === "imported";
+    }
+    return false;
+}
+
+function custodyLooksSocial(custody) {
+    const s = String(custody ?? "").trim().toLowerCase();
+    if (!s) return false;
+    if (/\b(eoa|externally_owned|wallet_only|wallet-key|external_wallet)\b/.test(s)) return false;
+    return (
+        /\b(social|oidc|federat|broker|keycloak|custodial|idp|guest|passkey|webauthn)\b/.test(s) ||
+        s.includes("social") ||
+        s.includes("oidc")
+    );
+}
+
+function providerLooksSocial(value) {
+    const s = String(value ?? "").trim().toLowerCase();
+    if (!s) return false;
+    return /google|github|apple|keycloak|oidc|discord|twitter|microsoft|facebook|broker|federat/.test(s);
+}
+
+/**
+ * Whether the admin row represents a social / OIDC-backed account (not only top-level `social`).
+ */
+function isSocialUser(user) {
+    const u = mergeAdminListRow(user);
+    if (!u || typeof u !== "object") return false;
+
+    const socialObj = u.social ?? pickAny(u, ["continuity.social", "identity.social"]);
+    if (socialObj && typeof socialObj === "object" && Object.keys(socialObj).length > 0) return true;
+    if (typeof socialObj === "string" && socialObj.trim().length > 0) return true;
+
+    const sub = String(
+        pickAny(u, [
+            "oidcSub",
+            "socialSub",
+            "oidc_sub",
+            "social_sub",
+            "identity.oidcSub",
+            "identity.socialSub",
+            "identity.oidc_sub",
+            "identity.subject",
+            "subject",
+            "identity.subjectId",
+        ]) || ""
+    ).trim();
+    if (sub) return true;
+
+    const socialFlags = [
+        pickAny(u, ["isSocial", "is_social", "socialLogin", "social_login", "isOidc", "is_oidc"]),
+        pickAny(u, ["identity.isSocial", "identity.is_social", "identity.isOidc", "identity.socialLogin"]),
+    ];
+    if (socialFlags.some(normalizeImportedValue)) return true;
+
+    const custody =
+        getSocialIdentityCustodyType(u) ??
+        pickAny(u, ["identity.custodyType", "identity.custody_type", "custodyType", "custody_type"]);
+    if (custodyLooksSocial(custody)) return true;
+
+    const providerCandidates = [
+        pickAny(u, ["provider", "providerType", "provider_type", "identityProvider", "identity_provider"]),
+        pickAny(u, ["identity.provider", "identity.providerType", "identity.identityProvider"]),
+        pickAny(u, ["federationLink", "federation_link", "broker", "continuity.provider"]),
+    ];
+    if (providerCandidates.some(providerLooksSocial)) return true;
+
+    return false;
+}
+
+/**
+ * Whether admin user payload indicates prior progress was imported (e.g. after social login).
+ * Tolerates alternate field names and loose typing from the backend.
+ */
+function isImportedUser(user) {
+    const u = mergeAdminListRow(user);
+    if (!u || typeof u !== "object") return false;
+
+    const values = [
+        u.imported,
+        u.isImported,
+        u.importedProgress,
+        u.imported_progress,
+        u.progressImported,
+        u.progress_imported,
+        u.hasImportedProgress,
+        u.has_imported_progress,
+        u.socialContinuityImported,
+        u.continuityImported,
+        u.importedFromWallet,
+        u.imported_from_wallet,
+        u.importCount,
+        u.importedCount,
+        u.import_count,
+        u.importedFromOwner,
+        u.imported_from_owner,
+        u.migratedFromOwner,
+        u.migrated_from_owner,
+        pickAny(u, [
+            "identity.hasImportedProgress",
+            "identity.has_imported_progress",
+            "identity.imported",
+            "identity.importedFromWallet",
+            "identity.imported_from_wallet",
+        ]),
+        pickAny(u, ["identity.importedFromOwner", "identity.imported_from_owner"]),
+        pickAny(u, [
+            "continuity.hasImportedProgress",
+            "continuity.imported",
+            "continuity.importedFromOwner",
+            "continuity.imported_from_owner",
+        ]),
+    ];
+
+    if (values.some(normalizeImportedValue)) return true;
+
+    const importType = pickAny(u, [
+        "importType",
+        "import_type",
+        "identity.importType",
+        "identity.import_type",
+        "continuity.importType",
+    ]);
+    if (typeof importType === "string" && importType.trim().length > 0) return true;
+
+    const importedAt = pickAny(u, [
+        "importedAt",
+        "imported_at",
+        "identity.importedAt",
+        "identity.imported_at",
+        "progressImportedAt",
+        "progress_imported_at",
+    ]);
+    if (importedAt != null && importedAt !== false) {
+        if (typeof importedAt === "string" && importedAt.trim() === "") return false;
+        return true;
+    }
+
+    const xpImported = pickAny(u, ["importedXp", "imported_xp", "xpImported", "xp_imported"]);
+    if (normalizeImportedValue(xpImported)) return true;
+
+    return false;
+}
+
+function normalizeUser(user) {
+    const src = mergeAdminListRow(user);
+
+    const started = toNumber(src?.started ?? src?.startedLabs ?? src?.labsStarted, 0);
+    const completed = toNumber(src?.completed ?? src?.completedLabs ?? src?.labsCompleted, 0);
+    const dropOffCount = toNumber(src?.dropOff ?? src?.dropOffCount, Math.max(0, started - completed));
+    const isDropOff = typeof src?.isDropOff === "boolean" ? src.isDropOff : dropOffCount > 0;
+
+    const identity = src?.identity && typeof src.identity === "object" ? src.identity : {};
 
     const tokenId =
-        pickAny(user, [
+        pickAny(src, [
             "tokenId",
             "sbtTokenId",
             "identityTokenId",
@@ -51,9 +224,9 @@ function normalizeUser(user) {
         ]) ?? null;
 
     const tokenIdCached =
-        pickAny(user, ["tokenIdCached", "identity.tokenIdCached"]) ?? null;
+        pickAny(src, ["tokenIdCached", "identity.tokenIdCached"]) ?? null;
 
-    const hasTokenRaw = pickAny(user, [
+    const hasTokenRaw = pickAny(src, [
         "tokenAssigned",
         "hasToken",
         "hasSbt",
@@ -71,13 +244,22 @@ function normalizeUser(user) {
                 : false;
 
     const linkedWallets = asArray(
-        pickAny(user, ["linkedWallets", "linkedWalletAddresses", "walletsLinked", "linkedAccounts", "walletLinks"])
+        pickAny(src, ["linkedWallets", "linkedWalletAddresses", "walletsLinked", "linkedAccounts", "walletLinks"])
     )
         .map((v) => String(v || "").trim())
         .filter(Boolean);
 
     const socialSub = String(
-        pickAny(user, ["oidcSub", "socialSub", "social.subject", "social.sub", "identity.oidcSub", "identity.socialSub"]) || ""
+        pickAny(src, [
+            "oidcSub",
+            "socialSub",
+            "social.subject",
+            "social.sub",
+            "identity.oidcSub",
+            "identity.socialSub",
+            "oidc_sub",
+            "social_sub",
+        ]) || ""
     ).trim();
 
     const walletLinked =
@@ -90,21 +272,23 @@ function normalizeUser(user) {
         ...linkedWallets,
     ].filter(Boolean);
 
-    const hasSocial = Boolean(social && (typeof social === "object" ? Object.keys(social).length : true)) || Boolean(socialSub);
+    const hasSocial = isSocialUser(src);
 
-    const hasImportedProgress = Boolean(user?.hasImportedProgress) || Boolean(user?.identity?.hasImportedProgress);
-    const importType = String(user?.importType || "").trim();
+    const hasImportedProgress = isImportedUser(src);
+    const importType = String(
+        pickAny(src, ["importType", "import_type", "identity.importType", "continuity.importType"]) || ""
+    ).trim();
     const provisioningStatus = String(identity?.provisioningStatus || "").trim();
 
     return {
-        wallet: user?.wallet || user?.address || "—",
-        xp: toNumber(user?.xp ?? user?.totalXp, 0),
-        tier: user?.tier || user?.level || "Explorer",
+        wallet: src?.wallet || src?.address || "—",
+        xp: toNumber(src?.xp ?? src?.totalXp, 0),
+        tier: src?.tier || src?.level || "Explorer",
         started,
         completed,
         dropOffCount,
         isDropOff,
-        lastActivityEpoch: toNumber(user?.lastActivityEpoch ?? user?.lastActiveAtEpoch, 0),
+        lastActivityEpoch: toNumber(src?.lastActivityEpoch ?? src?.lastActiveAtEpoch, 0),
         tokenId,
         tokenIdCached,
         hasToken,
@@ -116,6 +300,8 @@ function normalizeUser(user) {
         provisioningStatus,
         socialSub,
         raw: user,
+        /** Flattened row for helpers (same reference as `src` when already flat). */
+        effectiveUser: src,
     };
 }
 
@@ -236,8 +422,8 @@ export default function AdminUsersPage() {
             })
             .filter((u) => {
                 if (importFilter === "all") return true;
-                if (importFilter === "has") return u.hasImportedProgress === true || Boolean(u.importType);
-                if (importFilter === "none") return !(u.hasImportedProgress === true || Boolean(u.importType));
+                if (importFilter === "has") return u.hasImportedProgress === true;
+                if (importFilter === "none") return u.hasImportedProgress !== true;
                 return true;
             })
             .filter((u) => {
@@ -544,8 +730,8 @@ export default function AdminUsersPage() {
                                         </td>
 
                                         <td className="p-3 text-center">
-                                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${(user.hasImportedProgress || user.importType) ? "bg-amber-100 text-amber-800 dark:bg-amber-900/25 dark:text-amber-200" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>
-                                                {(user.hasImportedProgress || user.importType) ? "Yes" : "No"}
+                                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.hasImportedProgress ? "bg-amber-100 text-amber-800 dark:bg-amber-900/25 dark:text-amber-200" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>
+                                                {user.hasImportedProgress ? "Yes" : "No"}
                                             </span>
                                         </td>
 

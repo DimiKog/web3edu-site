@@ -184,7 +184,8 @@ const Lab01InteractionGR = () => {
     const canRevealKeyRelationship = labState.addressInspected && !labState.keyRelationshipRevealed;
     // Ενέργεια 5: ενεργοποίηση του "Ανίχνευση Δικτύου Ξανά" μετά την πρώτη ανίχνευση και αφού αποκαλυφθούν τα κλειδιά
     const canDetectNetworkAgain = labState.keyRelationshipRevealed && labState.networkDetected;
-    const canAcknowledgeIdentityWithoutAccounts = labState.identityComparedAcrossNetworks && !labState.identityWithoutAccountsAcknowledged;
+    const canAcknowledgeIdentityWithoutAccounts =
+        labState.keyRelationshipRevealed && !labState.identityWithoutAccountsAcknowledged;
 
     const explanationUnlocked =
         labState.networkDetected &&
@@ -192,7 +193,6 @@ const Lab01InteractionGR = () => {
         labState.addressValid &&
         labState.addressInspected &&
         labState.keyRelationshipRevealed &&
-        labState.identityComparedAcrossNetworks &&
         labState.identityWithoutAccountsAcknowledged;
 
     const canResetLab =
@@ -216,7 +216,7 @@ const Lab01InteractionGR = () => {
                         Lab 01 — Πορτοφόλια & Web3 Ταυτότητες
                     </h1>
                     <p className="text-slate-600 dark:text-slate-300 max-w-3xl">
-                        Ανακαλύψτε πώς μια Web3 ταυτότητα αναπαρίσταται από μια δημόσια διεύθυνση που διαχειρίζεται το πορτοφόλι και υπάρχει πριν από συναλλαγές, λογαριασμούς ή έξυπνα συμβόλαια.
+                        Το Web3Edu μπορεί να ξεκινήσει με ελαφρύτερη εγγραφή (π.χ. social login), αλλά η δημόσια ταυτότητα μέσω πορτοφολιού γίνεται σημαντική για ενέργειες εγγενείς στο πορτοφόλι, όπως υπογραφές και διεκδίκηση ανταμοιβών. Αυτό το εργαστήριο εισάγει πώς λειτουργεί: μια διεύθυνση που διαχειρίζεται το πορτοφόλι και υπάρχει πριν από συναλλαγές, ονόματα χρήστη ή έξυπνα συμβόλαια.
                     </p>
                 </section>
 
@@ -240,7 +240,8 @@ const Lab01InteractionGR = () => {
                             Κατανόηση σχέσης κλειδιών: {labState.keyRelationshipRevealed ? "✅" : "❌"}
                         </li>
                         <li>
-                            Σύγκριση ταυτότητας μεταξύ δικτύων: {labState.identityComparedAcrossNetworks ? "✅" : "❌"}
+                            Προαιρετικά — σύγκριση ταυτότητας μεταξύ δικτύων:{" "}
+                            {labState.identityComparedAcrossNetworks ? "✅" : "— (δεν απαιτείται)"}
                         </li>
                         <li>
                             Αναγνώριση ταυτότητας χωρίς λογαριασμούς: {labState.identityWithoutAccountsAcknowledged ? "✅" : "❌"}
@@ -257,7 +258,7 @@ const Lab01InteractionGR = () => {
                         {/* Υπόδειξη σύνδεσης πορτοφολιού */}
                         <div className="mb-2">
                             <div className="text-xs italic rounded bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-2 mb-2">
-                                ℹ️ Πριν συνεχίσετε, βεβαιωθείτε ότι το πορτοφόλι του browser (π.χ. MetaMask) είναι εγκατεστημένο και συνδεδεμένο σε αυτή τη σελίδα.
+                                ℹ️ Μπορεί να χρησιμοποιείτε ήδη το Web3Edu με social login· το εργαστήριο εστιάζει στο πορτοφόλι. Για τα παρακάτω βήματα, συνδέστε πορτοφόλι browser (π.χ. MetaMask) σε αυτή τη σελίδα ώστε να διαβάσουμε το πλαίσιο δικτύου και τη δημόσια διεύθυνσή σας.
                             </div>
                         </div>
                         {/* Ενέργεια 1 */}
@@ -414,23 +415,35 @@ const Lab01InteractionGR = () => {
                             )}
                         </div>
 
-                        {/* Ενέργεια 5 */}
-                        <div className="rounded-xl border p-5">
-                            {/* Οδηγίες αλλαγής δικτύων στο MetaMask */}
+                        {/* Ενέργεια 5 — προαιρετική σύγκριση δικτύων */}
+                        <div className="rounded-xl border border-dashed border-slate-300 dark:border-slate-600 p-5 bg-slate-50/50 dark:bg-slate-900/20">
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                                <span className="text-[0.65rem] font-semibold uppercase tracking-wide rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-0.5">
+                                    Προαιρετική επέκταση
+                                </span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                    Συγκρίνετε την ταυτότητά σας σε διαφορετικά δίκτυα
+                                </span>
+                            </div>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 max-w-3xl">
+                                Αν θέλετε, δοκιμάστε να αλλάξετε δίκτυο στο πορτοφόλι σας και να ανιχνεύσετε ξανά. Η διεύθυνση παραμένει η ίδια ενώ αλλάζει το πλαίσιο δικτύου—χρήσιμο να το δείτε, αλλά το να το παραλείψετε δεν μπλοκάρει την ολοκλήρωση.
+                            </p>
                             {labState.networkDetected === true && (
-                                <div className="mb-3 px-4 py-3 rounded bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700">
-                                    <div className="font-semibold text-yellow-900 dark:text-yellow-200 mb-1">Πώς να αλλάξετε δίκτυο στο MetaMask</div>
-                                    <ol className="list-decimal ml-5 text-sm text-yellow-900 dark:text-yellow-100 space-y-1">
+                                <div className="mb-3 px-4 py-3 rounded border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900/60">
+                                    <div className="font-medium text-slate-800 dark:text-slate-100 mb-1">
+                                        Αν θέλετε να το δοκιμάσετε: αλλαγή δικτύου στο MetaMask
+                                    </div>
+                                    <ol className="list-decimal ml-5 text-sm text-slate-700 dark:text-slate-300 space-y-1">
                                         <li>Ανοίξτε το MetaMask</li>
-                                        <li>Κάντε κλικ στον επιλογέα δικτύου στην κορυφή</li>
+                                        <li>Χρησιμοποιήστε το μενού δικτύου στο κάτω μέρος του MetaMask (στις πρόσφατες εκδόσεις)</li>
                                         <li>
-                                            Επιλέξτε:<br />
+                                            Επιλέξτε, για παράδειγμα:<br />
                                             <span className="ml-3">• Besu Edu-Net<br />• ή Ethereum Mainnet</span>
                                         </li>
-                                        <li>Επιστρέψτε εδώ και κάντε κλικ στο <span className="font-semibold">Ανίχνευση Δικτύου Ξανά</span></li>
+                                        <li>Επιστρέψτε εδώ και πατήστε <span className="font-semibold">Ανίχνευση Δικτύου Ξανά</span> όταν σας βολεύει—χωρίς πίεση</li>
                                     </ol>
-                                    <div className="mt-2 text-xs text-yellow-800 dark:text-yellow-200 italic">
-                                        Δεν δημιουργείτε νέα ταυτότητα — αλλάζετε μόνο το πλαίσιο δικτύου.
+                                    <div className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+                                        Αλλάζει μόνο το δίκτυο στο οποίο δείχνει το MetaMask. Η διεύθυνση και τα κλειδιά σας δεν αλλάζουν· δεν δημιουργείτε νέα ταυτότητα.
                                     </div>
                                 </div>
                             )}
@@ -450,8 +463,8 @@ const Lab01InteractionGR = () => {
                                 </div>
                             )}
                             {lastAction === "detect-network-same" && (
-                                <div className="mt-2 text-xs rounded bg-yellow-50 dark:bg-slate-800 text-yellow-900 dark:text-yellow-200 px-3 py-1">
-                                    ℹ️ Το δίκτυο δεν άλλαξε — αλλάξτε δίκτυα στο πορτοφόλι σας και προσπαθήστε ξανά.
+                                <div className="mt-2 text-xs rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-1">
+                                    ℹ️ Ίδιο δίκτυο με πριν—αυτό είναι εντάξει. Αν θέλετε την προβολή σύγκρισης, αλλάξτε δίκτυο στο πορτοφόλι όταν σας βολεύει και μετά χρησιμοποιήστε την Ανίχνευση Δικτύου Ξανά.
                                 </div>
                             )}
                             {/* Μπλοκ σύγκρισης: μόνο όταν identityComparedAcrossNetworks === true ΚΑΙ previousNetwork !== activeNetwork */}
@@ -509,7 +522,7 @@ const Lab01InteractionGR = () => {
                                 Παρατήρηση Ταυτότητας Χωρίς Λογαριασμούς
                             </button>
                             <div className="text-xs text-slate-500 dark:text-slate-400 italic mt-1">
-                                Εξετάστε τι δεν απαιτήθηκε για να καθιερωθεί η Web3 ταυτότητά σας.
+                                Εξετάστε τι δεν απαιτήθηκε για wallet-native Web3 ταυτότητα—διακριτή από τη σύνδεση στην εφαρμογή και απαραίτητη για on-chain βήματα όπως οι ανταμοιβές.
                             </div>
                             {labState.identityWithoutAccountsAcknowledged === true && (
                                 <div className="mt-4 rounded bg-slate-50 dark:bg-slate-800 px-4 py-3">
@@ -558,14 +571,15 @@ const Lab01InteractionGR = () => {
                     <h2 className="text-lg font-semibold mb-2">🧠 Επεξήγηση</h2>
                     {explanationUnlocked ? (
                         <p className="text-slate-700 dark:text-slate-200">
-                            Μια Web3 ταυτότητα αναπαρίσταται από μια δημόσια διεύθυνση που διαχειρίζεται ένα πορτοφόλι.<br />
+                            Μια wallet-native Web3 ταυτότητα αναπαρίσταται από μια δημόσια διεύθυνση που διαχειρίζεται ένα πορτοφόλι.<br />
                             Το πορτοφόλι διαχειρίζεται με ασφάλεια τα κρυπτογραφικά κλειδιά για λογαριασμό σας, ενώ η διεύθυνση λειτουργεί ως η ορατή ταυτότητά σας σε ένα συγκεκριμένο δίκτυο.<br />
                             Αυτή η ταυτότητα υπάρχει πριν από οποιαδήποτε συναλλαγή, αλληλεπίδραση με έξυπνο συμβόλαιο ή εγγραφή λογαριασμού.<br />
-                            Η ίδια διεύθυνση μπορεί να εμφανίζεται σε πολλαπλά δίκτυα, αλλά το νόημα και η εμπιστοσύνη της καθορίζονται από το πλαίσιο του δικτύου — όχι από usernames ή κεντρικοποιημένους λογαριασμούς.
+                            Ελαφρύτερη εγγραφή (π.χ. social login) μπορεί να σας φέρει στο Web3Edu, αλλά η κατανόηση αυτού του επιπέδου διεύθυνσης βοηθά σε wallet-native ενέργειες—π.χ. υπογραφές ή διεκδίκηση ανταμοιβών on-chain.<br />
+                            Η ίδια διεύθυνση μπορεί να εμφανίζεται σε πολλαπλά δίκτυα· το νόημα και η εμπιστοσύνη ακολουθούν το πλαίσιο δικτύου, όχι usernames ή κεντρικοποιημένους λογαριασμούς.
                         </p>
                     ) : (
                         <p className="text-slate-500 dark:text-slate-400 italic">
-                            Ολοκληρώστε όλες τις ενέργειες για να ξεκλειδώσετε την επεξήγηση.
+                            Ολοκληρώστε τη βασική διαδρομή μέχρι το «Παρατήρηση Ταυτότητας Χωρίς Λογαριασμούς» για να ξεκλειδώσετε την επεξήγηση. Η προαιρετική σύγκριση δικτύων δεν απαιτείται.
                         </p>
                     )}
                 </section>
@@ -576,9 +590,12 @@ const Lab01InteractionGR = () => {
                         <h2 className="text-lg font-semibold mb-2 text-green-800 dark:text-green-200">
                             🎉 Το εργαστήριο ολοκληρώθηκε
                         </h2>
-                        <p className="text-slate-700 dark:text-slate-200 mb-4">
+                        <p className="text-slate-700 dark:text-slate-200 mb-2">
                             Ολοκληρώσατε το <strong>Lab 01 — Πορτοφόλια & Web3 Ταυτότητες</strong>.
                             Δηλώστε την ολοκλήρωση παρακάτω.
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
+                            Η δήλωση ολοκλήρωσης καταγράφει την πρόοδο με την ταυτότητα του συνδεδεμένου πορτοφολιού—ακόμα ένας λόγος που το μοντέλο διεύθυνσης που εξασκήσατε εδώ έχει σημασία παράλληλα με ελαφρύτερες επιλογές σύνδεσης.
                         </p>
                         <LabCompletionClaim
                             labId="lab01"
