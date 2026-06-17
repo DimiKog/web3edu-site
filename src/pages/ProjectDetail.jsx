@@ -326,11 +326,11 @@ export default function ProjectDetail() {
             steps: "Διαδρομή Διερεύνησης",
             expected: "Παραδοτέο",
             skills: "Δεξιότητες",
-            submit: "Υποβολή Απάντησης",
+            submit: "Υποβολή απάντησης",
             unlock: "Ξεκλειδώνεται στο επίπεδο Builder.",
             placeholder: "Γράψτε το αποκρυπτογραφημένο μήνυμα...",
-            submitting: "Υποβολή...",
-            submitButton: "Υποβολή",
+            submitting: "Υποβολή απάντησης...",
+            submitButton: "Υποβολή απάντησης",
             walletMissing: "Συνδέστε πρώτα το wallet σας.",
             roleMissing: "Αυτό το project είναι διαθέσιμο μόνο για Builders.",
             answerMissing: "Συμπληρώστε την απάντηση.",
@@ -366,11 +366,11 @@ export default function ProjectDetail() {
             steps: "Investigation Path",
             expected: "Deliverable",
             skills: "Skills",
-            submit: "Submit Your Answer",
+            submit: "Submit answer",
             unlock: "Unlocks at Builder level.",
             placeholder: "Enter the decrypted message...",
-            submitting: "Submitting...",
-            submitButton: "Submit",
+            submitting: "Submitting answer...",
+            submitButton: "Submit answer",
             walletMissing: "Please connect your wallet first.",
             roleMissing: "This project is available only for Builders.",
             answerMissing: "Please enter your answer.",
@@ -471,6 +471,8 @@ export default function ProjectDetail() {
         }
     };
 
+    // Auto-verifiable answer projects: instant completion via /projects/complete-answer
+    // (not /projects/submit, which is reserved for human-reviewed artifact submissions).
     const handleSubmitAnswer = async () => {
         if (!isBuilder) {
             setSubmitState({ type: "error", message: copy.roleMissing });
@@ -855,8 +857,8 @@ export default function ProjectDetail() {
                                             {isDecryptionCorrect && !isCompleted && (
                                                 <p className="mt-3 text-sm text-emerald-700 dark:text-emerald-300">
                                                     {isGR
-                                                        ? "✔ Σωστό μήνυμα! Έτοιμο για υποβολή."
-                                                        : "✔ Correct message! Ready to submit."}
+                                                        ? "✔ Σωστό μήνυμα! Έτοιμο για υποβολή απάντησης."
+                                                        : "✔ Correct message! Ready to submit answer."}
                                                 </p>
                                             )}
 
@@ -865,7 +867,7 @@ export default function ProjectDetail() {
                                                     onClick={handleSubmitAnswer}
                                                     className="mt-5 inline-flex rounded-full bg-gradient-to-r from-[#4ACBFF] via-[#5D8BFF] to-[#8A57FF] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_40px_rgba(74,203,255,0.24)] transition hover:scale-[1.01]"
                                                 >
-                                                    {isSubmitting ? copy.submitting : isGR ? "Υποβολή Λύσης" : "Submit Solution"}
+                                                    {isSubmitting ? copy.submitting : copy.submitButton}
                                                 </button>
                                             )}
                                             {isCompleted && (

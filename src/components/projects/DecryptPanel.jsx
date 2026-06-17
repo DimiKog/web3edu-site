@@ -100,8 +100,8 @@ export default function DecryptPanel({
                 {isDecryptionCorrect && (
                     <p className="text-sm text-emerald-700 dark:text-emerald-300">
                         {isGR
-                            ? "✔ Σωστό μήνυμα! Μπορείτε να προχωρήσετε στην υποβολή."
-                            : "✔ Correct message! You can proceed to submit."}
+                            ? "✔ Σωστό μήνυμα! Μπορείτε να προχωρήσετε στην υποβολή απάντησης."
+                            : "✔ Correct message! You can proceed to submit answer."}
                     </p>
                 )}
                 {decryptedOutput && (

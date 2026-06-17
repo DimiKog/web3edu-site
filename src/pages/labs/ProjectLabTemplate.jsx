@@ -80,10 +80,8 @@ const ProjectLabTemplate = ({
             : "⬅ Return to Labs";
 
     /**
-     * Completion verification
-     * For PoE this will likely be:
-     * - NFT ownership
-     * - DAO invite SBT
+     * Auto-verifiable on-chain proof (e.g. PoE NFT).
+     * Uses GET verifyEndpoint (/projects/poe/status) — not /projects/submit.
      */
     useEffect(() => {
         if (!verifyEndpoint) {
@@ -245,7 +243,7 @@ const ProjectLabTemplate = ({
                 <section className="rounded-2xl border border-slate-200 bg-white/70 p-6 text-center dark:border-slate-700 dark:bg-slate-900/70">
                     {checkingStatus && (
                         <p className="text-slate-600 dark:text-slate-300">
-                            Checking completion status…
+                            {language === "gr" ? "Έλεγχος απόδειξης…" : "Checking proof…"}
                         </p>
                     )}
 
@@ -273,7 +271,9 @@ const ProjectLabTemplate = ({
 
                     {!checkingStatus && !completed && (
                         <div className="text-slate-600 dark:text-slate-300">
-                            Complete the project to record your on-chain proof.
+                            {language === "gr"
+                                ? "Ολοκληρώστε το challenge και ελέγξτε την on-chain απόδειξη."
+                                : "Complete the challenge, then check proof to verify on-chain completion."}
                         </div>
                     )}
                 </section>
