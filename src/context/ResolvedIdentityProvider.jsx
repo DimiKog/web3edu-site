@@ -96,7 +96,7 @@ export function ResolvedIdentityProvider({ children }) {
     return ro ? `${identityAddress}|${ro.toLowerCase()}` : identityAddress;
   }, [identityAddress, resolveOwner]);
 
-  const { metadata, profile, loading, error, refetch } =
+  const { metadata, profile, resolveData, loading, error, refetch } =
     useResolvedIdentity(identityAddress, resolveOwner);
 
   const walletTier = metadata?.tier ?? "Explorer";
@@ -106,6 +106,7 @@ export function ResolvedIdentityProvider({ children }) {
     () => ({
       metadata,
       profile,
+      resolveData,
       loading,
       error,
       refetch,
@@ -119,6 +120,7 @@ export function ResolvedIdentityProvider({ children }) {
     [
       metadata,
       profile,
+      resolveData,
       loading,
       error,
       refetch,

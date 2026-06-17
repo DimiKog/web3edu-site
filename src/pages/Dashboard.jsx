@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from "react";
 import { useAccount, useSignMessage } from "wagmi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import PageShell from "../components/PageShell.jsx";
 import DashboardCard from "../components/DashboardCard.jsx";
@@ -9,14 +9,13 @@ import XPProgressCard from "../components/XPProgressCard.jsx";
 import { UserIcon, AcademicCapIcon, StarIcon, ShieldCheckIcon } from "@heroicons/react/24/solid";
 import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
 import {
-    ArrowTopRightOnSquareIcon,
-    ClipboardDocumentIcon,
     ShareIcon,
     ChevronDownIcon,
-    WalletIcon,
 } from "@heroicons/react/24/outline";
 import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
 import LearningTimeline from "../components/LearningTimeline.jsx";
+import DashboardProjectsProgress from "../components/DashboardProjectsProgress.jsx";
+import DashboardIdentityAddresses from "../components/DashboardIdentityAddresses.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
 import IdentityBackupBanner from "../components/IdentityBackupBanner.jsx";
 import SocialLoginRecoveryPrompt from "../components/SocialLoginRecoveryPrompt.jsx";
@@ -25,8 +24,6 @@ import SocialWalletProgressImportSection from "../components/SocialWalletProgres
 import { projects } from "../services/projectService.js";
 import {
     shortAddress,
-    AddressIdenticon,
-    generateAvatarStyle,
 } from "../components/identity-ui.jsx";
 import { useIdentity } from "../context/useIdentity.js";
 import { warnIfIdentityNotInitialized } from "../utils/identityReadiness.js";
@@ -58,6 +55,17 @@ import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 const EDU_NET_EXPLORER = "https://blockexplorer.dimikog.org";
 const SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY = "web3edu-social-switch-from-local-aa";
 const DASHBOARD_SOCIAL_DEBUG_SESSION_KEY = "web3edu-debug-social-wallet-linkage";
+const ADMIN_WALLETS = (
+    import.meta.env.VITE_ADMIN_WALLETS ??
+    "0x0e66db7d115b8f392eb7dfb8bacb23675daeb59e"
+)
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+
+const isAdminWallet = (addr) => Boolean(addr && ADMIN_WALLETS.includes(addr.toLowerCase()));
+
+const DASHBOARD_IDENTITY_DEBUG_FLAG = "web3edu-debug-identity-panel";
 
 const parseCompletedAt = (value) => {
     if (!value) return 0;
@@ -203,6 +211,7 @@ export default function Dashboard() {
     const [, bumpWalletOnboarding] = useReducer((c) => c + 1, 0);
     const [, bumpProgressImportSnooze] = useReducer((c) => c + 1, 0);
     const { address, isConnected } = useAccount();
+    const location = useLocation();
     const navigate = useNavigate();
     const {
         oidcAuthLoading,
@@ -305,6 +314,7 @@ export default function Dashboard() {
     const {
         metadata: resolvedMetadata,
         profile: resolvedProfile,
+        resolveData,
         canonicalIdentityKey,
         refetch: refetchResolvedIdentity,
     } = useResolvedIdentityContext();
@@ -527,7 +537,30 @@ export default function Dashboard() {
         metadata && typeof metadata === "object" && !Array.isArray(metadata) ? metadata : {};
     const displayedMetadata = { ...fallbackMetadata, ...safeMetadata };
 
-    const formattedAddress = shortAddress(identityAddress);
+    const progressSourceAddress = useMemo(() => {
+        const candidates = [
+            metadata?.progressSourceAddress,
+            metadata?.progressSource,
+            profile?.progressSourceAddress,
+            profile?.progressSource,
+            resolvedMetadata?.progressSourceAddress,
+            resolvedMetadata?.progressSource,
+            resolvedProfile?.progressSourceAddress,
+            resolvedProfile?.progressSource,
+        ];
+        for (const candidate of candidates) {
+            const normalized = normalizeEvmAddress(candidate);
+            if (normalized) return normalized;
+            if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+        }
+        return identityAddress;
+    }, [metadata, profile, resolvedMetadata, resolvedProfile, identityAddress]);
+
+    const linkedAccountForDisplay = useMemo(() => {
+        if (!walletAaCanonical) return null;
+        return persistedOwnerNorm ?? normalizeEvmAddress(owner) ?? null;
+    }, [walletAaCanonical, persistedOwnerNorm, owner]);
+
     const isIdentityMetadataLoading = Boolean(identityAddress) && !metadata && !profile;
     const isTimelineLoading = Boolean(identityAddress) && !metadata && !profile;
 
@@ -931,7 +964,6 @@ export default function Dashboard() {
 
     const showLinkOrImportBanner = Boolean(showGuestWalletLinkUi || showSocialProgressImport);
 
-    // DEV-only, on-screen snapshot of first-render linkage values for the wallet-first → social transition.
     const socialDebugTriggered = (() => {
         if (typeof window === "undefined") return false;
         return (
@@ -940,7 +972,7 @@ export default function Dashboard() {
         );
     })();
     const [socialDebugSnapshot, setSocialDebugSnapshot] = useState(() => {
-        if (!import.meta.env.DEV || !socialDebugTriggered) return null;
+        if (!socialDebugTriggered) return null;
         return {
             at: new Date().toISOString(),
             isOidcAuthenticated,
@@ -958,7 +990,6 @@ export default function Dashboard() {
         };
     });
     useEffect(() => {
-        if (!import.meta.env.DEV) return;
         if (!socialDebugTriggered) return;
         try {
             window.sessionStorage.setItem(DASHBOARD_SOCIAL_DEBUG_SESSION_KEY, "true");
@@ -966,6 +997,28 @@ export default function Dashboard() {
             /* ignore */
         }
     }, [socialDebugTriggered]);
+
+    const debugIdentityFromQuery = (() => {
+        try {
+            const search = location?.search || window.location.search || "";
+            const params = new URLSearchParams(search);
+            return params.get("debugIdentity") === "1";
+        } catch {
+            return false;
+        }
+    })();
+
+    const isAdminDebugEnabled = (() => {
+        if (!address) return false;
+        if (!isAdminWallet(address)) return false;
+        if (typeof window === "undefined") return false;
+        return window.localStorage.getItem(DASHBOARD_IDENTITY_DEBUG_FLAG) === "1";
+    })();
+
+    const shouldShowDebugPanel = Boolean(
+        socialDebugSnapshot &&
+        (import.meta.env.DEV || debugIdentityFromQuery || isAdminDebugEnabled)
+    );
 
     const showOidcSocialGate =
         identityHydrated && !identityAddress && (isOidcAuthenticated || oidcAuthLoading);
@@ -1042,7 +1095,7 @@ export default function Dashboard() {
                     relative overflow-hidden transition-colors duration-500
                 "
             >
-                {import.meta.env.DEV && socialDebugSnapshot ? (
+                {shouldShowDebugPanel ? (
                     <div className="relative z-50 w-full max-w-5xl mx-auto mb-4 px-2 md:px-0">
                         <div className="rounded-2xl border border-fuchsia-200/70 bg-fuchsia-50/90 px-4 py-3 text-left text-xs text-fuchsia-950 shadow-sm backdrop-blur-sm dark:border-fuchsia-500/30 dark:bg-fuchsia-950/25 dark:text-fuchsia-50">
                             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1105,87 +1158,29 @@ export default function Dashboard() {
                     <div className="absolute bottom-[15%] right-[25%] w-[340px] h-[340px] bg-indigo-400/30 dark:bg-indigo-500/20 blur-[140px] rounded-full"></div>
                 </div>
 
-                {/* 1) User header — 1-line identity row */}
+                {/* 1) User header — labeled identity addresses */}
                 {identityAddress ? (
-                    <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-6 space-y-3 px-2 md:px-0">
-                        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200/70 bg-white/60 px-4 py-3 shadow-sm backdrop-blur-sm sm:flex-nowrap sm:gap-3 dark:border-slate-700/50 dark:bg-slate-900/35">
-                            <span className="group relative flex shrink-0">
-                                <button
-                                    type="button"
-                                    onClick={handleIdentityCopyAddress}
-                                    aria-label="Copy your AA address"
-                                    aria-describedby="dashboard-identicon-tooltip"
-                                    className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full ring-2 ring-purple-400/60 transition-transform hover:scale-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-500/45"
-                                    style={generateAvatarStyle(identityAddress, displayedMetadata?.tier)}
-                                >
-                                    <AddressIdenticon address={identityAddress} />
-                                    <span className="absolute inset-x-0 bottom-0 flex h-4 items-center justify-center bg-slate-950/65 text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-                                        <ClipboardDocumentIcon className="h-3 w-3" />
-                                    </span>
-                                </button>
-                                <span
-                                    id="dashboard-identicon-tooltip"
-                                    role="tooltip"
-                                    className="pointer-events-none absolute left-0 top-full z-30 mt-2 w-64 rounded-lg border border-slate-200/80 bg-white px-3 py-2 text-left text-xs font-medium leading-snug text-slate-700 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                                >
-                                    Your unique identity pattern — generated from your AA address. Click to copy address.
+                    <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-6 px-2 md:px-0">
+                        <DashboardIdentityAddresses
+                            identityAddress={identityAddress}
+                            linkedWallet={effectiveSocialLinkedWalletNorm}
+                            connectedWallet={isConnected ? connectedWalletNorm : null}
+                            linkedAccount={linkedAccountForDisplay}
+                            progressSourceAddress={progressSourceAddress}
+                            tier={displayedMetadata?.tier}
+                            displayTokenId={displayTokenId}
+                            isLoading={isIdentityMetadataLoading}
+                            onViewExplorer={handleIdentityViewExplorer}
+                            onCopyIdentity={handleIdentityCopyAddress}
+                            identityCopyFeedback={addressCopyFeedback}
+                        />
+                        {isOidcAuthenticated && !socialIsActive ? (
+                            <div className="mt-3">
+                                <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/50 bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800 dark:border-amber-600/40 dark:bg-amber-900/40 dark:text-amber-200">
+                                    ⚠ Setting up…
                                 </span>
-                            </span>
-                            {/* Address block: AA address + wallet EOA (wallet users only) */}
-                            <span className="min-w-0 flex-1 flex flex-col gap-0.5">
-                                <span className="flex min-w-0 items-center gap-2">
-                                    <span className="truncate font-mono text-xs text-slate-600 dark:text-slate-300">
-                                        {formattedAddress}
-                                    </span>
-                                    {addressCopyFeedback ? (
-                                        <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/35 dark:text-emerald-200" role="status">
-                                            {addressCopyFeedback}
-                                        </span>
-                                    ) : null}
-                                </span>
-                                {walletAaCanonical && (owner || wagmiAddrNorm) && (
-                                    <span className="flex items-center gap-1 text-[10px] font-mono text-slate-400 dark:text-slate-500 truncate">
-                                        <WalletIcon className="w-3 h-3 shrink-0" />
-                                        {shortAddress(owner || wagmiAddrNorm)}
-                                    </span>
-                                )}
-                            </span>
-                            <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2 sm:flex-nowrap">
-                                {isIdentityMetadataLoading ? (
-                                    <>
-                                        <span className="h-4 w-14 shrink-0 animate-pulse rounded bg-slate-200/80 dark:bg-slate-700/70" />
-                                        <span className="h-6 w-24 shrink-0 animate-pulse rounded-full bg-purple-100/80 dark:bg-purple-900/40" />
-                                    </>
-                                ) : (
-                                    <>
-                                        {displayTokenId != null && (
-                                            <span className="shrink-0 text-[11px] font-mono text-slate-400 dark:text-slate-500">
-                                                #{displayTokenId}
-                                            </span>
-                                        )}
-                                        <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-purple-100/80 dark:bg-purple-900/40 border border-purple-300/40 dark:border-purple-600/60 px-3 py-1 text-[11px] font-semibold text-purple-700 dark:text-purple-200">
-                                            <span className="inline-flex h-2 w-2 rounded-full bg-purple-500 dark:bg-purple-400" />
-                                            {displayedMetadata?.tier ?? "Explorer"}
-                                        </span>
-                                    </>
-                                )}
-                                {/* Explorer link */}
-                                <button
-                                    type="button"
-                                    onClick={handleIdentityViewExplorer}
-                                    title="View on block explorer"
-                                    disabled={!identityAddress}
-                                    className="shrink-0 rounded-lg border border-slate-200/70 bg-slate-50/80 p-1.5 text-slate-500 hover:text-violet-700 hover:bg-violet-50/70 dark:border-slate-600/50 dark:bg-slate-800/60 dark:text-slate-400 dark:hover:text-violet-300 transition-colors disabled:opacity-40"
-                                >
-                                    <ArrowTopRightOnSquareIcon className="w-4 h-4" />
-                                </button>
-                                {isOidcAuthenticated && !socialIsActive && (
-                                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/40 border border-amber-300/50 dark:border-amber-600/40 px-2.5 py-1 text-[11px] font-semibold text-amber-800 dark:text-amber-200">
-                                        ⚠ Setting up…
-                                    </span>
-                                )}
                             </div>
-                        </div>
+                        ) : null}
                         {showDeviceBasedAccessNote ? (
                             <div className="rounded-xl border border-slate-200/75 bg-white/55 px-4 py-3 text-left shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-slate-900/35">
                                 <p className="text-xs font-semibold text-slate-800 dark:text-slate-100">
@@ -1448,8 +1443,8 @@ export default function Dashboard() {
                 </div>
 
                 {/* 4) Lower dashboard layout: Progress + Quick Actions | Badges */}
-                <div className="relative z-10 w-full max-w-5xl mx-auto mb-6 px-2 md:px-0">
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                <div className="relative z-10 w-full max-w-5xl mx-auto mb-6 px-2 md:px-0 space-y-6">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
                         <div>
 
                             {/* Progress + Rank */}
@@ -1692,6 +1687,13 @@ export default function Dashboard() {
                             })()}
                         </DashboardCard>
                     </div>
+
+                    <DashboardProjectsProgress
+                        resolveData={resolveData}
+                        metadata={metadata}
+                        profile={profile}
+                        timeline={timelineEntries}
+                    />
                 </div>
 
                 {/* 5) Learning Timeline — proof of participation */}

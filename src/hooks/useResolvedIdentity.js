@@ -120,6 +120,7 @@ async function fetchLegacyResolve({ identityAddress, resolveOwner, signal }) {
 export function useResolvedIdentity(identityAddress, resolveOwner = null) {
   const [metadata, setMetadata] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [resolveData, setResolveData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [refetchBump, setRefetchBump] = useState(0);
@@ -156,6 +157,7 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
       prevResolveKeyForDataRef.current = null;
       setMetadata(null);
       setProfile(null);
+      setResolveData(null);
       setError(null);
       setLoading(false);
       return;
@@ -174,6 +176,7 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
       if (prevResolveKeyForDataRef.current !== resolveKey) {
         setMetadata(null);
         setProfile(null);
+        setResolveData(null);
       }
 
       try {
@@ -415,6 +418,7 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
 
         setMetadata(nextMetadata);
         setProfile(nextProfile);
+        setResolveData(dashboardData);
         lastCompletedKeyRef.current = resolveKey;
         prevResolveKeyForDataRef.current = resolveKey;
       } catch (err) {
@@ -437,5 +441,5 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
     };
   }, [resolveKey, canonId, canonResolveOwner, refetchBump]);
 
-  return { metadata, profile, loading, error, refetch };
+  return { metadata, profile, resolveData, loading, error, refetch };
 }
