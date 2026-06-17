@@ -1,6 +1,7 @@
 import { buildResolveOwner, getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "./evmAddress.js";
 import { warnIfIdentityNotInitialized } from "./identityReadiness.js";
+import { getSocialIdentityAaAddress } from "./socialIdentityPayload.js";
 
 const LAB_START_SESSION_PREFIX = "web3edu:labsStart:v1:";
 /** @type {Map<string, Promise<Response>>} */
@@ -20,6 +21,42 @@ function labStartSessionStorageKey(labId, smartAccount) {
 export function getLabsStatusReadIdentity({ smartAccount }) {
   return {
     identityAddress: smartAccount ?? null,
+  };
+}
+
+/**
+ * Same progress `wallet` + optional `owner` used by lab completion, dashboard reads, and coding01 verify.
+ *
+ * Resolution order for `wallet`:
+ * 1. Local AA smart account (wallet-first / minted identity)
+ * 2. Social-login AA when OIDC-authenticated
+ * 3. Connected MetaMask EOA when no AA/social Web3Edu identity exists (wallet-only path)
+ *
+ * `owner` is sent only when an AA/social identity is active — for owner→AA migration.
+ * Wallet-only users use the connected EOA as `wallet` and omit `owner`.
+ */
+export function getEffectiveLabsWalletIdentity({
+  smartAccount,
+  isOidcAuthenticated = false,
+  socialIdentity = null,
+  address = null,
+  owner = null,
+} = {}) {
+  const localSc = normalizeEvmAddress(smartAccount);
+  const socialAa = isOidcAuthenticated
+    ? normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity))
+    : null;
+  const connectedEoa = normalizeEvmAddress(address);
+
+  const hasAaOrSocialIdentity = Boolean(localSc || socialAa);
+  const wallet = localSc ?? socialAa ?? connectedEoa;
+  const ownerPayload = hasAaOrSocialIdentity
+    ? buildResolveOwner(address, owner)
+    : null;
+
+  return {
+    wallet,
+    owner: ownerPayload,
   };
 }
 
@@ -96,4 +133,70 @@ export async function postLabsStart({
 
   inFlightLabStarts.set(storageKey, promise);
   return promise;
+}
+
+/**
+ * POST /labs/coding01/verify-contract — checks deployed Counter bytecode on Besu Edu-Net.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function postCoding01VerifyContract({
+  apiBase,
+  smartAccount,
+  address,
+  owner,
+  isOidcAuthenticated,
+  socialIdentity,
+  contractAddress,
+} = {}) {
+  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity({
+    smartAccount,
+    isOidcAuthenticated,
+    socialIdentity,
+    address,
+    owner,
+  });
+  const addr = normalizeEvmAddress(contractAddress);
+
+  if (!wallet || !addr) {
+    return {
+      ok: false,
+      status: 400,
+      data: {
+        error: "wallet and contractAddress are required for /labs/coding01/verify-contract",
+      },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  const payload = {
+    wallet,
+    contractAddress: addr,
+  };
+  if (ownerPayload) {
+    payload.owner = ownerPayload;
+  }
+
+  try {
+    const res = await fetch(`${base}/labs/coding01/verify-contract`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (import.meta.env.DEV && data?.identityKey != null) {
+      // eslint-disable-next-line no-console -- backend integration diagnostic
+      console.log("CODING01 VERIFY IDENTITY KEY", data.identityKey);
+    }
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
 }

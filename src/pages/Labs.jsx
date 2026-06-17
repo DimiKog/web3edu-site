@@ -300,7 +300,12 @@ export default function Labs({ lang = "en" }) {
         };
     });
     const otherSections = groupedLabs.filter(
-        ([category]) => category !== "foundational" && category !== "dao" && category !== "project" && category !== "system"
+        ([category]) =>
+            category !== "foundational" &&
+            category !== "dao" &&
+            category !== "project" &&
+            category !== "system" &&
+            category !== "coding"
     );
 
     const completedCount = foundationalLabs.filter((lab) => Boolean(completionMap[lab.id])).length;
@@ -504,52 +509,66 @@ export default function Labs({ lang = "en" }) {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                {L.codingLabs.map((lab) => (
-                                    <div
-                                        key={lab.id}
-                                        className={`rounded-2xl border ${CARD_ACCENT.coding} p-6 shadow-sm`}
-                                    >
-                                        <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.coding}`}>
-                                            {L.categoryBadgeLabel.coding}
-                                        </span>
-                                        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-                                                    {lab.id}
-                                                </p>
-                                                <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
-                                                    {lab.title}
-                                                </h3>
+                                {L.codingLabs.map((lab) => {
+                                    const completed = Boolean(completionMap[lab.id]);
+                                    const link = labRoutes[lab.id] || `${L.pathPrefix}/coding-01`;
+
+                                    return (
+                                        <Link
+                                            key={lab.id}
+                                            to={link}
+                                            className={`group flex h-full flex-col rounded-2xl border ${CARD_ACCENT.coding} p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg`}
+                                        >
+                                            <span className={`inline-block mb-3 text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded ${CATEGORY_BADGE.coding}`}>
+                                                {L.categoryBadgeLabel.coding}
+                                            </span>
+                                            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                                                        {lab.id}
+                                                    </p>
+                                                    <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
+                                                        {lab.title}
+                                                    </h3>
+                                                </div>
+                                                {completed ? (
+                                                    <span className={completedMdClass(lang)}>
+                                                        {L.ui.completedBadge}
+                                                    </span>
+                                                ) : null}
                                             </div>
-                                            <span className="inline-flex shrink-0 self-start rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-900 dark:border-amber-500/35 dark:bg-amber-500/10 dark:text-amber-200">
-                                                {L.ui.comingSoon}
-                                            </span>
-                                        </div>
 
-                                        <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
-                                            {L.ui.pedagogyHintLabel} <span className="not-italic">{lab.hint}</span>
-                                        </p>
-
-                                        <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
-                                            {lab.description}
-                                        </p>
-
-                                        {lab.badge ? (
-                                            <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                                                {L.ui.badgePrefix} <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
+                                            <p className="mb-2 text-xs italic text-slate-500 dark:text-slate-400">
+                                                {L.ui.pedagogyHintLabel} <span className="not-italic">{lab.hint}</span>
                                             </p>
-                                        ) : null}
 
-                                        <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-                                            <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
-                                                {lab.level}
-                                            </span>
-                                            <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/35 px-3 py-1 text-sm text-indigo-700 dark:text-indigo-300">
-                                                +{lab.xp} XP
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
+                                            <p className="min-h-[96px] text-sm text-slate-600 dark:text-slate-300">
+                                                {lab.description}
+                                            </p>
+
+                                            {lab.badge ? (
+                                                <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                                                    {L.ui.badgePrefix}{" "}
+                                                    <span className="font-medium text-slate-700 dark:text-slate-200">{lab.badge}</span>
+                                                </p>
+                                            ) : null}
+
+                                            <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-5">
+                                                <span className="rounded-lg bg-slate-200/80 dark:bg-slate-800 px-3 py-1 text-sm text-slate-700 dark:text-slate-200">
+                                                    {lab.level}
+                                                </span>
+                                                <div className="flex flex-wrap items-center gap-4 sm:justify-end">
+                                                    <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/35 px-3 py-1 text-sm text-indigo-700 dark:text-indigo-300">
+                                                        +{lab.xp} XP
+                                                    </span>
+                                                    <span className="text-sm font-semibold text-indigo-600 transition-transform group-hover:translate-x-1 dark:text-indigo-300">
+                                                        {L.ui.openLabCta}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         </section>
 

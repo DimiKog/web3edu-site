@@ -13,6 +13,10 @@ const COPY = {
         openLabel: "Open tool",
         miningRoute: "/tools/mining",
         posRoute: "/tools/pos",
+        remixSetupTitle: "Remix + Besu Edu-Net Setup",
+        remixSetupDescription:
+            "Configure Remix for Paris EVM, connect MetaMask to Besu Edu-Net, and deploy contracts without common compiler or network mistakes.",
+        remixSetupRoute: "/tools/remix-besu-setup",
     },
     gr: {
         badge: "Εργαλεία Ανάπτυξης",
@@ -25,6 +29,10 @@ const COPY = {
         openLabel: "Άνοιγμα εργαλείου",
         miningRoute: "/tools-gr/mining",
         posRoute: "/tools-gr/pos",
+        remixSetupTitle: "Ρύθμιση Remix + Besu Edu-Net",
+        remixSetupDescription:
+            "Ρύθμισε το Remix για Paris EVM, σύνδεσε το MetaMask στο Besu Edu-Net και κάνε deploy contracts χωρίς συνηθισμένα λάθη compiler ή δικτύου.",
+        remixSetupRoute: "/tools-gr/remix-besu-setup",
     },
 };
 
@@ -53,7 +61,7 @@ export default function Tools({ lang = "en" }) {
                         </p>
                     </div>
 
-                    <section className="mt-12 grid gap-6 md:grid-cols-2">
+                    <section className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         <Link
                             to={copy.miningRoute}
                             className="group rounded-3xl border border-slate-200/70 bg-white/80 p-8 shadow-xl transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(138,87,255,0.22)] dark:border-slate-700/60 dark:bg-slate-900/60"
@@ -87,6 +95,25 @@ export default function Tools({ lang = "en" }) {
                                 {copy.posDescription}
                             </p>
                             <div className="mt-6 inline-flex items-center gap-2 font-semibold text-[#0F766E]">
+                                {copy.openLabel}
+                                <span className="transition group-hover:translate-x-1">→</span>
+                            </div>
+                        </Link>
+
+                        <Link
+                            to={copy.remixSetupRoute}
+                            className="group rounded-3xl border border-slate-200/70 bg-white/80 p-8 shadow-xl transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(255,103,210,0.22)] dark:border-slate-700/60 dark:bg-slate-900/60"
+                        >
+                            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FF67D2] to-[#8A57FF] text-2xl text-white shadow-lg">
+                                ⚙
+                            </div>
+                            <h2 className="text-2xl font-bold text-slate-900 transition group-hover:text-[#FF67D2] dark:text-white">
+                                {copy.remixSetupTitle}
+                            </h2>
+                            <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                                {copy.remixSetupDescription}
+                            </p>
+                            <div className="mt-6 inline-flex items-center gap-2 font-semibold text-[#FF67D2]">
                                 {copy.openLabel}
                                 <span className="transition group-hover:translate-x-1">→</span>
                             </div>

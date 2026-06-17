@@ -1,7 +1,29 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAccount } from "wagmi";
 import SystemLabTemplate from "./SystemLabTemplate";
 import LabCompletionClaim from "../../components/LabCompletionClaim";
-import { AlertTriangle, Code2, ExternalLink, FileCode2, RotateCcw, BookOpen, TerminalSquare } from "lucide-react";
+import CodingLab01SetupSection from "../../components/labs/CodingLab01SetupSection.jsx";
+import { useIdentity } from "../../context/useIdentity.js";
+import { useSocialIdentity } from "../../context/SocialIdentityContext.jsx";
+import { getWeb3eduBackendUrl } from "../../lib/web3eduBackend.js";
+import {
+    getEffectiveLabsWalletIdentity,
+    postCoding01VerifyContract,
+} from "../../utils/labWriteApi.js";
+import { normalizeEvmAddress } from "../../utils/evmAddress.js";
+import {
+    AlertTriangle,
+    CheckCircle2,
+    Code2,
+    ExternalLink,
+    FileCode2,
+    Loader2,
+    RotateCcw,
+    BookOpen,
+    TerminalSquare,
+    XCircle,
+} from "lucide-react";
 
 const REMIX_URL = "https://remix.ethereum.org/";
 
@@ -26,11 +48,12 @@ const CONTENT = {
             "Open Remix and create a new file named Counter.sol.",
             "Compile the contract successfully using Solidity 0.8.x.",
             "Deploy the contract to Besu Edu-Net with your browser wallet.",
-            "Confirm that your contract has its own deployed address and can be found on-chain.",
+            "Paste your deployed contract address below and verify it on Besu Edu-Net through Web3Edu.",
             "Answer the checkpoint questions correctly to complete the lab.",
         ],
         backHref: "/labs/coding-01",
-        backLabel: "Back to Coding Lab 01",
+        backLabel: "⬅ Back to lab overview",
+        labsOverviewPath: "/labs",
         simulatorTitle: "Build Workflow",
         workflowTitle: "Coding workflow",
         workflowIntro:
@@ -38,6 +61,9 @@ const CONTENT = {
         remixTitle: "Open Remix IDE",
         remixDescription:
             "Remix is a browser-based Solidity development environment. In this lab, you use it to write the contract, compile it into deployable artifacts, connect your wallet through Injected Provider, and send the deployment transaction to Besu Edu-Net.",
+        setupGuidePath: "/tools/remix-besu-setup",
+        setupGuideLinkLabel: "Remix + Besu setup guide",
+        setupGuideHint: "Set EVM version to Paris before compiling — see the setup guide if deployment fails.",
         codeTitle: "Contract Preview",
         checklistTitle: "Build Checklist",
         commonMistakesTitle: "Common Mistakes",
@@ -54,8 +80,9 @@ const CONTENT = {
         comparisonTitle: "Key Takeaways",
         reflectionTitle: "Checkpoint",
         currentAction: "Current lab state",
-        allStepsCompleted: "All required tasks completed",
-        checkpointReadyToClaim: "All tasks and checkpoint requirements are complete. You can now claim the reward.",
+        allStepsCompleted: "All required tasks and on-chain verification completed",
+        checkpointReadyToClaim:
+            "All tasks, on-chain verification, and the checkpoint are complete. You can now claim the reward.",
         checkpointQuestion: "What is the main purpose of deployment in this lab?",
         checkpointOptions: [
             "To create a new live contract instance on-chain at its own address.",
@@ -70,12 +97,33 @@ const CONTENT = {
             "Not quite. Focus on what deployment changes on the blockchain itself: it creates a new contract instance with its own address.",
         completeLabel: "Lab completion",
         completeDescription:
-            "Finish the guided workflow and answer the checkpoint correctly to unlock the reward claim.",
+            "Finish the checklist, verify your deployed contract on Besu Edu-Net, and answer the checkpoint correctly to unlock the reward claim.",
+        verifySectionTitle: "Verify deployed contract",
+        verifySectionDescription:
+            "Paste the contract address from Remix’s Deployed Contracts panel. Web3Edu will check that bytecode exists on Besu Edu-Net.",
+        contractAddressLabel: "Deployed contract address",
+        contractAddressPlaceholder: "0x…",
+        verifyButton: "Verify Contract",
+        verifyingButton: "Verifying…",
+        walletRequired: "Connect your Web3Edu identity before verifying a contract.",
+        invalidAddress: "Enter a valid contract address (0x followed by 40 hex characters).",
+        successFound: "Contract found on Besu Edu-Net",
+        successCounter: "Counter interface detected",
+        verifiedAddressLabel: "Verified address",
+        detectedFunctionsLabel: "Detected functions",
+        failureTitle: "Verification failed",
+        failureTips: [
+            "Check that you copied the contract address, not your wallet address.",
+            "Check that your wallet was connected to Besu Edu-Net during deployment.",
+            "Check that the contract was deployed successfully in Remix.",
+            "Check Remix compiler setting: EVM version Paris.",
+            "Blockscout source-code verification is optional and not required for Web3Edu completion.",
+        ],
         tasks: {
             createFile: "Created the Solidity file in Remix",
             compile: "Compiled the contract successfully",
             deploy: "Deployed the contract to Besu Edu-Net",
-            verify: "Verified that the contract has its own deployed address",
+            verify: "Verified the deployed contract on Besu Edu-Net",
         },
         actionLabels: {
             markDone: "Mark as done",
@@ -125,11 +173,12 @@ contract Counter {
             "Άνοιξε το Remix και δημιούργησε ένα νέο αρχείο με όνομα Counter.sol.",
             "Κάνε compile το contract επιτυχώς με Solidity 0.8.x.",
             "Κάνε deploy το contract στο Besu Edu-Net με το browser wallet σου.",
-            "Επιβεβαίωσε ότι το contract σου έχει τη δική του deployed διεύθυνση και μπορεί να βρεθεί on-chain.",
+            "Επικόλλησε τη deployed contract address παρακάτω και επαλήθευσέ τη στο Besu Edu-Net μέσω Web3Edu.",
             "Απάντησε σωστά στο checkpoint για να ολοκληρώσεις το lab.",
         ],
         backHref: "/labs-gr/coding-01",
-        backLabel: "Επιστροφή στο Coding Lab 01",
+        backLabel: "⬅ Επιστροφή στην επισκόπηση",
+        labsOverviewPath: "/labs-gr",
         simulatorTitle: "Ροή Εργασίας Build",
         workflowTitle: "Ροή εργασίας coding",
         workflowIntro:
@@ -137,6 +186,9 @@ contract Counter {
         remixTitle: "Άνοιγμα Remix IDE",
         remixDescription:
             "Το Remix είναι ένα browser-based περιβάλλον ανάπτυξης Solidity. Σε αυτό το lab το χρησιμοποιείς για να γράψεις το contract, να κάνεις compile σε deployable artifacts, να συνδέσεις το wallet σου μέσω Injected Provider και να στείλεις το deployment transaction στο Besu Edu-Net.",
+        setupGuidePath: "/tools-gr/remix-besu-setup",
+        setupGuideLinkLabel: "Οδηγός ρύθμισης Remix + Besu",
+        setupGuideHint: "Όρισε EVM version σε Paris πριν το compile — δες τον οδηγό ρύθμισης αν αποτύχει το deployment.",
         codeTitle: "Προεπισκόπηση Contract",
         checklistTitle: "Build Checklist",
         commonMistakesTitle: "Συχνά Λάθη",
@@ -153,8 +205,9 @@ contract Counter {
         comparisonTitle: "Βασικά Συμπεράσματα",
         reflectionTitle: "Checkpoint",
         currentAction: "Τρέχουσα κατάσταση lab",
-        allStepsCompleted: "Όλες οι απαιτούμενες εργασίες ολοκληρώθηκαν",
-        checkpointReadyToClaim: "Όλες οι εργασίες και το checkpoint έχουν ολοκληρωθεί. Μπορείς τώρα να κάνεις claim το reward.",
+        allStepsCompleted: "Όλες οι απαιτούμενες εργασίες και η on-chain επαλήθευση ολοκληρώθηκαν",
+        checkpointReadyToClaim:
+            "Όλες οι εργασίες, η on-chain επαλήθευση και το checkpoint ολοκληρώθηκαν. Μπορείς τώρα να κάνεις claim το reward.",
         checkpointQuestion: "Ποιος είναι ο βασικός σκοπός του deployment σε αυτό το lab;",
         checkpointOptions: [
             "Να δημιουργήσει ένα νέο live contract instance on-chain στη δική του διεύθυνση.",
@@ -169,12 +222,33 @@ contract Counter {
             "Όχι ακριβώς. Εστίασε στο τι αλλάζει το deployment στο ίδιο το blockchain: δημιουργεί ένα νέο contract instance με δική του διεύθυνση.",
         completeLabel: "Ολοκλήρωση Lab",
         completeDescription:
-            "Ολοκλήρωσε τη guided ροή εργασίας και απάντησε σωστά στο checkpoint για να ξεκλειδώσεις το reward claim.",
+            "Ολοκλήρωσε το checklist, επαλήθευσε το deployed contract στο Besu Edu-Net και απάντησε σωστά στο checkpoint για να ξεκλειδώσεις το reward claim.",
+        verifySectionTitle: "Επαλήθευση deployed contract",
+        verifySectionDescription:
+            "Επικόλλησε τη contract address από το Deployed Contracts panel του Remix. Το Web3Edu θα ελέγξει ότι υπάρχει bytecode στο Besu Edu-Net.",
+        contractAddressLabel: "Deployed contract address",
+        contractAddressPlaceholder: "0x…",
+        verifyButton: "Επαλήθευση Contract",
+        verifyingButton: "Επαλήθευση…",
+        walletRequired: "Σύνδεσε την Web3Edu identity σου πριν την επαλήθευση contract.",
+        invalidAddress: "Εισήγαγε έγκυρη contract address (0x ακολουθούμενο από 40 hex χαρακτήρες).",
+        successFound: "Το contract βρέθηκε στο Besu Edu-Net",
+        successCounter: "Εντοπίστηκε Counter interface",
+        verifiedAddressLabel: "Επαληθευμένη διεύθυνση",
+        detectedFunctionsLabel: "Εντοπισμένες συναρτήσεις",
+        failureTitle: "Η επαλήθευση απέτυχε",
+        failureTips: [
+            "Έλεγξε ότι αντέγραψες τη contract address και όχι το wallet address σου.",
+            "Έλεγξε ότι το wallet ήταν συνδεδεμένο στο Besu Edu-Net κατά το deployment.",
+            "Έλεγξε ότι το contract έγινε deploy επιτυχώς στο Remix.",
+            "Έλεγξε τη ρύθμιση compiler στο Remix: EVM version Paris.",
+            "Η επαλήθευση πηγαίου κώδικα στο Blockscout είναι προαιρετική και δεν απαιτείται για ολοκλήρωση Web3Edu.",
+        ],
         tasks: {
             createFile: "Δημιούργησα το Solidity αρχείο στο Remix",
             compile: "Έκανα compile το contract επιτυχώς",
             deploy: "Έκανα deploy το contract στο Besu Edu-Net",
-            verify: "Επιβεβαίωσα ότι το contract έχει τη δική του deployed διεύθυνση",
+            verify: "Επαλήθευσα το deployed contract στο Besu Edu-Net",
         },
         actionLabels: {
             markDone: "Σήμανση ως ολοκληρωμένο",
@@ -231,14 +305,34 @@ function CheckItem({ done, title, description, actionLabel, doneLabel, onClick }
 }
 
 export default function CodingLabInteraction1({ lang = "en" }) {
-    const copy = CONTENT[lang];
+    const copy = CONTENT[lang] || CONTENT.en;
+    const { address } = useAccount();
+    const { smartAccount, owner: identityOwner } = useIdentity();
+    const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
+    const apiBase = getWeb3eduBackendUrl();
+
+    const { wallet: progressWallet, owner: progressOwner } = useMemo(
+        () =>
+            getEffectiveLabsWalletIdentity({
+                smartAccount,
+                isOidcAuthenticated,
+                socialIdentity,
+                address,
+                owner: identityOwner,
+            }),
+        [smartAccount, isOidcAuthenticated, socialIdentity, address, identityOwner]
+    );
 
     const [tasks, setTasks] = useState({
         createFile: false,
         compile: false,
         deploy: false,
-        verify: false,
     });
+    const [contractAddressInput, setContractAddressInput] = useState("");
+    const [contractVerified, setContractVerified] = useState(false);
+    const [verificationResult, setVerificationResult] = useState(null);
+    const [verificationError, setVerificationError] = useState(null);
+    const [verifying, setVerifying] = useState(false);
     const [checkpointAnswer, setCheckpointAnswer] = useState(null);
     const [checkpointSubmitted, setCheckpointSubmitted] = useState(false);
     const [checkpointCorrect, setCheckpointCorrect] = useState(false);
@@ -248,7 +342,7 @@ export default function CodingLabInteraction1({ lang = "en" }) {
             tasks.createFile,
             tasks.compile,
             tasks.deploy,
-            tasks.verify,
+            contractVerified,
             checkpointCorrect,
         ];
 
@@ -258,15 +352,20 @@ export default function CodingLabInteraction1({ lang = "en" }) {
             text: copy.instructions[index],
             complete: current[index],
         }));
-    }, [copy, tasks, checkpointCorrect]);
+    }, [copy, tasks, contractVerified, checkpointCorrect]);
 
     const currentStep = useMemo(() => {
-        const completion = [tasks.createFile, tasks.compile, tasks.deploy, tasks.verify, checkpointCorrect];
+        const completion = [tasks.createFile, tasks.compile, tasks.deploy, contractVerified, checkpointCorrect];
         const idx = completion.findIndex((item) => !item);
         return idx === -1 ? stepItems.length : idx;
-    }, [tasks, checkpointCorrect, stepItems.length]);
+    }, [tasks, contractVerified, checkpointCorrect, stepItems.length]);
 
-    const isComplete = tasks.createFile && tasks.compile && tasks.deploy && tasks.verify && checkpointCorrect;
+    const isComplete =
+        tasks.createFile &&
+        tasks.compile &&
+        tasks.deploy &&
+        contractVerified &&
+        checkpointCorrect;
 
     const toggleTask = (key) => {
         setTasks((prev) => ({ ...prev, [key]: true }));
@@ -277,11 +376,82 @@ export default function CodingLabInteraction1({ lang = "en" }) {
             createFile: false,
             compile: false,
             deploy: false,
-            verify: false,
         });
+        setContractAddressInput("");
+        setContractVerified(false);
+        setVerificationResult(null);
+        setVerificationError(null);
+        setVerifying(false);
         setCheckpointAnswer(null);
         setCheckpointSubmitted(false);
         setCheckpointCorrect(false);
+    };
+
+    const handleContractAddressChange = (event) => {
+        setContractAddressInput(event.target.value);
+        if (contractVerified || verificationError || verificationResult) {
+            setContractVerified(false);
+            setVerificationResult(null);
+            setVerificationError(null);
+        }
+    };
+
+    const verifyContract = async () => {
+        if (!progressWallet) {
+            setVerificationError(copy.walletRequired);
+            setContractVerified(false);
+            setVerificationResult(null);
+            return;
+        }
+
+        const normalizedAddress = normalizeEvmAddress(contractAddressInput);
+        if (!normalizedAddress) {
+            setVerificationError(copy.invalidAddress);
+            setContractVerified(false);
+            setVerificationResult(null);
+            return;
+        }
+
+        setVerifying(true);
+        setVerificationError(null);
+        setVerificationResult(null);
+        setContractVerified(false);
+
+        try {
+            const result = await postCoding01VerifyContract({
+                apiBase,
+                smartAccount,
+                address,
+                owner: identityOwner,
+                isOidcAuthenticated,
+                socialIdentity,
+                contractAddress: normalizedAddress,
+            });
+
+            if (result.ok) {
+                setContractVerified(true);
+                setVerificationResult(result.data);
+                setContractAddressInput(result.data.contractAddress || normalizedAddress);
+                if (import.meta.env.DEV && result.data?.identityKey) {
+                    // eslint-disable-next-line no-console -- confirm evidence stored under expected identity
+                    console.log("CODING01 VERIFY STORED UNDER", {
+                        identityKey: result.data.identityKey,
+                        wallet: progressWallet,
+                        owner: progressOwner ?? null,
+                    });
+                }
+            } else {
+                setVerificationError(
+                    result.data?.message ||
+                        result.data?.error ||
+                        copy.failureTitle
+                );
+            }
+        } catch {
+            setVerificationError(copy.failureTitle);
+        } finally {
+            setVerifying(false);
+        }
     };
 
     const submitCheckpoint = () => {
@@ -290,6 +460,13 @@ export default function CodingLabInteraction1({ lang = "en" }) {
         setCheckpointSubmitted(true);
         setCheckpointCorrect(isCorrect);
     };
+
+    const counterInterfaceDetected =
+        verificationResult?.matchesTemplate === true ||
+        (Array.isArray(verificationResult?.detectedFunctions) &&
+            verificationResult.detectedFunctions.some((fn) =>
+                ["value()", "increment()"].includes(fn)
+            ));
 
     const simulatorContent = (
         <div className="rounded-[2rem] border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04] sm:p-7">
@@ -308,16 +485,34 @@ export default function CodingLabInteraction1({ lang = "en" }) {
                                     <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-200">
                                         {copy.remixDescription}
                                     </p>
+                                    <p className="mt-2 text-xs leading-6 text-slate-600 dark:text-slate-300">
+                                        {copy.setupGuideHint}{" "}
+                                        <Link
+                                            to={copy.setupGuidePath}
+                                            className="font-semibold text-cyan-700 underline decoration-cyan-300/70 underline-offset-2 hover:text-cyan-600 dark:text-cyan-200 dark:hover:text-cyan-100"
+                                        >
+                                            {copy.setupGuideLinkLabel}
+                                        </Link>
+                                    </p>
                                 </div>
-                                <a
-                                    href={REMIX_URL}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-cyan-300/70 bg-white px-4 py-2.5 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-100 dark:border-cyan-400/25 dark:bg-slate-950/40 dark:text-cyan-100 dark:hover:bg-cyan-400/15"
-                                >
-                                    <ExternalLink className="h-4 w-4" />
-                                    remix.ethereum.org
-                                </a>
+                                <div className="flex shrink-0 flex-col gap-2 sm:flex-row lg:flex-col">
+                                    <a
+                                        href={REMIX_URL}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center justify-center gap-2 rounded-full border border-cyan-300/70 bg-white px-4 py-2.5 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-100 dark:border-cyan-400/25 dark:bg-slate-950/40 dark:text-cyan-100 dark:hover:bg-cyan-400/15"
+                                    >
+                                        <ExternalLink className="h-4 w-4" />
+                                        remix.ethereum.org
+                                    </a>
+                                    <Link
+                                        to={copy.setupGuidePath}
+                                        className="inline-flex items-center justify-center gap-2 rounded-full border border-[#8A57FF]/30 bg-[#8A57FF]/10 px-4 py-2.5 text-sm font-semibold text-[#8A57FF] transition hover:bg-[#8A57FF]/15"
+                                    >
+                                        <BookOpen className="h-4 w-4" />
+                                        {copy.setupGuideLinkLabel}
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -418,14 +613,102 @@ export default function CodingLabInteraction1({ lang = "en" }) {
                                 doneLabel={copy.actionLabels.markedDone}
                                 onClick={() => toggleTask("deploy")}
                             />
-                            <CheckItem
-                                done={tasks.verify}
-                                title={copy.tasks.verify}
-                                description={lang === "gr" ? "Βρες το deployed contract address και επιβεβαίωσέ το στο block explorer ή μέσα από το deployment panel του Remix." : "Find the deployed contract address and confirm it in the block explorer or in Remix’s deployment panel."}
-                                actionLabel={copy.actionLabels.markDone}
-                                doneLabel={copy.actionLabels.markedDone}
-                                onClick={() => toggleTask("verify")}
+                        </div>
+
+                        <div className="mt-6 rounded-2xl border border-slate-200/70 bg-slate-50/90 p-4 dark:border-white/10 dark:bg-slate-950/45">
+                            <div className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700/80 dark:text-cyan-200/80">
+                                {copy.stepLabel} 4
+                            </div>
+                            <h4 className="mt-2 text-sm font-semibold text-slate-900 dark:text-white">
+                                {copy.verifySectionTitle}
+                            </h4>
+                            <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                                {copy.verifySectionDescription}
+                            </p>
+
+                            <label className="mt-4 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                {copy.contractAddressLabel}
+                            </label>
+                            <input
+                                type="text"
+                                value={contractAddressInput}
+                                onChange={handleContractAddressChange}
+                                placeholder={copy.contractAddressPlaceholder}
+                                spellCheck={false}
+                                autoComplete="off"
+                                className="mt-2 w-full rounded-xl border border-slate-300/70 bg-white px-4 py-3 font-mono text-sm text-slate-800 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-200/60 dark:border-white/10 dark:bg-slate-950/60 dark:text-slate-100 dark:focus:border-cyan-400/40 dark:focus:ring-cyan-400/20"
                             />
+
+                            <button
+                                type="button"
+                                onClick={verifyContract}
+                                disabled={verifying || !contractAddressInput.trim()}
+                                className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
+                                    verifying || !contractAddressInput.trim()
+                                        ? "cursor-not-allowed border border-slate-200/70 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-500"
+                                        : "border border-cyan-300/70 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 dark:border-cyan-400/25 dark:bg-cyan-400/10 dark:text-cyan-100 dark:hover:bg-cyan-400/15"
+                                }`}
+                            >
+                                {verifying ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        {copy.verifyingButton}
+                                    </>
+                                ) : (
+                                    copy.verifyButton
+                                )}
+                            </button>
+
+                            {contractVerified && verificationResult && (
+                                <div className="mt-4 space-y-3 rounded-2xl border border-emerald-300/60 bg-emerald-50 px-4 py-4 text-sm leading-7 text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-200">
+                                    <div className="flex items-start gap-2 font-semibold">
+                                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                                        <span>{copy.successFound}</span>
+                                    </div>
+                                    {counterInterfaceDetected && (
+                                        <div className="flex items-start gap-2 font-semibold">
+                                            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                                            <span>{copy.successCounter}</span>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <span className="font-semibold">{copy.verifiedAddressLabel}: </span>
+                                        <span className="font-mono break-all">
+                                            {verificationResult.contractAddress || contractAddressInput}
+                                        </span>
+                                    </div>
+                                    {Array.isArray(verificationResult.detectedFunctions) &&
+                                        verificationResult.detectedFunctions.length > 0 && (
+                                            <div>
+                                                <span className="font-semibold">{copy.detectedFunctionsLabel}: </span>
+                                                <span>{verificationResult.detectedFunctions.join(", ")}</span>
+                                            </div>
+                                        )}
+                                    {verificationResult.message && (
+                                        <p className="text-emerald-800 dark:text-emerald-100">
+                                            {verificationResult.message}
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
+                            {verificationError && !contractVerified && (
+                                <div className="mt-4 rounded-2xl border border-amber-300/60 bg-amber-50 px-4 py-4 text-sm leading-7 text-amber-900 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-100">
+                                    <div className="flex items-start gap-2 font-semibold">
+                                        <XCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                                        <span>{copy.failureTitle}</span>
+                                    </div>
+                                    <p className="mt-2">{verificationError}</p>
+                                    <ul className="mt-3 space-y-2">
+                                        {copy.failureTips.map((tip) => (
+                                            <li key={tip} className="flex items-start gap-2">
+                                                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" />
+                                                <span>{tip}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                         </div>
 
                         <button
@@ -561,6 +844,7 @@ export default function CodingLabInteraction1({ lang = "en" }) {
             xp={400}
             badge={copy.badge}
             backHref={copy.backHref}
+            backLabel={copy.backLabel}
             completedLabel={copy.allStepsCompleted}
             language={lang}
         />
@@ -576,9 +860,10 @@ export default function CodingLabInteraction1({ lang = "en" }) {
             xp={400}
             badge={copy.badge}
             backHref={copy.backHref}
-            backLabel={copy.backLabel}
+            labsOverviewPath={copy.labsOverviewPath}
             kicker={copy.kicker}
             statusBadge={isComplete ? copy.allStepsCompleted : null}
+            heroBottom={<CodingLab01SetupSection lang={lang} compact />}
             steps={stepItems}
             currentStep={currentStep}
             simulatorContent={simulatorContent}
@@ -599,6 +884,7 @@ export default function CodingLabInteraction1({ lang = "en" }) {
                 completionDescription: copy.completeDescription,
                 breadcrumbLabs: lang === "gr" ? "Εργαστήρια" : "Labs",
                 breadcrumbSystemLabs: lang === "gr" ? "Εργαστήρια Προγραμματισμού" : "Coding Labs",
+                backLabel: copy.backLabel,
                 level: lang === "gr" ? "Επίπεδο" : "Level",
                 estimatedTime: lang === "gr" ? "Εκτιμώμενος χρόνος" : "Estimated time",
                 xp: "XP",

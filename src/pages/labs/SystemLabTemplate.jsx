@@ -151,6 +151,7 @@ const SystemLabTemplate = ({
     labels = {},
     language = "en",
     backHref = null,
+    labsOverviewPath = null,
 
     // hero extras
     kicker = null,
@@ -236,7 +237,16 @@ const SystemLabTemplate = ({
             <div className="max-w-7xl mx-auto px-4 py-10">
                 {/* Breadcrumb */}
                 <nav className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-                    <span>{mergedLabels.breadcrumbLabs}</span>
+                    {labsOverviewPath ? (
+                        <Link
+                            to={labsOverviewPath}
+                            className="font-medium text-indigo-600 transition hover:underline dark:text-indigo-300"
+                        >
+                            {mergedLabels.breadcrumbLabs}
+                        </Link>
+                    ) : (
+                        <span>{mergedLabels.breadcrumbLabs}</span>
+                    )}
                     <span className="mx-2">→</span>
                     <span>{mergedLabels.breadcrumbSystemLabs}</span>
                     <span className="mx-2">→</span>

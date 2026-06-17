@@ -26,6 +26,7 @@ const GenesisEvent = lazy(() => import("../pages/events/GenesisEvent.jsx"));
 const Tools = lazy(() => import("../pages/Tools.jsx"));
 const MiningLab = lazy(() => import("../pages/MiningLab.jsx"));
 const PoSVisualizer = lazy(() => import("../pages/tools/PoSVisualizer.jsx"));
+const RemixBesuSetup = lazy(() => import("../pages/tools/RemixBesuSetup.jsx"));
 const AuthCallback = lazy(() => import("../pages/AuthCallback.jsx"));
 const OidcTestPage = lazy(() => import("../pages/OidcTestPage.jsx"));
 
@@ -155,6 +156,8 @@ export const routeTable = {
     { path: "/tools-gr/mining", component: MiningLab, props: { lang: "gr" } },
     { path: "/tools/pos", component: PoSVisualizer },
     { path: "/tools-gr/pos", component: PoSVisualizer, props: { lang: "gr" } },
+    { path: "/tools/remix-besu-setup", component: RemixBesuSetup },
+    { path: "/tools-gr/remix-besu-setup", component: RemixBesuSetup, props: { lang: "gr" } },
   ],
 
   web3: {

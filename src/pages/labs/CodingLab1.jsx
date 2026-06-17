@@ -1,8 +1,9 @@
 import { useAccount } from "wagmi";
 import { useIdentity } from "../../context/useIdentity.js";
 import LabTemplate from "./LabTemplate";
+import CodingLab01SetupSection from "../../components/labs/CodingLab01SetupSection.jsx";
 import { useLabAutoStartOnce } from "../../hooks/useLabAutoStartOnce.js";
-import lab05HeroImg from "../../assets/labs/lab05-smart-contracts-state-diagram.webp";
+import codingLab01HeroImg from "../../assets/labs/coding1.webp";
 
 const CONTENT = {
     en: {
@@ -10,7 +11,7 @@ const CONTENT = {
         subtitle:
             "Create your first Solidity contract, compile it in Remix, deploy it to Besu Edu-Net, and verify that your own contract instance is live on-chain.",
         conceptualFocusText:
-            "This lab introduces the full path from source code to deployed smart contract. Instead of interacting with an already deployed contract, you will write a minimal Solidity contract, compile it in Remix, deploy it yourself, and verify that your own contract instance is live on-chain.",
+            "You will write a minimal Solidity contract, deploy it on Besu Edu-Net, and verify that your contract instance is live on-chain. Use the Remix + Besu Edu-Net setup guide first if your wallet or Remix is not ready.",
         level: "Beginner",
         estimatedTime: "15–20 minutes",
         tools: [
@@ -25,8 +26,10 @@ const CONTENT = {
             "Basic familiarity with smart contracts and on-chain state",
         ],
         interactionPath: "/labs/coding-01/interaction",
+        labsOverviewPath: "/labs",
         labels: {
             headerPill: "🧪 Web3Edu · Coding Lab",
+            backToLabsLabel: "Back to all labs",
             heroCaption:
                 "Building begins with deployment — write a minimal contract, compile it, and launch your own on-chain instance.",
             conceptualFocus: "Conceptual focus",
@@ -37,7 +40,7 @@ const CONTENT = {
         subtitle:
             "Δημιούργησε το πρώτο σου Solidity contract, κάνε compile στο Remix, κάνε deploy στο Besu Edu-Net και επιβεβαίωσε ότι το δικό σου contract instance είναι live on-chain.",
         conceptualFocusText:
-            "Αυτό το lab εισάγει όλη τη διαδρομή από τον πηγαίο κώδικα μέχρι το ανεπτυγμένο smart contract. Αντί να αλληλεπιδράς με ένα ήδη ανεπτυγμένο contract, θα γράψεις ένα ελάχιστο Solidity contract, θα κάνεις compile στο Remix, θα το κάνεις deploy ο ίδιος και θα επιβεβαιώσεις ότι το δικό σου contract instance είναι live on-chain.",
+            "Θα γράψεις ένα ελάχιστο Solidity contract, θα το κάνεις deploy στο Besu Edu-Net και θα επιβεβαιώσεις ότι το contract instance σου είναι live on-chain. Χρησιμοποίησε πρώτα τον οδηγό ρύθμισης Remix + Besu Edu-Net αν το wallet ή το Remix δεν είναι έτοιμα.",
         level: "Αρχάριο",
         estimatedTime: "15–20 λεπτά",
         tools: [
@@ -52,8 +55,10 @@ const CONTENT = {
             "Βασική εξοικείωση με smart contracts και on-chain state",
         ],
         interactionPath: "/labs-gr/coding-01/interaction",
+        labsOverviewPath: "/labs-gr",
         labels: {
             breadcrumbLabs: "Εργαστήρια",
+            backToLabsLabel: "Επιστροφή στα εργαστήρια",
             level: "Επίπεδο",
             estimatedTime: "Εκτιμώμενος χρόνος",
             tools: "Χρησιμοποιούμενα εργαλεία",
@@ -95,12 +100,14 @@ export default function CodingLab01({ lang = "en" }) {
             title={t.title}
             subtitle={t.subtitle}
             conceptualFocusText={t.conceptualFocusText}
-            heroImage={lab05HeroImg}
+            heroImage={codingLab01HeroImg}
             level={t.level}
             estimatedTime={t.estimatedTime}
             tools={t.tools}
             prerequisites={t.prerequisites}
             interactionPath={t.interactionPath}
+            labsOverviewPath={t.labsOverviewPath}
+            beforeStartSection={<CodingLab01SetupSection lang={lang} />}
             readmeUrl="https://github.com/DimiKog/web3edu-labs"
             xp={400}
             badge="Smart Contract Deployer"

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import PageShell from "../../components/PageShell";
 import { useAccount } from "wagmi";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -11,6 +12,7 @@ import { getLabsStatusReadIdentity, postLabsStart } from "../../utils/labWriteAp
 
 const DEFAULT_LABELS = {
     breadcrumbLabs: "Labs",
+    backToLabsLabel: "Back to all labs",
     overview: "",
     level: "Level",
     estimatedTime: "Estimated time",
@@ -60,6 +62,10 @@ const LabTemplate = ({
     ],
     interactionPath = null,
     readmeUrl = "https://github.com/dimikog/web3edu-labs/blob/main/lab-01-wallets-identity/README.md",
+    setupGuidePath = null,
+    setupGuideLabel = "Setup guide",
+    labsOverviewPath = null,
+    beforeStartSection = null,
     conceptualFocusText = "",
     labels = {},
 }) => {
@@ -153,14 +159,30 @@ const LabTemplate = ({
             <div className="max-w-4xl mx-auto px-4 py-12">
                 {/* Breadcrumb */}
                 <nav className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-                    <span className="hover:underline cursor-default">
-                        {mergedLabels.breadcrumbLabs}
-                    </span>
+                    {labsOverviewPath ? (
+                        <Link
+                            to={labsOverviewPath}
+                            className="font-medium text-indigo-600 transition hover:underline dark:text-indigo-300"
+                        >
+                            {mergedLabels.breadcrumbLabs}
+                        </Link>
+                    ) : (
+                        <span className="cursor-default">{mergedLabels.breadcrumbLabs}</span>
+                    )}
                     <span className="mx-2">→</span>
                     <span className="text-slate-700 dark:text-slate-300">
                         {title}
                     </span>
                 </nav>
+
+                {labsOverviewPath ? (
+                    <Link
+                        to={labsOverviewPath}
+                        className="mb-6 inline-flex text-sm font-semibold text-indigo-600 transition hover:translate-x-1 dark:text-indigo-300"
+                    >
+                        {mergedLabels.backToLabsLabel}
+                    </Link>
+                ) : null}
 
                 {/* Header */}
                 <header className="mb-10">
@@ -314,6 +336,29 @@ const LabTemplate = ({
                         ))}
                     </ul>
                 </section>
+
+                {beforeStartSection ? <div className="mb-10">{beforeStartSection}</div> : null}
+
+                {setupGuidePath && !beforeStartSection && (
+                    <section
+                        className="mb-10 rounded-2xl border border-cyan-200/70 dark:border-cyan-400/25
+                        bg-cyan-50/70 dark:bg-cyan-400/10 p-6"
+                    >
+                        <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
+                            {setupGuideLabel}
+                        </h3>
+                        <p className="mb-4 text-sm text-slate-700 dark:text-slate-300">
+                            {mergedLabels.setupGuideHint ||
+                                "Complete this setup guide before starting the lab if you have not configured Remix and Besu Edu-Net yet."}
+                        </p>
+                        <a
+                            href={`/#${setupGuidePath}`}
+                            className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/70 bg-white px-4 py-2.5 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-100 dark:border-cyan-400/25 dark:bg-slate-950/40 dark:text-cyan-100 dark:hover:bg-cyan-400/15"
+                        >
+                            {mergedLabels.setupGuideCta || "Open setup guide →"}
+                        </a>
+                    </section>
+                )}
 
                 {/* CTA */}
                 <div className="flex justify-center mt-12">

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAccount, useSignMessage } from "wagmi";
 import FeedbackModal from "./FeedbackModal";
 import { useIdentity } from "../context/useIdentity.js";
@@ -6,13 +7,10 @@ import { warnIfIdentityNotInitialized } from "../utils/identityReadiness.js";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import {
     buildLabsStatusUrl,
-    buildResolveOwner,
     getWeb3eduBackendUrl,
 } from "../lib/web3eduBackend.js";
-import { getLabsStatusReadIdentity, postLabsStart } from "../utils/labWriteApi.js";
+import { getEffectiveLabsWalletIdentity, getLabsStatusReadIdentity, postLabsStart } from "../utils/labWriteApi.js";
 import { getOwnerWallet } from "../utils/aaIdentity.js";
-import { getSocialIdentityAaAddress } from "../utils/socialIdentityPayload.js";
-import { normalizeEvmAddress } from "../utils/evmAddress.js";
 
 const COPY = {
     en: {
@@ -39,6 +37,13 @@ const COPY = {
     },
 };
 
+function normalizeBackLinkPath(backHref) {
+    if (!backHref) return null;
+    if (backHref.startsWith("/#/")) return backHref.slice(2);
+    if (backHref.startsWith("#/")) return backHref.slice(1);
+    return backHref;
+}
+
 export default function LabCompletionClaim({
     labId,
     language = "en",
@@ -55,19 +60,20 @@ export default function LabCompletionClaim({
     const { smartAccount, owner: identityOwner } = useIdentity();
     const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
 
-    const effectiveSmartAccount = useMemo(() => {
-        const localSc = normalizeEvmAddress(smartAccount);
-        if (localSc) return localSc;
-        if (!isOidcAuthenticated) return null;
-        return normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity));
-    }, [smartAccount, isOidcAuthenticated, socialIdentity]);
-    const { identityAddress } = useMemo(
-        () => getLabsStatusReadIdentity({ smartAccount: effectiveSmartAccount }),
-        [effectiveSmartAccount]
+    const { wallet: effectiveWallet, owner: ownerForWrites } = useMemo(
+        () =>
+            getEffectiveLabsWalletIdentity({
+                smartAccount,
+                isOidcAuthenticated,
+                socialIdentity,
+                address,
+                owner: identityOwner,
+            }),
+        [smartAccount, isOidcAuthenticated, socialIdentity, address, identityOwner]
     );
-    const ownerForWrites = useMemo(
-        () => buildResolveOwner(address, identityOwner),
-        [address, identityOwner]
+    const { identityAddress } = useMemo(
+        () => getLabsStatusReadIdentity({ smartAccount: effectiveWallet }),
+        [effectiveWallet]
     );
     const { signMessageAsync } = useSignMessage();
 
@@ -204,9 +210,9 @@ export default function LabCompletionClaim({
     const handleClaimCompletion = async () => {
         if (claimed) return;
 
-        if (!effectiveSmartAccount) {
+        if (!effectiveWallet) {
             warnIfIdentityNotInitialized("LabCompletionClaim", {
-                smartAccount: effectiveSmartAccount,
+                smartAccount: effectiveWallet,
                 owner: identityOwner,
             });
             setError(labels.walletNotConnectedError);
@@ -224,7 +230,7 @@ export default function LabCompletionClaim({
         try {
             const startRes = await postLabsStart({
                 apiBase: BACKEND,
-                smartAccount: effectiveSmartAccount,
+                smartAccount: effectiveWallet,
                 address,
                 owner: identityOwner,
                 labId,
@@ -253,7 +259,7 @@ export default function LabCompletionClaim({
                     "X-API-KEY": import.meta.env.VITE_XP_SECRET,
                 },
                 body: JSON.stringify({
-                    wallet: effectiveSmartAccount,
+                    wallet: effectiveWallet,
                     owner: ownerForWrites,
                     labId,
                     message,
@@ -333,12 +339,12 @@ export default function LabCompletionClaim({
             )}
 
             {backHref && (
-                <a
-                    href={backHref}
+                <Link
+                    to={normalizeBackLinkPath(backHref)}
                     className="inline-block mt-4 px-4 py-2 rounded-md bg-slate-700 text-white hover:bg-slate-800"
                 >
                     {backLabel || labels.backToOverview}
-                </a>
+                </Link>
             )}
 
             <FeedbackModal
