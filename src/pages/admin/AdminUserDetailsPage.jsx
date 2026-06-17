@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAccount } from "wagmi";
 import AdminBackButton from "../../components/admin/AdminBackButton";
+import { LabeledAddressField, ProgressSourceHelper } from "../../components/LabeledAddressField.jsx";
 import { fetchAdminUserDetails, fetchAdminUsers } from "../../services/adminApi";
 
 function isNonEmptyString(value) {
@@ -14,9 +15,11 @@ function formatBool(value) {
     return "—";
 }
 
-function formatAddress(value) {
-    if (!isNonEmptyString(value)) return "—";
-    return value;
+function pickAddressValue(...candidates) {
+    for (const candidate of candidates) {
+        if (isNonEmptyString(candidate)) return candidate.trim();
+    }
+    return null;
 }
 
 function formatDateLike(value) {
@@ -30,6 +33,34 @@ function formatDateLike(value) {
     }
     const s = String(value).trim();
     return s || "—";
+}
+
+const EMPTY_PROJECTS_PROGRESS = {
+    summary: {
+        totalStarted: 0,
+        totalSubmitted: 0,
+        totalCompleted: 0,
+        totalPendingReview: 0,
+        totalRejected: 0,
+        totalNeedsRevision: 0,
+    },
+    items: [],
+};
+
+function getProjectTitle(item) {
+    return item?.title?.en || item?.title?.el || item?.projectId || "—";
+}
+
+function getProjectStatusMeta(status) {
+    const map = {
+        started: { label: "Started", tone: "slate" },
+        submitted: { label: "Submitted", tone: "indigo" },
+        pending_review: { label: "Pending review", tone: "amber" },
+        completed: { label: "Completed", tone: "emerald" },
+        rejected: { label: "Rejected", tone: "rose" },
+        needs_revision: { label: "Needs revision", tone: "amber" },
+    };
+    return map[status] || { label: isNonEmptyString(status) ? status : "Unknown", tone: "slate" };
 }
 
 export default function AdminUserDetailsPage() {
@@ -114,6 +145,28 @@ export default function AdminUserDetailsPage() {
         return data?.xpBreakdown || null;
     }, [data]);
 
+    const projectsProgress = useMemo(() => {
+        const raw = data?.projectsProgress;
+        if (!raw || typeof raw !== "object") {
+            return EMPTY_PROJECTS_PROGRESS;
+        }
+
+        const summary = raw.summary && typeof raw.summary === "object"
+            ? {
+                totalStarted: Number(raw.summary.totalStarted) || 0,
+                totalSubmitted: Number(raw.summary.totalSubmitted) || 0,
+                totalCompleted: Number(raw.summary.totalCompleted) || 0,
+                totalPendingReview: Number(raw.summary.totalPendingReview) || 0,
+                totalRejected: Number(raw.summary.totalRejected) || 0,
+                totalNeedsRevision: Number(raw.summary.totalNeedsRevision) || 0,
+            }
+            : EMPTY_PROJECTS_PROGRESS.summary;
+
+        const items = Array.isArray(raw.items) ? raw.items : [];
+
+        return { summary, items };
+    }, [data]);
+
     const identitySummary = useMemo(() => {
         const raw = data || {};
         const identity = raw?.identity || raw?.user?.identity || {};
@@ -130,11 +183,47 @@ export default function AdminUserDetailsPage() {
 
         const hasImportedProgress = Boolean(raw?.hasImportedProgress);
 
-        const rows = [
-            { label: "Displayed account", value: formatAddress(targetWallet) },
-            { label: "AA / smart account", value: formatAddress(identity?.aaAddress) },
-            { label: "Owner address", value: formatAddress(identity?.ownerAddress) },
-            { label: "Linked wallet address", value: formatAddress(identity?.linkedWalletAddress) },
+        const progressSourceAddress =
+            pickAddressValue(
+                raw?.progressSourceAddress,
+                raw?.progressSource,
+                identity?.progressSourceAddress,
+                identity?.progressSource,
+                targetWallet
+            ) ?? targetWallet;
+
+        const showInspectedAccount =
+            progressSourceAddress.toLowerCase() !== String(targetWallet).toLowerCase();
+
+        const addressRows = [
+            {
+                label: "Progress source",
+                copyValue: progressSourceAddress,
+                emphasize: true,
+                hint: "Labs, projects, and XP in this admin view are loaded for this address.",
+            },
+            ...(showInspectedAccount
+                ? [{
+                    label: "Inspected account",
+                    copyValue: targetWallet,
+                    hint: "Address from the admin URL query parameter.",
+                }]
+                : []),
+            {
+                label: "Web3Edu Identity",
+                copyValue: pickAddressValue(identity?.aaAddress),
+            },
+            {
+                label: "Linked wallet",
+                copyValue: pickAddressValue(identity?.linkedWalletAddress),
+            },
+            {
+                label: "Linked account",
+                copyValue: pickAddressValue(identity?.ownerAddress),
+            },
+        ];
+
+        const metaRows = [
             { label: "Wallet linked", value: formatBool(identity?.walletLinked) },
             { label: "Custody type", value: isNonEmptyString(identity?.custodyType) ? identity.custodyType : "—" },
             { label: "Provisioning status", value: isNonEmptyString(identity?.provisioningStatus) ? identity.provisioningStatus : "—" },
@@ -157,7 +246,7 @@ export default function AdminUserDetailsPage() {
                 : null,
         ].filter(Boolean);
 
-        return { rows, badges };
+        return { addressRows, metaRows, badges, progressSourceAddress };
     }, [data, targetWallet]);
 
     const timeline = useMemo(() => {
@@ -203,9 +292,15 @@ export default function AdminUserDetailsPage() {
                             <span className="font-semibold">{data.user.xp}</span>
                         </p>
                     )}
-                    <p className="mt-2 font-mono text-xs text-slate-600 dark:text-slate-300 break-all">
-                        {targetWallet}
-                    </p>
+                    <div className="mt-4 max-w-xl space-y-2">
+                        <LabeledAddressField
+                            label="Progress source"
+                            address={identitySummary.progressSourceAddress}
+                            emphasize
+                            hint="This is the learner address used to load labs, projects, and XP in this admin view."
+                        />
+                        <ProgressSourceHelper />
+                    </div>
                 </div>
                 <AdminBackButton to="/admin/users" label="Back to Users" />
             </div>
@@ -225,7 +320,18 @@ export default function AdminUserDetailsPage() {
                                 </span>
                             ) : null}
                         </div>
-                        <KeyValueGrid rows={identitySummary.rows} />
+                        <div className="space-y-3">
+                            {identitySummary.addressRows.map((row) => (
+                                <LabeledAddressField
+                                    key={row.label}
+                                    label={row.label}
+                                    address={row.copyValue}
+                                    hint={row.hint}
+                                    emphasize={row.emphasize}
+                                />
+                            ))}
+                        </div>
+                        <KeyValueGrid rows={identitySummary.metaRows} />
                     </div>
                 </Panel>
 
@@ -275,7 +381,13 @@ export default function AdminUserDetailsPage() {
                                         {xpBreakdownObj.projects.map((project, idx) => (
                                             <li key={`project-${idx}`} className="flex justify-between">
                                                 <span>{project.projectId}</span>
-                                                <span className="font-medium">Completed</span>
+                                                <span className="font-medium">
+                                                    {project.xp !== null && project.xp !== undefined
+                                                        ? `${project.xp} XP`
+                                                        : isNonEmptyString(project.status)
+                                                            ? project.status
+                                                            : "Completed"}
+                                                </span>
                                             </li>
                                         ))}
                                     </ul>
@@ -285,6 +397,10 @@ export default function AdminUserDetailsPage() {
                     ) : (
                         <p className="text-sm text-slate-500 dark:text-slate-400">No XP breakdown available.</p>
                     )}
+                </Panel>
+
+                <Panel title="Project Progress" className="md:col-span-2">
+                    <ProjectProgressSection progress={projectsProgress} />
                 </Panel>
 
                 <Panel title="Timeline of Activity">
@@ -317,11 +433,140 @@ export default function AdminUserDetailsPage() {
     );
 }
 
-function Panel({ title, children }) {
+function Panel({ title, children, className = "" }) {
     return (
-        <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-5">
+        <div className={`rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-5 ${className}`}>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">{title}</h2>
             {children}
+        </div>
+    );
+}
+
+function ProjectProgressSection({ progress }) {
+    const summaryCards = [
+        { label: "Started", value: progress.summary.totalStarted },
+        { label: "Submitted", value: progress.summary.totalSubmitted },
+        { label: "Pending Review", value: progress.summary.totalPendingReview },
+        { label: "Completed", value: progress.summary.totalCompleted },
+        { label: "Needs Revision", value: progress.summary.totalNeedsRevision },
+        { label: "Rejected", value: progress.summary.totalRejected },
+    ];
+
+    if (!progress.items.length) {
+        return (
+            <div className="space-y-4">
+                <ProjectProgressSummary cards={summaryCards} />
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                    No project progress recorded for this user yet.
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-4">
+            <ProjectProgressSummary cards={summaryCards} />
+            <div className="overflow-x-auto rounded-xl border border-white/10">
+                <table className="min-w-full text-sm">
+                    <thead>
+                        <tr className="border-b border-white/10 bg-white/60 dark:bg-slate-900/40 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                            <th className="px-3 py-2 font-semibold">Project</th>
+                            <th className="px-3 py-2 font-semibold">Status</th>
+                            <th className="px-3 py-2 font-semibold">Started</th>
+                            <th className="px-3 py-2 font-semibold">Submitted</th>
+                            <th className="px-3 py-2 font-semibold">Completed</th>
+                            <th className="px-3 py-2 font-semibold">Reviewed</th>
+                            <th className="px-3 py-2 font-semibold">XP</th>
+                            <th className="px-3 py-2 font-semibold">Evidence</th>
+                            <th className="px-3 py-2 font-semibold">Review</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                        {progress.items.map((item, idx) => {
+                            const statusMeta = getProjectStatusMeta(item?.status);
+                            const title = getProjectTitle(item);
+                            const projectId = item?.projectId || "—";
+                            const hasEvidenceRef = isNonEmptyString(item?.evidenceRef);
+                            const hasReviewer = isNonEmptyString(item?.reviewerWallet);
+                            const hasReviewNote = isNonEmptyString(item?.reviewNote);
+
+                            return (
+                                <tr
+                                    key={`${projectId}-${idx}`}
+                                    className="bg-white/40 dark:bg-slate-900/20 align-top"
+                                >
+                                    <td className="px-3 py-3">
+                                        <p className="font-medium text-slate-900 dark:text-slate-100">{title}</p>
+                                        <p className="mt-1 font-mono text-xs text-slate-500 dark:text-slate-400 break-all">
+                                            {projectId}
+                                        </p>
+                                    </td>
+                                    <td className="px-3 py-3">
+                                        <Badge tone={statusMeta.tone}>{statusMeta.label}</Badge>
+                                    </td>
+                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                        {formatDateLike(item?.startedAt)}
+                                    </td>
+                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                        {formatDateLike(item?.submittedAt)}
+                                    </td>
+                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                        {formatDateLike(item?.completedAt)}
+                                    </td>
+                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                        {formatDateLike(item?.reviewedAt)}
+                                    </td>
+                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                        {item?.xpAwarded !== null && item?.xpAwarded !== undefined
+                                            ? `${item.xpAwarded} XP`
+                                            : "—"}
+                                    </td>
+                                    <td className="px-3 py-3 text-slate-700 dark:text-slate-300">
+                                        <p>{isNonEmptyString(item?.evidenceType) ? item.evidenceType : "—"}</p>
+                                        {hasEvidenceRef ? (
+                                            <p className="mt-1 font-mono text-xs text-slate-500 dark:text-slate-400 break-all">
+                                                {item.evidenceRef}
+                                            </p>
+                                        ) : null}
+                                    </td>
+                                    <td className="px-3 py-3 text-slate-700 dark:text-slate-300">
+                                        {hasReviewer ? (
+                                            <p className="font-mono text-xs break-all">{item.reviewerWallet}</p>
+                                        ) : (
+                                            <p>—</p>
+                                        )}
+                                        {hasReviewNote ? (
+                                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                                {item.reviewNote}
+                                            </p>
+                                        ) : null}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
+
+function ProjectProgressSummary({ cards }) {
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {cards.map((card) => (
+                <div
+                    key={card.label}
+                    className="rounded-xl border border-white/10 bg-white/60 dark:bg-slate-900/40 px-3 py-3 text-center"
+                >
+                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        {card.label}
+                    </p>
+                    <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
+                        {card.value}
+                    </p>
+                </div>
+            ))}
         </div>
     );
 }
@@ -398,6 +643,7 @@ function Badge({ tone = "slate", children }) {
         indigo: "border-indigo-300/40 bg-indigo-500/10 text-indigo-800 dark:text-indigo-200",
         emerald: "border-emerald-300/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
         amber: "border-amber-300/40 bg-amber-500/10 text-amber-800 dark:text-amber-200",
+        rose: "border-rose-300/40 bg-rose-500/10 text-rose-800 dark:text-rose-200",
     };
     return (
         <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${tones[tone] || tones.slate}`}>

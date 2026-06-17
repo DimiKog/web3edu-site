@@ -5,6 +5,7 @@ import { fetchAdminOverview, fetchLabsSummary } from "../services/adminApi";
 import AdminKpis from "../components/admin/AdminKpis";
 import PlatformAnalytics from "../components/admin/PlatformAnalytics";
 import LearningInsights from "../components/admin/LearningInsights";
+import ProjectsOverview from "../components/admin/ProjectsOverview";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
@@ -138,9 +139,21 @@ export default function AdminDashboard() {
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <ActionButton label="View Labs" onClick={() => navigate("/admin/labs")} />
-                        <ActionButton label="View Users" onClick={() => navigate("/admin/users")} />
-                        <ActionButton label="Refresh" onClick={() => setRefreshTick((v) => v + 1)} />
+                        <ActionButton
+                            label="View Labs"
+                            variant="secondary"
+                            onClick={() => navigate("/admin/labs")}
+                        />
+                        <ActionButton
+                            label="View Users"
+                            variant="primary"
+                            onClick={() => navigate("/admin/users")}
+                        />
+                        <ActionButton
+                            label="Refresh"
+                            variant="ghost"
+                            onClick={() => setRefreshTick((v) => v + 1)}
+                        />
                     </div>
                 </div>
 
@@ -155,10 +168,17 @@ export default function AdminDashboard() {
                     }}
                 />
 
-                <div className="rounded-2xl border border-rose-400/30 bg-rose-50/70 dark:bg-rose-900/10 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-6">
-                    <h2 className="text-xl font-semibold mb-4 text-slate-900 dark:text-slate-100">
-                        Top Risks
-                    </h2>
+                <ProjectsOverview projectsOverview={overview?.projectsOverview} />
+
+                <div className="rounded-2xl border border-rose-300/40 bg-gradient-to-br from-rose-50/80 via-white/70 to-orange-50/50 dark:border-rose-500/25 dark:from-rose-950/25 dark:via-[#0b0f17]/80 dark:to-orange-950/15 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-6">
+                    <div className="mb-4 flex items-center gap-3">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-rose-500 to-orange-500 text-sm font-bold text-white shadow-md">
+                            !
+                        </span>
+                        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+                            Top Risks
+                        </h2>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <RiskCard
                             label="Highest Drop-off Lab"
@@ -193,12 +213,21 @@ export default function AdminDashboard() {
     );
 }
 
-function ActionButton({ label, onClick }) {
+const ACTION_VARIANTS = {
+    primary:
+        "border-transparent bg-gradient-to-r from-[#8A57FF] to-[#4ACBFF] text-white shadow-md hover:brightness-110 hover:shadow-lg",
+    secondary:
+        "border-indigo-300/60 bg-indigo-50/90 text-indigo-900 shadow-sm hover:bg-indigo-100 dark:border-indigo-500/40 dark:bg-indigo-950/50 dark:text-indigo-100 dark:hover:bg-indigo-900/60",
+    ghost:
+        "border-slate-300/70 bg-white/90 text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:bg-slate-800",
+};
+
+function ActionButton({ label, onClick, variant = "ghost" }) {
     return (
         <button
             type="button"
             onClick={onClick}
-            className="rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm hover:bg-white dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 dark:hover:bg-slate-900"
+            className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${ACTION_VARIANTS[variant] || ACTION_VARIANTS.ghost}`}
         >
             {label}
         </button>
@@ -210,9 +239,9 @@ function RiskCard({ label, value, onClick }) {
         <button
             type="button"
             onClick={onClick}
-            className="text-left rounded-xl border border-rose-200/70 dark:border-rose-800/50 bg-white/80 dark:bg-slate-900/50 p-4 hover:bg-white dark:hover:bg-slate-900 transition"
+            className="text-left rounded-xl border border-rose-200/70 bg-white/85 p-4 shadow-sm transition hover:scale-[1.01] hover:border-rose-300/80 hover:bg-white hover:shadow-md dark:border-rose-800/50 dark:bg-rose-950/20 dark:hover:bg-rose-950/35"
         >
-            <div className="text-xs uppercase tracking-wide text-rose-700 dark:text-rose-300">
+            <div className="text-xs uppercase tracking-wide font-semibold text-rose-700 dark:text-rose-300">
                 {label}
             </div>
             <div className="mt-1 font-semibold text-slate-900 dark:text-slate-100">
