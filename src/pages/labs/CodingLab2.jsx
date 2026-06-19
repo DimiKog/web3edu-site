@@ -2,7 +2,7 @@ import { useAccount } from "wagmi";
 import { useIdentity } from "../../context/useIdentity.js";
 import LabTemplate from "./LabTemplate";
 import { useLabAutoStartOnce } from "../../hooks/useLabAutoStartOnce.js";
-import codingLab01HeroImg from "../../assets/labs/coding1.webp";
+import codingLab02HeroImg from "../../assets/labs/coding2.webp";
 
 const CONTENT = {
     en: {
@@ -99,7 +99,7 @@ export default function CodingLab02({ lang = "en" }) {
             title={t.title}
             subtitle={t.subtitle}
             conceptualFocusText={t.conceptualFocusText}
-            heroImage={codingLab01HeroImg}
+            heroImage={codingLab02HeroImg}
             level={t.level}
             estimatedTime={t.estimatedTime}
             tools={t.tools}
