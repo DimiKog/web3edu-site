@@ -105,6 +105,16 @@ export const LABS_LOCALES = {
                 xp: 400,
                 badge: "Smart Contract Deployer",
             },
+            {
+                id: "coding02",
+                title: "Coding Lab 02 — Interact With Your Deployed Counter Contract",
+                hint: "Reading state is free — changing it requires a signed transaction and gas.",
+                description:
+                    "Use the Counter contract you deployed in Coding Lab 01. Read its current value, send an increment transaction, and verify that the on-chain state changed.",
+                level: "Beginner",
+                xp: 350,
+                badge: "Contract Interaction Builder",
+            },
         ],
         systemLabs: [
             {
@@ -339,6 +349,16 @@ export const LABS_LOCALES = {
                 level: "Αρχάριο",
                 xp: 400,
                 badge: "Smart Contract Deployer",
+            },
+            {
+                id: "coding02",
+                title: "Coding Lab 02 — Αλληλεπίδραση με το δικό σου Counter Contract",
+                hint: "Η ανάγνωση κατάστασης είναι δωρεάν — η αλλαγή της απαιτεί υπογεγραμμένη συναλλαγή και gas.",
+                description:
+                    "Χρησιμοποίησε το Counter contract που έκανες deploy στο Coding Lab 01. Διάβασε την τρέχουσα τιμή του, στείλε συναλλαγή increment και επιβεβαίωσε ότι η on-chain κατάσταση άλλαξε.",
+                level: "Αρχάριο",
+                xp: 350,
+                badge: "Contract Interaction Builder",
             },
         ],
         systemLabs: [

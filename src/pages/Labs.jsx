@@ -49,6 +49,7 @@ function buildLabRoutes(prefix) {
         lab05: `${prefix}/lab05`,
         lab06: `${prefix}/lab06`,
         coding01: `${prefix}/coding-01`,
+        coding02: `${prefix}/coding-02`,
         dao01: `${prefix}/dao-01`,
         dao02: `${prefix}/dao-02`,
         "system-s0": `${prefix}/system/s0`,

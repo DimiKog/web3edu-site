@@ -71,6 +71,8 @@ const Lab06Interaction = lazy(() => import("../pages/labs/Lab06Interaction.jsx")
 const Lab06InteractionGR = lazy(() => import("../pages/labs/Lab06InteractionGR.jsx"));
 const CodingLab1 = lazy(() => import("../pages/labs/CodingLab1.jsx"));
 const CodingLabInteraction1 = lazy(() => import("../pages/labs/CodingLabInteraction1.jsx"));
+const CodingLab2 = lazy(() => import("../pages/labs/CodingLab2.jsx"));
+const CodingLabInteraction2 = lazy(() => import("../pages/labs/CodingLabInteraction2.jsx"));
 const SystemLabS0 = lazy(() => import("../pages/labs/SystemLabS0.jsx"));
 const SystemLabS0Interaction = lazy(() => import("../pages/labs/SystemLabS0Interaction.jsx"));
 const SystemLabS1 = lazy(() => import("../pages/labs/SystemLabS1.jsx"));
@@ -207,6 +209,10 @@ export const routeTable = {
       { path: "/labs-gr/coding-01", component: CodingLab1, props: { lang: "gr" } },
       { path: "/labs/coding-01/interaction", component: CodingLabInteraction1 },
       { path: "/labs-gr/coding-01/interaction", component: CodingLabInteraction1, props: { lang: "gr" } },
+      { path: "/labs/coding-02", component: CodingLab2 },
+      { path: "/labs-gr/coding-02", component: CodingLab2, props: { lang: "gr" } },
+      { path: "/labs/coding-02/interaction", component: CodingLabInteraction2 },
+      { path: "/labs-gr/coding-02/interaction", component: CodingLabInteraction2, props: { lang: "gr" } },
       { path: "/labs/system/s0", component: SystemLabS0 },
       { path: "/labs-gr/system/s0", component: SystemLabS0, props: { lang: "gr" } },
       { path: "/labs/system/s0/interaction", component: SystemLabS0Interaction },

@@ -200,3 +200,135 @@ export async function postCoding01VerifyContract({
     };
   }
 }
+
+/**
+ * POST /labs/coding02/start-interaction — loads the learner's verified Counter from Coding Lab 01.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function postCoding02StartInteraction({
+  apiBase,
+  smartAccount,
+  address,
+  owner,
+  isOidcAuthenticated,
+  socialIdentity,
+} = {}) {
+  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity({
+    smartAccount,
+    isOidcAuthenticated,
+    socialIdentity,
+    address,
+    owner,
+  });
+
+  if (!wallet) {
+    return {
+      ok: false,
+      status: 400,
+      data: {
+        error: "wallet is required for /labs/coding02/start-interaction",
+      },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  const payload = { wallet };
+  if (ownerPayload) {
+    payload.owner = ownerPayload;
+  }
+
+  try {
+    const res = await fetch(`${base}/labs/coding02/start-interaction`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (import.meta.env.DEV && data?.identityKey != null) {
+      // eslint-disable-next-line no-console -- backend integration diagnostic
+      console.log("CODING02 START IDENTITY KEY", data.identityKey);
+    }
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
+
+/**
+ * POST /labs/coding02/verify-increment — checks that increment() changed on-chain state.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function postCoding02VerifyIncrement({
+  apiBase,
+  smartAccount,
+  address,
+  owner,
+  isOidcAuthenticated,
+  socialIdentity,
+  txHash,
+} = {}) {
+  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity({
+    smartAccount,
+    isOidcAuthenticated,
+    socialIdentity,
+    address,
+    owner,
+  });
+
+  if (!wallet) {
+    return {
+      ok: false,
+      status: 400,
+      data: {
+        error: "wallet is required for /labs/coding02/verify-increment",
+      },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  const payload = { wallet };
+  if (ownerPayload) {
+    payload.owner = ownerPayload;
+  }
+  const normalizedTxHash = String(txHash ?? "").trim();
+  if (normalizedTxHash) {
+    payload.txHash = normalizedTxHash;
+  }
+
+  try {
+    const res = await fetch(`${base}/labs/coding02/verify-increment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (import.meta.env.DEV && data?.identityKey != null) {
+      // eslint-disable-next-line no-console -- backend integration diagnostic
+      console.log("CODING02 VERIFY IDENTITY KEY", data.identityKey);
+    }
+    const currentValue = data.finalValue ?? data.currentValue;
+    const valueIncreased =
+      data.initialValue != null &&
+      currentValue != null &&
+      BigInt(String(currentValue)) > BigInt(String(data.initialValue));
+    return {
+      ok: res.ok && (data?.ok === true || valueIncreased),
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
