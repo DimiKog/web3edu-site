@@ -24,8 +24,8 @@ export default function SocialWalletHistoryPrompt({
       </p>
       <p className="mt-1.5 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
         {isGr
-          ? "Βοηθάει να ξέρουμε αν θέλεις να συνδέσεις υπάρχον ιστορικό από πορτοφόλι. Ο πίνακας παραμένει στην τρέχουσα κοινωνική AA ταυτότητά σου μέχρι να ολοκληρωθεί επίσημα το linking."
-          : "This helps us know if you want to connect existing wallet-based progress. Your dashboard stays on your current social AA identity until official linking is available."}
+          ? "Βοηθάει να ξέρουμε αν θέλεις να συνδέσεις υπάρχον ιστορικό από πορτοφόλι. Ο πίνακας παραμένει στην τρέχουσα Web3Edu Identity σου μέχρι να ολοκληρωθεί επίσημα το linking."
+          : "This helps us know if you want to connect existing wallet-based progress. Your dashboard stays on your current Web3Edu Identity until official linking is available."}
       </p>
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <button

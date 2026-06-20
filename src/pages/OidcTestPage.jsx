@@ -1,6 +1,6 @@
 import { useAuth } from "react-oidc-context";
 import UserInfo from "../components/UserInfo.jsx";
-import { createOidcConfig } from "../auth/oidcConfig.js";
+import { signOutKeycloakAccount } from "../auth/keycloakSignOut.js";
 
 export default function OidcTestPage() {
   const auth = useAuth();
@@ -26,14 +26,7 @@ export default function OidcTestPage() {
             {auth.isAuthenticated && (
               <button
                 type="button"
-                onClick={() => {
-                  const cfg = createOidcConfig();
-                  return auth.signoutRedirect({
-                    id_token_hint: auth?.user?.id_token,
-                    post_logout_redirect_uri: cfg.post_logout_redirect_uri,
-                    extraQueryParams: { client_id: cfg.client_id },
-                  });
-                }}
+                onClick={() => void signOutKeycloakAccount(auth)}
                 className="rounded-xl border border-slate-300/70 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 dark:border-slate-700/70 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900"
               >
                 Sign out

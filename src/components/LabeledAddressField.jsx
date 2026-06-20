@@ -6,25 +6,38 @@ function isCopyableAddress(value) {
     return typeof value === "string" && value.trim().length > 0 && value.trim() !== "—";
 }
 
-export const PROGRESS_SOURCE_HELPER_EN =
-    "Project and XP progress is stored under the progress source address shown here.";
+export const PROGRESS_SOURCE_HELPER_ACCOUNT_EN =
+    "Project and XP progress is tied to your Web3Edu Account.";
 
-export const PROGRESS_SOURCE_HELPER_GR =
-    "Η πρόοδος projects και XP αποθηκεύεται στη διεύθυνση progress source που εμφανίζεται εδώ.";
+export const PROGRESS_SOURCE_HELPER_ACCOUNT_GR =
+    "Η πρόοδος projects και XP συνδέεται με τον Web3Edu Account σου.";
+
+export const PROGRESS_SOURCE_HELPER_WALLET_EN =
+    "This wallet-only profile is separate from your Web3Edu Account progress. Sign in with your Web3Edu Account to view that progress.";
+
+export const PROGRESS_SOURCE_HELPER_WALLET_GR =
+    "Αυτό το wallet-only προφίλ είναι ξεχωριστό από την πρόοδο του Web3Edu Account σου. Συνδέσου με Web3Edu Account για να δεις εκείνη την πρόοδο.";
+
+/** @deprecated Use profileMode-specific helpers via ProgressSourceHelper */
+export const PROGRESS_SOURCE_HELPER_EN = PROGRESS_SOURCE_HELPER_ACCOUNT_EN;
+
+/** @deprecated Use profileMode-specific helpers via ProgressSourceHelper */
+export const PROGRESS_SOURCE_HELPER_GR = PROGRESS_SOURCE_HELPER_ACCOUNT_GR;
 
 export function LabeledAddressField({
     label,
     address,
+    displayValue,
     hint,
     emphasize = false,
     compact = false,
     copiedLabel = "Copied!",
 }) {
     const [copied, setCopied] = useState(false);
-    const copyable = isCopyableAddress(address);
+    const copyable = isCopyableAddress(address) && !displayValue;
 
     const handleCopy = useCallback(async () => {
-        if (!copyable) return;
+        if (!copyable || !address) return;
         try {
             await navigator.clipboard.writeText(address.trim());
             setCopied(true);
@@ -34,7 +47,9 @@ export function LabeledAddressField({
         }
     }, [address, copyable]);
 
-    if (!copyable && !hint) {
+    const hasDisplayValue = typeof displayValue === "string" && displayValue.trim().length > 0;
+
+    if (!copyable && !hasDisplayValue && !hint) {
         return (
             <div className={`rounded-xl border border-slate-200/70 bg-white/45 px-3 py-2.5 dark:border-white/10 dark:bg-white/[0.04] ${emphasize ? "border-violet-300/60 bg-violet-50/50 dark:border-violet-700/30 dark:bg-violet-950/20" : ""}`}>
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
@@ -58,7 +73,11 @@ export function LabeledAddressField({
                     <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         {label}
                     </p>
-                    {copyable ? (
+                    {hasDisplayValue ? (
+                        <p className="mt-1 text-xs font-semibold text-slate-800 dark:text-slate-100">
+                            {displayValue}
+                        </p>
+                    ) : copyable ? (
                         <p
                             className={`mt-1 font-mono text-slate-800 dark:text-slate-100 break-all ${compact ? "text-xs" : "text-xs sm:text-sm"}`}
                             title={address}
@@ -94,10 +113,19 @@ export function LabeledAddressField({
     );
 }
 
-export function ProgressSourceHelper({ isGR = false, className = "" }) {
+export function ProgressSourceHelper({ isGR = false, profileMode = "account", className = "" }) {
+    const copy =
+        profileMode === "wallet-only"
+            ? isGR
+                ? PROGRESS_SOURCE_HELPER_WALLET_GR
+                : PROGRESS_SOURCE_HELPER_WALLET_EN
+            : isGR
+              ? PROGRESS_SOURCE_HELPER_ACCOUNT_GR
+              : PROGRESS_SOURCE_HELPER_ACCOUNT_EN;
+
     return (
         <p className={`text-xs leading-relaxed text-slate-600 dark:text-slate-300 ${className}`}>
-            {isGR ? PROGRESS_SOURCE_HELPER_GR : PROGRESS_SOURCE_HELPER_EN}
+            {copy}
         </p>
     );
 }

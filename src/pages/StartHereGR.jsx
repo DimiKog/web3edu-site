@@ -319,7 +319,7 @@ const StartHereGR = () => {
                                                 />
                                                 <FAQItem
                                                     question="Τι γίνεται αν χάσω την πρόσβαση στο πορτοφόλι μου;"
-                                                    answer="Μπορείς να δημιουργήσεις νέο wallet και να συνεχίσεις με τον Web3Edu λογαριασμό σου. Wallet-based δραστηριότητα ίσως χρειαστεί επανασύνδεση, ανάλογα με το lab ή credential."
+                                                    answer="Μπορείς να δημιουργήσεις νέο wallet και να συνεχίσεις με Web3Edu Account. Wallet-based δραστηριότητα ίσως χρειαστεί επανασύνδεση, ανάλογα με το lab ή credential."
                                                 />
                                             </div>
                                         </div>

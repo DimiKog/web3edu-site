@@ -20,7 +20,7 @@ const CONTENT = {
   en: {
     title: "Create Your Web3Edu Identity",
     subtitle:
-      "Create your on-chain learning identity with a smart account — no wallet required.",
+      "Create your on-chain Web3Edu Identity — no wallet required.",
     stepTitle: "Identity Setup",
     steps: ["Owner Key", "Create Profile", "Welcome"],
     buttonIdle: "Create Profile",
@@ -36,7 +36,7 @@ const CONTENT = {
   gr: {
     title: "Δημιούργησε το Web3Edu Identity σου",
     subtitle:
-      "Δημιούργησε την on-chain μαθησιακή ταυτότητά σου με smart account — χωρίς wallet.",
+      "Δημιούργησε την on-chain Web3Edu Identity σου — χωρίς wallet.",
     stepTitle: "Ρύθμιση Ταυτότητας",
     steps: ["Owner Key", "Δημιουργία Προφίλ", "Καλωσόρισμα"],
     buttonIdle: "Δημιούργησε Προφίλ",

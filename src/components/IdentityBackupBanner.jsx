@@ -83,8 +83,8 @@ export default function IdentityBackupBanner({
           </h3>
           <p className="mt-1 text-xs sm:text-sm text-amber-900/90 dark:text-amber-100/85 leading-relaxed">
             {isGr
-              ? "Η ταυτότητα Web3Edu (smart account) δένεται με το ιδιωτικό κλειδί που φυλάσσεται μόνο σε αυτό το πρόγραμμα περιήγησης. Αν καθαρίσεις τα δεδομένα του site ή αλλάξεις συσκευή χωρίς εξαγωγή, χάνεις την πρόσβαση — δεν υπάρχει κεντρική ανάκτηση κωδικού."
-              : "Your Web3Edu identity (smart account) is tied to a private key stored only in this browser. If you clear site data or switch devices without exporting it, you lose access — there is no central password reset."}
+              ? "Η Web3Edu Identity σου δένεται με το ιδιωτικό κλειδί που φυλάσσεται μόνο σε αυτό το πρόγραμμα περιήγησης. Αν καθαρίσεις τα δεδομένα του site ή αλλάξεις συσκευή χωρίς εξαγωγή, χάνεις την πρόσβαση — δεν υπάρχει κεντρική ανάκτηση κωδικού."
+              : "Your Web3Edu Identity is tied to a private key stored only in this browser. If you clear site data or switch devices without exporting it, you lose access — there is no central password reset."}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button

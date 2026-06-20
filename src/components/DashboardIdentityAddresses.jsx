@@ -8,55 +8,81 @@ function addressesEqual(a, b) {
     return String(a).toLowerCase() === String(b).toLowerCase();
 }
 
+/**
+ * @param {"account"|"wallet-only"} profileMode
+ */
 export default function DashboardIdentityAddresses({
     isGR = false,
+    profileMode = "account",
     identityAddress,
     linkedWallet,
     connectedWallet,
     linkedAccount,
-    progressSourceAddress,
+    progressSourceLabel,
     tier,
     displayTokenId,
     isLoading = false,
+    showWalletOnlyProgressNote = false,
     onViewExplorer,
     onCopyIdentity,
     identityCopyFeedback = "",
 }) {
+    const isWalletOnly = profileMode === "wallet-only";
+
     const copy = isGR
         ? {
-            web3eduIdentity: "Web3Edu Identity",
-            linkedWallet: "Linked wallet",
-            connectedWallet: "Connected wallet",
-            linkedAccount: "Linked account",
-            progressSource: "Progress source",
+            web3eduIdentity: isWalletOnly ? "Wallet Identity" : "Web3Edu Identity",
+            linkedWallet: "Linked Wallet",
+            connectedWallet: "Connected Wallet",
+            linkedAccount: "Linked Account",
+            progressSource: "Progress Source",
             copied: "Αντιγράφηκε!",
             identiconTooltip:
                 "Το μοναδικό σας identity pattern — δημιουργείται από τη διεύθυνση Web3Edu Identity. Κάντε κλικ για αντιγραφή.",
             copyIdentityAria: "Αντιγραφή διεύθυνσης Web3Edu Identity",
+            walletOnlyNote:
+                "Βλέπεις ξεχωριστό wallet-only προφίλ. Η πρόοδος του Web3Edu Account σου δεν έχει χαθεί — συνδέσου ξανά για να τη δεις.",
         }
         : {
-            web3eduIdentity: "Web3Edu Identity",
-            linkedWallet: "Linked wallet",
-            connectedWallet: "Connected wallet",
-            linkedAccount: "Linked account",
-            progressSource: "Progress source",
+            web3eduIdentity: isWalletOnly ? "Wallet Identity" : "Web3Edu Identity",
+            linkedWallet: "Linked Wallet",
+            connectedWallet: "Connected Wallet",
+            linkedAccount: "Linked Account",
+            progressSource: "Progress Source",
             copied: "Copied!",
             identiconTooltip:
                 "Your unique identity pattern — generated from your Web3Edu Identity address. Click to copy.",
             copyIdentityAria: "Copy Web3Edu Identity address",
+            walletOnlyNote:
+                "You are viewing a separate wallet-only profile. Your Web3Edu Account progress is not lost — sign in again to view it.",
         };
 
     const showLinkedWallet =
-        linkedWallet && !addressesEqual(linkedWallet, identityAddress);
+        !isWalletOnly &&
+        linkedWallet &&
+        !addressesEqual(linkedWallet, identityAddress);
     const showConnectedWallet =
-        connectedWallet &&
-        !addressesEqual(connectedWallet, identityAddress) &&
-        !addressesEqual(connectedWallet, linkedWallet);
+        isWalletOnly
+            ? Boolean(connectedWallet)
+            : connectedWallet &&
+              !addressesEqual(connectedWallet, identityAddress) &&
+              !addressesEqual(connectedWallet, linkedWallet);
     const showLinkedAccount =
+        !isWalletOnly &&
         linkedAccount &&
         !addressesEqual(linkedAccount, identityAddress) &&
         !addressesEqual(linkedAccount, linkedWallet) &&
         !addressesEqual(linkedAccount, connectedWallet);
+
+    const resolvedProgressSourceLabel =
+        progressSourceLabel ??
+        (isWalletOnly
+            ? isGR
+                ? "Wallet-only προφίλ"
+                : "Wallet-only profile"
+            : isGR
+              ? "Web3Edu Account"
+              : "Web3Edu Account");
 
     return (
         <div className="space-y-3">
@@ -148,14 +174,20 @@ export default function DashboardIdentityAddresses({
                 ) : null}
                 <LabeledAddressField
                     label={copy.progressSource}
-                    address={progressSourceAddress}
+                    displayValue={resolvedProgressSourceLabel}
                     emphasize
                     compact
                     copiedLabel={copy.copied}
                 />
             </div>
 
-            <ProgressSourceHelper isGR={isGR} />
+            <ProgressSourceHelper isGR={isGR} profileMode={profileMode} />
+
+            {showWalletOnlyProgressNote ? (
+                <p className="rounded-xl border border-sky-200/70 bg-sky-50/80 px-3 py-2.5 text-xs leading-relaxed text-sky-950 dark:border-sky-500/30 dark:bg-sky-950/25 dark:text-sky-50">
+                    {copy.walletOnlyNote}
+                </p>
+            ) : null}
 
             {identityCopyFeedback ? (
                 <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300" role="status">

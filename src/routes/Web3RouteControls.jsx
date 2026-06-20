@@ -16,8 +16,7 @@ import { isGreekPathname } from "../utils/lang.js";
 import { useIdentity } from "../context/useIdentity.js";
 import { resolveIdentityV2 } from "../api/aa.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
-import { createOidcConfig } from "../auth/oidcConfig.js";
-import { setNeutralAfterLogout } from "../utils/viewerMode.js";
+import { signOutKeycloakAccount } from "../auth/keycloakSignOut.js";
 
 const ADMIN_WALLETS = (
   import.meta.env.VITE_ADMIN_WALLETS ??
@@ -67,8 +66,8 @@ export default function Web3RouteControls() {
   const isAdminRoute = currentPath === "/admin" || currentPath.startsWith("/admin/");
   const suppressJoinCta = isDashboardRoute || isLabsLandingRoute || isSettingsRoute || isAdminRoute;
   const socialConnectLabel = isGreek
-    ? "🔐 Σύνδεση Web3Edu λογαριασμού"
-    : "🔐 Connect Web3Edu account";
+    ? "🔐 Σύνδεση Web3Edu Account"
+    : "🔐 Connect Web3Edu Account";
   const [savedTier, setSavedTier] = useState("Explorer");
 
   useEffect(() => {
@@ -150,13 +149,7 @@ export default function Web3RouteControls() {
     disconnectIdentity();
     if (auth?.isAuthenticated) {
       try {
-        const cfg = createOidcConfig();
-        setNeutralAfterLogout();
-        await auth.signoutRedirect({
-          id_token_hint: auth?.user?.id_token,
-          post_logout_redirect_uri: cfg.post_logout_redirect_uri,
-          extraQueryParams: { client_id: cfg.client_id },
-        });
+        await signOutKeycloakAccount(auth);
         // signoutRedirect navigates away; post_logout_redirect_uri returns to /#/join
       } catch {
         navigate("/");

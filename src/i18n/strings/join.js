@@ -6,7 +6,7 @@ export const JOIN_STRINGS = {
     returning: {
       label: "Returning on this browser",
       heading: "Continue on this device",
-      body: "Use your existing Web3Edu identity saved in this browser. You can connect a Web3Edu account or wallet later for easier sign-in.",
+      body: "Use your existing Web3Edu identity saved in this browser. You can connect a Web3Edu Account or wallet later for easier sign-in.",
       continueBtn: "Continue on this device",
       connectWalletBtn: "Connect a wallet",
       resetBtn: "Reset this device session",
@@ -34,7 +34,7 @@ export const JOIN_STRINGS = {
     },
     device: {
       heading: "Start without a wallet",
-      body: "Create a device-based identity now. You can connect a Web3Edu account or wallet later for easier sign-in.",
+      body: "Create a device-based identity now. You can connect a Web3Edu Account or wallet later for easier sign-in.",
       continueBtn: "Start without a wallet",
     },
     alerts: {
@@ -51,7 +51,7 @@ export const JOIN_STRINGS = {
     returning: {
       label: "Επιστροφή σε αυτό το πρόγραμμα",
       heading: "Συνέχεια σε αυτή τη συσκευή",
-      body: "Χρησιμοποίησε την υπάρχουσα ταυτότητα Web3Edu που είναι αποθηκευμένη σε αυτό το πρόγραμμα περιήγησης. Μπορείς αργότερα να συνδέσεις λογαριασμό Web3Edu ή πορτοφόλι για ευκολότερη είσοδο.",
+      body: "Χρησιμοποίησε την υπάρχουσα ταυτότητα Web3Edu που είναι αποθηκευμένη σε αυτό το πρόγραμμα περιήγησης. Μπορείς αργότερα να συνδέσεις Web3Edu Account ή πορτοφόλι για ευκολότερη είσοδο.",
       continueBtn: "Συνέχεια σε αυτή τη συσκευή",
       connectWalletBtn: "Σύνδεση πορτοφολιού",
       resetBtn: "Επαναφορά συνεδρίας συσκευής",
@@ -79,7 +79,7 @@ export const JOIN_STRINGS = {
     },
     device: {
       heading: "Ξεκίνα χωρίς πορτοφόλι",
-      body: "Δημιούργησε τώρα μια ταυτότητα βασισμένη στη συσκευή. Μπορείς αργότερα να συνδέσεις λογαριασμό Web3Edu ή πορτοφόλι για ευκολότερη είσοδο.",
+      body: "Δημιούργησε τώρα μια ταυτότητα βασισμένη στη συσκευή. Μπορείς αργότερα να συνδέσεις Web3Edu Account ή πορτοφόλι για ευκολότερη είσοδο.",
       continueBtn: "Ξεκίνα χωρίς πορτοφόλι",
     },
     alerts: {

@@ -88,8 +88,8 @@ export default function Settings({ lang = "en" }) {
                                 </p>
                                 <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                                     {isGR
-                                        ? "Μπορείς να συνδέσεις λογαριασμό Web3Edu ή πορτοφόλι για ευκολότερη είσοδο αργότερα."
-                                        : "You can connect a Web3Edu account or wallet for easier sign-in later."}
+                                        ? "Μπορείς να συνδέσεις Web3Edu Account ή πορτοφόλι για ευκολότερη είσοδο αργότερα."
+                                        : "You can connect a Web3Edu Account or wallet for easier sign-in later."}
                                 </p>
                             </div>
                         ) : null}

@@ -320,7 +320,7 @@ const StartHere = () => {
                                                 />
                                                 <FAQItem
                                                     question="What if I lose access to my wallet?"
-                                                    answer="You can create a new wallet and continue with your Web3Edu account. Wallet-based activity may need to be re-linked depending on the lab or credential."
+                                                    answer="You can create a new wallet and continue with your Web3Edu Account. Wallet-based activity may need to be re-linked depending on the lab or credential."
                                                 />
                                             </div>
                                         </div>

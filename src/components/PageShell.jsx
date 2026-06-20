@@ -18,8 +18,8 @@ import { useSocialAwareWalletConnect } from "../hooks/useSocialAwareWalletConnec
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { useAuth } from "react-oidc-context";
 import { loadIdentityState } from "../utils/aaIdentity.js";
-import { createOidcConfig } from "../auth/oidcConfig.js";
-import { isNeutralAfterLogout, setNeutralAfterLogout, setViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
+import { signOutKeycloakAccount } from "../auth/keycloakSignOut.js";
+import { isNeutralAfterLogout, setViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
 const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
@@ -346,8 +346,9 @@ export default function PageShell({
     ? (isGR ? "Συνέχεια Ταυτότητας" : "Continue Identity")
     : (isGR ? "Web3Edu Identity" : "Web3Edu Identity");
   const socialConnectLabel = isGR
-    ? "🔐 Σύνδεση Web3Edu λογαριασμού"
-    : "🔐 Connect Web3Edu account";
+    ? "🔐 Σύνδεση Web3Edu Account"
+    : "🔐 Connect Web3Edu Account";
+  const walletConnectedForBanner = hasWalletSession || isConnected;
   /**
    * Identity dropdown should be available everywhere once a canonical identity exists,
    * including `/labs` (so users can jump to Dashboard from the learning hub).
@@ -368,13 +369,7 @@ export default function PageShell({
     disconnectIdentity();
     if (auth?.isAuthenticated) {
       try {
-        const cfg = createOidcConfig();
-        setNeutralAfterLogout();
-        await auth.signoutRedirect({
-          id_token_hint: auth?.user?.id_token,
-          post_logout_redirect_uri: cfg.post_logout_redirect_uri,
-          extraQueryParams: { client_id: cfg.client_id },
-        });
+        await signOutKeycloakAccount(auth);
         // signoutRedirect navigates away; post_logout_redirect_uri returns to /#/join
       } catch {
         navigate("/");
@@ -755,7 +750,7 @@ export default function PageShell({
                 {auth?.isAuthenticated ? (
                   <button
                     type="button"
-                    onClick={() => void auth?.signoutRedirect?.()}
+                    onClick={() => void signOutKeycloakAccount(auth)}
                     className={navAuthSecondaryClass}
                   >
                     {isGR ? "Έξοδος" : "Sign out"}
@@ -803,13 +798,17 @@ export default function PageShell({
           <div className="mx-auto mt-2 max-w-5xl rounded-2xl border border-sky-300/40 bg-sky-50/80 px-4 py-3 text-left text-sm text-sky-950 shadow-lg backdrop-blur dark:border-sky-500/25 dark:bg-sky-950/25 dark:text-sky-50">
             <p className="font-semibold">
               {isGR
-                ? "Έχεις αποσυνδεθεί από τον λογαριασμό Web3Edu."
-                : "You’re signed out of your Web3Edu account."}
+                ? "Αποσυνδέθηκες από τον Web3Edu Account σου."
+                : "You signed out from your Web3Edu Account."}
             </p>
             <p className="mt-1 text-xs opacity-90">
-              {isGR
-                ? "Για να αποφύγουμε αλλαγή προφίλ χωρίς προειδοποίηση, διάλεξε πώς θέλεις να συνεχίσεις."
-                : "To avoid unexpected profile switching, choose how you want to continue."}
+              {walletConnectedForBanner
+                ? isGR
+                  ? "Συνδέσου ξανά για να δεις την πρόοδό σου ή συνέχισε με το συνδεδεμένο wallet ως ξεχωριστό wallet-only προφίλ."
+                  : "Sign in again to view your Web3Edu progress, or continue with your connected wallet as a separate wallet-only profile."
+                : isGR
+                  ? "Συνδέσου ξανά για να δεις την πρόοδό σου ή συνέχισε με την ταυτότητα που είναι αποθηκευμένη σε αυτή τη συσκευή."
+                  : "Sign in again to view your Web3Edu progress, or continue with the identity saved on this device."}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button
@@ -820,10 +819,10 @@ export default function PageShell({
                 }}
                 className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500"
               >
-                {isGR ? "Είσοδος με Web3Edu" : "Sign in with Web3Edu"}
+                {isGR ? "Είσοδος με Web3Edu Account" : "Sign in with Web3Edu Account"}
               </button>
 
-              {hasWalletSession ? (
+              {walletConnectedForBanner ? (
                 <button
                   type="button"
                   onClick={() => {
@@ -832,7 +831,7 @@ export default function PageShell({
                   }}
                   className="inline-flex items-center justify-center rounded-lg border border-sky-300/60 bg-white/80 px-4 py-2 text-xs font-semibold text-sky-950 hover:bg-white dark:border-sky-500/30 dark:bg-white/10 dark:text-sky-50 dark:hover:bg-white/15"
                 >
-                  {isGR ? "Συνέχεια με συνδεδεμένο πορτοφόλι" : "Continue with connected wallet"}
+                  {isGR ? "Συνέχεια με wallet-only προφίλ" : "Continue with wallet-only profile"}
                 </button>
               ) : hasPersistedIdentity ? (
                 <button
@@ -846,14 +845,6 @@ export default function PageShell({
                   {isGR ? "Συνέχεια σε αυτή τη συσκευή" : "Continue on this device"}
                 </button>
               ) : null}
-
-              <button
-                type="button"
-                onClick={() => navigate(isGR ? "/join-gr" : "/join")}
-                className="inline-flex items-center justify-center rounded-lg px-3 py-2 text-xs font-semibold text-sky-700 hover:underline dark:text-sky-200"
-              >
-                {isGR ? "Προβολή επιλογών" : "View options"}
-              </button>
             </div>
           </div>
         ) : null}
@@ -1121,7 +1112,7 @@ export default function PageShell({
               {!isAdminRoute && auth?.isAuthenticated ? (
                 <button
                   type="button"
-                  onClick={() => void auth?.signoutRedirect?.()}
+                  onClick={() => void signOutKeycloakAccount(auth)}
                   className="w-full rounded-xl border border-white/20 bg-white/80 dark:bg-slate-800/80 py-2.5 text-sm font-semibold text-slate-800 dark:text-white"
                 >
                   {isGR ? "Έξοδος" : "Sign out"}

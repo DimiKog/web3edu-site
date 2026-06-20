@@ -36,7 +36,7 @@ export default function SocialLoginRecoveryPrompt({ variant = "en" }) {
     <div
       role="region"
       aria-label={
-        isGr ? "Πρόταση για κοινωνική είσοδο και ανάκτηση" : "Social login recovery suggestion"
+        isGr ? "Πρόταση σύνδεσης Web3Edu Account" : "Web3Edu Account recovery suggestion"
       }
       className="relative z-20 w-full max-w-3xl mx-auto mb-6 rounded-2xl border border-indigo-200/70 dark:border-indigo-500/35
         bg-gradient-to-r from-indigo-50/95 via-violet-50/90 to-cyan-50/85
@@ -50,13 +50,13 @@ export default function SocialLoginRecoveryPrompt({ variant = "en" }) {
         <div className="min-w-0 flex-1 text-left">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
             {isGr
-              ? "Χρησιμοποίησε social login για ευκολότερη ανάκτηση και πρόσβαση"
-              : "Use social login for easier recovery and access"}
+              ? "Σύνδεση με Web3Edu Account για ευκολότερη ανάκτηση και πρόσβαση"
+              : "Connect a Web3Edu Account for easier recovery and access"}
           </h3>
           <p className="mt-1 text-xs leading-relaxed text-slate-700 dark:text-slate-300 sm:text-sm">
             {isGr
-              ? "Η σύνδεση με λογαριασμό Web3Edu (Google sign-in) σου επιτρέπει να ξαναμπείς στον πίνακα χωρίς να στηρίζεσαι μόνο στο τοπικό κλειδί του browser — ιδανικό αν αλλάζεις συσκευή ή καθαρίζεις δεδομένα."
-              : "Signing in with your Web3Edu account (Google sign-in) makes it easier to return to your dashboard without relying only on your browser’s local key — especially when you switch devices or clear site data."}
+              ? "Η σύνδεση με Web3Edu Account (Google sign-in) σου επιτρέπει να ξαναμπείς στον πίνακα χωρίς να στηρίζεσαι μόνο στο τοπικό κλειδί του browser — ιδανικό αν αλλάζεις συσκευή ή καθαρίζεις δεδομένα."
+              : "Signing in with your Web3Edu Account (Google sign-in) makes it easier to return to your dashboard without relying only on your browser’s local key — especially when you switch devices or clear site data."}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button
@@ -78,7 +78,7 @@ export default function SocialLoginRecoveryPrompt({ variant = "en" }) {
               onClick={dismissSession}
               className="text-xs font-medium text-slate-500 underline-offset-2 hover:underline dark:text-slate-500 sm:ml-1"
             >
-              {isGr ? "Συνέχεια χωρίς social login" : "Continue without social login"}
+              {isGr ? "Συνέχεια χωρίς Web3Edu Account" : "Continue without Web3Edu Account"}
             </button>
           </div>
         </div>

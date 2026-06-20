@@ -50,6 +50,7 @@ import {
 import { useSocialAwareWalletConnect } from "../hooks/useSocialAwareWalletConnect.js";
 import { confirmLinkWallet, createLinkWalletChallenge } from "../api/socialIdentity.js";
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
+import { getViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 import { getXpTotalFromBackend } from "../utils/progression.js";
 
 const EDU_NET_EXPLORER = "https://blockexplorer.dimikog.org";
@@ -519,24 +520,20 @@ export default function Dashboard() {
         metadata && typeof metadata === "object" && !Array.isArray(metadata) ? metadata : {};
     const displayedMetadata = { ...fallbackMetadata, ...safeMetadata };
 
-    const progressSourceAddress = useMemo(() => {
-        const candidates = [
-            metadata?.progressSourceAddress,
-            metadata?.progressSource,
-            profile?.progressSourceAddress,
-            profile?.progressSource,
-            resolvedMetadata?.progressSourceAddress,
-            resolvedMetadata?.progressSource,
-            resolvedProfile?.progressSourceAddress,
-            resolvedProfile?.progressSource,
-        ];
-        for (const candidate of candidates) {
-            const normalized = normalizeEvmAddress(candidate);
-            if (normalized) return normalized;
-            if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
-        }
-        return identityAddress;
-    }, [metadata, profile, resolvedMetadata, resolvedProfile, identityAddress]);
+    const identityProfileMode = useMemo(() => {
+        if (isSocialCanonical) return "account";
+        if (!isOidcAuthenticated && isIdentityReady && identityAddress) return "wallet-only";
+        return "account";
+    }, [isSocialCanonical, isOidcAuthenticated, isIdentityReady, identityAddress]);
+
+    const showWalletOnlyProgressNote = useMemo(() => {
+        if (identityProfileMode !== "wallet-only") return false;
+        const xp = displayedMetadata?.xp_total ?? 0;
+        const tier = displayedMetadata?.tier ?? "Explorer";
+        const viewerMode = typeof window !== "undefined" ? getViewerMode() : null;
+        const choseWalletAfterLogout = viewerMode === VIEWER_MODES.wallet;
+        return (xp === 0 || tier === "Explorer") && choseWalletAfterLogout;
+    }, [identityProfileMode, displayedMetadata?.xp_total, displayedMetadata?.tier]);
 
     const linkedAccountForDisplay = useMemo(() => {
         if (!walletAaCanonical) return null;
@@ -893,7 +890,7 @@ export default function Dashboard() {
         setLinkWalletError(null);
 
         if (!oidcIdToken) {
-            setLinkWalletError("Πρέπει να είσαι συνδεδεμένος/η με social login για να συνδέσεις πορτοφόλι.");
+            setLinkWalletError("Πρέπει να είσαι συνδεδεμένος/η με Web3Edu Account για να συνδέσεις πορτοφόλι.");
             setLinkWalletPhase("error");
             return;
         }
@@ -1028,7 +1025,7 @@ export default function Dashboard() {
                             Ρύθμιση Web3Edu Identity…
                         </h1>
                         <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                            Αναλύουμε την AA ταυτότητά σου από social login με το backend.
+                            Ρυθμίζουμε την Web3Edu Identity σου με το backend.
                         </p>
 
                         {oidcAuthLoading ? (
@@ -1160,14 +1157,15 @@ export default function Dashboard() {
                     <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-6 px-2 md:px-0">
                         <DashboardIdentityAddresses
                             isGR
+                            profileMode={identityProfileMode}
                             identityAddress={identityAddress}
                             linkedWallet={effectiveSocialLinkedWalletNorm}
                             connectedWallet={isConnected ? connectedWalletNorm : null}
                             linkedAccount={linkedAccountForDisplay}
-                            progressSourceAddress={progressSourceAddress}
                             tier={displayedMetadata?.tier}
                             displayTokenId={displayTokenId}
                             isLoading={isIdentityMetadataLoading}
+                            showWalletOnlyProgressNote={showWalletOnlyProgressNote}
                             onViewExplorer={handleIdentityViewExplorer}
                             onCopyIdentity={handleIdentityCopyAddress}
                             identityCopyFeedback={addressCopyFeedback}
@@ -1185,7 +1183,7 @@ export default function Dashboard() {
                                     Τρέχουσα μέθοδος πρόσβασης: ταυτότητα σε αυτό το πρόγραμμα και τη συσκευή σου
                                 </p>
                                 <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                                    Μπορείς να συνδέσεις λογαριασμό Web3Edu ή πορτοφόλι για ευκολότερη είσοδο αργότερα.
+                                    Μπορείς να συνδέσεις Web3Edu Account ή πορτοφόλι για ευκολότερη είσοδο αργότερα.
                                 </p>
                             </div>
                         ) : null}
@@ -1199,7 +1197,7 @@ export default function Dashboard() {
                             <div className="rounded-2xl border border-sky-200/70 bg-sky-50/90 px-4 py-3 text-left text-sm text-sky-950 shadow-sm backdrop-blur-sm dark:border-sky-500/30 dark:bg-sky-950/25 dark:text-sky-50 md:px-4">
                                 <p className="font-semibold">Επιτυχής είσοδος</p>
                                 <p className="mt-1 text-xs opacity-90 dark:opacity-95">
-                                    Ο λογαριασμός Web3Edu έχει τη δική του ταυτότητα. Ο πίνακας τώρα δείχνει την ταυτότητα του λογαριασμού σου.
+                                    Ο πίνακας ελέγχου εμφανίζει πλέον την ταυτότητα του Web3Edu λογαριασμού σου.
                                 </p>
                                 <p className="mt-2 text-[11px] font-mono opacity-80">
                                     {shortAddress(socialSwitchNotice.from)} → {shortAddress(socialSwitchNotice.to)}
