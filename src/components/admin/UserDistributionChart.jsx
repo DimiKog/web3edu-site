@@ -26,28 +26,47 @@ export default function UserDistributionChart({ data, type = "tier" }) {
     let chartData = [];
 
     if (type === "tier") {
-        const builders = data.filter((u) =>
+        // Progress-based tiers only; Class F / no-progress is a separate slice.
+        const withProgress = data.filter((u) => u?.hasProgress !== false);
+        const noProgress = data.length - withProgress.length;
+        const builders = withProgress.filter((u) =>
             String(u?.tier || u?.level || "").toLowerCase().includes("builder")
         ).length;
-        const explorers = data.length - builders;
+        const explorers = withProgress.length - builders;
 
         chartData = [
             { name: "Builders", value: builders, color: COLORS.builders },
             { name: "Explorers", value: explorers, color: COLORS.explorers },
         ];
+        if (noProgress > 0) {
+            chartData.push({
+                name: "No Progress",
+                value: noProgress,
+                color: "#94a3b8",
+            });
+        }
     } else if (type === "engagement") {
-        const engaged = data.filter((u) => {
+        const withProgress = data.filter((u) => u?.hasProgress !== false);
+        const noProgress = data.length - withProgress.length;
+        const engaged = withProgress.filter((u) => {
             const started = u?.started || u?.labsStarted || 0;
             const completed = u?.completed || u?.labsCompleted || 0;
             if (started <= 0) return completed > 0;
             return (completed / started) >= 0.5;
         }).length;
-        const dropOff = data.length - engaged;
+        const dropOff = withProgress.length - engaged;
 
         chartData = [
             { name: "Engaged (50%+)", value: engaged, color: COLORS.active },
             { name: "Low Engagement", value: dropOff, color: COLORS.dropOff },
         ];
+        if (noProgress > 0) {
+            chartData.push({
+                name: "No Progress",
+                value: noProgress,
+                color: "#94a3b8",
+            });
+        }
     }
 
     const total = chartData.reduce((sum, item) => sum + item.value, 0);

@@ -109,14 +109,26 @@ export default function AdminLabDetails() {
 
             {data?.summary && (
                 <>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <StatCard label="Total Users" value={data.summary.totalUsers} />
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <StatCard label="Total Learners" value={data.summary.totalUsers} />
                         <StatCard label="Started" value={data.summary.started} />
                         <StatCard label="Completed" value={data.summary.completed} />
                         <StatCard
-                            label="Drop-off"
-                            value={data.summary.dropOff}
-                            variant={data.summary.dropOff > 0 ? "warning" : "default"}
+                            label="Started, not finished"
+                            value={
+                                data.summary.startedNotCompleted ??
+                                data.summary.dropOff ??
+                                0
+                            }
+                            variant={
+                                (data.summary.startedNotCompleted ?? data.summary.dropOff) > 0
+                                    ? "warning"
+                                    : "default"
+                            }
+                        />
+                        <StatCard
+                            label="Not started"
+                            value={data.summary.notStarted ?? 0}
                         />
                         <StatCard
                             label="Completion %"
@@ -199,12 +211,14 @@ export default function AdminLabDetails() {
                                                 <td className="p-3 font-semibold">
                                                     {entry.started
                                                         ? <span className="text-emerald-600 dark:text-emerald-400">✔</span>
-                                                        : <span className="text-rose-600 dark:text-rose-400">✖</span>}
+                                                        : <span className="text-slate-400 dark:text-slate-500">—</span>}
                                                 </td>
                                                 <td className="p-3 font-semibold">
                                                     {entry.completed
                                                         ? <span className="text-emerald-600 dark:text-emerald-400">✔</span>
-                                                        : <span className="text-rose-600 dark:text-rose-400">✖</span>}
+                                                        : entry.started
+                                                            ? <span className="text-rose-600 dark:text-rose-400">✖</span>
+                                                            : <span className="text-slate-400 dark:text-slate-500">—</span>}
                                                 </td>
                                                 <td className="p-3 text-slate-600 dark:text-slate-400">{entry.startedAt || "-"}</td>
                                                 <td className="p-3 text-slate-600 dark:text-slate-400">{entry.completedAt || "-"}</td>

@@ -34,7 +34,7 @@ export default function AdminKpis({ overview, platform, onCardClick }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <KpiCard
                 id="totalUsers"
-                label="Total Users"
+                label="Total Learners"
                 value={overview?.totalUsers}
                 tone="totalUsers"
                 onClick={onCardClick}

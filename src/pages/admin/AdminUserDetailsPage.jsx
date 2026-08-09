@@ -288,8 +288,13 @@ export default function AdminUserDetailsPage() {
                     </h1>
                     {data?.user && (
                         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                            Tier: <span className="font-semibold">{data.user.tier}</span> · XP:{" "}
-                            <span className="font-semibold">{data.user.xp}</span>
+                            Tier:{" "}
+                            <span className="font-semibold">
+                                {data.user.hasProgress === false || data.user.tier == null
+                                    ? "No Progress"
+                                    : data.user.tier}
+                            </span>{" "}
+                            · XP: <span className="font-semibold">{data.user.xp}</span>
                         </p>
                     )}
                     <div className="mt-4 max-w-xl space-y-2">

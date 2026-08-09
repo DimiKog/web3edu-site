@@ -281,9 +281,16 @@ function normalizeUser(user) {
     const provisioningStatus = String(identity?.provisioningStatus || "").trim();
 
     return {
-        wallet: src?.wallet || src?.address || "—",
+        wallet: src?.progressAddress || src?.wallet || src?.address || "—",
+        progressAddress: src?.progressAddress || src?.wallet || src?.address || null,
+        learnerId: src?.learnerId || null,
+        hasProgress: src?.hasProgress,
         xp: toNumber(src?.xp ?? src?.totalXp, 0),
-        tier: src?.tier || src?.level || "Explorer",
+        // Class F / no progress: do not default to "Explorer" (KPI inflation).
+        tier:
+            src?.hasProgress === false
+                ? src?.tier || "No Progress"
+                : src?.tier || src?.level || "Explorer",
         started,
         completed,
         dropOffCount,
@@ -378,8 +385,10 @@ export default function AdminUsersPage() {
     } = useMemo(() => {
         const normalizedUsers = (users ?? []).map(normalizeUser);
         const totalUsers = normalizedUsers.length;
-        const builders = normalizedUsers.filter((u) => String(u.tier).toLowerCase().includes("builder")).length;
-        const explorers = normalizedUsers.filter((u) => String(u.tier).toLowerCase().includes("explorer")).length;
+        // Tier KPIs are progress-based; Class F stays in Total Users only.
+        const withProgress = normalizedUsers.filter((u) => u.hasProgress !== false);
+        const builders = withProgress.filter((u) => String(u.tier).toLowerCase().includes("builder")).length;
+        const explorers = withProgress.filter((u) => String(u.tier).toLowerCase().includes("explorer")).length;
         const dropOffUsers = normalizedUsers.filter((u) => u.isDropOff).length;
 
         const q = searchTerm.trim().toLowerCase();
@@ -512,7 +521,7 @@ export default function AdminUsersPage() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <KpiCard label="Total Users" value={totalUsers} />
+                <KpiCard label="Total Learners" value={totalUsers} />
                 <KpiCard label="Builders" value={builders} />
                 <KpiCard label="Explorers" value={explorers} />
                 <KpiCard label="Drop-off Users" value={dropOffUsers} />
@@ -695,8 +704,8 @@ export default function AdminUsersPage() {
                                 const score = engagementScore(user);
                                 return (
                                     <tr
-                                        key={user.wallet}
-                                        onClick={() => navigate(`/admin/users/${encodeURIComponent(user.wallet)}`, { state: { user: user.raw } })}
+                                        key={user.progressAddress || user.wallet}
+                                        onClick={() => navigate(`/admin/users/${encodeURIComponent(user.progressAddress || user.wallet)}`, { state: { user: user.raw } })}
                                         className={`cursor-pointer border-t border-white/10 hover:bg-white/60 dark:hover:bg-white/5 ${user.isDropOff ? "bg-red-50/50 dark:bg-red-900/15" : ""}`}
                                     >
                                         <td className="p-3 font-mono text-xs text-slate-900 dark:text-slate-100 underline underline-offset-2 decoration-dotted">
