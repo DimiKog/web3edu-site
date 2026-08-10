@@ -81,7 +81,7 @@ async function fetchLegacyResolve({ identityAddress, resolveOwner, signal }) {
       resolveOwner,
     });
   }
-  const res = await fetch(url, { signal });
+  const res = await fetch(url, { signal, cache: "no-store" });
   if (!res.ok) {
     const payload = await res.json().catch(() => ({}));
     throw createBackendError(res.status, payload);
@@ -143,11 +143,15 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
     return canonId;
   }, [canonId, canonResolveOwner]);
 
-  const lastCompletedKeyRef = useRef(null);
+  /** Monotonic id: only the latest resolve generation may commit React state. */
+  const resolveGenerationRef = useRef(0);
+  /** Last identity key that successfully committed metadata (avoid flash on same-key refetch). */
   const prevResolveKeyForDataRef = useRef(null);
 
   const refetch = useCallback(() => {
-    lastCompletedKeyRef.current = null;
+    // Invalidate any in-flight resolve immediately so a late completion cannot
+    // commit or suppress the upcoming refetchBump-driven request.
+    resolveGenerationRef.current += 1;
     setRefetchBump((n) => n + 1);
   }, []);
 
@@ -166,7 +170,7 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
 
   useEffect(() => {
     if (!resolveKey || !canonId) {
-      lastCompletedKeyRef.current = null;
+      resolveGenerationRef.current += 1;
       prevResolveKeyForDataRef.current = null;
       setMetadata(null);
       setProfile(null);
@@ -176,16 +180,14 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
       return;
     }
 
-    if (lastCompletedKeyRef.current === resolveKey) {
-      return;
-    }
-
-    let cancelled = false;
+    const generation = ++resolveGenerationRef.current;
     const controller = new AbortController();
+    const isCurrent = () => resolveGenerationRef.current === generation;
 
     const run = async () => {
       setLoading(true);
       setError(null);
+      // Same-identity refetch: keep prior metadata visible. Identity change: clear.
       if (prevResolveKeyForDataRef.current !== resolveKey) {
         setMetadata(null);
         setProfile(null);
@@ -211,13 +213,15 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
           }
         }
 
+        if (!isCurrent()) return;
+
         const dashboardData = await fetchLegacyResolve({
           identityAddress: canonId,
           resolveOwner: canonResolveOwner,
           signal: controller.signal,
         });
 
-        if (cancelled) return;
+        if (!isCurrent()) return;
 
         if (import.meta.env.DEV) {
           const rawTokenId = resolveTokenId(dashboardData);
@@ -429,28 +433,35 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
           attributes: mergedAttributes,
         };
 
+        if (!isCurrent()) return;
+
         setMetadata(nextMetadata);
         setProfile(nextProfile);
         setResolveData(dashboardData);
-        lastCompletedKeyRef.current = resolveKey;
         prevResolveKeyForDataRef.current = resolveKey;
       } catch (err) {
-        if (cancelled) return;
+        if (!isCurrent()) return;
         if (isUserStateUnavailableError(err)) {
           setError("user_state_unavailable");
           return;
         }
+        // Aborted requests are expected when a newer resolve supersedes this one.
+        if (err?.name === "AbortError") return;
         setError(err?.message || "Failed to resolve identity");
       } finally {
-        if (!cancelled) setLoading(false);
+        if (isCurrent()) setLoading(false);
       }
     };
 
     run();
 
     return () => {
-      cancelled = true;
       controller.abort();
+      // Close the window where a late response could still match this generation
+      // before the next effect assigns a new one (resolveKey change, unmount, etc.).
+      if (resolveGenerationRef.current === generation) {
+        resolveGenerationRef.current += 1;
+      }
     };
   }, [resolveKey, canonId, canonResolveOwner, refetchBump]);
 
