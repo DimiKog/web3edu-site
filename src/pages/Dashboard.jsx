@@ -419,16 +419,13 @@ export default function Dashboard() {
         setBuilderRewardClaimed(localStorage.getItem(builderClaimedStorageKey) === "true");
     }, [builderClaimedStorageKey, setBuilderRewardClaimed]);
 
+    // Remount after an activity: always refresh canonical /web3sbt/resolve so XP,
+    // labs, badges, timeline, projects, and next-step share one fresh snapshot.
+    // (Progress-updated events are handled in useResolvedIdentity; this covers
+    // flows that write progress without dispatching that event.)
     useEffect(() => {
-        if (typeof window === "undefined") return undefined;
-        const onProgress = () => {
-            // Keep dashboard in sync after in-app actions (e.g. lab completion claim) without reload.
-            Promise.resolve(resolveNow?.()).catch(() => null);
-            Promise.resolve(refetchResolvedIdentity?.()).catch(() => null);
-        };
-        window.addEventListener("web3edu-progress-updated", onProgress);
-        return () => window.removeEventListener("web3edu-progress-updated", onProgress);
-    }, [resolveNow, refetchResolvedIdentity]);
+        Promise.resolve(refetchResolvedIdentity?.()).catch(() => null);
+    }, [refetchResolvedIdentity]);
 
     useEffect(() => {
         // Once backend starts returning the linked wallet reliably, drop the optimistic override.
@@ -480,16 +477,6 @@ export default function Dashboard() {
         setMetadata(resolvedMetadata ?? null);
         setProfile(resolvedProfile ?? null);
     }, [resolvedMetadata, resolvedProfile, canonicalIdentityKey]);
-
-    useEffect(() => {
-        if (typeof window === "undefined") return undefined;
-        const onProgress = () => {
-            // After lab completion writes, refresh the resolved identity snapshot so dashboard updates immediately.
-            Promise.resolve(refetchResolvedIdentity?.()).catch(() => null);
-        };
-        window.addEventListener("web3edu-progress-updated", onProgress);
-        return () => window.removeEventListener("web3edu-progress-updated", onProgress);
-    }, [refetchResolvedIdentity]);
 
     useEffect(() => {
         if (!metadata || typeof metadata.xp_total !== "number") return;

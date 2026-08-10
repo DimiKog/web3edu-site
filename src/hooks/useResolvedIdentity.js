@@ -151,6 +151,19 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
     setRefetchBump((n) => n + 1);
   }, []);
 
+  // Always-mounted cache owner: invalidate when any activity writes progress.
+  // Dashboard/Labs listeners alone miss this while those routes are unmounted.
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const onProgressUpdated = () => {
+      refetch();
+    };
+    window.addEventListener("web3edu-progress-updated", onProgressUpdated);
+    return () => {
+      window.removeEventListener("web3edu-progress-updated", onProgressUpdated);
+    };
+  }, [refetch]);
+
   useEffect(() => {
     if (!resolveKey || !canonId) {
       lastCompletedKeyRef.current = null;
