@@ -100,3 +100,69 @@ export function buildLabsStatusUrl(identityAddress, labId, resolveOwner) {
   }
   return `${base}/labs/status?${params.toString()}`;
 }
+
+/**
+ * GET /web3sbt/anchor-status/:address — read-only profile-anchor verification.
+ * @param {string} identityAddress smart account / progress identity
+ */
+export function buildProfileAnchorStatusUrl(identityAddress) {
+  const base = getWeb3eduBackendUrl();
+  const id = normalizeEvmAddress(identityAddress);
+  if (!id) {
+    throw new Error("identityAddress is required for /web3sbt/anchor-status");
+  }
+  return `${base}/web3sbt/anchor-status/${encodeURIComponent(id)}`;
+}
+
+/**
+ * Fetch profile-anchor verification status (read-only; no signing / POST).
+ * @param {string} identityAddress
+ * @param {{ signal?: AbortSignal }} [options]
+ * @returns {Promise<object>}
+ */
+export async function getProfileAnchorStatus(identityAddress, { signal } = {}) {
+  const url = buildProfileAnchorStatusUrl(identityAddress);
+  let res;
+  try {
+    res = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      signal,
+    });
+  } catch (err) {
+    if (err?.name === "AbortError") throw err;
+    const networkErr = new Error("anchor_status_unavailable");
+    networkErr.code = "API_UNAVAILABLE";
+    networkErr.cause = err;
+    throw networkErr;
+  }
+
+  const payload = await res.json().catch(() => ({}));
+
+  // Trust backend top-level verification statuses even on non-2xx (e.g. 503 INVALID config).
+  const status = typeof payload?.status === "string" ? payload.status : null;
+  const known =
+    status === "VERIFIED" ||
+    status === "OUTDATED" ||
+    status === "NOT_ANCHORED" ||
+    status === "INVALID";
+
+  if (known) {
+    return payload;
+  }
+
+  if (!res.ok) {
+    const httpErr = new Error(
+      payload?.error || payload?.message || `anchor_status_http_${res.status}`
+    );
+    httpErr.code = "API_UNAVAILABLE";
+    httpErr.status = res.status;
+    httpErr.payload = payload;
+    throw httpErr;
+  }
+
+  const shapeErr = new Error("anchor_status_invalid_payload");
+  shapeErr.code = "API_UNAVAILABLE";
+  shapeErr.payload = payload;
+  throw shapeErr;
+}

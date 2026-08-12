@@ -19,6 +19,7 @@ import {
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { buildWeb3SbtResolveUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
+import VerifiableProfileCard from "../components/VerifiableProfileCard.jsx";
 
 export default function SbtView() {
     const { address } = useAccount();
@@ -373,6 +374,10 @@ export default function SbtView() {
                                     </div>
                                 </div>
                             ) : null}
+                        </div>
+
+                        <div className="mb-4">
+                            <VerifiableProfileCard compact />
                         </div>
 
                         {/* Verification */}

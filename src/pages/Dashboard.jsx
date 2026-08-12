@@ -16,6 +16,7 @@ import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, Tro
 import LearningTimeline from "../components/LearningTimeline.jsx";
 import DashboardProjectsProgress from "../components/DashboardProjectsProgress.jsx";
 import DashboardIdentityAddresses from "../components/DashboardIdentityAddresses.jsx";
+import VerifiableProfileCard from "../components/VerifiableProfileCard.jsx";
 import IdentityCard from "../components/IdentityCard.jsx";
 import IdentityBackupBanner from "../components/IdentityBackupBanner.jsx";
 import SocialLoginRecoveryPrompt from "../components/SocialLoginRecoveryPrompt.jsx";
@@ -1176,6 +1177,9 @@ export default function Dashboard() {
                                 </p>
                             </div>
                         ) : null}
+                        <div className="mt-4">
+                            <VerifiableProfileCard />
+                        </div>
                     </div>
                 ) : null}
 
