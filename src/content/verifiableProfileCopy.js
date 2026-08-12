@@ -13,7 +13,9 @@ export const VERIFIABLE_PROFILE_COPY = {
 
     statusVerified: "Verified",
     statusOutdated: "Valid seal — profile updated since anchor",
+    statusOutdatedShort: "Outdated",
     statusNotAnchored: "Not anchored yet",
+    statusNotAnchoredShort: "Not Anchored",
     statusInvalid: "Verification issue",
     statusUnavailable: "Verification status temporarily unavailable",
     statusLoading: "Checking verification…",
@@ -23,16 +25,20 @@ export const VERIFIABLE_PROFILE_COPY = {
     outdatedExplain:
       "Your anchored snapshot is valid, but your current learning progress has changed since it was sealed.",
     outdatedExplainShort:
-      "Your current learning progress has changed since the latest seal",
+      "Current progress has changed since latest seal",
     outdatedCurrentLabel: "Current profile",
     outdatedCurrentValue: "Newer than latest seal",
     notAnchoredExplain:
       "Your current Web3Edu profile does not yet have a confirmed on-chain seal.",
+    notAnchoredShort: "No confirmed profile seal",
     invalidExplain:
       "The stored seal could not be validated against the current credential or on-chain state.",
+    invalidShort: "Verification issue",
     unavailableExplain:
       "We could not reach the verification service right now. Your dashboard still works normally.",
 
+    latestSealShort: "Latest seal",
+    snapshotVersionShortPrefix: "Snapshot v",
     latestSealedSnapshot: "Latest sealed snapshot",
     snapshotVersion: "Snapshot Version",
     schemaVersion: "Schema Version",
@@ -91,7 +97,9 @@ export const VERIFIABLE_PROFILE_COPY = {
 
     statusVerified: "Επαληθευμένο",
     statusOutdated: "Έγκυρη σφράγιση — το προφίλ ενημερώθηκε μετά την αγκύρωση",
+    statusOutdatedShort: "Ενημερώθηκε μετά τη σφράγιση",
     statusNotAnchored: "Δεν έχει γίνει ακόμη αγκύρωση",
+    statusNotAnchoredShort: "Χωρίς αγκύρωση",
     statusInvalid: "Πρόβλημα επαλήθευσης",
     statusUnavailable: "Η κατάσταση επαλήθευσης δεν είναι προσωρινά διαθέσιμη",
     statusLoading: "Έλεγχος επαλήθευσης…",
@@ -106,11 +114,15 @@ export const VERIFIABLE_PROFILE_COPY = {
     outdatedCurrentValue: "Νεότερο από την τελευταία σφράγιση",
     notAnchoredExplain:
       "Το τρέχον προφίλ Web3Edu δεν έχει ακόμη επιβεβαιωμένη σφράγιση στην αλυσίδα.",
+    notAnchoredShort: "Δεν υπάρχει επιβεβαιωμένη σφράγιση προφίλ",
     invalidExplain:
       "Η αποθηκευμένη σφράγιση δεν μπόρεσε να επαληθευτεί έναντι του τρέχοντος διαπιστευτηρίου ή της κατάστασης στην αλυσίδα.",
+    invalidShort: "Πρόβλημα επαλήθευσης",
     unavailableExplain:
       "Δεν ήταν δυνατή η επικοινωνία με την υπηρεσία επαλήθευσης αυτή τη στιγμή. Ο πίνακας ελέγχου λειτουργεί κανονικά.",
 
+    latestSealShort: "Τελευταία σφράγιση",
+    snapshotVersionShortPrefix: "Στιγμιότυπο v",
     latestSealedSnapshot: "Τελευταίο σφραγισμένο στιγμιότυπο",
     snapshotVersion: "Έκδοση Στιγμιότυπου",
     schemaVersion: "Έκδοση Σχήματος",

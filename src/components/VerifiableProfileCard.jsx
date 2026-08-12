@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import {
   ArrowTopRightOnSquareIcon,
   ClipboardDocumentIcon,
@@ -157,8 +157,24 @@ function ExplorerLink({ href, label }) {
   );
 }
 
+function ExpandDetailsButton({ expanded, showLabel, hideLabel, onToggle, controlsId }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={expanded}
+      aria-controls={controlsId}
+      className="text-xs font-semibold text-indigo-700 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 dark:text-indigo-300"
+    >
+      {expanded ? hideLabel : showLabel}
+    </button>
+  );
+}
+
 /**
  * Learner-facing Verifiable Profile / Latest Seal card.
+ * Dashboard (non-compact): collapsed by default.
+ * SBT (compact): always shows the full compact section.
  * @param {{ isGR?: boolean, compact?: boolean, className?: string }} props
  */
 export default function VerifiableProfileCard({
@@ -168,7 +184,9 @@ export default function VerifiableProfileCard({
 }) {
   const { canonicalIdentityAddress } = useResolvedIdentityContext();
   const { loading, data, status } = useProfileAnchorStatus(canonicalIdentityAddress);
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  /** Dashboard expand state only — never persisted; each visit starts collapsed. */
+  const [dashboardExpanded, setDashboardExpanded] = useState(false);
+  const detailsPanelId = useId();
   const t = getVerifiableProfileCopy(isGR);
 
   const credential = data?.credential ?? null;
@@ -177,6 +195,8 @@ export default function VerifiableProfileCard({
   const reasonCode = data?.reasonCode ?? null;
 
   const statusPresentation = useMemo(() => {
+    // Compact SBT + expanded Dashboard keep the fuller status wording.
+    const shortBadge = !compact && !dashboardExpanded;
     if (loading && !status) {
       return {
         tone: "neutral",
@@ -194,13 +214,13 @@ export default function VerifiableProfileCard({
       case "OUTDATED":
         return {
           tone: "outdated",
-          label: t.statusOutdated,
+          label: shortBadge ? t.statusOutdatedShort : t.statusOutdated,
           icon: <InformationCircleIcon className="h-3.5 w-3.5" />,
         };
       case "NOT_ANCHORED":
         return {
           tone: "neutral",
-          label: t.statusNotAnchored,
+          label: shortBadge ? t.statusNotAnchoredShort : t.statusNotAnchored,
           icon: <QuestionMarkCircleIcon className="h-3.5 w-3.5" />,
         };
       case "INVALID":
@@ -222,7 +242,7 @@ export default function VerifiableProfileCard({
           icon: <QuestionMarkCircleIcon className="h-3.5 w-3.5" />,
         };
     }
-  }, [loading, status, t]);
+  }, [loading, status, t, compact, dashboardExpanded]);
 
   const safeReason = useMemo(() => {
     const key = reasonCodeToCopyKey(reasonCode);
@@ -249,32 +269,149 @@ export default function VerifiableProfileCard({
   const showProof =
     status === "VERIFIED" || status === "OUTDATED" || (status === "INVALID" && Boolean(anchor));
 
-  const body = (
-    <div className={`space-y-3 ${compact ? "text-sm" : ""}`}>
-      {!compact ? (
-        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">{t.framing}</p>
-      ) : (
-        <div className="space-y-1.5 rounded-xl border border-indigo-200/40 bg-indigo-50/40 px-3 py-2.5 dark:border-indigo-700/30 dark:bg-indigo-950/25">
-          <p className="text-[11px] font-semibold text-indigo-800 dark:text-indigo-200">
-            {t.conceptSbt}
+  const collapsedFreshness = useMemo(() => {
+    switch (status) {
+      case "VERIFIED":
+        return t.matchesSealAlt;
+      case "OUTDATED":
+        return t.outdatedExplainShort;
+      case "NOT_ANCHORED":
+        return reasonCode === "ANCHOR_PENDING" && safeReason
+          ? safeReason
+          : t.notAnchoredShort;
+      case "INVALID":
+        return t.invalidShort;
+      case "API_UNAVAILABLE":
+        return t.statusUnavailable;
+      default:
+        return loading ? t.statusLoading : null;
+    }
+  }, [status, t, reasonCode, safeReason, loading]);
+
+  const collapsedSealLine =
+    anchor?.snapshotVersion != null
+      ? `${t.latestSealShort} · ${t.snapshotVersionShortPrefix}${anchor.snapshotVersion}`
+      : null;
+
+  const blockLabel = formatBlockNumber(anchor?.blockNumber);
+
+  const deepDetailsPanel = showProof && (anchor || credential) ? (
+    <dl className="space-y-2 rounded-xl border border-slate-200/60 bg-slate-50/60 px-3 py-2.5 dark:border-white/10 dark:bg-slate-900/30">
+      {anchor?.schemaVersion != null ? (
+        <MetaRow label={t.schemaVersion}>{anchor.schemaVersion}</MetaRow>
+      ) : null}
+      {credential?.credentialId ? (
+        <MetaRow label={t.credentialId}>
+          <TruncatedProofValue
+            value={credential.credentialId}
+            copyLabel={t.copyValue}
+            copiedLabel={t.copied}
+          />
+        </MetaRow>
+      ) : null}
+      {credential?.sbtContract ? (
+        <MetaRow label={t.sbtContract}>
+          <TruncatedProofValue
+            value={credential.sbtContract}
+            copyLabel={t.copyValue}
+            copiedLabel={t.copied}
+          />
+        </MetaRow>
+      ) : null}
+      {anchor?.contractAddress ? (
+        <MetaRow label={t.profileAnchorContract}>
+          <TruncatedProofValue
+            value={anchor.contractAddress}
+            copyLabel={t.copyValue}
+            copiedLabel={t.copied}
+          />
+        </MetaRow>
+      ) : null}
+      {credential?.tokenId != null ? (
+        <MetaRow label={t.tokenId}>{String(credential.tokenId)}</MetaRow>
+      ) : null}
+      {checks ? (
+        <>
+          <MetaRow label={t.checkLocal}>
+            {checks.localSnapshotValid ? t.yes : t.no}
+          </MetaRow>
+          <MetaRow label={t.checkBinding}>
+            {checks.credentialBindingValid ? t.yes : t.no}
+          </MetaRow>
+          <MetaRow label={t.checkOnChain}>
+            {checks.onChainAnchorValid ? t.yes : t.no}
+          </MetaRow>
+          <MetaRow label={t.checkCurrent}>
+            {checks.currentProfileMatches ? t.yes : t.no}
+          </MetaRow>
+        </>
+      ) : null}
+    </dl>
+  ) : null;
+
+  const fullProofSection = ({ includeSbtLink, includeDeepDetails }) =>
+    showProof && (anchor || credential) ? (
+      <div className="space-y-2">
+        {anchor?.snapshotVersion != null ? (
+          <p className="text-xs font-semibold text-slate-800 dark:text-slate-100">
+            {t.latestSealedSnapshot}
+            <span className="ml-2 font-normal text-slate-600 dark:text-slate-300">
+              {t.snapshotVersion} {anchor.snapshotVersion}
+            </span>
           </p>
-          <p className="text-[11px] font-semibold text-indigo-800 dark:text-indigo-200">
-            {t.conceptSeal}
-          </p>
-          <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
-            {t.conceptNote}
-          </p>
+        ) : null}
+
+        <dl className="space-y-2 rounded-xl border border-slate-200/70 bg-white/50 px-3 py-2.5 dark:border-white/10 dark:bg-white/[0.04]">
+          {credentialLabel ? (
+            <MetaRow label={t.credential}>{credentialLabel}</MetaRow>
+          ) : null}
+          <MetaRow label={compact ? t.originNetwork : t.network}>{originLabel}</MetaRow>
+          {anchor?.anchorChainId != null &&
+          Number(anchor.anchorChainId) !== Number(credential?.originChainId) ? (
+            <MetaRow label={t.anchorNetwork}>{anchorChainLabel}</MetaRow>
+          ) : null}
+          {anchor?.blockNumber != null ? (
+            <MetaRow label={t.block}>{formatBlockNumber(anchor.blockNumber)}</MetaRow>
+          ) : null}
+          {formatTimestamp(anchor?.anchoredAt || anchor?.onChainTimestamp) ? (
+            <MetaRow label={t.anchoredAt}>
+              {formatTimestamp(anchor?.anchoredAt || anchor?.onChainTimestamp)}
+            </MetaRow>
+          ) : null}
+          {anchor?.digest ? (
+            <MetaRow label={t.digest}>
+              <TruncatedProofValue
+                value={anchor.digest}
+                copyLabel={t.copyValue}
+                copiedLabel={t.copied}
+              />
+            </MetaRow>
+          ) : null}
+          {anchor?.transactionHash ? (
+            <MetaRow label={t.transaction}>
+              <TruncatedProofValue
+                value={anchor.transactionHash}
+                copyLabel={t.copyValue}
+                copiedLabel={t.copied}
+              />
+            </MetaRow>
+          ) : null}
+        </dl>
+
+        <div className="flex flex-wrap gap-2">
+          <ExplorerLink href={txUrl} label={t.viewTransaction} />
+          <ExplorerLink href={contractUrl} label={t.viewContract} />
+          {includeSbtLink ? (
+            <ExplorerLink href={sbtUrl} label={t.viewSbtContract} />
+          ) : null}
         </div>
-      )}
 
-      <div className="flex flex-wrap items-center gap-2">
-        <StatusBadge
-          tone={statusPresentation.tone}
-          icon={statusPresentation.icon}
-          label={statusPresentation.label}
-        />
+        {includeDeepDetails ? deepDetailsPanel : null}
       </div>
+    ) : null;
 
+  const statusMessagesExpanded = (
+    <>
       {status === "API_UNAVAILABLE" ? (
         <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
           {t.unavailableExplain}
@@ -320,144 +457,44 @@ export default function VerifiableProfileCard({
           </dl>
         </div>
       ) : null}
-
-      {showProof && (anchor || credential) ? (
-        <div className="space-y-2">
-          {anchor?.snapshotVersion != null ? (
-            <p className="text-xs font-semibold text-slate-800 dark:text-slate-100">
-              {t.latestSealedSnapshot}
-              <span className="ml-2 font-normal text-slate-600 dark:text-slate-300">
-                {t.snapshotVersion} {anchor.snapshotVersion}
-              </span>
-            </p>
-          ) : null}
-
-          <dl className="space-y-2 rounded-xl border border-slate-200/70 bg-white/50 px-3 py-2.5 dark:border-white/10 dark:bg-white/[0.04]">
-            {credentialLabel ? (
-              <MetaRow label={t.credential}>{credentialLabel}</MetaRow>
-            ) : null}
-            <MetaRow label={compact ? t.originNetwork : t.network}>
-              {originLabel}
-            </MetaRow>
-            {anchor?.anchorChainId != null &&
-            Number(anchor.anchorChainId) !== Number(credential?.originChainId) ? (
-              <MetaRow label={t.anchorNetwork}>{anchorChainLabel}</MetaRow>
-            ) : null}
-            {anchor?.blockNumber != null ? (
-              <MetaRow label={t.block}>
-                {formatBlockNumber(anchor.blockNumber)}
-              </MetaRow>
-            ) : null}
-            {formatTimestamp(anchor?.anchoredAt || anchor?.onChainTimestamp) ? (
-              <MetaRow label={t.anchoredAt}>
-                {formatTimestamp(anchor?.anchoredAt || anchor?.onChainTimestamp)}
-              </MetaRow>
-            ) : null}
-            {anchor?.digest ? (
-              <MetaRow label={t.digest}>
-                <TruncatedProofValue
-                  value={anchor.digest}
-                  copyLabel={t.copyValue}
-                  copiedLabel={t.copied}
-                />
-              </MetaRow>
-            ) : null}
-            {anchor?.transactionHash ? (
-              <MetaRow label={t.transaction}>
-                <TruncatedProofValue
-                  value={anchor.transactionHash}
-                  copyLabel={t.copyValue}
-                  copiedLabel={t.copied}
-                />
-              </MetaRow>
-            ) : null}
-          </dl>
-
-          <div className="flex flex-wrap gap-2">
-            <ExplorerLink href={txUrl} label={t.viewTransaction} />
-            <ExplorerLink href={contractUrl} label={t.viewContract} />
-            {!compact ? (
-              <ExplorerLink href={sbtUrl} label={t.viewSbtContract} />
-            ) : null}
-          </div>
-
-          {!compact ? (
-            <div>
-              <button
-                type="button"
-                onClick={() => setDetailsOpen((v) => !v)}
-                aria-expanded={detailsOpen}
-                className="text-xs font-semibold text-indigo-700 underline-offset-2 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 dark:text-indigo-300"
-              >
-                {detailsOpen ? t.hideDetails : t.showDetails}
-              </button>
-              {detailsOpen ? (
-                <dl className="mt-2 space-y-2 rounded-xl border border-slate-200/60 bg-slate-50/60 px-3 py-2.5 dark:border-white/10 dark:bg-slate-900/30">
-                  {anchor?.schemaVersion != null ? (
-                    <MetaRow label={t.schemaVersion}>{anchor.schemaVersion}</MetaRow>
-                  ) : null}
-                  {credential?.credentialId ? (
-                    <MetaRow label={t.credentialId}>
-                      <TruncatedProofValue
-                        value={credential.credentialId}
-                        copyLabel={t.copyValue}
-                        copiedLabel={t.copied}
-                      />
-                    </MetaRow>
-                  ) : null}
-                  {credential?.sbtContract ? (
-                    <MetaRow label={t.sbtContract}>
-                      <TruncatedProofValue
-                        value={credential.sbtContract}
-                        copyLabel={t.copyValue}
-                        copiedLabel={t.copied}
-                      />
-                    </MetaRow>
-                  ) : null}
-                  {anchor?.contractAddress ? (
-                    <MetaRow label={t.profileAnchorContract}>
-                      <TruncatedProofValue
-                        value={anchor.contractAddress}
-                        copyLabel={t.copyValue}
-                        copiedLabel={t.copied}
-                      />
-                    </MetaRow>
-                  ) : null}
-                  {credential?.tokenId != null ? (
-                    <MetaRow label={t.tokenId}>{String(credential.tokenId)}</MetaRow>
-                  ) : null}
-                  {checks ? (
-                    <>
-                      <MetaRow label={t.checkLocal}>
-                        {checks.localSnapshotValid ? t.yes : t.no}
-                      </MetaRow>
-                      <MetaRow label={t.checkBinding}>
-                        {checks.credentialBindingValid ? t.yes : t.no}
-                      </MetaRow>
-                      <MetaRow label={t.checkOnChain}>
-                        {checks.onChainAnchorValid ? t.yes : t.no}
-                      </MetaRow>
-                      <MetaRow label={t.checkCurrent}>
-                        {checks.currentProfileMatches ? t.yes : t.no}
-                      </MetaRow>
-                    </>
-                  ) : null}
-                </dl>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      {loading && status ? (
-        <p className="text-[11px] text-slate-500 dark:text-slate-400" aria-live="polite">
-          {t.statusLoading}
-        </p>
-      ) : null}
-    </div>
+    </>
   );
 
+  /* ---------- Compact SBT body (unchanged behavior: always full) ---------- */
   if (compact) {
+    const compactBody = (
+      <div className="space-y-3 text-sm">
+        <div className="space-y-1.5 rounded-xl border border-indigo-200/40 bg-indigo-50/40 px-3 py-2.5 dark:border-indigo-700/30 dark:bg-indigo-950/25">
+          <p className="text-[11px] font-semibold text-indigo-800 dark:text-indigo-200">
+            {t.conceptSbt}
+          </p>
+          <p className="text-[11px] font-semibold text-indigo-800 dark:text-indigo-200">
+            {t.conceptSeal}
+          </p>
+          <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
+            {t.conceptNote}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusBadge
+            tone={statusPresentation.tone}
+            icon={statusPresentation.icon}
+            label={statusPresentation.label}
+          />
+        </div>
+
+        {statusMessagesExpanded}
+        {fullProofSection({ includeSbtLink: false, includeDeepDetails: false })}
+
+        {loading && status ? (
+          <p className="text-[11px] text-slate-500 dark:text-slate-400" aria-live="polite">
+            {t.statusLoading}
+          </p>
+        ) : null}
+      </div>
+    );
+
     return (
       <section
         className={`rounded-2xl border border-indigo-200/40 bg-gradient-to-br from-white/90 via-indigo-50/40 to-slate-100/40 p-5 shadow-md backdrop-blur-xl dark:border-indigo-800/40 dark:from-slate-900/70 dark:via-indigo-900/30 dark:to-slate-900/60 ${className}`}
@@ -471,10 +508,89 @@ export default function VerifiableProfileCard({
             {t.latestSeal}
           </h2>
         </div>
-        {body}
+        {compactBody}
       </section>
     );
   }
+
+  /* ---------- Dashboard: collapsed by default ---------- */
+  const dashboardBody = (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusBadge
+          tone={statusPresentation.tone}
+          icon={statusPresentation.icon}
+          label={statusPresentation.label}
+        />
+      </div>
+
+      {collapsedSealLine ? (
+        <p className="text-xs font-semibold text-slate-800 dark:text-slate-100">
+          {collapsedSealLine}
+        </p>
+      ) : null}
+
+      {credentialLabel ? (
+        <p className="text-xs text-slate-700 dark:text-slate-200">
+          <span className="font-semibold text-slate-500 dark:text-slate-400">
+            {t.credential}:{" "}
+          </span>
+          {credentialLabel}
+        </p>
+      ) : null}
+
+      {blockLabel ? (
+        <p className="text-xs text-slate-700 dark:text-slate-200">
+          <span className="font-semibold text-slate-500 dark:text-slate-400">
+            {t.block}:{" "}
+          </span>
+          {blockLabel}
+        </p>
+      ) : null}
+
+      {!dashboardExpanded && collapsedFreshness ? (
+        <p
+          className={`text-xs leading-relaxed ${
+            status === "VERIFIED"
+              ? "text-emerald-800 dark:text-emerald-200"
+              : status === "OUTDATED"
+                ? "text-sky-900 dark:text-sky-100"
+                : status === "INVALID"
+                  ? "text-amber-950 dark:text-amber-50"
+                  : "text-slate-600 dark:text-slate-300"
+          }`}
+        >
+          {collapsedFreshness}
+        </p>
+      ) : null}
+
+      <ExpandDetailsButton
+        expanded={dashboardExpanded}
+        showLabel={t.showDetails}
+        hideLabel={t.hideDetails}
+        controlsId={detailsPanelId}
+        onToggle={() => setDashboardExpanded((v) => !v)}
+      />
+
+      {dashboardExpanded ? (
+        <div id={detailsPanelId} className="space-y-3 border-t border-slate-200/60 pt-3 dark:border-white/10">
+          <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+            {t.framing}
+          </p>
+          {statusMessagesExpanded}
+          {fullProofSection({ includeSbtLink: true, includeDeepDetails: true })}
+        </div>
+      ) : (
+        <div id={detailsPanelId} hidden />
+      )}
+
+      {loading && status ? (
+        <p className="text-[11px] text-slate-500 dark:text-slate-400" aria-live="polite">
+          {t.statusLoading}
+        </p>
+      ) : null}
+    </div>
+  );
 
   return (
     <DashboardCard
@@ -482,7 +598,7 @@ export default function VerifiableProfileCard({
       className={`p-5 ${className}`}
       icon={<ShieldCheckIcon className="h-5 w-5 text-white" aria-hidden="true" />}
     >
-      {body}
+      {dashboardBody}
     </DashboardCard>
   );
 }
