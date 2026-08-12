@@ -1,1 +1,0 @@
-import{j as t}from"./vendor-react-CTtygi22.js";import r from"./Settings-CjhwHHFQ.js";import"./index-DroDvga3.js";import"./vendor-web3-Lztbhc-M.js";import"./identityExport-0RG2FTks.js";function s(){return t.jsx(r,{lang:"gr"})}export{s as default};
