@@ -4,6 +4,7 @@ import PageShell from "../../components/PageShell";
 import { useAccount } from "wagmi";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useIdentity } from "../../context/useIdentity.js";
+import { useSocialIdentity } from "../../context/SocialIdentityContext.jsx";
 import {
     buildLabsStatusUrl,
     getWeb3eduBackendUrl,
@@ -74,9 +75,35 @@ const LabTemplate = ({
 
     const { address } = useAccount();
     const { smartAccount, owner: identityOwner } = useIdentity();
+    const {
+        socialIdentity,
+        isOidcAuthenticated,
+        socialIdentityLoading,
+        oidcAuthLoading,
+    } = useSocialIdentity();
+    const identityArgs = useMemo(
+        () => ({
+            smartAccount,
+            isOidcAuthenticated,
+            socialIdentity,
+            socialIdentityLoading,
+            oidcAuthLoading,
+            address,
+            owner: identityOwner,
+        }),
+        [
+            smartAccount,
+            isOidcAuthenticated,
+            socialIdentity,
+            socialIdentityLoading,
+            oidcAuthLoading,
+            address,
+            identityOwner,
+        ]
+    );
     const { identityAddress } = useMemo(
-        () => getLabsStatusReadIdentity({ smartAccount }),
-        [smartAccount]
+        () => getLabsStatusReadIdentity(identityArgs),
+        [identityArgs]
     );
     const [claimed, setClaimed] = useState(false);
     const [checkingStatus, setCheckingStatus] = useState(true);
@@ -86,20 +113,18 @@ const LabTemplate = ({
     const manualStartGuardRef = useRef(null);
 
     const handleStartLab = useCallback(async () => {
-        if (!smartAccount || !labId) return;
-        const guardKey = `${String(labId)}:${smartAccount}`;
+        if (!labId || !identityAddress) return;
+        const guardKey = `${String(labId)}:${identityAddress}`;
         if (manualStartGuardRef.current === guardKey) return;
         manualStartGuardRef.current = guardKey;
 
         try {
             const res = await postLabsStart({
                 apiBase: API_BASE,
-                smartAccount,
-                address,
-                owner: identityOwner,
                 labId,
+                ...identityArgs,
             });
-            if (!res.ok) {
+            if (!res.ok && res.status !== 204) {
                 manualStartGuardRef.current = null;
             }
         } catch (err) {
@@ -107,7 +132,7 @@ const LabTemplate = ({
             // eslint-disable-next-line no-console -- non-fatal lab start telemetry
             console.warn("Failed to record lab start", err);
         }
-    }, [API_BASE, smartAccount, address, identityOwner, labId]);
+    }, [API_BASE, identityAddress, identityArgs, labId]);
 
     useEffect(() => {
         if (!identityAddress || !labId) {

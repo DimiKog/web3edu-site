@@ -9,7 +9,7 @@ import {
     buildLabsStatusUrl,
     getWeb3eduBackendUrl,
 } from "../lib/web3eduBackend.js";
-import { getEffectiveLabsWalletIdentity, getLabsStatusReadIdentity, postLabsStart } from "../utils/labWriteApi.js";
+import { getEducationalIdentityInput, getLabsStatusReadIdentity, postLabsStart } from "../utils/labWriteApi.js";
 import { getOwnerWallet } from "../utils/aaIdentity.js";
 
 const COPY = {
@@ -58,22 +58,43 @@ export default function LabCompletionClaim({
 
     const { address, isConnected } = useAccount();
     const { smartAccount, owner: identityOwner } = useIdentity();
-    const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
+    const {
+        socialIdentity,
+        isOidcAuthenticated,
+        socialIdentityLoading,
+        oidcAuthLoading,
+    } = useSocialIdentity();
 
-    const { wallet: effectiveWallet, owner: ownerForWrites } = useMemo(
-        () =>
-            getEffectiveLabsWalletIdentity({
-                smartAccount,
-                isOidcAuthenticated,
-                socialIdentity,
-                address,
-                owner: identityOwner,
-            }),
-        [smartAccount, isOidcAuthenticated, socialIdentity, address, identityOwner]
+    const identityArgs = useMemo(
+        () => ({
+            smartAccount,
+            isOidcAuthenticated,
+            socialIdentity,
+            socialIdentityLoading,
+            oidcAuthLoading,
+            address,
+            owner: identityOwner,
+        }),
+        [
+            smartAccount,
+            isOidcAuthenticated,
+            socialIdentity,
+            socialIdentityLoading,
+            oidcAuthLoading,
+            address,
+            identityOwner,
+        ]
     );
+
+    // identityInput → educational `wallet` (backend canonicalizes).
+    // signerAddress → connected EOA used only to sign the claim message.
+    const {
+        identityInput: effectiveWallet,
+        owner: ownerForWrites,
+    } = useMemo(() => getEducationalIdentityInput(identityArgs), [identityArgs]);
     const { identityAddress } = useMemo(
-        () => getLabsStatusReadIdentity({ smartAccount: effectiveWallet }),
-        [effectiveWallet]
+        () => getLabsStatusReadIdentity(identityArgs),
+        [identityArgs]
     );
     const { signMessageAsync } = useSignMessage();
 
@@ -230,16 +251,16 @@ export default function LabCompletionClaim({
         try {
             const startRes = await postLabsStart({
                 apiBase: BACKEND,
-                smartAccount: effectiveWallet,
-                address,
-                owner: identityOwner,
                 labId,
+                ...identityArgs,
             });
-            if (!startRes.ok) {
+            if (!startRes.ok && startRes.status !== 204) {
                 throw new Error("Could not register lab start");
             }
 
             const timestamp = new Date().toISOString();
+            // Signer is the connected EOA (or local owner key). It is not the
+            // learner identity input and must not retarget progress.
             const useEoaSigner = isConnected && !!address;
             const messageSigner = useEoaSigner ? address : getOwnerWallet().address;
             const message = `I confirm completion of Web3Edu Lab\nLab ID: ${labId}\nAddress: ${messageSigner}\nTimestamp: ${timestamp}`;

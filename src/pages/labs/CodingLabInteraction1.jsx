@@ -308,7 +308,7 @@ export default function CodingLabInteraction1({ lang = "en" }) {
     const copy = CONTENT[lang] || CONTENT.en;
     const { address } = useAccount();
     const { smartAccount, owner: identityOwner } = useIdentity();
-    const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
+    const { socialIdentity, isOidcAuthenticated, socialIdentityLoading, oidcAuthLoading } = useSocialIdentity();
     const apiBase = getWeb3eduBackendUrl();
 
     const { wallet: progressWallet, owner: progressOwner } = useMemo(
@@ -317,10 +317,20 @@ export default function CodingLabInteraction1({ lang = "en" }) {
                 smartAccount,
                 isOidcAuthenticated,
                 socialIdentity,
+                socialIdentityLoading,
+                oidcAuthLoading,
                 address,
                 owner: identityOwner,
             }),
-        [smartAccount, isOidcAuthenticated, socialIdentity, address, identityOwner]
+        [
+            smartAccount,
+            isOidcAuthenticated,
+            socialIdentity,
+            socialIdentityLoading,
+            oidcAuthLoading,
+            address,
+            identityOwner,
+        ]
     );
 
     const [tasks, setTasks] = useState({
@@ -425,6 +435,8 @@ export default function CodingLabInteraction1({ lang = "en" }) {
                 owner: identityOwner,
                 isOidcAuthenticated,
                 socialIdentity,
+                socialIdentityLoading,
+                oidcAuthLoading,
                 contractAddress: normalizedAddress,
             });
 

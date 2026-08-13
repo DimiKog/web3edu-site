@@ -1,14 +1,22 @@
-import { buildResolveOwner, getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
+import { getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "./evmAddress.js";
 import { warnIfIdentityNotInitialized } from "./identityReadiness.js";
-import { getSocialIdentityAaAddress } from "./socialIdentityPayload.js";
+import {
+  getEducationalIdentityInput,
+  getEffectiveLabsWalletIdentity,
+} from "./educationalIdentityInput.js";
+
+export {
+  getEducationalIdentityInput,
+  getEffectiveLabsWalletIdentity,
+} from "./educationalIdentityInput.js";
 
 const LAB_START_SESSION_PREFIX = "web3edu:labsStart:v1:";
 /** @type {Map<string, Promise<Response>>} */
 const inFlightLabStarts = new Map();
 
-function labStartSessionStorageKey(labId, smartAccount) {
-  const id = normalizeEvmAddress(smartAccount);
+function labStartSessionStorageKey(labId, identityInput) {
+  const id = normalizeEvmAddress(identityInput);
   const lid = String(labId ?? "").trim();
   if (!id || !lid) return null;
   return `${LAB_START_SESSION_PREFIX}${lid}:${id}`;
@@ -16,56 +24,24 @@ function labStartSessionStorageKey(labId, smartAccount) {
 
 /**
  * READ path only — first argument to {@link buildLabsStatusUrl}.
- * Labs use AA `smartAccount` only (same key as write `wallet`); never wagmi `address` or IdentityContext `owner`.
+ *
+ * Pass the same identity fields as educational writes. The address is an
+ * identity *input* for backend canonicalization, not a locally computed
+ * progressAddress.
  */
-export function getLabsStatusReadIdentity({ smartAccount }) {
-  return {
-    identityAddress: smartAccount ?? null,
-  };
+export function getLabsStatusReadIdentity(args = {}) {
+  if (Object.prototype.hasOwnProperty.call(args, "identityAddress")) {
+    return { identityAddress: normalizeEvmAddress(args.identityAddress) };
+  }
+  const { identityInput } = getEducationalIdentityInput(args);
+  return { identityAddress: identityInput };
 }
 
 /**
- * Same progress `wallet` + optional `owner` used by lab completion, dashboard reads, and coding01 verify.
+ * POST /labs/start — identity input as `wallet` + optional EOA `owner`.
  *
- * Resolution order for `wallet`:
- * 1. Local AA smart account (wallet-first / minted identity)
- * 2. Social-login AA when OIDC-authenticated
- * 3. Connected MetaMask EOA when no AA/social Web3Edu identity exists (wallet-only path)
- *
- * `owner` is sent only when an AA/social identity is active — for owner→AA migration.
- * Wallet-only users use the connected EOA as `wallet` and omit `owner`.
- */
-export function getEffectiveLabsWalletIdentity({
-  smartAccount,
-  isOidcAuthenticated = false,
-  socialIdentity = null,
-  address = null,
-  owner = null,
-} = {}) {
-  const localSc = normalizeEvmAddress(smartAccount);
-  const socialAa = isOidcAuthenticated
-    ? normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity))
-    : null;
-  const connectedEoa = normalizeEvmAddress(address);
-
-  const hasAaOrSocialIdentity = Boolean(localSc || socialAa);
-  const wallet = localSc ?? socialAa ?? connectedEoa;
-  const ownerPayload = hasAaOrSocialIdentity
-    ? buildResolveOwner(address, owner)
-    : null;
-
-  return {
-    wallet,
-    owner: ownerPayload,
-  };
-}
-
-/**
- * POST /labs/start — AA `wallet` + EOA `owner` (wagmi `address` when connected, else IdentityContext `owner`
- * for walletless AA) so the backend can key XP the same way as {@link buildLabsStatusUrl}.
- *
- * Idempotent per browser tab: after a successful response for the same (labId, smartAccount),
- * further calls resolve immediately without a second network request.
+ * Backend canonicalizes. Session dedupe keys on the identity input, not on
+ * a device-local smartAccount that might differ from SocialIdentity AA.
  */
 export async function postLabsStart({
   apiBase,
@@ -73,12 +49,33 @@ export async function postLabsStart({
   address,
   owner,
   labId,
+  isOidcAuthenticated,
+  socialIdentity,
+  socialIdentityLoading,
+  oidcAuthLoading,
 } = {}) {
-  const storageKey = labStartSessionStorageKey(labId, smartAccount);
+  const input = getEducationalIdentityInput({
+    smartAccount,
+    isOidcAuthenticated,
+    socialIdentity,
+    socialIdentityLoading,
+    oidcAuthLoading,
+    address,
+    owner,
+  });
+
+  if (input.deferred) {
+    return new Response(null, { status: 204 });
+  }
+
+  const storageKey = labStartSessionStorageKey(labId, input.identityInput);
   if (!storageKey) {
-    warnIfIdentityNotInitialized("postLabsStart", { smartAccount, owner });
+    warnIfIdentityNotInitialized("postLabsStart", {
+      smartAccount: input.identityInput,
+      owner: input.owner,
+    });
     return new Response(
-      JSON.stringify({ error: "smartAccount and labId are required for /labs/start" }),
+      JSON.stringify({ error: "identity input and labId are required for /labs/start" }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
@@ -98,20 +95,22 @@ export async function postLabsStart({
 
   const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
   const startedAt = new Date().toISOString();
-
-  const ownerPayload = buildResolveOwner(address, owner);
+  const ownerPayload = input.owner;
 
   const promise = (async () => {
     try {
+      const body = {
+        wallet: input.identityInput,
+        labId,
+        startedAt,
+      };
+      if (ownerPayload) {
+        body.owner = ownerPayload;
+      }
       const res = await fetch(`${base}/labs/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          wallet: smartAccount,
-          owner: ownerPayload,
-          labId,
-          startedAt,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
       if (import.meta.env.DEV && data?.identityKey != null) {
@@ -146,12 +145,16 @@ export async function postCoding01VerifyContract({
   owner,
   isOidcAuthenticated,
   socialIdentity,
+  socialIdentityLoading,
+  oidcAuthLoading,
   contractAddress,
 } = {}) {
   const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity({
     smartAccount,
     isOidcAuthenticated,
     socialIdentity,
+    socialIdentityLoading,
+    oidcAuthLoading,
     address,
     owner,
   });
@@ -212,11 +215,15 @@ export async function postCoding02StartInteraction({
   owner,
   isOidcAuthenticated,
   socialIdentity,
+  socialIdentityLoading,
+  oidcAuthLoading,
 } = {}) {
   const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity({
     smartAccount,
     isOidcAuthenticated,
     socialIdentity,
+    socialIdentityLoading,
+    oidcAuthLoading,
     address,
     owner,
   });
@@ -273,12 +280,16 @@ export async function postCoding02VerifyIncrement({
   owner,
   isOidcAuthenticated,
   socialIdentity,
+  socialIdentityLoading,
+  oidcAuthLoading,
   txHash,
 } = {}) {
   const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity({
     smartAccount,
     isOidcAuthenticated,
     socialIdentity,
+    socialIdentityLoading,
+    oidcAuthLoading,
     address,
     owner,
   });

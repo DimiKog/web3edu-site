@@ -4,10 +4,12 @@ import { useAccount } from "wagmi";
 import { Link } from "react-router-dom";
 import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { useIdentity } from "../../context/useIdentity.js";
+import { useSocialIdentity } from "../../context/SocialIdentityContext.jsx";
 import {
     buildLabsStatusUrl,
     getWeb3eduBackendUrl,
 } from "../../lib/web3eduBackend.js";
+import { getLabsStatusReadIdentity } from "../../utils/labWriteApi.js";
 
 const DEFAULT_LABELS = {
     breadcrumbLabs: "Labs",
@@ -185,9 +187,35 @@ const SystemLabTemplate = ({
         [labels]
     );
 
-    const { isConnected } = useAccount();
-    const { smartAccount } = useIdentity();
-    const identityAddress = smartAccount ?? null;
+    const { address } = useAccount();
+    const { smartAccount, owner: identityOwner } = useIdentity();
+    const {
+        socialIdentity,
+        isOidcAuthenticated,
+        socialIdentityLoading,
+        oidcAuthLoading,
+    } = useSocialIdentity();
+    const { identityAddress } = useMemo(
+        () =>
+            getLabsStatusReadIdentity({
+                smartAccount,
+                isOidcAuthenticated,
+                socialIdentity,
+                socialIdentityLoading,
+                oidcAuthLoading,
+                address,
+                owner: identityOwner,
+            }),
+        [
+            smartAccount,
+            isOidcAuthenticated,
+            socialIdentity,
+            socialIdentityLoading,
+            oidcAuthLoading,
+            address,
+            identityOwner,
+        ]
+    );
     const resolvedApiBase = apiBase ?? getWeb3eduBackendUrl();
 
     const [claimed, setClaimed] = useState(false);
@@ -195,7 +223,7 @@ const SystemLabTemplate = ({
     const [completedAt, setCompletedAt] = useState(null);
 
     useEffect(() => {
-        if (!isConnected || !identityAddress || !labId || !resolvedApiBase) {
+        if (!identityAddress || !labId || !resolvedApiBase) {
             setCheckingStatus(false);
             return;
         }
@@ -230,7 +258,7 @@ const SystemLabTemplate = ({
         };
 
         checkCompletion();
-    }, [isConnected, identityAddress, labId, resolvedApiBase]);
+    }, [identityAddress, labId, resolvedApiBase]);
 
     return (
         <PageShell>

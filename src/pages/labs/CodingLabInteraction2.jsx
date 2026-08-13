@@ -303,7 +303,7 @@ export default function CodingLabInteraction2({ lang = "en" }) {
     const copy = CONTENT[lang] || CONTENT.en;
     const { address } = useAccount();
     const { smartAccount, owner: identityOwner } = useIdentity();
-    const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
+    const { socialIdentity, isOidcAuthenticated, socialIdentityLoading, oidcAuthLoading } = useSocialIdentity();
     const apiBase = getWeb3eduBackendUrl();
 
     const { wallet: progressWallet } = useMemo(
@@ -312,10 +312,20 @@ export default function CodingLabInteraction2({ lang = "en" }) {
                 smartAccount,
                 isOidcAuthenticated,
                 socialIdentity,
+                socialIdentityLoading,
+                oidcAuthLoading,
                 address,
                 owner: identityOwner,
             }),
-        [smartAccount, isOidcAuthenticated, socialIdentity, address, identityOwner]
+        [
+            smartAccount,
+            isOidcAuthenticated,
+            socialIdentity,
+            socialIdentityLoading,
+            oidcAuthLoading,
+            address,
+            identityOwner,
+        ]
     );
 
     const [sessionLoading, setSessionLoading] = useState(false);
@@ -370,6 +380,8 @@ export default function CodingLabInteraction2({ lang = "en" }) {
                 owner: identityOwner,
                 isOidcAuthenticated,
                 socialIdentity,
+                socialIdentityLoading,
+                oidcAuthLoading,
             });
 
             if (result.ok) {
@@ -409,6 +421,8 @@ export default function CodingLabInteraction2({ lang = "en" }) {
         socialIdentity,
         copy.walletRequired,
         copy.lab01Required,
+        socialIdentityLoading,
+        oidcAuthLoading,
     ]);
 
     const handleReadValue = async () => {
@@ -491,6 +505,8 @@ export default function CodingLabInteraction2({ lang = "en" }) {
                 owner: identityOwner,
                 isOidcAuthenticated,
                 socialIdentity,
+                socialIdentityLoading,
+                oidcAuthLoading,
                 txHash: incrementTxHash,
             });
 
