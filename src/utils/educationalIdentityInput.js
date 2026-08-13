@@ -55,8 +55,9 @@ function emptyResult({ signerAddress = null, source = IDENTITY_INPUT_NONE, defer
  * @param {boolean} [args.oidcAuthLoading]
  * @param {string|null} [args.address] connected self-custodial EOA (signer)
  * @param {string|null} [args.owner] IdentityContext owner
- * @param {boolean} [args.walletEntryLinkedAlias] backend matchedBy=wallet_address
  * @param {boolean} [args.walletEntryResolvePending] waiting on canonical EOA lookup
+ * @param {boolean} [args.walletEntryLinkedAlias] accepted for compatibility; unused
+ *   (connected EOA is sent whenever present; backend canonicalizes aliases)
  */
 export function getEducationalIdentityInput({
   smartAccount = null,
@@ -66,7 +67,6 @@ export function getEducationalIdentityInput({
   oidcAuthLoading = undefined,
   address = null,
   owner = null,
-  walletEntryLinkedAlias = false,
   walletEntryResolvePending = false,
 } = {}) {
   const localSc = normalizeEvmAddress(smartAccount);
@@ -137,39 +137,31 @@ export function getEducationalIdentityInput({
     };
   }
 
-  // Linked-wallet return (no OIDC): send the connected EOA so the backend
-  // CanonicalLearnerResolver maps wallet_address → social AA. Do not send
-  // progressAddress, and do not let a leftover device AA override the EOA.
-  if (!isOidcAuthenticated && walletEntryLinkedAlias && connectedEoa) {
-    return {
-      identityInput: connectedEoa,
-      owner: null,
-      signerAddress: connectedEoa,
-      source: IDENTITY_INPUT_CONNECTED_EOA,
-      ready: true,
-      deferred: false,
-    };
-  }
-
-  // Wallet-first / wallet-only: device AA if present, else connected EOA.
-  // No social login, AA, or SBT is required.
-  if (localSc) {
-    return {
-      identityInput: localSc,
-      owner: ownerPayload(address, owner),
-      signerAddress,
-      source: IDENTITY_INPUT_DEVICE_AA,
-      ready: true,
-      deferred: false,
-    };
-  }
-
+  // H3A.2: no OIDC + connected EOA → always send the EOA.
+  // Backend CanonicalLearnerResolver maps:
+  //   linked wallet_address → social AA progress
+  //   genuine wallet-only EOA → this EOA
+  // Device/local AA must not receive progress writes merely because it exists
+  // in IdentityContext / localStorage.
   if (connectedEoa) {
     return {
       identityInput: connectedEoa,
       owner: null,
       signerAddress: connectedEoa,
       source: IDENTITY_INPUT_CONNECTED_EOA,
+      ready: true,
+      deferred: false,
+    };
+  }
+
+  // CASE C: no connected wallet. Device-AA-only educational access remains
+  // the existing fallback for device-based sessions (no new policy).
+  if (localSc) {
+    return {
+      identityInput: localSc,
+      owner: ownerPayload(address, owner),
+      signerAddress,
+      source: IDENTITY_INPUT_DEVICE_AA,
       ready: true,
       deferred: false,
     };

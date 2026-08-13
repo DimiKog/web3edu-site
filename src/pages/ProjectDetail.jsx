@@ -6,6 +6,8 @@ import { getProjectById, localizeProject } from "../services/projectService";
 import CryptoJS from "crypto-js";
 import { keccak_256 } from "@noble/hashes/sha3";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
+import { useEducationalIdentityArgs } from "../hooks/useEducationalIdentityArgs.js";
+import { getEducationalIdentityInput } from "../utils/educationalIdentityInput.js";
 import { getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
 
 const capitalize = (s) =>
@@ -48,6 +50,8 @@ export default function ProjectDetail() {
     const isGR = pathname.startsWith("/projects-gr");
     const { metadata: resolvedSbtMetadata, canonicalIdentityAddress } =
         useResolvedIdentityContext();
+    const educationalIdentityArgs = useEducationalIdentityArgs();
+    const educationalWrite = getEducationalIdentityInput(educationalIdentityArgs);
     const project = localizeProject(getProjectById(id), isGR);
     const projectCompletionId = project?.backendId ?? project?.id;
 
@@ -260,7 +264,7 @@ export default function ProjectDetail() {
     };
 
     const identityAddress = canonicalIdentityAddress ?? null;
-    const wallet = identityAddress;
+    const wallet = educationalWrite.identityInput ?? null;
 
     const [userRole, setUserRole] = useState("learner");   // identity
     const [userTier, setUserTier] = useState("explorer");  // progression
@@ -475,7 +479,7 @@ export default function ProjectDetail() {
             return;
         }
 
-        if (!wallet) {
+        if (educationalWrite.deferred || !wallet) {
             setSubmitState({ type: "error", message: copy.walletMissing });
             return;
         }
