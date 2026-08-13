@@ -1,0 +1,1 @@
+import{r as u}from"./vendor-react-CTtygi22.js";import{u as s,a,p as o}from"./labWriteApi-M6x6ojvR.js";function p({labId:t}={}){const e=s(),n=u.useRef(null);u.useEffect(()=>{if(!t)return;const r=a(e);if(r.deferred||!r.ready||!r.identityInput)return;const i=`${String(t)}:${r.identityInput}`;n.current!==i&&(n.current=i,o({...e,labId:t}).catch(()=>{}))},[t,e])}export{p as u};
