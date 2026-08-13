@@ -15,6 +15,7 @@ import {
   IDENTITY_INPUT_OIDC_PENDING,
   IDENTITY_INPUT_SOCIAL_AA,
   IDENTITY_INPUT_SOCIAL_RELATIONSHIP,
+  IDENTITY_INPUT_WALLET_ENTRY_PENDING,
   getEducationalIdentityInput,
   getEffectiveLabsWalletIdentity,
 } from "./educationalIdentityInput.js";
@@ -166,4 +167,44 @@ test("J/K: helper does not look up SBT or invent AA→EOA canonical fallback", (
   });
   assert.equal(r.identityInput.toLowerCase(), DEVICE_AA);
   assert.notEqual(r.identityInput.toLowerCase(), CONNECTED_EOA);
+});
+
+test("H3A.1: linked-wallet alias sends connected EOA, not device AA or progressAddress", () => {
+  const r = getEducationalIdentityInput({
+    smartAccount: DEVICE_AA,
+    isOidcAuthenticated: false,
+    socialIdentity: null,
+    address: CONNECTED_EOA,
+    walletEntryLinkedAlias: true,
+  });
+  assert.equal(r.source, IDENTITY_INPUT_CONNECTED_EOA);
+  assert.equal(r.identityInput.toLowerCase(), CONNECTED_EOA);
+  assert.notEqual(r.identityInput.toLowerCase(), DEVICE_AA);
+  assert.equal(r.signerAddress.toLowerCase(), CONNECTED_EOA);
+});
+
+test("H3A.1: wallet-entry pending defers writes (no device AA flicker write)", () => {
+  const r = getEducationalIdentityInput({
+    smartAccount: DEVICE_AA,
+    isOidcAuthenticated: false,
+    address: CONNECTED_EOA,
+    walletEntryResolvePending: true,
+  });
+  assert.equal(r.deferred, true);
+  assert.equal(r.ready, false);
+  assert.equal(r.identityInput, null);
+  assert.equal(r.source, IDENTITY_INPUT_WALLET_ENTRY_PENDING);
+});
+
+test("H3A.1: OIDC social still wins over linked-alias educational flag", () => {
+  const r = getEducationalIdentityInput({
+    smartAccount: DEVICE_AA,
+    isOidcAuthenticated: true,
+    socialIdentity: social,
+    socialIdentityLoading: false,
+    address: CONNECTED_EOA,
+    walletEntryLinkedAlias: true,
+  });
+  assert.equal(r.source, IDENTITY_INPUT_SOCIAL_AA);
+  assert.equal(r.identityInput.toLowerCase(), SOCIAL_AA);
 });

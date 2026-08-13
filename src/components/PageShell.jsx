@@ -122,7 +122,7 @@ export default function PageShell({
     if (typeof window === "undefined") return false;
     return hasPersistedIdentityState();
   });
-  const { walletTier, syncIssueVisible, refetch, canonicalIdentityAddress } = useResolvedIdentityContext();
+  const { walletTier, syncIssueVisible, refetch, canonicalIdentityAddress, isWalletEntryLinkedAlias, walletEntryResolvePending } = useResolvedIdentityContext();
 
   const [currentHash, setCurrentHash] = React.useState(
     typeof window !== "undefined" ? window.location.hash || "#/" : "#/"
@@ -794,7 +794,7 @@ export default function PageShell({
           </div>
         ) : null}
 
-        {!auth?.isAuthenticated && isNeutralAfterLogout() && (hasWalletSession || hasPersistedIdentity) ? (
+        {!auth?.isAuthenticated && isNeutralAfterLogout() && !isWalletEntryLinkedAlias && !walletEntryResolvePending && (hasWalletSession || hasPersistedIdentity) ? (
           <div className="mx-auto mt-2 max-w-5xl rounded-2xl border border-sky-300/40 bg-sky-50/80 px-4 py-3 text-left text-sm text-sky-950 shadow-lg backdrop-blur dark:border-sky-500/25 dark:bg-sky-950/25 dark:text-sky-50">
             <p className="font-semibold">
               {isGR

@@ -1,10 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PageShell from "../../components/PageShell";
-import { useAccount } from "wagmi";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useIdentity } from "../../context/useIdentity.js";
-import { useSocialIdentity } from "../../context/SocialIdentityContext.jsx";
+import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
 import {
     buildLabsStatusUrl,
     getWeb3eduBackendUrl,
@@ -73,34 +71,7 @@ const LabTemplate = ({
 
     const mergedLabels = { ...DEFAULT_LABELS, ...labels };
 
-    const { address } = useAccount();
-    const { smartAccount, owner: identityOwner } = useIdentity();
-    const {
-        socialIdentity,
-        isOidcAuthenticated,
-        socialIdentityLoading,
-        oidcAuthLoading,
-    } = useSocialIdentity();
-    const identityArgs = useMemo(
-        () => ({
-            smartAccount,
-            isOidcAuthenticated,
-            socialIdentity,
-            socialIdentityLoading,
-            oidcAuthLoading,
-            address,
-            owner: identityOwner,
-        }),
-        [
-            smartAccount,
-            isOidcAuthenticated,
-            socialIdentity,
-            socialIdentityLoading,
-            oidcAuthLoading,
-            address,
-            identityOwner,
-        ]
-    );
+    const identityArgs = useEducationalIdentityArgs();
     const { identityAddress } = useMemo(
         () => getLabsStatusReadIdentity(identityArgs),
         [identityArgs]

@@ -166,3 +166,17 @@ export async function getProfileAnchorStatus(identityAddress, { signal } = {}) {
   shapeErr.payload = payload;
   throw shapeErr;
 }
+
+/**
+ * GET /web3edu/identity/resolve/:address — privacy-safe canonical identity (H2).
+ * Used for wallet-entry profile selection, not for educational-write identity input.
+ * @param {string} address connected EOA (or other lookup address)
+ */
+export function buildCanonicalIdentityResolveUrl(address) {
+  const base = getWeb3eduBackendUrl();
+  const id = normalizeEvmAddress(address);
+  if (!id) {
+    throw new Error("address is required for /web3edu/identity/resolve");
+  }
+  return `${base}/web3edu/identity/resolve/${encodeURIComponent(id)}`;
+}

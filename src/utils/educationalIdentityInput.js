@@ -28,6 +28,7 @@ export const IDENTITY_INPUT_SOCIAL_RELATIONSHIP = "social_relationship_input";
 export const IDENTITY_INPUT_DEVICE_AA = "device_aa";
 export const IDENTITY_INPUT_CONNECTED_EOA = "connected_eoa";
 export const IDENTITY_INPUT_OIDC_PENDING = "oidc_pending";
+export const IDENTITY_INPUT_WALLET_ENTRY_PENDING = "wallet_entry_pending";
 export const IDENTITY_INPUT_NONE = "none";
 
 function ownerPayload(address, owner) {
@@ -54,6 +55,8 @@ function emptyResult({ signerAddress = null, source = IDENTITY_INPUT_NONE, defer
  * @param {boolean} [args.oidcAuthLoading]
  * @param {string|null} [args.address] connected self-custodial EOA (signer)
  * @param {string|null} [args.owner] IdentityContext owner
+ * @param {boolean} [args.walletEntryLinkedAlias] backend matchedBy=wallet_address
+ * @param {boolean} [args.walletEntryResolvePending] waiting on canonical EOA lookup
  */
 export function getEducationalIdentityInput({
   smartAccount = null,
@@ -63,6 +66,8 @@ export function getEducationalIdentityInput({
   oidcAuthLoading = undefined,
   address = null,
   owner = null,
+  walletEntryLinkedAlias = false,
+  walletEntryResolvePending = false,
 } = {}) {
   const localSc = normalizeEvmAddress(smartAccount);
   const connectedEoa = normalizeEvmAddress(address);
@@ -94,6 +99,14 @@ export function getEducationalIdentityInput({
     });
   }
 
+  if (!isOidcAuthenticated && walletEntryResolvePending && connectedEoa) {
+    return emptyResult({
+      signerAddress,
+      source: IDENTITY_INPUT_WALLET_ENTRY_PENDING,
+      deferred: true,
+    });
+  }
+
   if (socialAa) {
     return {
       identityInput: socialAa,
@@ -119,6 +132,20 @@ export function getEducationalIdentityInput({
       source: socialOwner || linkedWallet
         ? IDENTITY_INPUT_SOCIAL_RELATIONSHIP
         : IDENTITY_INPUT_CONNECTED_EOA,
+      ready: true,
+      deferred: false,
+    };
+  }
+
+  // Linked-wallet return (no OIDC): send the connected EOA so the backend
+  // CanonicalLearnerResolver maps wallet_address → social AA. Do not send
+  // progressAddress, and do not let a leftover device AA override the EOA.
+  if (!isOidcAuthenticated && walletEntryLinkedAlias && connectedEoa) {
+    return {
+      identityInput: connectedEoa,
+      owner: null,
+      signerAddress: connectedEoa,
+      source: IDENTITY_INPUT_CONNECTED_EOA,
       ready: true,
       deferred: false,
     };

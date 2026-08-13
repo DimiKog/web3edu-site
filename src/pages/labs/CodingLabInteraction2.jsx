@@ -1,11 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { BrowserProvider, Contract } from "ethers";
-import { useAccount } from "wagmi";
 import SystemLabTemplate from "./SystemLabTemplate";
 import LabCompletionClaim from "../../components/LabCompletionClaim";
-import { useIdentity } from "../../context/useIdentity.js";
-import { useSocialIdentity } from "../../context/SocialIdentityContext.jsx";
+import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
 import { getWeb3eduBackendUrl } from "../../lib/web3eduBackend.js";
 import {
     getEffectiveLabsWalletIdentity,
@@ -301,31 +299,12 @@ const CONTENT = {
 
 export default function CodingLabInteraction2({ lang = "en" }) {
     const copy = CONTENT[lang] || CONTENT.en;
-    const { address } = useAccount();
-    const { smartAccount, owner: identityOwner } = useIdentity();
-    const { socialIdentity, isOidcAuthenticated, socialIdentityLoading, oidcAuthLoading } = useSocialIdentity();
+    const identityArgs = useEducationalIdentityArgs();
     const apiBase = getWeb3eduBackendUrl();
 
     const { wallet: progressWallet } = useMemo(
-        () =>
-            getEffectiveLabsWalletIdentity({
-                smartAccount,
-                isOidcAuthenticated,
-                socialIdentity,
-                socialIdentityLoading,
-                oidcAuthLoading,
-                address,
-                owner: identityOwner,
-            }),
-        [
-            smartAccount,
-            isOidcAuthenticated,
-            socialIdentity,
-            socialIdentityLoading,
-            oidcAuthLoading,
-            address,
-            identityOwner,
-        ]
+        () => getEffectiveLabsWalletIdentity(identityArgs),
+        [identityArgs]
     );
 
     const [sessionLoading, setSessionLoading] = useState(false);
@@ -375,13 +354,7 @@ export default function CodingLabInteraction2({ lang = "en" }) {
         try {
             const result = await postCoding02StartInteraction({
                 apiBase,
-                smartAccount,
-                address,
-                owner: identityOwner,
-                isOidcAuthenticated,
-                socialIdentity,
-                socialIdentityLoading,
-                oidcAuthLoading,
+                ...identityArgs,
             });
 
             if (result.ok) {
@@ -414,15 +387,9 @@ export default function CodingLabInteraction2({ lang = "en" }) {
     }, [
         progressWallet,
         apiBase,
-        smartAccount,
-        address,
-        identityOwner,
-        isOidcAuthenticated,
-        socialIdentity,
+        identityArgs,
         copy.walletRequired,
         copy.lab01Required,
-        socialIdentityLoading,
-        oidcAuthLoading,
     ]);
 
     const handleReadValue = async () => {
@@ -500,13 +467,7 @@ export default function CodingLabInteraction2({ lang = "en" }) {
         try {
             const result = await postCoding02VerifyIncrement({
                 apiBase,
-                smartAccount,
-                address,
-                owner: identityOwner,
-                isOidcAuthenticated,
-                socialIdentity,
-                socialIdentityLoading,
-                oidcAuthLoading,
+                ...identityArgs,
                 txHash: incrementTxHash,
             });
 

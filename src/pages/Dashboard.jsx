@@ -232,15 +232,24 @@ export default function Dashboard() {
         identityHydrated,
         isIdentityReady,
     } = useIdentity();
+    const {
+        metadata: resolvedMetadata,
+        profile: resolvedProfile,
+        resolveData,
+        canonicalIdentityKey,
+        refetch: refetchResolvedIdentity,
+        canonicalIdentityAddress,
+        isWalletEntryLinkedAlias,
+        walletEntryResolvePending,
+        walletEntryLinkedWalletAddress,
+    } = useResolvedIdentityContext();
 
     const socialAaAddress = getSocialIdentityAaAddress(socialIdentity);
     const identityAddress = useMemo(() => {
         const social = normalizeEvmAddress(socialAaAddress);
         if (isOidcAuthenticated && social) return social;
-        const sc = normalizeEvmAddress(smartAccount);
-        if (isIdentityReady && sc) return sc;
-        return null;
-    }, [isOidcAuthenticated, socialAaAddress, smartAccount, isIdentityReady]);
+        return normalizeEvmAddress(canonicalIdentityAddress);
+    }, [isOidcAuthenticated, socialAaAddress, canonicalIdentityAddress]);
 
     const wagmiAddrNorm = normalizeEvmAddress(address);
     const sessionAddrNorm = normalizeEvmAddress(readConnectedEoaAddress());
@@ -298,6 +307,7 @@ export default function Dashboard() {
 
     const showGuestWalletLinkUi =
         Boolean(identityAddress && isConnected && connectedWalletNorm) &&
+        !isWalletEntryLinkedAlias &&
         !suppressStagedLinkageUi &&
         ((isSocialCanonical &&
             (!effectiveSocialLinkedWalletNorm || connectedWalletNorm !== effectiveSocialLinkedWalletNorm)) ||
@@ -313,13 +323,6 @@ export default function Dashboard() {
     const [profile, setProfile] = useState(null);
     const [addressCopyFeedback, setAddressCopyFeedback] = useState("");
     const [showBuilderUnlock, setShowBuilderUnlock] = useState(false);
-    const {
-        metadata: resolvedMetadata,
-        profile: resolvedProfile,
-        resolveData,
-        canonicalIdentityKey,
-        refetch: refetchResolvedIdentity,
-    } = useResolvedIdentityContext();
     const [genesisBadgeOnchain, setGenesisBadgeOnchain] = useState(false);
     const [genesisBadgeOptimistic, setGenesisBadgeOptimistic] = useState(false);
 
@@ -443,6 +446,9 @@ export default function Dashboard() {
             if (isOidcAuthenticated) {
                 return;
             }
+            if (walletEntryResolvePending || isWalletEntryLinkedAlias) {
+                return;
+            }
             warnIfIdentityNotInitialized("Dashboard", { smartAccount, owner });
             navigate("/join");
             return;
@@ -456,6 +462,8 @@ export default function Dashboard() {
         owner,
         isOidcAuthenticated,
         oidcAuthLoading,
+        walletEntryResolvePending,
+        isWalletEntryLinkedAlias,
     ]);
 
     useEffect(() => {
@@ -527,10 +535,10 @@ export default function Dashboard() {
     const displayedMetadata = { ...fallbackMetadata, ...safeMetadata };
 
     const identityProfileMode = useMemo(() => {
-        if (isSocialCanonical) return "account";
-        if (!isOidcAuthenticated && isIdentityReady && identityAddress) return "wallet-only";
+        if (isSocialCanonical || isWalletEntryLinkedAlias) return "account";
+        if (!isOidcAuthenticated && identityAddress) return "wallet-only";
         return "account";
-    }, [isSocialCanonical, isOidcAuthenticated, isIdentityReady, identityAddress]);
+    }, [isSocialCanonical, isWalletEntryLinkedAlias, isOidcAuthenticated, identityAddress]);
 
     const showWalletOnlyProgressNote = useMemo(() => {
         if (identityProfileMode !== "wallet-only") return false;
@@ -1007,7 +1015,9 @@ export default function Dashboard() {
 
     const showOidcSocialGate =
         identityHydrated && !identityAddress && (isOidcAuthenticated || oidcAuthLoading);
-    if (showOidcSocialGate) {
+    const showWalletEntryGate =
+        !isOidcAuthenticated && walletEntryResolvePending && Boolean(connectedWalletNorm);
+    if (showOidcSocialGate || showWalletEntryGate) {
         return (
             <PageShell>
                 <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 py-20 text-center">
@@ -1019,7 +1029,11 @@ export default function Dashboard() {
                             We’re setting up your Web3Edu Identity with the backend.
                         </p>
 
-                        {oidcAuthLoading ? (
+                        {showWalletEntryGate ? (
+                            <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
+                                Loading…
+                            </p>
+                        ) : oidcAuthLoading ? (
                             <p className="mt-4 text-sm text-slate-700 dark:text-slate-200 animate-pulse">
                                 Completing sign-in with Web3Edu or Google…
                             </p>
@@ -1149,9 +1163,16 @@ export default function Dashboard() {
                         <DashboardIdentityAddresses
                             profileMode={identityProfileMode}
                             identityAddress={identityAddress}
-                            linkedWallet={effectiveSocialLinkedWalletNorm}
+                            linkedWallet={
+                                effectiveSocialLinkedWalletNorm ??
+                                (isWalletEntryLinkedAlias
+                                    ? walletEntryLinkedWalletAddress ?? connectedWalletNorm
+                                    : null)
+                            }
                             connectedWallet={isConnected ? connectedWalletNorm : null}
-                            linkedAccount={linkedAccountForDisplay}
+                            linkedAccount={
+                                isWalletEntryLinkedAlias ? null : linkedAccountForDisplay
+                            }
                             tier={displayedMetadata?.tier}
                             displayTokenId={displayTokenId}
                             isLoading={isIdentityMetadataLoading}

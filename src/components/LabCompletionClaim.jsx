@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAccount, useSignMessage } from "wagmi";
 import FeedbackModal from "./FeedbackModal";
-import { useIdentity } from "../context/useIdentity.js";
+import { useEducationalIdentityArgs } from "../hooks/useEducationalIdentityArgs.js";
 import { warnIfIdentityNotInitialized } from "../utils/identityReadiness.js";
-import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import {
     buildLabsStatusUrl,
     getWeb3eduBackendUrl,
@@ -57,34 +56,9 @@ export default function LabCompletionClaim({
     const BACKEND = getWeb3eduBackendUrl();
 
     const { address, isConnected } = useAccount();
-    const { smartAccount, owner: identityOwner } = useIdentity();
-    const {
-        socialIdentity,
-        isOidcAuthenticated,
-        socialIdentityLoading,
-        oidcAuthLoading,
-    } = useSocialIdentity();
-
-    const identityArgs = useMemo(
-        () => ({
-            smartAccount,
-            isOidcAuthenticated,
-            socialIdentity,
-            socialIdentityLoading,
-            oidcAuthLoading,
-            address,
-            owner: identityOwner,
-        }),
-        [
-            smartAccount,
-            isOidcAuthenticated,
-            socialIdentity,
-            socialIdentityLoading,
-            oidcAuthLoading,
-            address,
-            identityOwner,
-        ]
-    );
+    const identityArgs = useEducationalIdentityArgs();
+    const smartAccount = identityArgs.smartAccount;
+    const identityOwner = identityArgs.owner;
 
     // identityInput → educational `wallet` (backend canonicalizes).
     // signerAddress → connected EOA used only to sign the claim message.

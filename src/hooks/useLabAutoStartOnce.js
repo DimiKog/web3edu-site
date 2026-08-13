@@ -1,9 +1,7 @@
 import { useEffect, useRef } from "react";
-import { useAccount } from "wagmi";
 import { postLabsStart } from "../utils/labWriteApi.js";
 import { getEducationalIdentityInput } from "../utils/educationalIdentityInput.js";
-import { useIdentity } from "../context/useIdentity.js";
-import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
+import { useEducationalIdentityArgs } from "./useEducationalIdentityArgs.js";
 
 /**
  * Fires POST /labs/start at most once per (labId, identity input) for this
@@ -13,32 +11,14 @@ import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
  * but are not used as canonical identity. Selection goes through
  * {@link getEducationalIdentityInput} (same helper as lab writes/completion).
  */
-export function useLabAutoStartOnce({ labId, smartAccount: smartAccountArg, address: addressArg } = {}) {
-  const { address: wagmiAddress } = useAccount();
-  const { smartAccount: contextSmartAccount, owner } = useIdentity();
-  const {
-    socialIdentity,
-    isOidcAuthenticated,
-    socialIdentityLoading,
-    oidcAuthLoading,
-  } = useSocialIdentity();
-
-  const smartAccount = contextSmartAccount ?? smartAccountArg;
-  const address = wagmiAddress ?? addressArg;
+export function useLabAutoStartOnce({ labId } = {}) {
+  const identityArgs = useEducationalIdentityArgs();
   const startedPairRef = useRef(null);
 
   useEffect(() => {
     if (!labId) return;
 
-    const input = getEducationalIdentityInput({
-      smartAccount,
-      isOidcAuthenticated,
-      socialIdentity,
-      socialIdentityLoading,
-      oidcAuthLoading,
-      address,
-      owner,
-    });
+    const input = getEducationalIdentityInput(identityArgs);
 
     if (input.deferred || !input.ready || !input.identityInput) return;
 
@@ -47,23 +27,8 @@ export function useLabAutoStartOnce({ labId, smartAccount: smartAccountArg, addr
     startedPairRef.current = pair;
 
     postLabsStart({
-      smartAccount,
-      address,
-      owner,
+      ...identityArgs,
       labId,
-      isOidcAuthenticated,
-      socialIdentity,
-      socialIdentityLoading,
-      oidcAuthLoading,
     }).catch(() => {});
-  }, [
-    labId,
-    smartAccount,
-    address,
-    owner,
-    isOidcAuthenticated,
-    socialIdentity,
-    socialIdentityLoading,
-    oidcAuthLoading,
-  ]);
+  }, [labId, identityArgs]);
 }

@@ -52,15 +52,24 @@ export function getViewerMode() {
 }
 
 /** @param {string|null|undefined} mode */
+export const VIEWER_MODE_EVENT = "web3edu-viewer-mode";
+
+function notifyViewerMode() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(VIEWER_MODE_EVENT));
+}
+
 export function setViewerMode(mode) {
   const ss = safeSessionStorage();
   if (!ss) return;
   const v = typeof mode === "string" ? mode.trim() : "";
   if (!v) {
     ss.removeItem(KEY);
+    notifyViewerMode();
     return;
   }
   ss.setItem(KEY, v);
+  notifyViewerMode();
 }
 
 export function setNeutralAfterLogout() {

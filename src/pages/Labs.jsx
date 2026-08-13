@@ -109,7 +109,7 @@ const sortLabs = (labs) =>
     });
 
 export default function Labs({ lang = "en" }) {
-    const { smartAccount, owner, identityHydrated } = useIdentity();
+    const { owner, identityHydrated } = useIdentity();
     const { address } = useAccount();
     const { canonicalIdentityAddress } = useResolvedIdentityContext();
     const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
@@ -121,8 +121,7 @@ export default function Labs({ lang = "en" }) {
 
     const identityAddress =
         canonicalIdentityAddress ??
-        socialAaAddress ??
-        (identityHydrated ? normalizeEvmAddress(smartAccount) : null);
+        (isOidcAuthenticated ? socialAaAddress : null);
 
     const resolveOwner = useMemo(() => {
         if (!identityHydrated) return null;

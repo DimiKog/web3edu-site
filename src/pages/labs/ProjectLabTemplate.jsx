@@ -44,17 +44,14 @@ const ProjectLabTemplate = ({
     verifyEndpoint = null,      // optional backend verification
 }) => {
     const { address, isConnected } = useAccount();
-    const { smartAccount, owner, identityHydrated } = useIdentity();
+    const { owner, identityHydrated } = useIdentity();
     const { canonicalIdentityAddress } = useResolvedIdentityContext();
     const { socialIdentity } = useSocialIdentity();
 
     const socialAaAddress = normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity));
     const socialOwner = normalizeEvmAddress(getSocialIdentityOwnerAddress(socialIdentity));
 
-    const identityAddress =
-        canonicalIdentityAddress ??
-        socialAaAddress ??
-        (identityHydrated ? normalizeEvmAddress(smartAccount) : null);
+    const identityAddress = canonicalIdentityAddress ?? null;
 
     const resolveOwner = (() => {
         if (!identityHydrated) return null;

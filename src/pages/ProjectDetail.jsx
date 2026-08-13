@@ -5,7 +5,6 @@ import { projectRegistry } from "../projects/projectRegistry";
 import { getProjectById, localizeProject } from "../services/projectService";
 import CryptoJS from "crypto-js";
 import { keccak_256 } from "@noble/hashes/sha3";
-import { useIdentity } from "../context/useIdentity.js";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
 
@@ -47,7 +46,6 @@ export default function ProjectDetail() {
     const { id } = useParams();
     const { pathname } = useLocation();
     const isGR = pathname.startsWith("/projects-gr");
-    const { smartAccount, isIdentityReady } = useIdentity();
     const { metadata: resolvedSbtMetadata, canonicalIdentityAddress } =
         useResolvedIdentityContext();
     const project = localizeProject(getProjectById(id), isGR);
@@ -261,9 +259,7 @@ export default function ProjectDetail() {
         }
     };
 
-    const identityAddress =
-        canonicalIdentityAddress ||
-        (isIdentityReady && smartAccount ? smartAccount : null);
+    const identityAddress = canonicalIdentityAddress ?? null;
     const wallet = identityAddress;
 
     const [userRole, setUserRole] = useState("learner");   // identity

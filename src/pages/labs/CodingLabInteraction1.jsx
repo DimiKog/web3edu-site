@@ -1,11 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAccount } from "wagmi";
 import SystemLabTemplate from "./SystemLabTemplate";
 import LabCompletionClaim from "../../components/LabCompletionClaim";
 import CodingLab01SetupSection from "../../components/labs/CodingLab01SetupSection.jsx";
-import { useIdentity } from "../../context/useIdentity.js";
-import { useSocialIdentity } from "../../context/SocialIdentityContext.jsx";
+import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
 import { getWeb3eduBackendUrl } from "../../lib/web3eduBackend.js";
 import {
     getEffectiveLabsWalletIdentity,
@@ -306,31 +304,12 @@ function CheckItem({ done, title, description, actionLabel, doneLabel, onClick }
 
 export default function CodingLabInteraction1({ lang = "en" }) {
     const copy = CONTENT[lang] || CONTENT.en;
-    const { address } = useAccount();
-    const { smartAccount, owner: identityOwner } = useIdentity();
-    const { socialIdentity, isOidcAuthenticated, socialIdentityLoading, oidcAuthLoading } = useSocialIdentity();
+    const identityArgs = useEducationalIdentityArgs();
     const apiBase = getWeb3eduBackendUrl();
 
     const { wallet: progressWallet, owner: progressOwner } = useMemo(
-        () =>
-            getEffectiveLabsWalletIdentity({
-                smartAccount,
-                isOidcAuthenticated,
-                socialIdentity,
-                socialIdentityLoading,
-                oidcAuthLoading,
-                address,
-                owner: identityOwner,
-            }),
-        [
-            smartAccount,
-            isOidcAuthenticated,
-            socialIdentity,
-            socialIdentityLoading,
-            oidcAuthLoading,
-            address,
-            identityOwner,
-        ]
+        () => getEffectiveLabsWalletIdentity(identityArgs),
+        [identityArgs]
     );
 
     const [tasks, setTasks] = useState({
@@ -430,13 +409,7 @@ export default function CodingLabInteraction1({ lang = "en" }) {
         try {
             const result = await postCoding01VerifyContract({
                 apiBase,
-                smartAccount,
-                address,
-                owner: identityOwner,
-                isOidcAuthenticated,
-                socialIdentity,
-                socialIdentityLoading,
-                oidcAuthLoading,
+                ...identityArgs,
                 contractAddress: normalizedAddress,
             });
 

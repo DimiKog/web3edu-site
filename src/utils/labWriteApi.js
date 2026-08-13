@@ -15,6 +15,20 @@ const LAB_START_SESSION_PREFIX = "web3edu:labsStart:v1:";
 /** @type {Map<string, Promise<Response>>} */
 const inFlightLabStarts = new Map();
 
+function educationalIdentityFields(args = {}) {
+  return {
+    smartAccount: args.smartAccount,
+    address: args.address,
+    owner: args.owner,
+    isOidcAuthenticated: args.isOidcAuthenticated,
+    socialIdentity: args.socialIdentity,
+    socialIdentityLoading: args.socialIdentityLoading,
+    oidcAuthLoading: args.oidcAuthLoading,
+    walletEntryLinkedAlias: args.walletEntryLinkedAlias,
+    walletEntryResolvePending: args.walletEntryResolvePending,
+  };
+}
+
 function labStartSessionStorageKey(labId, identityInput) {
   const id = normalizeEvmAddress(identityInput);
   const lid = String(labId ?? "").trim();
@@ -53,16 +67,22 @@ export async function postLabsStart({
   socialIdentity,
   socialIdentityLoading,
   oidcAuthLoading,
+  walletEntryLinkedAlias,
+  walletEntryResolvePending,
 } = {}) {
-  const input = getEducationalIdentityInput({
-    smartAccount,
-    isOidcAuthenticated,
-    socialIdentity,
-    socialIdentityLoading,
-    oidcAuthLoading,
-    address,
-    owner,
-  });
+  const input = getEducationalIdentityInput(
+    educationalIdentityFields({
+      smartAccount,
+      address,
+      owner,
+      isOidcAuthenticated,
+      socialIdentity,
+      socialIdentityLoading,
+      oidcAuthLoading,
+      walletEntryLinkedAlias,
+      walletEntryResolvePending,
+    })
+  );
 
   if (input.deferred) {
     return new Response(null, { status: 204 });
@@ -147,17 +167,23 @@ export async function postCoding01VerifyContract({
   socialIdentity,
   socialIdentityLoading,
   oidcAuthLoading,
+  walletEntryLinkedAlias,
+  walletEntryResolvePending,
   contractAddress,
 } = {}) {
-  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity({
-    smartAccount,
-    isOidcAuthenticated,
-    socialIdentity,
-    socialIdentityLoading,
-    oidcAuthLoading,
-    address,
-    owner,
-  });
+  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity(
+    educationalIdentityFields({
+      smartAccount,
+      address,
+      owner,
+      isOidcAuthenticated,
+      socialIdentity,
+      socialIdentityLoading,
+      oidcAuthLoading,
+      walletEntryLinkedAlias,
+      walletEntryResolvePending,
+    })
+  );
   const addr = normalizeEvmAddress(contractAddress);
 
   if (!wallet || !addr) {
@@ -217,16 +243,22 @@ export async function postCoding02StartInteraction({
   socialIdentity,
   socialIdentityLoading,
   oidcAuthLoading,
+  walletEntryLinkedAlias,
+  walletEntryResolvePending,
 } = {}) {
-  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity({
-    smartAccount,
-    isOidcAuthenticated,
-    socialIdentity,
-    socialIdentityLoading,
-    oidcAuthLoading,
-    address,
-    owner,
-  });
+  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity(
+    educationalIdentityFields({
+      smartAccount,
+      address,
+      owner,
+      isOidcAuthenticated,
+      socialIdentity,
+      socialIdentityLoading,
+      oidcAuthLoading,
+      walletEntryLinkedAlias,
+      walletEntryResolvePending,
+    })
+  );
 
   if (!wallet) {
     return {
@@ -282,17 +314,23 @@ export async function postCoding02VerifyIncrement({
   socialIdentity,
   socialIdentityLoading,
   oidcAuthLoading,
+  walletEntryLinkedAlias,
+  walletEntryResolvePending,
   txHash,
 } = {}) {
-  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity({
-    smartAccount,
-    isOidcAuthenticated,
-    socialIdentity,
-    socialIdentityLoading,
-    oidcAuthLoading,
-    address,
-    owner,
-  });
+  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity(
+    educationalIdentityFields({
+      smartAccount,
+      address,
+      owner,
+      isOidcAuthenticated,
+      socialIdentity,
+      socialIdentityLoading,
+      oidcAuthLoading,
+      walletEntryLinkedAlias,
+      walletEntryResolvePending,
+    })
+  );
 
   if (!wallet) {
     return {

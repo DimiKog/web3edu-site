@@ -3,20 +3,16 @@ import { Link, useLocation } from "react-router-dom";
 import { localizeProject, projects } from "../services/projectService";
 import { useEffect, useMemo, useState } from "react";
 import SectionBadge from "../components/SectionBadge.jsx";
-import { useIdentity } from "../context/useIdentity.js";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 
 export default function Projects() {
   const { pathname } = useLocation();
   const isGR = pathname.startsWith("/projects-gr");
-  const { smartAccount, isIdentityReady } = useIdentity();
   const { metadata, canonicalIdentityAddress } = useResolvedIdentityContext();
   const [completedProjects, setCompletedProjects] = useState({});
   const [userTier, setUserTier] = useState("explorer");
 
-  const identityAddress =
-    canonicalIdentityAddress ||
-    (isIdentityReady && smartAccount ? smartAccount : null);
+  const identityAddress = canonicalIdentityAddress ?? null;
   const activeProjects = useMemo(
     () => projects.filter((project) => project.status === "active"),
     []

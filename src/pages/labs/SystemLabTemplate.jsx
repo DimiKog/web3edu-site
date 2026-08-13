@@ -1,10 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import PageShell from "../../components/PageShell";
-import { useAccount } from "wagmi";
 import { Link } from "react-router-dom";
 import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
-import { useIdentity } from "../../context/useIdentity.js";
-import { useSocialIdentity } from "../../context/SocialIdentityContext.jsx";
+import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
 import {
     buildLabsStatusUrl,
     getWeb3eduBackendUrl,
@@ -187,34 +185,10 @@ const SystemLabTemplate = ({
         [labels]
     );
 
-    const { address } = useAccount();
-    const { smartAccount, owner: identityOwner } = useIdentity();
-    const {
-        socialIdentity,
-        isOidcAuthenticated,
-        socialIdentityLoading,
-        oidcAuthLoading,
-    } = useSocialIdentity();
+    const identityArgs = useEducationalIdentityArgs();
     const { identityAddress } = useMemo(
-        () =>
-            getLabsStatusReadIdentity({
-                smartAccount,
-                isOidcAuthenticated,
-                socialIdentity,
-                socialIdentityLoading,
-                oidcAuthLoading,
-                address,
-                owner: identityOwner,
-            }),
-        [
-            smartAccount,
-            isOidcAuthenticated,
-            socialIdentity,
-            socialIdentityLoading,
-            oidcAuthLoading,
-            address,
-            identityOwner,
-        ]
+        () => getLabsStatusReadIdentity(identityArgs),
+        [identityArgs]
     );
     const resolvedApiBase = apiBase ?? getWeb3eduBackendUrl();
 
