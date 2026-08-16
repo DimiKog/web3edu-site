@@ -1203,11 +1203,7 @@ export default function Dashboard() {
                             linkedAccount={
                                 isWalletEntryLinkedAlias ? null : linkedAccountForDisplay
                             }
-                            progressSourceLabel={
-                                linkProgressSource === "linked_wallet"
-                                    ? "Linked Wallet"
-                                    : undefined
-                            }
+                            progressSource={linkProgressSource}
                             tier={displayedMetadata?.tier}
                             displayTokenId={displayTokenId}
                             isLoading={isIdentityMetadataLoading}

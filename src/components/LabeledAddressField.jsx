@@ -1,28 +1,11 @@
 import { useCallback, useState } from "react";
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { shortAddress } from "./identity-ui.jsx";
+import { resolveProgressSourceHelperCopy } from "../utils/progressSourceWording.js";
 
 function isCopyableAddress(value) {
     return typeof value === "string" && value.trim().length > 0 && value.trim() !== "—";
 }
-
-export const PROGRESS_SOURCE_HELPER_ACCOUNT_EN =
-    "Project and XP progress is tied to your Web3Edu Account.";
-
-export const PROGRESS_SOURCE_HELPER_ACCOUNT_GR =
-    "Η πρόοδος projects και XP συνδέεται με τον Web3Edu Account σου.";
-
-export const PROGRESS_SOURCE_HELPER_WALLET_EN =
-    "This wallet-only profile is separate from your Web3Edu Account progress. Sign in with your Web3Edu Account to view that progress.";
-
-export const PROGRESS_SOURCE_HELPER_WALLET_GR =
-    "Αυτό το wallet-only προφίλ είναι ξεχωριστό από την πρόοδο του Web3Edu Account σου. Συνδέσου με Web3Edu Account για να δεις εκείνη την πρόοδο.";
-
-/** @deprecated Use profileMode-specific helpers via ProgressSourceHelper */
-export const PROGRESS_SOURCE_HELPER_EN = PROGRESS_SOURCE_HELPER_ACCOUNT_EN;
-
-/** @deprecated Use profileMode-specific helpers via ProgressSourceHelper */
-export const PROGRESS_SOURCE_HELPER_GR = PROGRESS_SOURCE_HELPER_ACCOUNT_GR;
 
 export function LabeledAddressField({
     label,
@@ -113,15 +96,14 @@ export function LabeledAddressField({
     );
 }
 
-export function ProgressSourceHelper({ isGR = false, profileMode = "account", className = "" }) {
-    const copy =
-        profileMode === "wallet-only"
-            ? isGR
-                ? PROGRESS_SOURCE_HELPER_WALLET_GR
-                : PROGRESS_SOURCE_HELPER_WALLET_EN
-            : isGR
-              ? PROGRESS_SOURCE_HELPER_ACCOUNT_GR
-              : PROGRESS_SOURCE_HELPER_ACCOUNT_EN;
+export function ProgressSourceHelper({
+    isGR = false,
+    profileMode = "account",
+    progressSource,
+    className = "",
+}) {
+    const copy = resolveProgressSourceHelperCopy({ isGR, profileMode, progressSource });
+    if (!copy) return null;
 
     return (
         <p className={`text-xs leading-relaxed text-slate-600 dark:text-slate-300 ${className}`}>

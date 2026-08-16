@@ -2,6 +2,7 @@ import { ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline";
 import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { AddressIdenticon, generateAvatarStyle } from "./identity-ui.jsx";
 import { LabeledAddressField, ProgressSourceHelper } from "./LabeledAddressField.jsx";
+import { resolveProgressSourceDisplayLabel } from "../utils/progressSourceWording.js";
 
 function addressesEqual(a, b) {
     if (!a || !b) return false;
@@ -18,6 +19,8 @@ export default function DashboardIdentityAddresses({
     linkedWallet,
     connectedWallet,
     linkedAccount,
+    /** Backend progressSource: web3edu_account | linked_wallet | null (loading/unknown) */
+    progressSource,
     progressSourceLabel,
     tier,
     displayTokenId,
@@ -74,15 +77,12 @@ export default function DashboardIdentityAddresses({
         !addressesEqual(linkedAccount, linkedWallet) &&
         !addressesEqual(linkedAccount, connectedWallet);
 
-    const resolvedProgressSourceLabel =
-        progressSourceLabel ??
-        (isWalletOnly
-            ? isGR
-                ? "Wallet-only προφίλ"
-                : "Wallet-only profile"
-            : isGR
-              ? "Web3Edu Account"
-              : "Web3Edu Account");
+    const resolvedProgressSourceLabel = resolveProgressSourceDisplayLabel({
+        isGR,
+        profileMode,
+        progressSource,
+        progressSourceLabel,
+    });
 
     return (
         <div className="space-y-3">
@@ -174,14 +174,18 @@ export default function DashboardIdentityAddresses({
                 ) : null}
                 <LabeledAddressField
                     label={copy.progressSource}
-                    displayValue={resolvedProgressSourceLabel}
+                    displayValue={resolvedProgressSourceLabel ?? undefined}
                     emphasize
                     compact
                     copiedLabel={copy.copied}
                 />
             </div>
 
-            <ProgressSourceHelper isGR={isGR} profileMode={profileMode} />
+            <ProgressSourceHelper
+                isGR={isGR}
+                profileMode={profileMode}
+                progressSource={progressSource}
+            />
 
             {showWalletOnlyProgressNote ? (
                 <p className="rounded-xl border border-sky-200/70 bg-sky-50/80 px-3 py-2.5 text-xs leading-relaxed text-sky-950 dark:border-sky-500/30 dark:bg-sky-950/25 dark:text-sky-50">
