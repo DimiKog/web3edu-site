@@ -1,0 +1,1 @@
+import{j as o}from"./vendor-react-CTtygi22.js";import{P as r}from"./Poe-Dxb9A-Ge.js";import"./index-DAs7CAHI.js";import"./vendor-web3-DteUQuq0.js";import"./theme-CllK3pJ1.js";function a(){return o.jsx(r,{language:"GR"})}export{a as default};
