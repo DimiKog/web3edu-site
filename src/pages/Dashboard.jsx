@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from "react";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount, useSignTypedData } from "wagmi";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import PageShell from "../components/PageShell.jsx";
@@ -50,7 +50,11 @@ import {
     snoozeProgressImport,
 } from "../utils/socialProgressImportSnooze.js";
 import { useSocialAwareWalletConnect } from "../hooks/useSocialAwareWalletConnect.js";
-import { confirmLinkWallet, createLinkWalletChallenge } from "../api/socialIdentity.js";
+import { getIdentityLinkStatus } from "../api/identityLink.js";
+import {
+    mapIdentityLinkError,
+    runEip712WalletLinkFlow,
+} from "../utils/identityLinkFlow.js";
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 import { getViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 
@@ -404,14 +408,36 @@ export default function Dashboard() {
     const [showBuilderPath, setShowBuilderPath] = useState(false);
     const [linkWalletPhase, setLinkWalletPhase] = useState("idle"); // idle | loading | success | error
     const [linkWalletError, setLinkWalletError] = useState(null);
-
-    const { signMessageAsync } = useSignMessage();
+    /** @type {["A"|"B"|null, Function]} */
+    const [linkWalletCase, setLinkWalletCase] = useState(null);
+    const [linkProgressSource, setLinkProgressSource] = useState(null); // linked_wallet | web3edu_account | null
+    const { signTypedDataAsync } = useSignTypedData();
 
     const { connectWalletSessionAware, isPending: walletOnboardingConnectPending } =
         useSocialAwareWalletConnect();
 
     const prevXpRef = useRef(null);
     const prevTierRef = useRef(null);
+
+    // Hydrate progressSource from H3C status so Case B never resurfaces Import Progress after refresh.
+    useEffect(() => {
+        if (!oidcIdToken) return;
+        let cancelled = false;
+        (async () => {
+            try {
+                const status = await getIdentityLinkStatus(oidcIdToken);
+                if (cancelled) return;
+                if (status?.progressSource) {
+                    setLinkProgressSource(String(status.progressSource));
+                }
+            } catch {
+                /* status optional until link API is available */
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [oidcIdToken]);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -875,7 +901,10 @@ export default function Dashboard() {
         Boolean(oidcIdToken) &&
         Boolean(connectedWalletNorm) &&
         !progressImportSnoozed &&
-        !socialContinuityAlreadyReflected;
+        !socialContinuityAlreadyReflected &&
+        // Case B: progress already lives on the linked wallet — never offer import-progress.
+        linkProgressSource !== "linked_wallet" &&
+        linkWalletCase !== "B";
 
     const handleProgressImportSnooze = useCallback(() => {
         if (connectedWalletNorm) {
@@ -886,6 +915,7 @@ export default function Dashboard() {
 
     const handleLinkWallet = useCallback(async () => {
         setLinkWalletError(null);
+        setLinkWalletCase(null);
 
         if (!oidcIdToken) {
             setLinkWalletError("You must be signed in with your Web3Edu Account to link a wallet.");
@@ -900,24 +930,19 @@ export default function Dashboard() {
 
         setLinkWalletPhase("loading");
         try {
-            const challenge = await createLinkWalletChallenge(oidcIdToken, {
+            const result = await runEip712WalletLinkFlow({
+                idToken: oidcIdToken,
                 walletAddress: connectedWalletNorm,
-            });
-            const messageToSign =
-                typeof challenge?.messageToSign === "string" && challenge.messageToSign.trim()
-                    ? challenge.messageToSign
-                    : null;
-            if (!messageToSign) {
-                throw new Error("Backend did not return a message to sign.");
-            }
-
-            const signature = await signMessageAsync({ message: messageToSign });
-            await confirmLinkWallet(oidcIdToken, {
-                walletAddress: connectedWalletNorm,
-                signature,
+                getConnectedWallet: () =>
+                    normalizeEvmAddress(address) ??
+                    normalizeEvmAddress(readConnectedEoaAddress()),
+                signTypedDataAsync,
             });
 
-            // Refresh social identity + resolved identity so Stage A disappears and Stage B is eligible.
+            setOptimisticSocialLinkedWalletNorm(connectedWalletNorm);
+            setLinkWalletCase(result.caseLabel === "B" ? "B" : "A");
+            setLinkProgressSource(result.progressSource || null);
+
             try {
                 await resolveNow?.();
             } catch {
@@ -929,19 +954,24 @@ export default function Dashboard() {
                 /* optional */
             }
 
-            setOptimisticSocialLinkedWalletNorm(connectedWalletNorm);
-
             setLinkWalletPhase("success");
         } catch (err) {
-            const msg =
+            const code =
+                err?.reasonCode ||
+                err?.payload?.reasonCode ||
                 err?.payload?.error ||
-                err?.payload?.message ||
-                err?.message ||
-                "Wallet linking failed.";
-            setLinkWalletError(String(msg));
+                null;
+            setLinkWalletError(mapIdentityLinkError(code, { isGR: false }));
             setLinkWalletPhase("error");
         }
-    }, [oidcIdToken, connectedWalletNorm, signMessageAsync, resolveNow, refetchResolvedIdentity]);
+    }, [
+        oidcIdToken,
+        connectedWalletNorm,
+        address,
+        signTypedDataAsync,
+        resolveNow,
+        refetchResolvedIdentity,
+    ]);
 
     const shouldShowBackupBanner = (() => {
         if (typeof window === "undefined") return false;
@@ -1173,6 +1203,11 @@ export default function Dashboard() {
                             linkedAccount={
                                 isWalletEntryLinkedAlias ? null : linkedAccountForDisplay
                             }
+                            progressSourceLabel={
+                                linkProgressSource === "linked_wallet"
+                                    ? "Linked Wallet"
+                                    : undefined
+                            }
                             tier={displayedMetadata?.tier}
                             displayTokenId={displayTokenId}
                             isLoading={isIdentityMetadataLoading}
@@ -1230,28 +1265,22 @@ export default function Dashboard() {
 
                         {topStatusKey === "link-wallet" ? (
                             <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-left text-sm text-amber-950 shadow-sm backdrop-blur-sm dark:border-amber-500/35 dark:bg-amber-950/30 dark:text-amber-50 md:px-4">
-                                <p className="font-semibold">Wallet connected — Step 1 required: link it to your Web3Edu identity</p>
+                                <p className="font-semibold">Wallet connected — link it to your Web3Edu identity</p>
                                 <p className="mt-1 text-xs opacity-90 dark:opacity-95">
-                                    Import is only available after your wallet is authorized/linked. Connected EOA:{" "}
+                                    Authorize this connected wallet so Web3Edu can use it as a linked wallet.
+                                    Connected wallet:{" "}
                                     <span className="font-mono">{shortAddress(connectedWalletNorm)}</span>
                                 </p>
                                 <div className="mt-3 rounded-xl border border-amber-300/60 bg-amber-100/70 px-3 py-3 text-xs text-amber-950 dark:border-amber-600/30 dark:bg-amber-950/25 dark:text-amber-50">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                            <p className="font-semibold">Step 1 — Link wallet</p>
-                                            <p className="mt-0.5 opacity-90">Authorize this connected wallet so it can be used for progress import.</p>
+                                            <p className="font-semibold">Link wallet</p>
+                                            <p className="mt-0.5 opacity-90">
+                                                You will sign a secure request in your wallet to prove ownership.
+                                            </p>
                                         </div>
                                         <span className="shrink-0 rounded-full bg-amber-200/80 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:bg-amber-900/40 dark:text-amber-50">
                                             Required
-                                        </span>
-                                    </div>
-                                    <div className="mt-3 flex items-start justify-between gap-3 border-t border-amber-300/50 pt-3 dark:border-amber-600/30">
-                                        <div className="min-w-0">
-                                            <p className="font-semibold opacity-70">Step 2 — Import progress</p>
-                                            <p className="mt-0.5 opacity-70">We’ll show this after linking succeeds.</p>
-                                        </div>
-                                        <span className="shrink-0 rounded-full bg-slate-200/70 px-2 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-900/40 dark:text-slate-200">
-                                            Later
                                         </span>
                                     </div>
                                 </div>
@@ -1266,7 +1295,9 @@ export default function Dashboard() {
                                 </button>
                                 {linkWalletPhase === "success" ? (
                                     <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200" role="status">
-                                        Wallet linked. You can now import progress.
+                                        {linkWalletCase === "B" || linkProgressSource === "linked_wallet"
+                                            ? "Wallet linked. Your existing wallet progress will continue to be used."
+                                            : "Wallet linked to your Web3Edu Account."}
                                     </p>
                                 ) : linkWalletPhase === "error" && linkWalletError ? (
                                     <p className="mt-2 text-xs text-red-800 dark:text-red-200" role="status">

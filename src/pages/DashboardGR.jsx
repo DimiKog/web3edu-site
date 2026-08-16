@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from "react";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount, useSignTypedData } from "wagmi";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import PageShell from "../components/PageShell.jsx";
@@ -49,7 +49,11 @@ import {
     snoozeProgressImport,
 } from "../utils/socialProgressImportSnooze.js";
 import { useSocialAwareWalletConnect } from "../hooks/useSocialAwareWalletConnect.js";
-import { confirmLinkWallet, createLinkWalletChallenge } from "../api/socialIdentity.js";
+import { getIdentityLinkStatus } from "../api/identityLink.js";
+import {
+    mapIdentityLinkError,
+    runEip712WalletLinkFlow,
+} from "../utils/identityLinkFlow.js";
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 import { getViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 import { getXpTotalFromBackend } from "../utils/progression.js";
@@ -399,14 +403,36 @@ export default function Dashboard() {
     const [showBuilderPath, setShowBuilderPath] = useState(false);
     const [linkWalletPhase, setLinkWalletPhase] = useState("idle"); // idle | loading | success | error
     const [linkWalletError, setLinkWalletError] = useState(null);
-
-    const { signMessageAsync } = useSignMessage();
+    /** @type {["A"|"B"|null, Function]} */
+    const [linkWalletCase, setLinkWalletCase] = useState(null);
+    const [linkProgressSource, setLinkProgressSource] = useState(null);
+    const { signTypedDataAsync } = useSignTypedData();
 
     const { connectWalletSessionAware, isPending: walletOnboardingConnectPending } =
         useSocialAwareWalletConnect();
 
     const prevXpRef = useRef(null);
     const prevTierRef = useRef(null);
+
+    // Hydrate progressSource from H3C status so Case B never resurfaces Import Progress after refresh.
+    useEffect(() => {
+        if (!oidcIdToken) return;
+        let cancelled = false;
+        (async () => {
+            try {
+                const status = await getIdentityLinkStatus(oidcIdToken);
+                if (cancelled) return;
+                if (status?.progressSource) {
+                    setLinkProgressSource(String(status.progressSource));
+                }
+            } catch {
+                /* status optional until link API is available */
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [oidcIdToken]);
 
     useEffect(() => {
         if (typeof window === "undefined") return;
@@ -885,7 +911,9 @@ export default function Dashboard() {
         Boolean(oidcIdToken) &&
         Boolean(connectedWalletNorm) &&
         !progressImportSnoozed &&
-        !socialContinuityAlreadyReflected;
+        !socialContinuityAlreadyReflected &&
+        linkProgressSource !== "linked_wallet" &&
+        linkWalletCase !== "B";
 
     const handleProgressImportSnooze = useCallback(() => {
         if (connectedWalletNorm) {
@@ -896,6 +924,7 @@ export default function Dashboard() {
 
     const handleLinkWallet = useCallback(async () => {
         setLinkWalletError(null);
+        setLinkWalletCase(null);
 
         if (!oidcIdToken) {
             setLinkWalletError("Πρέπει να είσαι συνδεδεμένος/η με Web3Edu Account για να συνδέσεις πορτοφόλι.");
@@ -910,24 +939,19 @@ export default function Dashboard() {
 
         setLinkWalletPhase("loading");
         try {
-            const challenge = await createLinkWalletChallenge(oidcIdToken, {
+            const result = await runEip712WalletLinkFlow({
+                idToken: oidcIdToken,
                 walletAddress: connectedWalletNorm,
-            });
-            const messageToSign =
-                typeof challenge?.messageToSign === "string" && challenge.messageToSign.trim()
-                    ? challenge.messageToSign
-                    : null;
-            if (!messageToSign) {
-                throw new Error("Το backend δεν επέστρεψε μήνυμα προς υπογραφή.");
-            }
-
-            const signature = await signMessageAsync({ message: messageToSign });
-            await confirmLinkWallet(oidcIdToken, {
-                walletAddress: connectedWalletNorm,
-                signature,
+                getConnectedWallet: () =>
+                    normalizeEvmAddress(address) ??
+                    normalizeEvmAddress(readConnectedEoaAddress()),
+                signTypedDataAsync,
             });
 
-            // Refresh social identity + resolved identity so Stage A disappears and Stage B is eligible.
+            setOptimisticSocialLinkedWalletNorm(connectedWalletNorm);
+            setLinkWalletCase(result.caseLabel === "B" ? "B" : "A");
+            setLinkProgressSource(result.progressSource || null);
+
             try {
                 await resolveNow?.();
             } catch {
@@ -939,19 +963,24 @@ export default function Dashboard() {
                 /* optional */
             }
 
-            setOptimisticSocialLinkedWalletNorm(connectedWalletNorm);
-
             setLinkWalletPhase("success");
         } catch (err) {
-            const msg =
+            const code =
+                err?.reasonCode ||
+                err?.payload?.reasonCode ||
                 err?.payload?.error ||
-                err?.payload?.message ||
-                err?.message ||
-                "Αποτυχία σύνδεσης πορτοφολιού.";
-            setLinkWalletError(String(msg));
+                null;
+            setLinkWalletError(mapIdentityLinkError(code, { isGR: true }));
             setLinkWalletPhase("error");
         }
-    }, [oidcIdToken, connectedWalletNorm, signMessageAsync, resolveNow, refetchResolvedIdentity]);
+    }, [
+        oidcIdToken,
+        connectedWalletNorm,
+        address,
+        signTypedDataAsync,
+        resolveNow,
+        refetchResolvedIdentity,
+    ]);
 
     const shouldShowBackupBanner = (() => {
         if (typeof window === "undefined") return false;
@@ -1183,6 +1212,11 @@ export default function Dashboard() {
                             linkedAccount={
                                 isWalletEntryLinkedAlias ? null : linkedAccountForDisplay
                             }
+                            progressSourceLabel={
+                                linkProgressSource === "linked_wallet"
+                                    ? "Συνδεδεμένο πορτοφόλι"
+                                    : undefined
+                            }
                             tier={displayedMetadata?.tier}
                             displayTokenId={displayTokenId}
                             isLoading={isIdentityMetadataLoading}
@@ -1241,29 +1275,23 @@ export default function Dashboard() {
                         {topStatusKey === "link-wallet" ? (
                             <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-left text-sm text-amber-950 shadow-sm backdrop-blur-sm dark:border-amber-500/35 dark:bg-amber-950/30 dark:text-amber-50 md:px-4">
                                 <p className="font-semibold">
-                                    Πορτοφόλι συνδεδεμένο — Βήμα 1 απαραίτητο: σύνδεσέ το με την Web3Edu ταυτότητά σου
+                                    Πορτοφόλι συνδεδεμένο — σύνδεσέ το με την Web3Edu ταυτότητά σου
                                 </p>
                                 <p className="mt-1 text-xs opacity-90 dark:opacity-95">
-                                    Η εισαγωγή προόδου είναι διαθέσιμη μόνο αφού γίνει εξουσιοδότηση/σύνδεση. Συνδεδεμένο EOA:{" "}
+                                    Εξουσιοδότησε αυτό το συνδεδεμένο πορτοφόλι ώστε το Web3Edu να το χρησιμοποιεί ως
+                                    συνδεδεμένο πορτοφόλι. Συνδεδεμένο πορτοφόλι:{" "}
                                     <span className="font-mono">{shortAddress(connectedWalletNorm)}</span>
                                 </p>
                                 <div className="mt-3 rounded-xl border border-amber-300/60 bg-amber-100/70 px-3 py-3 text-xs text-amber-950 dark:border-amber-600/30 dark:bg-amber-950/25 dark:text-amber-50">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                            <p className="font-semibold">Βήμα 1 — Σύνδεση πορτοφολιού</p>
-                                            <p className="mt-0.5 opacity-90">Εξουσιοδότησε αυτό το συνδεδεμένο πορτοφόλι ώστε να μπορεί να χρησιμοποιηθεί για εισαγωγή προόδου.</p>
+                                            <p className="font-semibold">Σύνδεση πορτοφολιού</p>
+                                            <p className="mt-0.5 opacity-90">
+                                                Θα υπογράψεις ένα ασφαλές αίτημα στο πορτοφόλι σου για να αποδείξεις την ιδιοκτησία.
+                                            </p>
                                         </div>
                                         <span className="shrink-0 rounded-full bg-amber-200/80 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:bg-amber-900/40 dark:text-amber-50">
                                             Απαραίτητο
-                                        </span>
-                                    </div>
-                                    <div className="mt-3 flex items-start justify-between gap-3 border-t border-amber-300/50 pt-3 dark:border-amber-600/30">
-                                        <div className="min-w-0">
-                                            <p className="font-semibold opacity-70">Βήμα 2 — Εισαγωγή προόδου</p>
-                                            <p className="mt-0.5 opacity-70">Θα εμφανιστεί μετά την επιτυχημένη σύνδεση.</p>
-                                        </div>
-                                        <span className="shrink-0 rounded-full bg-slate-200/70 px-2 py-0.5 text-[10px] font-semibold text-slate-700 dark:bg-slate-900/40 dark:text-slate-200">
-                                            Αργότερα
                                         </span>
                                     </div>
                                 </div>
@@ -1278,7 +1306,9 @@ export default function Dashboard() {
                                 </button>
                                 {linkWalletPhase === "success" ? (
                                     <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200" role="status">
-                                        Το πορτοφόλι συνδέθηκε. Πλέον μπορείς να εισάγεις πρόοδο.
+                                        {linkWalletCase === "B" || linkProgressSource === "linked_wallet"
+                                            ? "Το πορτοφόλι συνδέθηκε. Η υπάρχουσα πρόοδος του πορτοφολιού θα συνεχίσει να χρησιμοποιείται."
+                                            : "Το πορτοφόλι συνδέθηκε με τον λογαριασμό Web3Edu."}
                                     </p>
                                 ) : linkWalletPhase === "error" && linkWalletError ? (
                                     <p className="mt-2 text-xs text-red-800 dark:text-red-200" role="status">

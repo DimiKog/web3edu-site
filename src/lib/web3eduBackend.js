@@ -6,7 +6,9 @@ import { normalizeEvmAddress } from "../utils/evmAddress.js";
 const DEFAULT_WEB3EDU_API = "https://web3edu-api.dimikog.org";
 
 export function getWeb3eduBackendUrl() {
-  const raw = import.meta.env.VITE_BACKEND_URL || DEFAULT_WEB3EDU_API;
+  const raw =
+    (typeof import.meta !== "undefined" && import.meta.env?.VITE_BACKEND_URL) ||
+    DEFAULT_WEB3EDU_API;
   return String(raw).replace(/\/$/, "");
 }
 
