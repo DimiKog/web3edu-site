@@ -1,8 +1,8 @@
 /**
- * Admin eligibility for UI and admin API wallet parameter selection.
+ * Admin eligibility for UI only. Backend authorization is OIDC Bearer.
  *
  * OIDC learners: ACTIVE linked wallet binding must match admin allowlist.
- * Wallet-only learners: live wagmi connection only (never persisted wallet keys).
+ * Wallet-only learners: never admin (OIDC-only admin authorization).
  */
 
 export const ACTIVE_BINDING_STATUS = "ACTIVE";
@@ -84,17 +84,10 @@ export function computeOidcSocialAdminEligibility(linkStatus, allowlist) {
 }
 
 export function computeWalletOnlyAdminEligibility(
-  connectedWalletAddress,
-  isWalletConnected,
-  allowlist
+  _connectedWalletAddress,
+  _isWalletConnected,
+  _allowlist
 ) {
-  if (!isWalletConnected || !connectedWalletAddress) {
-    return { isAdminEligible: false, adminWalletAddress: null };
-  }
-  const addr = String(connectedWalletAddress).trim().toLowerCase();
-  if (isAdminWalletAddress(addr, allowlist)) {
-    return { isAdminEligible: true, adminWalletAddress: addr };
-  }
   return { isAdminEligible: false, adminWalletAddress: null };
 }
 
@@ -114,10 +107,5 @@ export function computeAdminEligibility({
     return { ...result, pending: false };
   }
 
-  const result = computeWalletOnlyAdminEligibility(
-    connectedWalletAddress,
-    isWalletConnected,
-    allowlist
-  );
-  return { ...result, pending: false };
+  return { isAdminEligible: false, adminWalletAddress: null, pending: false };
 }

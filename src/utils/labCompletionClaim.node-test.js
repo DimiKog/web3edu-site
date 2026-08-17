@@ -50,18 +50,32 @@ test("LabCompletionClaim POSTs to /labs/complete without X-API-KEY or VITE_XP_SE
 });
 
 test("repo source tree has no runtime VITE_XP_SECRET reference", () => {
-  let hits = 0;
+  let files = [];
   try {
-    hits = Number(
-      execSync('git grep -l "VITE_XP_SECRET" -- . ":(exclude)dist" ":(exclude)node_modules" 2>/dev/null | wc -l', {
+    const out = execSync(
+      [
+        "git grep -l",
+        '"VITE_XP_SECRET"',
+        "-- .",
+        '":(exclude)dist"',
+        '":(exclude)node_modules"',
+        '":(exclude)*.node-test.js"',
+        '":(exclude)**/*.node-test.js"',
+      ].join(" "),
+      {
         cwd: siteRoot,
         encoding: "utf8",
-      }).trim()
+        stdio: ["ignore", "pipe", "ignore"],
+      }
     );
+    files = out
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
   } catch {
-    hits = 0;
+    files = [];
   }
-  assert.equal(hits, 0);
+  assert.deepEqual(files, []);
 });
 
 test("production build output contains no VITE_XP_SECRET, X-API-KEY, or leaked secret value", () => {

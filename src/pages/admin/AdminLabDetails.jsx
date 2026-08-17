@@ -37,7 +37,7 @@ function getEntryBadges(entry) {
 
 export default function AdminLabDetails() {
     const { labId } = useParams();
-    const { adminWalletAddress } = useAdminEligibility();
+    const { idToken } = useAdminEligibility();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -54,12 +54,12 @@ export default function AdminLabDetails() {
     useEffect(() => {
         async function fetchDetails() {
             try {
-                if (!adminWalletAddress) {
-                    setError("Admin wallet not available for this session.");
+                if (!idToken) {
+                    setError("Admin session is not available.");
                     setLoading(false);
                     return;
                 }
-                const json = await fetchAdminLabDetails(adminWalletAddress, labId);
+                const json = await fetchAdminLabDetails(idToken, labId);
                 setData(json);
             } catch (err) {
                 console.error(err);
@@ -70,7 +70,7 @@ export default function AdminLabDetails() {
         }
 
         fetchDetails();
-    }, [labId, adminWalletAddress]);
+    }, [labId, idToken]);
 
     if (loading) {
         return (

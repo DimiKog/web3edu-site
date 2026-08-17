@@ -9,7 +9,7 @@ import { useAdminEligibility } from "../hooks/useAdminEligibility.js";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
-    const { adminWalletAddress } = useAdminEligibility();
+    const { adminWalletAddress, idToken } = useAdminEligibility();
     const [overview, setOverview] = useState(null);
     const [error, setError] = useState(null);
     const [labs, setLabs] = useState(null);
@@ -20,9 +20,9 @@ export default function AdminDashboard() {
     const cacheKey = adminWalletAddress ? `admin-dashboard-cache:${adminWalletAddress.toLowerCase()}` : null;
 
     const loadDashboardData = useCallback(() => {
-        if (!adminWalletAddress) return;
+        if (!idToken) return;
 
-        Promise.all([fetchAdminOverview(adminWalletAddress), fetchLabsSummary(adminWalletAddress)])
+        Promise.all([fetchAdminOverview(idToken), fetchLabsSummary(idToken)])
             .then(([overviewData, labsData]) => {
                 setOverview(overviewData);
                 setPlatform(labsData?.platform || null);
@@ -47,10 +47,10 @@ export default function AdminDashboard() {
             .catch(() => {
                 setError("Could not load dashboard analytics.");
             });
-    }, [adminWalletAddress, cacheKey]);
+    }, [idToken, cacheKey]);
 
     useEffect(() => {
-        if (!adminWalletAddress) return;
+        if (!idToken) return;
 
         if (cacheKey) {
             try {
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
         }
 
         loadDashboardData();
-    }, [adminWalletAddress, cacheKey, loadDashboardData, refreshTick]);
+    }, [idToken, cacheKey, loadDashboardData, refreshTick]);
 
     if (error) {
         return (

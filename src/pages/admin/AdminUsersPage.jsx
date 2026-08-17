@@ -326,7 +326,7 @@ function engagementClass(score) {
 export default function AdminUsersPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { adminWalletAddress } = useAdminEligibility();
+    const { idToken } = useAdminEligibility();
 
     const [users, setUsers] = useState(null);
     const [error, setError] = useState(null);
@@ -342,14 +342,14 @@ export default function AdminUsersPage() {
     const dropoffOnly = searchParams.get("dropoffOnly") === "1";
 
     const loadUsers = useCallback(() => {
-        if (!adminWalletAddress) {
-            setError("Admin wallet not available for this session.");
+        if (!idToken) {
+            setError("Admin session is not available.");
             setUsers([]);
             return;
         }
 
         setError(null);
-        fetchAdminUsers(adminWalletAddress)
+        fetchAdminUsers(idToken)
             .then((data) => {
                 if (Array.isArray(data)) {
                     setUsers(data);
@@ -365,7 +365,7 @@ export default function AdminUsersPage() {
                 setError("Could not load users analytics.");
                 setUsers([]);
             });
-    }, [adminWalletAddress]);
+    }, [idToken]);
 
     useEffect(() => {
         loadUsers();

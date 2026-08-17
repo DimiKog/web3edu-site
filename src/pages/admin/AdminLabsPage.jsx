@@ -6,7 +6,7 @@ import LabsCompletionChart from "../../components/admin/LabsCompletionChart";
 import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
 export default function AdminLabsPage() {
-    const { adminWalletAddress } = useAdminEligibility();
+    const { idToken } = useAdminEligibility();
     const [searchParams] = useSearchParams();
     const [labs, setLabs] = useState(null);
     const [error, setError] = useState(null);
@@ -14,9 +14,9 @@ export default function AdminLabsPage() {
     const [sortDir] = useState(searchParams.get("dir") || "desc");
 
     const loadLabs = () => {
-        if (!adminWalletAddress) return;
+        if (!idToken) return;
 
-        fetchLabsSummary(adminWalletAddress)
+        fetchLabsSummary(idToken)
             .then((data) => {
                 if (Array.isArray(data)) {
                     setLabs(data);
@@ -32,7 +32,7 @@ export default function AdminLabsPage() {
 
     useEffect(() => {
         loadLabs();
-    }, [adminWalletAddress]);
+    }, [idToken]);
 
     if (error) {
         return (

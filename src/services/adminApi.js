@@ -7,79 +7,57 @@ export function getAdminApiBase() {
     return API_BASE;
 }
 
-function normalizeAdminWallet(wallet) {
-    return String(wallet || "").trim().toLowerCase();
+function adminAuthHeaders(idToken) {
+    if (!idToken || typeof idToken !== "string" || !idToken.trim()) {
+        throw new Error("Admin session token missing");
+    }
+    return {
+        Authorization: `Bearer ${idToken.trim()}`,
+        Accept: "application/json",
+    };
 }
 
-export async function fetchAdminOverview(wallet) {
-    const adminWallet = normalizeAdminWallet(wallet);
-    if (!adminWallet) throw new Error("Admin wallet missing");
-    const res = await fetch(
-        `${API_BASE}/admin/overview?wallet=${adminWallet}`
-    );
-
+async function adminGet(path, idToken) {
+    const res = await fetch(`${API_BASE}${path}`, {
+        method: "GET",
+        headers: adminAuthHeaders(idToken),
+    });
     if (!res.ok) {
         throw new Error("Not authorized");
     }
-
     return res.json();
 }
 
-export async function fetchLabsSummary(wallet) {
-    const adminWallet = normalizeAdminWallet(wallet);
-    if (!adminWallet) throw new Error("Admin wallet missing");
-    const res = await fetch(
-        `${API_BASE}/admin/labs/summary?wallet=${adminWallet}`
-    );
-
-    if (!res.ok) {
-        throw new Error("Not authorized");
-    }
-
-    // Return full response so caller can access both platform and labs
-    return res.json();
+export async function fetchAdminOverview(idToken) {
+    return adminGet("/admin/overview", idToken);
 }
 
-export async function fetchAdminUsers(wallet) {
-    const adminWallet = normalizeAdminWallet(wallet);
-    if (!adminWallet) throw new Error("Admin wallet missing");
-
-    const res = await fetch(`${API_BASE}/admin/users?wallet=${adminWallet}`);
-    if (!res.ok) throw new Error("Not authorized");
-    return res.json();
+export async function fetchLabsSummary(idToken) {
+    return adminGet("/admin/labs/summary", idToken);
 }
 
-export async function fetchAdminUserDetails(wallet, userWallet) {
-    const adminWallet = normalizeAdminWallet(wallet);
+export async function fetchAdminUsers(idToken) {
+    return adminGet("/admin/users", idToken);
+}
+
+export async function fetchAdminUserDetails(idToken, userWallet) {
     const target = String(userWallet || "").trim();
-    if (!adminWallet) throw new Error("Admin wallet missing");
     if (!target) throw new Error("Target wallet missing");
-
-    const res = await fetch(
-        `${API_BASE}/admin/users/details?wallet=${adminWallet}&user=${encodeURIComponent(target)}`
+    return adminGet(
+        `/admin/users/details?user=${encodeURIComponent(target)}`,
+        idToken
     );
-    if (!res.ok) throw new Error("Not authorized");
-    return res.json();
 }
 
-export async function fetchAdminLabDetails(wallet, labId) {
-    const adminWallet = normalizeAdminWallet(wallet);
+export async function fetchAdminLabDetails(idToken, labId) {
     const id = String(labId || "").trim();
-    if (!adminWallet) throw new Error("Admin wallet missing");
     if (!id) throw new Error("Lab id missing");
-
-    const res = await fetch(
-        `${API_BASE}/admin/labs/details?wallet=${adminWallet}&labId=${encodeURIComponent(id)}&enrich=1`
+    return adminGet(
+        `/admin/labs/details?labId=${encodeURIComponent(id)}&enrich=1`,
+        idToken
     );
-    if (!res.ok) throw new Error("Not authorized");
-    return res.json();
 }
 
-export async function fetchAdminFeedback(wallet) {
-    const adminWallet = normalizeAdminWallet(wallet);
-    if (!adminWallet) throw new Error("Admin wallet missing");
-
-    const res = await fetch(`${API_BASE}/admin/feedback?wallet=${adminWallet}`);
-    if (!res.ok) throw new Error("Not authorized");
-    return res.json();
+export async function fetchAdminFeedback(idToken) {
+    return adminGet("/admin/feedback", idToken);
 }

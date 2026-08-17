@@ -139,10 +139,10 @@ test("OIDC logout clears eligibility (no token / not authenticated)", () => {
   assert.equal(result.isAdminEligible, false);
 });
 
-test("wallet-only admin path uses connected wagmi address", () => {
+test("wallet-only admin path is retired (never eligible)", () => {
   const result = computeWalletOnlyAdminEligibility(ADMIN_A, true, allowlist);
-  assert.equal(result.isAdminEligible, true);
-  assert.equal(result.adminWalletAddress, ADMIN_A);
+  assert.equal(result.isAdminEligible, false);
+  assert.equal(result.adminWalletAddress, null);
 });
 
 test("wallet-only path ignores disconnected stale admin address", () => {
@@ -331,7 +331,7 @@ test("matrix 4: non-admin OIDC learner + stale admin wallet connected → NOT el
   assert.equal(result.isAdminEligible, false);
 });
 
-test("matrix 5: after OIDC logout, wallet-only mode uses live wagmi only", () => {
+test("matrix 5: after OIDC logout, wallet-only mode is never privileged admin", () => {
   const staleLinkStatus = { activeBindings: [activeBinding(ADMIN_A)] };
   const disconnected = computeAdminEligibility({
     isOidcAuthenticated: false,
@@ -351,12 +351,12 @@ test("matrix 5: after OIDC logout, wallet-only mode uses live wagmi only", () =>
     isWalletConnected: true,
     allowlist,
   });
-  assert.equal(connected.isAdminEligible, true);
-  assert.equal(connected.adminWalletAddress, ADMIN_B);
+  assert.equal(connected.isAdminEligible, false);
+  assert.equal(connected.adminWalletAddress, null);
 });
 
-test("matrix 6+7: wallet-only admin requires a live connection", () => {
-  assert.equal(computeWalletOnlyAdminEligibility(ADMIN_A, true, allowlist).isAdminEligible, true);
+test("matrix 6+7: wallet-only admin is retired even with a live connection", () => {
+  assert.equal(computeWalletOnlyAdminEligibility(ADMIN_A, true, allowlist).isAdminEligible, false);
   assert.equal(computeWalletOnlyAdminEligibility(ADMIN_A, false, allowlist).isAdminEligible, false);
 });
 

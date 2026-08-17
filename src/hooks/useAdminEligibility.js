@@ -18,7 +18,7 @@ function getIdTokenFromAuth(auth) {
  * OIDC learners: backend link status ACTIVE bindings only. A live wallet
  * connection is never required, and wagmi values are not forwarded at all so
  * the OIDC path cannot depend on them.
- * Wallet-only sessions: live wagmi connection only.
+ * Wallet-only sessions: never privileged admin.
  *
  * Resets when OIDC token changes or the user signs out.
  */
@@ -87,5 +87,6 @@ export function useAdminEligibility() {
     isAdminEligible,
     adminWalletAddress,
     adminEligibilityLoading: pending,
+    idToken,
   };
 }

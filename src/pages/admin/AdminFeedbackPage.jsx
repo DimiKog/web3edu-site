@@ -167,7 +167,7 @@ function isSoftReview(entry) {
 }
 
 export default function AdminFeedbackPage() {
-    const { adminWalletAddress } = useAdminEligibility();
+    const { idToken } = useAdminEligibility();
     const [submissions, setSubmissions] = useState(null);
     const [totalSubmissions, setTotalSubmissions] = useState(null);
     const [error, setError] = useState(null);
@@ -181,10 +181,10 @@ export default function AdminFeedbackPage() {
     const [hasIssuesOnly, setHasIssuesOnly] = useState(false);
 
     const loadFeedback = () => {
-        if (!adminWalletAddress) return;
+        if (!idToken) return;
 
         setError(null);
-        fetchAdminFeedback(adminWalletAddress)
+        fetchAdminFeedback(idToken)
             .then((data) => {
                 if (Array.isArray(data)) {
                     setSubmissions(data);
@@ -233,7 +233,7 @@ export default function AdminFeedbackPage() {
     useEffect(() => {
         loadFeedback();
         // eslint-disable-next-line react-hooks/exhaustive-deps -- same pattern as other admin pages
-    }, [adminWalletAddress]);
+    }, [idToken]);
 
     const labTypes = useMemo(() => {
         const set = new Set();

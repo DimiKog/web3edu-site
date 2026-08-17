@@ -64,7 +64,7 @@ function getProjectStatusMeta(status) {
 }
 
 export default function AdminUserDetailsPage() {
-    const { adminWalletAddress } = useAdminEligibility();
+    const { idToken } = useAdminEligibility();
     const { wallet } = useParams();
 
     const targetWallet = decodeURIComponent(wallet || "");
@@ -73,9 +73,12 @@ export default function AdminUserDetailsPage() {
     const [data, setData] = useState(null);
 
     useEffect(() => {
-        const adminWallet = adminWalletAddress || "";
-
-        if (!adminWallet || !targetWallet) {
+        if (!idToken) {
+            setError("Admin session is not available.");
+            setLoading(false);
+            return;
+        }
+        if (!targetWallet) {
             setError("Missing wallet context.");
             setLoading(false);
             return;
@@ -85,7 +88,7 @@ export default function AdminUserDetailsPage() {
 
         async function loadUserDetails() {
             try {
-                const detailsJson = await fetchAdminUserDetails(adminWallet, targetWallet);
+                const detailsJson = await fetchAdminUserDetails(idToken, targetWallet);
                 if (active) {
                     setData(detailsJson);
                     setError(null);
@@ -94,7 +97,7 @@ export default function AdminUserDetailsPage() {
             } catch {
                 try {
                     // Fallback: fetch users list and locate the selected wallet.
-                    const listJson = await fetchAdminUsers(adminWallet);
+                    const listJson = await fetchAdminUsers(idToken);
                     const users = Array.isArray(listJson)
                         ? listJson
                         : Array.isArray(listJson?.users)
@@ -128,7 +131,7 @@ export default function AdminUserDetailsPage() {
         return () => {
             active = false;
         };
-    }, [adminWalletAddress, targetWallet]);
+    }, [idToken, targetWallet]);
 
     const labsCompleted = useMemo(() => {
         if (!data?.labsCompleted) return [];

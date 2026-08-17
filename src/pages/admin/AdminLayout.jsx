@@ -13,7 +13,7 @@ function shortAddress(address) {
 export default function AdminLayout() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { adminWalletAddress, isAdminEligible, adminEligibilityLoading } = useAdminEligibility();
+    const { adminWalletAddress, isAdminEligible, adminEligibilityLoading, idToken } = useAdminEligibility();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastVerifiedAt, setLastVerifiedAt] = useState(null);
@@ -31,7 +31,7 @@ export default function AdminLayout() {
                 return;
             }
 
-            if (!isAdminEligible || !adminWalletAddress) {
+            if (!isAdminEligible || !idToken) {
                 if (isMounted) {
                     setLoading(false);
                     setError("Not authorized.");
@@ -40,7 +40,7 @@ export default function AdminLayout() {
             }
 
             try {
-                await fetchAdminOverview(adminWalletAddress);
+                await fetchAdminOverview(idToken);
                 if (isMounted) {
                     setError(null);
                     setLastVerifiedAt(new Date());
@@ -62,7 +62,7 @@ export default function AdminLayout() {
         return () => {
             isMounted = false;
         };
-    }, [adminWalletAddress, isAdminEligible, adminEligibilityLoading]);
+    }, [idToken, adminWalletAddress, isAdminEligible, adminEligibilityLoading]);
 
     const apiBase = getAdminApiBase();
     const canShowSession = Boolean(adminWalletAddress);
@@ -175,7 +175,7 @@ export default function AdminLayout() {
                                     This account is not authorized to access admin analytics.
                                 </div>
                                 <div className="text-sm text-red-800/90 dark:text-red-200/90">
-                                    Admin access requires an ACTIVE linked admin wallet (Keycloak) or a connected admin wallet (wallet-only session).
+                                    Admin access requires a Web3Edu Account (Keycloak) with an ACTIVE linked admin wallet. A connected wallet alone is not enough.
                                 </div>
                             </div>
                         )}
