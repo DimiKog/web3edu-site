@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAccount } from "wagmi";
 import { fetchAdminFeedback } from "../../services/adminApi";
+import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
 function normalizeText(value) {
     return String(value ?? "")
@@ -167,7 +167,7 @@ function isSoftReview(entry) {
 }
 
 export default function AdminFeedbackPage() {
-    const { address } = useAccount();
+    const { adminWalletAddress } = useAdminEligibility();
     const [submissions, setSubmissions] = useState(null);
     const [totalSubmissions, setTotalSubmissions] = useState(null);
     const [error, setError] = useState(null);
@@ -181,10 +181,10 @@ export default function AdminFeedbackPage() {
     const [hasIssuesOnly, setHasIssuesOnly] = useState(false);
 
     const loadFeedback = () => {
-        if (!address) return;
+        if (!adminWalletAddress) return;
 
         setError(null);
-        fetchAdminFeedback(address)
+        fetchAdminFeedback(adminWalletAddress)
             .then((data) => {
                 if (Array.isArray(data)) {
                     setSubmissions(data);
@@ -233,7 +233,7 @@ export default function AdminFeedbackPage() {
     useEffect(() => {
         loadFeedback();
         // eslint-disable-next-line react-hooks/exhaustive-deps -- same pattern as other admin pages
-    }, [address]);
+    }, [adminWalletAddress]);
 
     const labTypes = useMemo(() => {
         const set = new Set();

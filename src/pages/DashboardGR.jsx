@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from "react";
 import { useAccount, useSignTypedData } from "wagmi";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import PageShell from "../components/PageShell.jsx";
 import DashboardCard from "../components/DashboardCard.jsx";
@@ -54,6 +54,12 @@ import {
     mapIdentityLinkError,
     runEip712WalletLinkFlow,
 } from "../utils/identityLinkFlow.js";
+import {
+    resolveLinkWalletBannerCopy,
+    resolveLinkWalletSuccessMessage,
+    shouldOfferSocialProgressImport,
+    shouldShowSocialWalletLinkageDevSnapshot,
+} from "../utils/dashboardIdentityUi.js";
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 import { getViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 import { getXpTotalFromBackend } from "../utils/progression.js";
@@ -61,17 +67,6 @@ import { getXpTotalFromBackend } from "../utils/progression.js";
 const EDU_NET_EXPLORER = "https://blockexplorer.dimikog.org";
 const SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY = "web3edu-social-switch-from-local-aa";
 const DASHBOARD_SOCIAL_DEBUG_SESSION_KEY = "web3edu-debug-social-wallet-linkage";
-const ADMIN_WALLETS = (
-    import.meta.env.VITE_ADMIN_WALLETS ??
-    "0x0e66db7d115b8f392eb7dfb8bacb23675daeb59e"
-)
-    .split(",")
-    .map((value) => value.trim().toLowerCase())
-    .filter(Boolean);
-
-const isAdminWallet = (addr) => Boolean(addr && ADMIN_WALLETS.includes(addr.toLowerCase()));
-
-const DASHBOARD_IDENTITY_DEBUG_FLAG = "web3edu-debug-identity-panel";
 
 const parseCompletedAt = (value) => {
     if (!value) return 0;
@@ -217,7 +212,6 @@ export default function Dashboard() {
     const [, bumpWalletOnboarding] = useReducer((c) => c + 1, 0);
     const [, bumpProgressImportSnooze] = useReducer((c) => c + 1, 0);
     const { address, isConnected } = useAccount();
-    const location = useLocation();
     const navigate = useNavigate();
     const {
         oidcAuthLoading,
@@ -403,8 +397,6 @@ export default function Dashboard() {
     const [showBuilderPath, setShowBuilderPath] = useState(false);
     const [linkWalletPhase, setLinkWalletPhase] = useState("idle"); // idle | loading | success | error
     const [linkWalletError, setLinkWalletError] = useState(null);
-    /** @type {["A"|"B"|null, Function]} */
-    const [linkWalletCase, setLinkWalletCase] = useState(null);
     const [linkProgressSource, setLinkProgressSource] = useState(null);
     const { signTypedDataAsync } = useSignTypedData();
 
@@ -906,14 +898,19 @@ export default function Dashboard() {
             effectiveSocialLinkedWalletNorm &&
             connectedWalletNorm === effectiveSocialLinkedWalletNorm
     );
-    const showSocialProgressImport =
-        isSocialWalletLinkedAuthorized &&
-        Boolean(oidcIdToken) &&
-        Boolean(connectedWalletNorm) &&
-        !progressImportSnoozed &&
-        !socialContinuityAlreadyReflected &&
-        linkProgressSource !== "linked_wallet" &&
-        linkWalletCase !== "B";
+    const showSocialProgressImport = shouldOfferSocialProgressImport({
+        isSocialWalletLinkedAuthorized,
+        hasIdToken: Boolean(oidcIdToken),
+        hasConnectedWallet: Boolean(connectedWalletNorm),
+        progressImportSnoozed,
+        socialContinuityAlreadyReflected,
+        progressSource: linkProgressSource,
+    });
+
+    const linkWalletBannerCopy = useMemo(
+        () => resolveLinkWalletBannerCopy({ isGR: true }),
+        []
+    );
 
     const handleProgressImportSnooze = useCallback(() => {
         if (connectedWalletNorm) {
@@ -924,7 +921,6 @@ export default function Dashboard() {
 
     const handleLinkWallet = useCallback(async () => {
         setLinkWalletError(null);
-        setLinkWalletCase(null);
 
         if (!oidcIdToken) {
             setLinkWalletError("Πρέπει να είσαι συνδεδεμένος/η με Web3Edu Account για να συνδέσεις πορτοφόλι.");
@@ -949,7 +945,6 @@ export default function Dashboard() {
             });
 
             setOptimisticSocialLinkedWalletNorm(connectedWalletNorm);
-            setLinkWalletCase(result.caseLabel === "B" ? "B" : "A");
             setLinkProgressSource(result.progressSource || null);
 
             try {
@@ -996,6 +991,7 @@ export default function Dashboard() {
 
     const showLinkOrImportBanner = Boolean(showGuestWalletLinkUi || showSocialProgressImport);
     const socialDebugTriggered = (() => {
+        if (!import.meta.env.DEV) return false;
         if (typeof window === "undefined") return false;
         return (
             window.sessionStorage.getItem(DASHBOARD_SOCIAL_DEBUG_SESSION_KEY) === "true" ||
@@ -1029,27 +1025,10 @@ export default function Dashboard() {
         }
     }, [socialDebugTriggered]);
 
-    const debugIdentityFromQuery = (() => {
-        try {
-            const search = location?.search || window.location.search || "";
-            const params = new URLSearchParams(search);
-            return params.get("debugIdentity") === "1";
-        } catch {
-            return false;
-        }
-    })();
-
-    const isAdminDebugEnabled = (() => {
-        if (!address) return false;
-        if (!isAdminWallet(address)) return false;
-        if (typeof window === "undefined") return false;
-        return window.localStorage.getItem(DASHBOARD_IDENTITY_DEBUG_FLAG) === "1";
-    })();
-
-    const shouldShowDebugPanel = Boolean(
-        socialDebugSnapshot &&
-        (import.meta.env.DEV || debugIdentityFromQuery || isAdminDebugEnabled)
-    );
+    const shouldShowDebugPanel = shouldShowSocialWalletLinkageDevSnapshot({
+        isDev: import.meta.env.DEV,
+        hasSnapshot: Boolean(socialDebugSnapshot),
+    });
 
     const showOidcSocialGate =
         identityHydrated && !identityAddress && (isOidcAuthenticated || oidcAuthLoading);
@@ -1270,24 +1249,22 @@ export default function Dashboard() {
 
                         {topStatusKey === "link-wallet" ? (
                             <div className="rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-left text-sm text-amber-950 shadow-sm backdrop-blur-sm dark:border-amber-500/35 dark:bg-amber-950/30 dark:text-amber-50 md:px-4">
-                                <p className="font-semibold">
-                                    Πορτοφόλι συνδεδεμένο — σύνδεσέ το με την Web3Edu ταυτότητά σου
-                                </p>
+                                <p className="font-semibold">{linkWalletBannerCopy.title}</p>
                                 <p className="mt-1 text-xs opacity-90 dark:opacity-95">
-                                    Εξουσιοδότησε αυτό το συνδεδεμένο πορτοφόλι ώστε το Web3Edu να το χρησιμοποιεί ως
-                                    συνδεδεμένο πορτοφόλι. Συνδεδεμένο πορτοφόλι:{" "}
+                                    {linkWalletBannerCopy.body}{" "}
+                                    {linkWalletBannerCopy.connectedLabel}:{" "}
                                     <span className="font-mono">{shortAddress(connectedWalletNorm)}</span>
                                 </p>
                                 <div className="mt-3 rounded-xl border border-amber-300/60 bg-amber-100/70 px-3 py-3 text-xs text-amber-950 dark:border-amber-600/30 dark:bg-amber-950/25 dark:text-amber-50">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                            <p className="font-semibold">Σύνδεση πορτοφολιού</p>
+                                            <p className="font-semibold">{linkWalletBannerCopy.stepTitle}</p>
                                             <p className="mt-0.5 opacity-90">
-                                                Θα υπογράψεις ένα ασφαλές αίτημα στο πορτοφόλι σου για να αποδείξεις την ιδιοκτησία.
+                                                {linkWalletBannerCopy.stepBody}
                                             </p>
                                         </div>
                                         <span className="shrink-0 rounded-full bg-amber-200/80 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:bg-amber-900/40 dark:text-amber-50">
-                                            Απαραίτητο
+                                            {linkWalletBannerCopy.required}
                                         </span>
                                     </div>
                                 </div>
@@ -1298,13 +1275,16 @@ export default function Dashboard() {
                                     disabled={linkWalletPhase === "loading"}
                                     className="mt-3 inline-flex items-center justify-center rounded-lg bg-amber-700 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-amber-600 dark:hover:bg-amber-500"
                                 >
-                                    {linkWalletPhase === "loading" ? "Γίνεται σύνδεση…" : "Σύνδεση πορτοφολιού"}
+                                    {linkWalletPhase === "loading"
+                                        ? linkWalletBannerCopy.actionLoading
+                                        : linkWalletBannerCopy.action}
                                 </button>
                                 {linkWalletPhase === "success" ? (
                                     <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200" role="status">
-                                        {linkWalletCase === "B" || linkProgressSource === "linked_wallet"
-                                            ? "Το πορτοφόλι συνδέθηκε. Η υπάρχουσα πρόοδος του πορτοφολιού θα συνεχίσει να χρησιμοποιείται."
-                                            : "Το πορτοφόλι συνδέθηκε με τον λογαριασμό Web3Edu."}
+                                        {resolveLinkWalletSuccessMessage({
+                                            isGR: true,
+                                            progressSource: linkProgressSource,
+                                        })}
                                     </p>
                                 ) : linkWalletPhase === "error" && linkWalletError ? (
                                     <p className="mt-2 text-xs text-red-800 dark:text-red-200" role="status">

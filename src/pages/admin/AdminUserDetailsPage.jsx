@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 import AdminBackButton from "../../components/admin/AdminBackButton";
 import { LabeledAddressField, ProgressSourceHelper } from "../../components/LabeledAddressField.jsx";
 import { fetchAdminUserDetails, fetchAdminUsers } from "../../services/adminApi";
+import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
 function isNonEmptyString(value) {
     return typeof value === "string" && value.trim().length > 0;
@@ -64,7 +64,7 @@ function getProjectStatusMeta(status) {
 }
 
 export default function AdminUserDetailsPage() {
-    const { address } = useAccount();
+    const { adminWalletAddress } = useAdminEligibility();
     const { wallet } = useParams();
 
     const targetWallet = decodeURIComponent(wallet || "");
@@ -73,8 +73,7 @@ export default function AdminUserDetailsPage() {
     const [data, setData] = useState(null);
 
     useEffect(() => {
-        const adminWallet =
-            address || localStorage.getItem("web3edu-wallet-address") || "";
+        const adminWallet = adminWalletAddress || "";
 
         if (!adminWallet || !targetWallet) {
             setError("Missing wallet context.");
@@ -129,7 +128,7 @@ export default function AdminUserDetailsPage() {
         return () => {
             active = false;
         };
-    }, [address, targetWallet]);
+    }, [adminWalletAddress, targetWallet]);
 
     const labsCompleted = useMemo(() => {
         if (!data?.labsCompleted) return [];

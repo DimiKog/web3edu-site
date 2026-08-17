@@ -102,54 +102,5 @@ export async function importSocialProgress(idToken, { sourceOwner, signal } = {}
   });
 }
 
-/**
- * POST /social/identity/link-wallet/challenge
- * Authorization: Bearer <Keycloak id_token>.
- *
- * Expected response: { messageToSign: string, ... }
- * @param {string} idToken
- * @param {{ walletAddress: string, signal?: AbortSignal }} body
- */
-export async function createLinkWalletChallenge(idToken, { walletAddress, signal } = {}) {
-  if (!walletAddress || typeof walletAddress !== "string") {
-    throw new Error("walletAddress is required");
-  }
-  const normalized =
-    normalizeEvmAddress(String(walletAddress).trim()) ?? String(walletAddress).trim();
-  return await fetchSocialJson(`/social/identity/link-wallet/challenge`, {
-    method: "POST",
-    idToken,
-    body: {
-      walletAddress: normalized,
-    },
-    signal,
-  });
-}
-
-/**
- * POST /social/identity/link-wallet/confirm
- * Authorization: Bearer <Keycloak id_token>.
- *
- * @param {string} idToken
- * @param {{ walletAddress: string, signature: string, signal?: AbortSignal }} body
- */
-export async function confirmLinkWallet(idToken, { walletAddress, signature, signal } = {}) {
-  if (!walletAddress || typeof walletAddress !== "string") {
-    throw new Error("walletAddress is required");
-  }
-  if (!signature || typeof signature !== "string") {
-    throw new Error("signature is required");
-  }
-  const normalized =
-    normalizeEvmAddress(String(walletAddress).trim()) ?? String(walletAddress).trim();
-  return await fetchSocialJson(`/social/identity/link-wallet/confirm`, {
-    method: "POST",
-    idToken,
-    body: {
-      walletAddress: normalized,
-      signature,
-    },
-    signal,
-  });
-}
+// Legacy EIP-191 link-wallet: see socialIdentityLegacyLink.js (not used by student Dashboard).
 

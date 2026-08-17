@@ -20,19 +20,11 @@ import { useAuth } from "react-oidc-context";
 import { loadIdentityState } from "../utils/aaIdentity.js";
 import { signOutKeycloakAccount } from "../auth/keycloakSignOut.js";
 import { isNeutralAfterLogout, setViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
+import { resolveNavIdentityMenuHint } from "../utils/dashboardIdentityUi.js";
+import { useAdminEligibility } from "../hooks/useAdminEligibility.js";
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
 const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
-const ADMIN_WALLETS = (
-  import.meta.env.VITE_ADMIN_WALLETS ??
-  "0x0e66db7d115b8f392eb7dfb8bacb23675daeb59e"
-)
-  .split(",")
-  .map((address) => address.trim().toLowerCase())
-  .filter(Boolean);
-
-const isAdminWallet = (address) =>
-  Boolean(address && ADMIN_WALLETS.includes(address.toLowerCase()));
 
 /** Outline / secondary — matches SectionBadge + TeamMemberCard lavender tokens */
 const navAuthSecondaryClass =
@@ -130,6 +122,7 @@ export default function PageShell({
 
   const { disconnectIdentity, isIdentityReady: onboarded } = useIdentity();
   const { address: wagmiAddress, isConnected } = useAccount();
+  const { isAdminEligible } = useAdminEligibility();
   /**
    * Canonical identity address — resolves both social-login AA and wallet AA.
    * Social-login users have a backend-provisioned AA address that is not tracked
@@ -150,6 +143,7 @@ export default function PageShell({
   });
 
   const isGR = lang === "gr";
+  const navIdentityMenuHint = resolveNavIdentityMenuHint({ isGR });
 
   const handleNavbarWalletConnect = React.useCallback(() => {
     void connectWalletSessionAware(isGR);
@@ -330,7 +324,7 @@ export default function PageShell({
   /** Reserve space only when the floating Web3 account chrome is actually visible. */
   const reserveWeb3FloatingChrome = isWeb3LayoutRoute && onboarded;
   const reserveWeb3FloatingChromeClasses = reserveWeb3FloatingChrome
-    ? isAdminWallet(wagmiAddress || walletAddress)
+    ? isAdminEligible
       ? "md:pr-52 lg:pr-64 xl:pr-72"
       : "md:pr-40 lg:pr-52"
     : "";
@@ -628,6 +622,7 @@ export default function PageShell({
                   aria-expanded={identityMenuOpen}
                   aria-haspopup="menu"
                   aria-label={isGR ? "Μενού λογαριασμού" : "Account menu"}
+                  title={navIdentityMenuHint}
                   onClick={() => setIdentityMenuOpen((o) => !o)}
                   className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-slate-900/85 px-2 py-1.5 text-white shadow-lg shadow-indigo-500/25 backdrop-blur cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-indigo-500/40 hover:border-white/40"
                 >
@@ -713,7 +708,7 @@ export default function PageShell({
                     </button>
                   </div>
                 ) : null}
-                {isAdminWallet(wagmiAddress || walletAddress) ? (
+                {isAdminEligible ? (
                   <button
                     onClick={() => {
                       window.location.hash = "#/admin";
@@ -988,6 +983,7 @@ export default function PageShell({
                     aria-expanded={identityMenuOpen}
                     aria-haspopup="menu"
                     aria-label={isGR ? "Μενού λογαριασμού" : "Account menu"}
+                    title={navIdentityMenuHint}
                     onClick={() => setIdentityMenuOpen((o) => !o)}
                     className="w-full rounded-xl bg-slate-900 text-white py-3 text-sm font-semibold shadow-lg shadow-indigo-500/25 transition inline-flex items-center justify-center gap-2"
                   >
@@ -1072,7 +1068,7 @@ export default function PageShell({
                       </button>
                     </div>
                   ) : null}
-                  {isAdminWallet(wagmiAddress || walletAddress) ? (
+                  {isAdminEligible ? (
                     <button
                       onClick={() => navigateTo("#/admin")}
                       className="w-full rounded-xl bg-red-500/30 text-white py-3 text-sm font-semibold shadow-lg shadow-red-500/25 hover:bg-red-500/45 transition"

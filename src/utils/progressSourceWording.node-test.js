@@ -90,11 +90,12 @@ test("GR parity for account and linked wallet", () => {
   );
 });
 
-test("Dashboards pass backend progressSource and suppress Case B import", () => {
+test("Dashboards pass backend progressSource and suppress import via helper", () => {
   for (const file of ["pages/Dashboard.jsx", "pages/DashboardGR.jsx"]) {
     const src = readFileSync(join(root, file), "utf8");
     assert.match(src, /progressSource=\{linkProgressSource\}/);
-    assert.match(src, /linkProgressSource !== "linked_wallet"/);
+    assert.match(src, /shouldOfferSocialProgressImport/);
+    assert.doesNotMatch(src, /linkWalletCase/);
     assert.doesNotMatch(
       src,
       /progressSourceLabel=\{\s*linkProgressSource === "linked_wallet"/

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
 import { useSearchParams } from "react-router-dom";
 import { fetchLabsSummary } from "../../services/adminApi";
 import AdminLabsTable from "../../components/admin/AdminLabsTable";
 import LabsCompletionChart from "../../components/admin/LabsCompletionChart";
+import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
 export default function AdminLabsPage() {
-    const { address } = useAccount();
+    const { adminWalletAddress } = useAdminEligibility();
     const [searchParams] = useSearchParams();
     const [labs, setLabs] = useState(null);
     const [error, setError] = useState(null);
@@ -14,9 +14,9 @@ export default function AdminLabsPage() {
     const [sortDir] = useState(searchParams.get("dir") || "desc");
 
     const loadLabs = () => {
-        if (!address) return;
+        if (!adminWalletAddress) return;
 
-        fetchLabsSummary(address)
+        fetchLabsSummary(adminWalletAddress)
             .then((data) => {
                 if (Array.isArray(data)) {
                     setLabs(data);
@@ -32,7 +32,7 @@ export default function AdminLabsPage() {
 
     useEffect(() => {
         loadLabs();
-    }, [address]);
+    }, [adminWalletAddress]);
 
     if (error) {
         return (

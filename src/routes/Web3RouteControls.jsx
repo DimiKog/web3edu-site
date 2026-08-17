@@ -17,18 +17,7 @@ import { useIdentity } from "../context/useIdentity.js";
 import { resolveIdentityV2 } from "../api/aa.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import { signOutKeycloakAccount } from "../auth/keycloakSignOut.js";
-
-const ADMIN_WALLETS = (
-  import.meta.env.VITE_ADMIN_WALLETS ??
-  "0x0e66db7d115b8f392eb7dfb8bacb23675daeb59e"
-)
-  .split(",")
-  .map((address) => address.trim().toLowerCase())
-  .filter(Boolean);
-
-function isAdminWallet(address) {
-  return Boolean(address && ADMIN_WALLETS.includes(address.toLowerCase()));
-}
+import { useAdminEligibility } from "../hooks/useAdminEligibility.js";
 
 const WALLET_SESSION_KEY = "web3edu-wallet-connected";
 const WALLET_ADDRESS_KEY = "web3edu-wallet-address";
@@ -40,6 +29,7 @@ export default function Web3RouteControls() {
   const auth = useAuth();
   const { address, isConnected } = useAccount();
   const { disconnectAsync } = useDisconnect();
+  const { isAdminEligible } = useAdminEligibility();
   const { smartAccount, disconnectIdentity, isIdentityReady: onboarded } = useIdentity();
   const [identityMenuOpen, setIdentityMenuOpen] = useState(false);
   const identityMenuRef = useRef(null);
@@ -303,7 +293,7 @@ export default function Web3RouteControls() {
               </button>
             </div>
           ) : null}
-          {isAdminWallet(address) ? (
+          {isAdminEligible ? (
             <Link
               to="/admin"
               className="hidden sm:inline-flex rounded-full border border-red-400/40 bg-red-500/25 px-3 py-1.5 text-xs font-semibold text-white cursor-pointer transition-all duration-200 hover:bg-red-500/50 hover:scale-105 hover:border-red-400/60 hover:shadow-lg"

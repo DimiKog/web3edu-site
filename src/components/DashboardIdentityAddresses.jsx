@@ -3,6 +3,7 @@ import { ClipboardDocumentIcon } from "@heroicons/react/24/outline";
 import { AddressIdenticon, generateAvatarStyle } from "./identity-ui.jsx";
 import { LabeledAddressField, ProgressSourceHelper } from "./LabeledAddressField.jsx";
 import { resolveProgressSourceDisplayLabel } from "../utils/progressSourceWording.js";
+import { resolveLinkedWalletRevokeHint } from "../utils/dashboardIdentityUi.js";
 
 function addressesEqual(a, b) {
     if (!a || !b) return false;
@@ -37,8 +38,8 @@ export default function DashboardIdentityAddresses({
             web3eduIdentity: isWalletOnly ? "Wallet Identity" : "Web3Edu Identity",
             linkedWallet: "Linked Wallet",
             connectedWallet: "Connected Wallet",
-            linkedAccount: "Linked Account",
-            progressSource: "Progress Source",
+            linkedAccount: "Device Account",
+            progressSource: "Πηγή προόδου",
             copied: "Αντιγράφηκε!",
             identiconTooltip:
                 "Το μοναδικό σας identity pattern — δημιουργείται από τη διεύθυνση Web3Edu Identity. Κάντε κλικ για αντιγραφή.",
@@ -50,7 +51,7 @@ export default function DashboardIdentityAddresses({
             web3eduIdentity: isWalletOnly ? "Wallet Identity" : "Web3Edu Identity",
             linkedWallet: "Linked Wallet",
             connectedWallet: "Connected Wallet",
-            linkedAccount: "Linked Account",
+            linkedAccount: "Device Account",
             progressSource: "Progress Source",
             copied: "Copied!",
             identiconTooltip:
@@ -82,6 +83,12 @@ export default function DashboardIdentityAddresses({
         profileMode,
         progressSource,
         progressSourceLabel,
+    });
+
+    const revokeHint = resolveLinkedWalletRevokeHint({
+        isGR,
+        progressSource,
+        hasLinkedWallet: Boolean(showLinkedWallet),
     });
 
     return (
@@ -186,6 +193,12 @@ export default function DashboardIdentityAddresses({
                 profileMode={profileMode}
                 progressSource={progressSource}
             />
+
+            {revokeHint ? (
+                <p className="rounded-xl border border-slate-200/70 bg-slate-50/80 px-3 py-2.5 text-xs leading-relaxed text-slate-700 dark:border-slate-600/50 dark:bg-slate-900/40 dark:text-slate-200">
+                    {revokeHint}
+                </p>
+            ) : null}
 
             {showWalletOnlyProgressNote ? (
                 <p className="rounded-xl border border-sky-200/70 bg-sky-50/80 px-3 py-2.5 text-xs leading-relaxed text-sky-950 dark:border-sky-500/30 dark:bg-sky-950/25 dark:text-sky-50">

@@ -146,8 +146,8 @@ export default function SocialWalletProgressImportSection({
           </p>
           <p className="mt-1 text-xs text-amber-900/95 dark:text-amber-100/90">
             {isGr
-              ? "Θέλεις να την εισάγεις στην τρέχουσα Web3Edu Identity σου;"
-              : "Do you want to import it into your current Web3Edu Identity?"}
+              ? "Θέλεις να εισάγεις την προηγούμενη πρόοδο από το Connected Wallet στον Web3Edu Account σου;"
+              : "Do you want to copy previous progress from your Connected Wallet into your Web3Edu Account?"}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button

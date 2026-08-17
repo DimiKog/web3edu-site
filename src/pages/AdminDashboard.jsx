@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { useAccount } from "wagmi";
 import { useNavigate } from "react-router-dom";
 import { fetchAdminOverview, fetchLabsSummary } from "../services/adminApi";
 import AdminKpis from "../components/admin/AdminKpis";
 import PlatformAnalytics from "../components/admin/PlatformAnalytics";
 import LearningInsights from "../components/admin/LearningInsights";
 import ProjectsOverview from "../components/admin/ProjectsOverview";
+import { useAdminEligibility } from "../hooks/useAdminEligibility.js";
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
-    const { address } = useAccount();
+    const { adminWalletAddress } = useAdminEligibility();
     const [overview, setOverview] = useState(null);
     const [error, setError] = useState(null);
     const [labs, setLabs] = useState(null);
@@ -17,12 +17,12 @@ export default function AdminDashboard() {
     const [lastUpdated, setLastUpdated] = useState(null);
     const [refreshTick, setRefreshTick] = useState(0);
 
-    const cacheKey = address ? `admin-dashboard-cache:${address.toLowerCase()}` : null;
+    const cacheKey = adminWalletAddress ? `admin-dashboard-cache:${adminWalletAddress.toLowerCase()}` : null;
 
     const loadDashboardData = useCallback(() => {
-        if (!address) return;
+        if (!adminWalletAddress) return;
 
-        Promise.all([fetchAdminOverview(address), fetchLabsSummary(address)])
+        Promise.all([fetchAdminOverview(adminWalletAddress), fetchLabsSummary(adminWalletAddress)])
             .then(([overviewData, labsData]) => {
                 setOverview(overviewData);
                 setPlatform(labsData?.platform || null);
@@ -47,10 +47,10 @@ export default function AdminDashboard() {
             .catch(() => {
                 setError("Could not load dashboard analytics.");
             });
-    }, [address, cacheKey]);
+    }, [adminWalletAddress, cacheKey]);
 
     useEffect(() => {
-        if (!address) return;
+        if (!adminWalletAddress) return;
 
         if (cacheKey) {
             try {
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
         }
 
         loadDashboardData();
-    }, [address, cacheKey, loadDashboardData, refreshTick]);
+    }, [adminWalletAddress, cacheKey, loadDashboardData, refreshTick]);
 
     if (error) {
         return (

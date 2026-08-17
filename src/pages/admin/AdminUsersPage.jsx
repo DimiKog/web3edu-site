@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAccount } from "wagmi";
 import UserDistributionChart from "../../components/admin/UserDistributionChart";
 import { fetchAdminUsers } from "../../services/adminApi";
 import { getSocialIdentityCustodyType } from "../../utils/socialIdentityPayload.js";
+import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
 function toNumber(value, fallback = 0) {
     const num = Number(value);
@@ -326,7 +326,7 @@ function engagementClass(score) {
 export default function AdminUsersPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const { address } = useAccount();
+    const { adminWalletAddress } = useAdminEligibility();
 
     const [users, setUsers] = useState(null);
     const [error, setError] = useState(null);
@@ -342,17 +342,14 @@ export default function AdminUsersPage() {
     const dropoffOnly = searchParams.get("dropoffOnly") === "1";
 
     const loadUsers = useCallback(() => {
-        const adminWallet =
-            address || localStorage.getItem("web3edu-wallet-address") || "";
-
-        if (!adminWallet) {
-            setError("Admin wallet not available. Please reconnect.");
+        if (!adminWalletAddress) {
+            setError("Admin wallet not available for this session.");
             setUsers([]);
             return;
         }
 
         setError(null);
-        fetchAdminUsers(adminWallet)
+        fetchAdminUsers(adminWalletAddress)
             .then((data) => {
                 if (Array.isArray(data)) {
                     setUsers(data);
@@ -368,7 +365,7 @@ export default function AdminUsersPage() {
                 setError("Could not load users analytics.");
                 setUsers([]);
             });
-    }, [address]);
+    }, [adminWalletAddress]);
 
     useEffect(() => {
         loadUsers();

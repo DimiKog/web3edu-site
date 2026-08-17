@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
 import AdminBackButton from "../../components/admin/AdminBackButton";
 import { fetchAdminLabDetails } from "../../services/adminApi";
+import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
 function Badge({ tone = "slate", children }) {
     const tones = {
@@ -37,7 +37,7 @@ function getEntryBadges(entry) {
 
 export default function AdminLabDetails() {
     const { labId } = useParams();
-    const { address } = useAccount();
+    const { adminWalletAddress } = useAdminEligibility();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -54,12 +54,12 @@ export default function AdminLabDetails() {
     useEffect(() => {
         async function fetchDetails() {
             try {
-                if (!address) {
-                    setError("Admin wallet not connected.");
+                if (!adminWalletAddress) {
+                    setError("Admin wallet not available for this session.");
                     setLoading(false);
                     return;
                 }
-                const json = await fetchAdminLabDetails(address, labId);
+                const json = await fetchAdminLabDetails(adminWalletAddress, labId);
                 setData(json);
             } catch (err) {
                 console.error(err);
@@ -70,7 +70,7 @@ export default function AdminLabDetails() {
         }
 
         fetchDetails();
-    }, [labId, address]);
+    }, [labId, adminWalletAddress]);
 
     if (loading) {
         return (

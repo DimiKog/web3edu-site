@@ -1,8 +1,8 @@
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useAccount } from "wagmi";
 import { useEffect, useState } from "react";
 import { fetchAdminOverview, getAdminApiBase } from "../../services/adminApi";
 import PageShell from "../../components/PageShell.jsx";
+import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
 function shortAddress(address) {
     const a = String(address || "");
@@ -13,7 +13,7 @@ function shortAddress(address) {
 export default function AdminLayout() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { address } = useAccount();
+    const { adminWalletAddress, isAdminEligible, adminEligibilityLoading } = useAdminEligibility();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastVerifiedAt, setLastVerifiedAt] = useState(null);
@@ -27,16 +27,20 @@ export default function AdminLayout() {
         let isMounted = true;
 
         async function verifyAdminAccess() {
-            if (!address) {
+            if (adminEligibilityLoading) {
+                return;
+            }
+
+            if (!isAdminEligible || !adminWalletAddress) {
                 if (isMounted) {
                     setLoading(false);
-                    setError("Wallet not connected.");
+                    setError("Not authorized.");
                 }
                 return;
             }
 
             try {
-                await fetchAdminOverview(address);
+                await fetchAdminOverview(adminWalletAddress);
                 if (isMounted) {
                     setError(null);
                     setLastVerifiedAt(new Date());
@@ -58,10 +62,10 @@ export default function AdminLayout() {
         return () => {
             isMounted = false;
         };
-    }, [address]);
+    }, [adminWalletAddress, isAdminEligible, adminEligibilityLoading]);
 
     const apiBase = getAdminApiBase();
-    const canShowSession = Boolean(address);
+    const canShowSession = Boolean(adminWalletAddress);
     const dashboardPath = langPref === "gr" ? "/dashboard-gr" : "/dashboard";
     const settingsPath = langPref === "gr" ? "/settings-gr" : "/settings";
     const identityPath = langPref === "gr" ? "/sbt-view-gr" : "/sbt-view";
@@ -101,7 +105,7 @@ export default function AdminLayout() {
                                     </div>
                                     <div className="mt-1 text-sm text-slate-800 dark:text-slate-200">
                                         <span className="font-semibold">Account:</span>{" "}
-                                        <span className="font-mono">{canShowSession ? shortAddress(address) : "—"}</span>
+                                        <span className="font-mono">{canShowSession ? shortAddress(adminWalletAddress) : "—"}</span>
                                         <span className="text-slate-400 dark:text-slate-500"> · </span>
                                         <span className="font-semibold">API:</span>{" "}
                                         <span className="font-mono break-all">{apiBase}</span>
@@ -168,14 +172,10 @@ export default function AdminLayout() {
                         {!loading && error && (
                             <div className="rounded-2xl border border-red-500/30 bg-red-500/10 text-red-900 dark:text-red-200 px-6 py-4 space-y-2">
                                 <div className="font-semibold">
-                                    {error === "Wallet not connected."
-                                        ? "Connect an admin wallet to access the admin area."
-                                        : "This wallet is not authorized to access admin analytics."}
+                                    This account is not authorized to access admin analytics.
                                 </div>
                                 <div className="text-sm text-red-800/90 dark:text-red-200/90">
-                                    {error === "Wallet not connected."
-                                        ? "Admin access is validated via the connected wallet and the backend `/admin/*` endpoints."
-                                        : "If you believe this is incorrect, confirm the connected wallet is in the admin allowlist and that the backend is configured for this environment."}
+                                    Admin access requires an ACTIVE linked admin wallet (Keycloak) or a connected admin wallet (wallet-only session).
                                 </div>
                             </div>
                         )}

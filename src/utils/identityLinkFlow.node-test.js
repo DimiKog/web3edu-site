@@ -378,7 +378,7 @@ test("Dashboard pages use H3C path and not legacy link-wallet from handleLinkWal
     assert.doesNotMatch(src, /createLinkWalletChallenge/);
     assert.doesNotMatch(src, /confirmLinkWallet/);
     assert.doesNotMatch(src, /useSignMessage/);
-    assert.match(src, /linkProgressSource !== "linked_wallet"/);
+    assert.match(src, /shouldOfferSocialProgressImport/);
   }
 });
 
