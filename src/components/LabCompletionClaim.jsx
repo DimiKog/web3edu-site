@@ -251,7 +251,6 @@ export default function LabCompletionClaim({
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-API-KEY": import.meta.env.VITE_XP_SECRET,
                 },
                 body: JSON.stringify({
                     wallet: effectiveWallet,
