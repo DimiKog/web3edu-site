@@ -96,6 +96,14 @@ test("link success message uses progressSource not Case B label", () => {
     resolveLinkWalletSuccessMessage({ progressSource: "web3edu_account" }),
     /Web3Edu Account/
   );
+  const caseB = resolveLinkWalletSuccessMessage({ progressSource: "linked_wallet" });
+  const caseBGR = resolveLinkWalletSuccessMessage({
+    isGR: true,
+    progressSource: "linked_wallet",
+  });
+  assert.doesNotMatch(caseB, /administrator/i);
+  assert.doesNotMatch(caseBGR, /διαχειριστή/);
+  assert.match(caseBGR, /Συνδεδεμένο πορτοφόλι/);
 });
 
 test("Dashboards use shouldOfferSocialProgressImport and not linkWalletCase", () => {

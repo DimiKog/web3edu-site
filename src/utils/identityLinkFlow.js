@@ -25,11 +25,14 @@ export function mapIdentityLinkError(reasonCode, { isGR = false } = {}) {
     CASE_B_REQUIRES_EIP712:
       "Wallet linking needs an updated signing flow. Please refresh and try again.",
     CASE_B_NOT_ALLOWLISTED:
-      "Wallet linking with existing progress is not enabled for this account yet.",
+      // Legacy backend code; current H3C no longer emits this.
+      "Wallet linking is temporarily unavailable. Please try again later.",
     CASE_B_PREREQUISITES_NOT_ENABLED:
       "Wallet linking is temporarily unavailable. Please try again later.",
+    WALLET_HAS_PROGRESS:
+      "Wallet linking with existing wallet progress is temporarily unavailable. Please try again later.",
     BOTH_HAVE_PROGRESS:
-      "Both your Web3Edu Account and this wallet already contain progress. Automatic linking is not available yet.",
+      "Both your Web3Edu Account and this wallet already contain progress. Automatic linking is not available. Please contact the administrator so the two progress histories can be reconciled.",
     WALLET_ALREADY_BOUND:
       "This wallet is already linked to a different Web3Edu identity.",
     RELINK_REQUIRED:
@@ -48,11 +51,13 @@ export function mapIdentityLinkError(reasonCode, { isGR = false } = {}) {
     CASE_B_REQUIRES_EIP712:
       "Η σύνδεση πορτοφολιού χρειάζεται ενημερωμένη υπογραφή. Ανανέωσε τη σελίδα και δοκίμασε ξανά.",
     CASE_B_NOT_ALLOWLISTED:
-      "Η σύνδεση πορτοφολιού με υπάρχουσα πρόοδο δεν είναι ακόμη ενεργή για αυτόν τον λογαριασμό.",
+      "Η σύνδεση πορτοφολιού δεν είναι προσωρινά διαθέσιμη. Δοκίμασε ξανά αργότερα.",
     CASE_B_PREREQUISITES_NOT_ENABLED:
       "Η σύνδεση πορτοφολιού δεν είναι προσωρινά διαθέσιμη. Δοκίμασε ξανά αργότερα.",
+    WALLET_HAS_PROGRESS:
+      "Η σύνδεση πορτοφολιού με υπάρχουσα πρόοδο στο πορτοφόλι δεν είναι προσωρινά διαθέσιμη. Δοκίμασε ξανά αργότερα.",
     BOTH_HAVE_PROGRESS:
-      "Τόσο ο λογαριασμός Web3Edu όσο και αυτό το πορτοφόλι έχουν ήδη πρόοδο. Η αυτόματη σύνδεση δεν είναι ακόμη διαθέσιμη.",
+      "Τόσο ο λογαριασμός Web3Edu όσο και αυτό το πορτοφόλι έχουν ήδη πρόοδο. Η αυτόματη σύνδεση δεν είναι διαθέσιμη. Επικοινώνησε με τον διαχειριστή ώστε να γίνει συμφιλίωση των δύο ιστορικών προόδου.",
     WALLET_ALREADY_BOUND:
       "Αυτό το πορτοφόλι είναι ήδη συνδεδεμένο με διαφορετική ταυτότητα Web3Edu.",
     RELINK_REQUIRED:
@@ -121,7 +126,7 @@ export async function runEip712WalletLinkFlow({
       confirm: challenge,
       preview: null,
       status,
-      progressSource: status?.progressSource || "web3edu_account",
+      progressSource: status?.progressSource || null,
     };
   }
 
@@ -182,9 +187,8 @@ export async function runEip712WalletLinkFlow({
   const status = await getIdentityLinkStatus(idToken, { signal }).catch(() => null);
   const progressSource =
     status?.progressSource ||
-    (caseLabel === "B" || confirm?.progressOrigin === "linked_wallet"
-      ? "linked_wallet"
-      : "web3edu_account");
+    confirm?.progressSource ||
+    (confirm?.progressOrigin === "linked_wallet" ? "linked_wallet" : null);
 
   return {
     outcome: "linked",

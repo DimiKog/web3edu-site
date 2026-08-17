@@ -127,12 +127,19 @@ function mockLinkApi({
 }
 
 test("mapIdentityLinkError covers Case B / Case C codes", () => {
-  assert.match(mapIdentityLinkError("CASE_B_NOT_ALLOWLISTED"), /not enabled/i);
+  assert.match(mapIdentityLinkError("CASE_B_NOT_ALLOWLISTED"), /temporarily unavailable/i);
+  assert.match(
+    mapIdentityLinkError("BOTH_HAVE_PROGRESS"),
+    /contact the administrator/i
+  );
   assert.match(mapIdentityLinkError("BOTH_HAVE_PROGRESS"), /already contain progress/i);
+  assert.doesNotMatch(mapIdentityLinkError("CASE_B_NOT_ALLOWLISTED"), /administrator/i);
+  assert.doesNotMatch(mapIdentityLinkError("WALLET_HAS_PROGRESS"), /administrator/i);
   assert.match(mapIdentityLinkError("WALLET_ALREADY_BOUND"), /different/i);
   assert.match(mapIdentityLinkError("RELINK_REQUIRED"), /Relinking/i);
   assert.match(mapIdentityLinkError("INVALID_SIGNATURE"), /signature/i);
-  assert.match(mapIdentityLinkError("CASE_B_NOT_ALLOWLISTED", { isGR: true }), /ενεργή/);
+  assert.match(mapIdentityLinkError("CASE_B_NOT_ALLOWLISTED", { isGR: true }), /προσωρινά/);
+  assert.match(mapIdentityLinkError("BOTH_HAVE_PROGRESS", { isGR: true }), /διαχειριστή/);
 });
 
 test("retryable challenge errors", () => {
@@ -191,6 +198,10 @@ test("runEip712WalletLinkFlow Case B path does not call legacy link-wallet or im
 
   assert.equal(result.caseLabel, "B");
   assert.equal(result.progressSource, "linked_wallet");
+  assert.doesNotMatch(
+    JSON.stringify(result),
+    /administrator|CASE_B_NOT_ALLOWLISTED/i
+  );
   assert.ok(signedTyped);
   assert.equal(signedTyped.primaryType, "WalletBinding");
   assert.equal("EIP712Domain" in signedTyped.types, false);
@@ -231,6 +242,31 @@ test("Case A confirm keeps web3edu_account progress source", async () => {
   assert.equal(result.progressSource, "web3edu_account");
 });
 
+test("Case B prefers backend progressSource from confirm if status omits it", async () => {
+  const wallet = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  mockLinkApi({
+    wallet,
+    preview: {
+      allowed: true,
+      case: "B",
+      reasonCode: "CASE_B_SAFE",
+    },
+    confirm: {
+      ok: true,
+      reasonCode: "CASE_B_BINDING_CREATED",
+      progressSource: "linked_wallet",
+      progressOrigin: "linked_wallet",
+    },
+    status: { ok: true },
+  });
+  const result = await runEip712WalletLinkFlow({
+    idToken: "tok",
+    walletAddress: wallet,
+    signTypedDataAsync: async () => "0xsig",
+  });
+  assert.equal(result.progressSource, "linked_wallet");
+});
+
 test("Case C does not confirm", async () => {
   const wallet = "0x2222222222222222222222222222222222222222";
   let confirmCalled = false;
@@ -258,7 +294,7 @@ test("Case C does not confirm", async () => {
   assert.equal(confirmCalled, false);
 });
 
-test("CASE_B_NOT_ALLOWLISTED surfaces from preview", async () => {
+test("CASE_B_NOT_ALLOWLISTED leftover mapping is not contact-admin", async () => {
   const wallet = "0x5555555555555555555555555555555555555555";
   mockLinkApi({
     wallet,
