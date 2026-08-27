@@ -8,7 +8,7 @@ import {
     buildLabsStatusUrl,
     getWeb3eduBackendUrl,
 } from "../lib/web3eduBackend.js";
-import { getEducationalIdentityInput, getLabsStatusReadIdentity, postLabsStart } from "../utils/labWriteApi.js";
+import { getEducationalIdentityInput, getLabsStatusReadIdentity, postLabsStart, postLabsComplete } from "../utils/labWriteApi.js";
 import { getOwnerWallet } from "../utils/aaIdentity.js";
 
 const COPY = {
@@ -19,6 +19,7 @@ const COPY = {
         checkingStatus: "Checking completion status…",
         completedOn: "Completed on:",
         walletNotConnectedError: "Wallet not connected",
+        signInRequiredError: "Sign in to your Web3Edu account to claim completion",
         labIdMissingError: "Lab ID missing",
         backendError: "Failed to record completion",
         backToOverview: "⬅ Back to lab overview",
@@ -30,6 +31,7 @@ const COPY = {
         checkingStatus: "Έλεγχος κατάστασης ολοκλήρωσης…",
         completedOn: "Ολοκληρώθηκε στις:",
         walletNotConnectedError: "Το πορτοφόλι δεν είναι συνδεδεμένο",
+        signInRequiredError: "Συνδεθείτε στον λογαριασμό Web3Edu για να δηλώσετε ολοκλήρωση",
         labIdMissingError: "Λείπει το Lab ID",
         backendError: "Αποτυχία καταγραφής ολοκλήρωσης",
         backToOverview: "⬅ Επιστροφή στην επισκόπηση",
@@ -205,6 +207,12 @@ export default function LabCompletionClaim({
     const handleClaimCompletion = async () => {
         if (claimed) return;
 
+        const idToken = identityArgs.idToken;
+        if (!idToken || typeof idToken !== "string" || !idToken.trim()) {
+            setError(labels.signInRequiredError);
+            return;
+        }
+
         if (!effectiveWallet) {
             warnIfIdentityNotInitialized("LabCompletionClaim", {
                 smartAccount: effectiveWallet,
@@ -227,6 +235,7 @@ export default function LabCompletionClaim({
                 apiBase: BACKEND,
                 labId,
                 ...identityArgs,
+                idToken,
             });
             if (!startRes.ok && startRes.status !== 204) {
                 throw new Error("Could not register lab start");
@@ -247,31 +256,23 @@ export default function LabCompletionClaim({
                 signature = await wallet.signMessage(message);
             }
 
-            const res = await fetch(`${BACKEND}/labs/complete`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    wallet: effectiveWallet,
-                    owner: ownerForWrites,
-                    labId,
-                    message,
-                    signature,
-                }),
+            const { ok, status, data: completePayload } = await postLabsComplete({
+                apiBase: BACKEND,
+                idToken,
+                labId,
+                wallet: effectiveWallet,
+                owner: ownerForWrites,
+                message,
+                signature,
             });
 
-            const completePayload = await res.json().catch(() => ({}));
-            if (
-                completePayload?.identityKey != null &&
-                completePayload?.identityKey !== undefined
-            ) {
+            if (completePayload?.identityKey != null) {
                 // eslint-disable-next-line no-console -- backend integration diagnostic
                 console.log("LAB IDENTITY KEY", completePayload.identityKey);
             }
 
-            if (!res.ok) {
-                console.error("LAB COMPLETE ERROR RESPONSE", completePayload);
+            if (!ok) {
+                console.error("LAB COMPLETE ERROR RESPONSE", completePayload, status);
                 throw new Error(
                     completePayload?.error || "Backend rejected completion"
                 );

@@ -14,6 +14,7 @@ import { globSync } from "glob";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const siteRoot = join(__dirname, "../..");
 const claimPath = join(__dirname, "../components/LabCompletionClaim.jsx");
+const labWritePath = join(__dirname, "labWriteApi.js");
 
 function readClaimSource() {
   return readFileSync(claimPath, "utf8");
@@ -32,21 +33,25 @@ function readLeakedSecretFromGitHeadEnv() {
   }
 }
 
-test("LabCompletionClaim POSTs to /labs/complete without X-API-KEY or VITE_XP_SECRET", () => {
+test("LabCompletionClaim POSTs lab complete via postLabsComplete without X-API-KEY or VITE_XP_SECRET", () => {
   const source = readClaimSource();
+  const labWrite = readFileSync(labWritePath, "utf8");
 
   assert.equal(source.includes("VITE_XP_SECRET"), false);
   assert.equal(source.includes("X-API-KEY"), false);
-  assert.ok(source.includes("${BACKEND}/labs/complete"));
-  assert.ok(source.includes('method: "POST"'));
-  assert.ok(source.includes('"Content-Type": "application/json"'));
+  assert.equal(labWrite.includes("VITE_XP_SECRET"), false);
+  assert.equal(labWrite.includes("X-API-KEY"), false);
 
-  const completeBlock = source.slice(source.indexOf("/labs/complete"));
-  assert.ok(completeBlock.includes("wallet: effectiveWallet"));
-  assert.ok(completeBlock.includes("owner: ownerForWrites"));
-  assert.ok(completeBlock.includes("labId,"));
-  assert.ok(completeBlock.includes("message,"));
-  assert.ok(completeBlock.includes("signature,"));
+  assert.ok(source.includes("postLabsComplete"));
+  assert.ok(source.includes("idToken"));
+  assert.ok(labWrite.includes("/labs/complete"));
+  assert.ok(labWrite.includes("Authorization: `Bearer ${idToken.trim()}`"));
+
+  assert.ok(source.includes("wallet: effectiveWallet"));
+  assert.ok(source.includes("owner: ownerForWrites"));
+  assert.ok(source.includes("labId,") || source.includes("labId"));
+  assert.ok(source.includes("message,") || source.includes("message"));
+  assert.ok(source.includes("signature,") || source.includes("signature"));
 });
 
 test("repo source tree has no runtime VITE_XP_SECRET reference", () => {

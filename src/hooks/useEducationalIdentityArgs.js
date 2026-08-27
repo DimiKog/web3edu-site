@@ -7,6 +7,7 @@ import { useResolvedIdentityContext } from "./useResolvedIdentityContext.js";
 /**
  * Shared educational-write / lab-status identity args.
  * Includes H3A.1 wallet-entry flags from ResolvedIdentityProvider.
+ * Includes Keycloak idToken from SocialIdentityContext for lab write auth.
  */
 export function useEducationalIdentityArgs() {
   const { address } = useAccount();
@@ -16,6 +17,7 @@ export function useEducationalIdentityArgs() {
     isOidcAuthenticated,
     socialIdentityLoading,
     oidcAuthLoading,
+    idToken,
   } = useSocialIdentity();
   const { isWalletEntryLinkedAlias, walletEntryResolvePending } =
     useResolvedIdentityContext();
@@ -27,6 +29,7 @@ export function useEducationalIdentityArgs() {
       socialIdentity,
       socialIdentityLoading,
       oidcAuthLoading,
+      idToken,
       address,
       owner,
       walletEntryLinkedAlias: Boolean(isWalletEntryLinkedAlias),
@@ -38,6 +41,7 @@ export function useEducationalIdentityArgs() {
       socialIdentity,
       socialIdentityLoading,
       oidcAuthLoading,
+      idToken,
       address,
       owner,
       isWalletEntryLinkedAlias,

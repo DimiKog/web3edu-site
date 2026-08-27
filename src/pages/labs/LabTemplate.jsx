@@ -85,6 +85,12 @@ const LabTemplate = ({
 
     const handleStartLab = useCallback(async () => {
         if (!labId || !identityAddress) return;
+        const idToken =
+            typeof identityArgs.idToken === "string" && identityArgs.idToken.trim()
+                ? identityArgs.idToken.trim()
+                : null;
+        if (!idToken) return;
+
         const guardKey = `${String(labId)}:${identityAddress}`;
         if (manualStartGuardRef.current === guardKey) return;
         manualStartGuardRef.current = guardKey;
@@ -94,8 +100,12 @@ const LabTemplate = ({
                 apiBase: API_BASE,
                 labId,
                 ...identityArgs,
+                idToken,
             });
             if (!res.ok && res.status !== 204) {
+                manualStartGuardRef.current = null;
+            }
+            if (res.status === 204) {
                 manualStartGuardRef.current = null;
             }
         } catch (err) {

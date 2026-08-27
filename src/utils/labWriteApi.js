@@ -29,6 +29,21 @@ function educationalIdentityFields(args = {}) {
   };
 }
 
+/** Same Bearer pattern as socialIdentity.js / identityLink.js — not a second auth system. */
+function buildLabWriteAuthHeaders(idToken) {
+  if (!idToken || typeof idToken !== "string" || !idToken.trim()) {
+    return null;
+  }
+  return {
+    Authorization: `Bearer ${idToken.trim()}`,
+    "Content-Type": "application/json",
+  };
+}
+
+function normalizeIdToken(idToken) {
+  return typeof idToken === "string" && idToken.trim() ? idToken.trim() : null;
+}
+
 function labStartSessionStorageKey(labId, identityInput) {
   const id = normalizeEvmAddress(identityInput);
   const lid = String(labId ?? "").trim();
@@ -52,10 +67,11 @@ export function getLabsStatusReadIdentity(args = {}) {
 }
 
 /**
- * POST /labs/start — identity input as `wallet` + optional EOA `owner`.
+ * POST /labs/start — Keycloak Bearer required; identity input as `wallet` +
+ * optional EOA `owner` (compatibility only; backend ignores for destination).
  *
- * Backend canonicalizes. Session dedupe keys on the identity input, not on
- * a device-local smartAccount that might differ from SocialIdentity AA.
+ * Returns HTTP 204 Response when identity or idToken is not ready (caller should
+ * defer / retry). Session dedupe keys on the identity input.
  */
 export async function postLabsStart({
   apiBase,
@@ -69,7 +85,14 @@ export async function postLabsStart({
   oidcAuthLoading,
   walletEntryLinkedAlias,
   walletEntryResolvePending,
+  idToken,
 } = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    // Do not fire an unauthenticated write that will 401.
+    return new Response(null, { status: 204 });
+  }
+
   const input = getEducationalIdentityInput(
     educationalIdentityFields({
       smartAccount,
@@ -116,6 +139,7 @@ export async function postLabsStart({
   const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
   const startedAt = new Date().toISOString();
   const ownerPayload = input.owner;
+  const headers = buildLabWriteAuthHeaders(token);
 
   const promise = (async () => {
     try {
@@ -129,7 +153,7 @@ export async function postLabsStart({
       }
       const res = await fetch(`${base}/labs/start`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
@@ -152,6 +176,74 @@ export async function postLabsStart({
 
   inFlightLabStarts.set(storageKey, promise);
   return promise;
+}
+
+/**
+ * POST /labs/complete — Keycloak Bearer required.
+ * wallet/owner remain for staged compatibility; backend derives destination from token.
+ *
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function postLabsComplete({
+  apiBase,
+  labId,
+  wallet,
+  owner,
+  message,
+  signature,
+  completedAt,
+  idToken,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+  const lid = String(labId ?? "").trim();
+  if (!lid) {
+    return {
+      ok: false,
+      status: 400,
+      data: { error: "missing_lab" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  const body = { labId: lid };
+  const walletPayload = normalizeEvmAddress(wallet);
+  if (walletPayload) body.wallet = walletPayload;
+  const ownerPayload = normalizeEvmAddress(owner);
+  if (ownerPayload) body.owner = ownerPayload;
+  if (message != null) body.message = message;
+  if (signature != null) body.signature = signature;
+  if (completedAt != null) body.completedAt = completedAt;
+
+  try {
+    const res = await fetch(`${base}/labs/complete`, {
+      method: "POST",
+      headers: buildLabWriteAuthHeaders(token),
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (import.meta.env.DEV && data?.identityKey != null) {
+      // eslint-disable-next-line no-console -- backend integration diagnostic
+      console.log("LAB IDENTITY KEY", data.identityKey);
+    }
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
 }
 
 /**

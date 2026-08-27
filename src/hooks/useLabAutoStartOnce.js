@@ -5,7 +5,7 @@ import { useEducationalIdentityArgs } from "./useEducationalIdentityArgs.js";
 
 /**
  * Fires POST /labs/start at most once per (labId, identity input) for this
- * component lifetime.
+ * component lifetime, after Keycloak idToken is available.
  *
  * `smartAccount` / `address` arguments are accepted for call-site compatibility
  * but are not used as canonical identity. Selection goes through
@@ -18,6 +18,13 @@ export function useLabAutoStartOnce({ labId } = {}) {
   useEffect(() => {
     if (!labId) return;
 
+    const idToken =
+      typeof identityArgs.idToken === "string" && identityArgs.idToken.trim()
+        ? identityArgs.idToken.trim()
+        : null;
+    // Defer until OIDC token is ready — avoid marking the pair started on a 204.
+    if (!idToken) return;
+
     const input = getEducationalIdentityInput(identityArgs);
 
     if (input.deferred || !input.ready || !input.identityInput) return;
@@ -28,7 +35,18 @@ export function useLabAutoStartOnce({ labId } = {}) {
 
     postLabsStart({
       ...identityArgs,
+      idToken,
       labId,
-    }).catch(() => {});
+    })
+      .then((res) => {
+        // Allow a later retry if deferred (204) or failed. 200 (including
+        // sessionStorage short-circuit) keeps the pair marked started.
+        if (res.status === 204 || !res.ok) {
+          startedPairRef.current = null;
+        }
+      })
+      .catch(() => {
+        startedPairRef.current = null;
+      });
   }, [labId, identityArgs]);
 }
