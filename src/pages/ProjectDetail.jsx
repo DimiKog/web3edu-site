@@ -8,7 +8,7 @@ import { keccak_256 } from "@noble/hashes/sha3";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { useEducationalIdentityArgs } from "../hooks/useEducationalIdentityArgs.js";
 import { getEducationalIdentityInput } from "../utils/educationalIdentityInput.js";
-import { getWeb3eduBackendUrl } from "../lib/web3eduBackend.js";
+import { postProjectsCompleteAnswer } from "../utils/labWriteApi.js";
 
 const capitalize = (s) =>
     typeof s === "string" && s.length > 0
@@ -331,7 +331,7 @@ export default function ProjectDetail() {
             placeholder: "Γράψτε το αποκρυπτογραφημένο μήνυμα...",
             submitting: "Υποβολή απάντησης...",
             submitButton: "Υποβολή απάντησης",
-            walletMissing: "Συνδέστε πρώτα το wallet σας.",
+            signInMissing: "Συνδεθείτε πρώτα με τον λογαριασμό σας.",
             roleMissing: "Αυτό το project είναι διαθέσιμο μόνο για Builders.",
             answerMissing: "Συμπληρώστε την απάντηση.",
             success: "Επιτυχία! Κερδίσατε",
@@ -371,7 +371,7 @@ export default function ProjectDetail() {
             placeholder: "Enter the decrypted message...",
             submitting: "Submitting answer...",
             submitButton: "Submit answer",
-            walletMissing: "Please connect your wallet first.",
+            signInMissing: "Please sign in first.",
             roleMissing: "This project is available only for Builders.",
             answerMissing: "Please enter your answer.",
             success: "Success! You earned",
@@ -479,8 +479,9 @@ export default function ProjectDetail() {
             return;
         }
 
-        if (educationalWrite.deferred || !wallet) {
-            setSubmitState({ type: "error", message: copy.walletMissing });
+        const idToken = educationalIdentityArgs.idToken;
+        if (!idToken) {
+            setSubmitState({ type: "error", message: copy.signInMissing });
             return;
         }
         if (
@@ -505,22 +506,14 @@ export default function ProjectDetail() {
             setIsSubmitting(true);
             setSubmitState(null);
 
-            const res = await fetch(
-                `${getWeb3eduBackendUrl()}/projects/complete-answer`,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        wallet,
-                        projectId: projectCompletionId,
-                        answer: cleanDecrypted,
-                    }),
-                }
-            );
+            const { ok, data } = await postProjectsCompleteAnswer({
+                projectId: projectCompletionId,
+                answer: cleanDecrypted,
+                wallet,
+                idToken,
+            });
 
-            const data = await res.json();
-
-            if (data.ok) {
+            if (ok) {
                 setSubmitState({
                     type: "success",
                     message: `${copy.success} +${data.xpAwarded} XP`,

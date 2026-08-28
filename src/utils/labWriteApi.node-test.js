@@ -57,6 +57,33 @@ test("postLabsComplete sends Authorization Bearer and keeps wallet/owner compati
   assert.match(body, /missing_bearer_token/);
 });
 
+test("postProjectsCompleteAnswer sends Authorization Bearer from idToken", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function postProjectsCompleteAnswer/);
+  const fn = src.slice(src.indexOf("export async function postProjectsCompleteAnswer"));
+  const end = fn.indexOf("export async function postLabsComplete");
+  const body = end === -1 ? fn : fn.slice(0, end);
+  assert.match(body, /normalizeIdToken\(idToken\)/);
+  assert.match(body, /fetch\(`\$\{base\}\/projects\/complete-answer`/);
+  assert.match(body, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(body, /body\.wallet\s*=/);
+  assert.equal(body.includes("X-API-KEY"), false);
+  assert.equal(body.includes("VITE_XP_SECRET"), false);
+  assert.match(body, /missing_bearer_token/);
+  assert.match(body, /if \(!token\)/);
+});
+
+test("ProjectDetail POSTs complete-answer via postProjectsCompleteAnswer with idToken", () => {
+  const detail = read(join(__dirname, "../pages/ProjectDetail.jsx"));
+  assert.match(detail, /postProjectsCompleteAnswer/);
+  assert.match(detail, /educationalIdentityArgs\.idToken/);
+  assert.match(detail, /idToken,/);
+  assert.equal(detail.includes("${getWeb3eduBackendUrl()}/projects/complete-answer"), false);
+  assert.equal(detail.includes("X-API-KEY"), false);
+  assert.equal(detail.includes("VITE_XP_SECRET"), false);
+  assert.match(detail, /signInMissing/);
+});
+
 test("useEducationalIdentityArgs exposes SocialIdentityContext idToken", () => {
   const src = read(argsHookPath);
   assert.match(src, /idToken/);
