@@ -1,1 +1,0 @@
-import{k as o}from"./index-j5fiT1dk.js";const a=[["path",{d:"M12 7v14",key:"1akyts"}],["path",{d:"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z",key:"ruj8y"}]],t=o("book-open",a);const e=[["path",{d:"M21 12a9 9 0 1 1-6.219-8.56",key:"13zald"}]],d=o("loader-circle",e);export{t as B,d as L};
