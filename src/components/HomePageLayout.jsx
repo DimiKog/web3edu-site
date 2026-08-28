@@ -1,13 +1,11 @@
 import Hero from "./Hero.jsx";
 import PageShell from "./PageShell.jsx";
-import LearningPath from "./LearningPath.jsx";
-import LearningPathGr from "./LearningPathGr.jsx";
 import DaoSection from "./DaoSection.jsx";
 import DaoSectionGR from "./DaoSectionGR.jsx";
 import SectionBadge from "./SectionBadge.jsx";
 import HomeSectionCard from "./HomeSectionCard.jsx";
 import RecentUpdatesStrip from "./RecentUpdatesStrip.jsx";
-import ChooseYourPath from "./ChooseYourPath.jsx";
+import LearningJourney from "./LearningJourney.jsx";
 import AvailableNow from "./AvailableNow.jsx";
 import TeamTrustBand from "./TeamTrustBand.jsx";
 
@@ -17,14 +15,12 @@ const HomePageLayout = ({
     heroCtaHref,
     heroCtaLabel,
     motivationHeading,
-    learnPathContent,
+    learningJourneyContent,
     daoContent,
     footerContent,
     whatsNewItems = [],
-    choosePathContent,
     availableNowContent,
     motivationBadgeLabel = "Why Web3Edu",
-    learnBadgeLabel = "Learning Journey",
     teamTrustContent,
     daoBadgeLabel = "Community Governance",
 }) => {
@@ -43,26 +39,8 @@ const HomePageLayout = ({
 
                 <div className="w-full my-8 sm:my-10" aria-hidden="true"></div>
 
-                <div id="home-explore" className="scroll-mt-28">
-                    <ChooseYourPath content={choosePathContent} />
-                </div>
+                <LearningJourney content={learningJourneyContent} />
 
-                <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
-                <div className="w-full px-6 opacity-0 animate-fadeInSlow duration-500">
-                    {isGreek ? (
-                        <LearningPathGr
-                            content={learnPathContent}
-                            badgeLabel={learnBadgeLabel}
-                            ctaHref="/#/start-here-gr"
-                        />
-                    ) : (
-                        <LearningPath
-                            content={learnPathContent}
-                            badgeLabel={learnBadgeLabel}
-                            ctaHref="/#/start-here"
-                        />
-                    )}
-                </div>
                 <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
 
                 <AvailableNow content={availableNowContent} />

@@ -7,14 +7,12 @@ const AppEN = () => (
         heroContent={en.hero}
         motivationContent={en.motivation}
         motivationHeading="Why Web3Edu"
-        learnPathContent={en.learnPath}
+        learningJourneyContent={en.learningJourney}
         daoContent={en.dao}
         footerContent={en.footer}
         whatsNewItems={en.whatsNew.items}
-        choosePathContent={en.choosePath}
         availableNowContent={en.availableNow}
         motivationBadgeLabel="Motivation"
-        learnBadgeLabel="Learning Journey"
         teamTrustContent={en.teamTrust}
         daoBadgeLabel="Community Governance"
     />

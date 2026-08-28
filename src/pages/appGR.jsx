@@ -7,14 +7,12 @@ const AppGR = () => (
         heroContent={gr.hero}
         motivationContent={gr.motivation}
         motivationHeading="Γιατί Web3Edu"
-        learnPathContent={gr.learnPath}
+        learningJourneyContent={gr.learningJourney}
         daoContent={gr.dao}
         footerContent={gr.footer}
         whatsNewItems={gr.whatsNew.items}
-        choosePathContent={gr.choosePath}
         availableNowContent={gr.availableNow}
         motivationBadgeLabel="Η Αποστολή Μας"
-        learnBadgeLabel="Μαθησιακό Ταξίδι"
         teamTrustContent={gr.teamTrust}
         daoBadgeLabel="Κοινοτική Διακυβέρνηση"
     />
