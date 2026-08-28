@@ -71,7 +71,7 @@ function normalizeAttributes(source) {
   return [];
 }
 
-async function fetchLegacyResolve({ identityAddress, resolveOwner, signal }) {
+async function fetchLegacyResolve({ identityAddress, resolveOwner, idToken, signal }) {
   const url = buildWeb3SbtResolveUrl(identityAddress, resolveOwner);
   if (import.meta.env.DEV) {
     // eslint-disable-next-line no-console -- dev-only identity diagnostics (must be visible)
@@ -79,9 +79,14 @@ async function fetchLegacyResolve({ identityAddress, resolveOwner, signal }) {
       url,
       identityAddress,
       resolveOwner,
+      hasBearer: Boolean(idToken),
     });
   }
-  const res = await fetch(url, { signal, cache: "no-store" });
+  const headers = {};
+  if (idToken && typeof idToken === "string" && idToken.trim()) {
+    headers.Authorization = `Bearer ${idToken.trim()}`;
+  }
+  const res = await fetch(url, { signal, cache: "no-store", headers });
   if (!res.ok) {
     const payload = await res.json().catch(() => ({}));
     throw createBackendError(res.status, payload);
@@ -116,8 +121,9 @@ async function fetchLegacyResolve({ identityAddress, resolveOwner, signal }) {
 /**
  * @param {string|null|undefined} identityAddress — canonical smart account ONLY (no owner fallback)
  * @param {string|null|undefined} resolveOwner — optional EOA for `?owner=` on /web3sbt/resolve (backend may require it for founder / full passport)
+ * @param {string|null|undefined} idToken — optional Keycloak id_token for authenticated self-resolve PoE reconciliation
  */
-export function useResolvedIdentity(identityAddress, resolveOwner = null) {
+export function useResolvedIdentity(identityAddress, resolveOwner = null, idToken = null) {
   const [metadata, setMetadata] = useState(null);
   const [profile, setProfile] = useState(null);
   const [resolveData, setResolveData] = useState(null);
@@ -134,6 +140,12 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
     () => normalizeEvmAddress(resolveOwner),
     [resolveOwner]
   );
+
+  const bearerToken = useMemo(() => {
+    if (!idToken || typeof idToken !== "string") return null;
+    const trimmed = idToken.trim();
+    return trimmed || null;
+  }, [idToken]);
 
   const resolveKey = useMemo(() => {
     if (!canonId) return null;
@@ -218,6 +230,7 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
         const dashboardData = await fetchLegacyResolve({
           identityAddress: canonId,
           resolveOwner: canonResolveOwner,
+          idToken: bearerToken,
           signal: controller.signal,
         });
 
@@ -463,7 +476,7 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null) {
         resolveGenerationRef.current += 1;
       }
     };
-  }, [resolveKey, canonId, canonResolveOwner, refetchBump]);
+  }, [resolveKey, canonId, canonResolveOwner, bearerToken, refetchBump]);
 
   return { metadata, profile, resolveData, loading, error, refetch };
 }

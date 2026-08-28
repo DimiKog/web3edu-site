@@ -30,7 +30,7 @@ function educationalIdentityFields(args = {}) {
 }
 
 /** Same Bearer pattern as socialIdentity.js / identityLink.js — not a second auth system. */
-function buildLabWriteAuthHeaders(idToken) {
+export function buildLabWriteAuthHeaders(idToken) {
   if (!idToken || typeof idToken !== "string" || !idToken.trim()) {
     return null;
   }
@@ -228,6 +228,55 @@ export async function postProjectsCompleteAnswer({
       data,
     };
   } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
+
+/**
+ * GET /projects/poe/status — optional Bearer for authenticated Web3Edu reconciliation.
+ * Without idToken the call is read-only (stored completion only).
+ *
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function fetchProjectsPoeStatus({
+  apiBase,
+  address,
+  idToken,
+  signal,
+} = {}) {
+  const addr = normalizeEvmAddress(address);
+  if (!addr) {
+    return {
+      ok: false,
+      status: 400,
+      data: { error: "missing_address" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  const params = new URLSearchParams({ address: addr });
+  const headers = buildLabWriteAuthHeaders(idToken) ?? { "Content-Type": "application/json" };
+
+  try {
+    const res = await fetch(`${base}/projects/poe/status?${params.toString()}`, {
+      method: "GET",
+      headers,
+      signal,
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok !== false,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    if (err?.name === "AbortError") {
+      throw err;
+    }
     return {
       ok: false,
       status: 0,

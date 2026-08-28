@@ -18,6 +18,7 @@ import {
     getSocialIdentityWalletAddress,
 } from "../utils/socialIdentityPayload.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
+import { fetchProjectsPoeStatus } from "../utils/labWriteApi.js";
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 
 const BACKEND = getWeb3eduBackendUrl();
@@ -112,7 +113,7 @@ export default function Labs({ lang = "en" }) {
     const { owner, identityHydrated } = useIdentity();
     const { address } = useAccount();
     const { canonicalIdentityAddress } = useResolvedIdentityContext();
-    const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
+    const { socialIdentity, isOidcAuthenticated, idToken: oidcIdToken } = useSocialIdentity();
 
     const socialAaAddress = useMemo(
         () => normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity)),
@@ -238,16 +239,14 @@ export default function Labs({ lang = "en" }) {
 
         const controller = new AbortController();
 
-        const poeParams = new URLSearchParams({ address: poeAddress });
-
-        fetch(`${BACKEND}/projects/poe/status?${poeParams.toString()}`, {
+        void fetchProjectsPoeStatus({
+            apiBase: BACKEND,
+            address: poeAddress,
+            idToken: oidcIdToken,
             signal: controller.signal,
         })
-            .then((res) => {
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            })
-            .then((data) => {
+            .then(({ ok, data }) => {
+                if (!ok) throw new Error("PoE status request failed");
                 setPoeCompleted(Boolean(data?.completed));
             })
             .catch((err) => {
@@ -257,7 +256,7 @@ export default function Labs({ lang = "en" }) {
             });
 
         return () => controller.abort();
-    }, [identityAddress, resolveOwner, socialIdentity]);
+    }, [identityAddress, resolveOwner, socialIdentity, oidcIdToken]);
 
     const groupedLabs = useMemo(() => {
         const groups = new Map();

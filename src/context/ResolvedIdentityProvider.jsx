@@ -28,7 +28,7 @@ import {
 export function ResolvedIdentityProvider({ children }) {
   const { smartAccount, owner, identityHydrated, identity } = useIdentity();
   const { address, isConnected } = useAccount();
-  const { socialIdentity, isOidcAuthenticated, oidcAuthLoading } = useSocialIdentity();
+  const { socialIdentity, isOidcAuthenticated, oidcAuthLoading, idToken } = useSocialIdentity();
   const [, setViewerModeEpoch] = useState(0);
 
   useEffect(() => {
@@ -171,7 +171,11 @@ export function ResolvedIdentityProvider({ children }) {
   }, [identityAddress, resolveOwner]);
 
   const { metadata, profile, resolveData, loading, error, refetch } =
-    useResolvedIdentity(identityAddress, resolveOwner);
+    useResolvedIdentity(
+      identityAddress,
+      resolveOwner,
+      isOidcAuthenticated ? idToken : null
+    );
 
   const walletTier = metadata?.tier ?? "Explorer";
   const syncIssueVisible = error === "user_state_unavailable";

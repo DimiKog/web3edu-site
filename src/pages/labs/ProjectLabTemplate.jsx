@@ -13,6 +13,7 @@ import {
 } from "../../utils/socialIdentityPayload.js";
 import { readConnectedEoaAddress } from "../../utils/aaIdentity.js";
 import { buildResolveOwner } from "../../lib/web3eduBackend.js";
+import { fetchProjectsPoeStatus } from "../../utils/labWriteApi.js";
 
 /**
  * ProjectLabTemplate
@@ -46,7 +47,7 @@ const ProjectLabTemplate = ({
     const { address, isConnected } = useAccount();
     const { owner, identityHydrated } = useIdentity();
     const { canonicalIdentityAddress } = useResolvedIdentityContext();
-    const { socialIdentity } = useSocialIdentity();
+    const { socialIdentity, idToken: oidcIdToken } = useSocialIdentity();
 
     const socialAaAddress = normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity));
     const socialOwner = normalizeEvmAddress(getSocialIdentityOwnerAddress(socialIdentity));
@@ -102,14 +103,13 @@ const ProjectLabTemplate = ({
                     setCheckingStatus(false);
                     return;
                 }
-                const params = new URLSearchParams({ address: effectiveAddress });
-                const res = await fetch(
-                    `${verifyEndpoint}?${params.toString()}`
-                );
+                const { ok, data } = await fetchProjectsPoeStatus({
+                    address: effectiveAddress,
+                    idToken: oidcIdToken,
+                });
 
-                if (!res.ok) return;
+                if (!ok) return;
 
-                const data = await res.json();
                 if (data.completed) {
                     setCompleted(true);
 
@@ -126,7 +126,7 @@ const ProjectLabTemplate = ({
         };
 
         checkCompletion();
-    }, [address, isConnected, projectId, verifyEndpoint, identityAddress, resolveOwner, identityHydrated, socialIdentity]);
+    }, [address, isConnected, projectId, verifyEndpoint, identityAddress, resolveOwner, identityHydrated, socialIdentity, oidcIdToken]);
 
     return (
         <PageShell>

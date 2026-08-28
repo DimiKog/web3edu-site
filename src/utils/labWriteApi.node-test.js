@@ -120,6 +120,36 @@ test("LabCompletionClaim uses postLabsComplete with Bearer idToken", () => {
   assert.equal(src.includes("${BACKEND}/labs/complete"), false);
 });
 
+test("fetchProjectsPoeStatus sends Authorization Bearer when idToken present", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function fetchProjectsPoeStatus/);
+  const fn = src.slice(src.indexOf("export async function fetchProjectsPoeStatus"));
+  const end = fn.indexOf("export async function postLabsComplete");
+  const body = end === -1 ? fn : fn.slice(0, end);
+  assert.match(body, /buildLabWriteAuthHeaders\(idToken\)/);
+  assert.match(body, /\/projects\/poe\/status\?/);
+});
+
+test("useResolvedIdentity sends Bearer on self /web3sbt/resolve when idToken provided", () => {
+  const src = read(join(__dirname, "../hooks/useResolvedIdentity.js"));
+  assert.match(src, /idToken: bearerToken/);
+  assert.match(src, /headers\.Authorization = `Bearer \$\{idToken\.trim\(\)\}`/);
+});
+
+test("ResolvedIdentityProvider passes idToken only when OIDC authenticated", () => {
+  const src = read(join(__dirname, "../context/ResolvedIdentityProvider.jsx"));
+  assert.match(src, /isOidcAuthenticated \? idToken : null/);
+});
+
+test("Labs and ProjectLabTemplate use fetchProjectsPoeStatus with idToken", () => {
+  const labs = read(join(__dirname, "../pages/Labs.jsx"));
+  const template = read(join(__dirname, "../pages/labs/ProjectLabTemplate.jsx"));
+  assert.match(labs, /fetchProjectsPoeStatus/);
+  assert.match(labs, /idToken: oidcIdToken/);
+  assert.match(template, /fetchProjectsPoeStatus/);
+  assert.match(template, /idToken: oidcIdToken/);
+});
+
 test("OIDC social AA identity input remains preferred (Case A / Case B compatible)", () => {
   // Source-level contract: educational helper still prefers social AA when present.
   const edu = read(join(__dirname, "educationalIdentityInput.js"));
