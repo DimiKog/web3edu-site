@@ -5,11 +5,13 @@ const gr = {
     hero: {
         lang: "gr",
         welcome: "Καλώς ήρθατε στο Web3Edu",
-        headline: "Τεχνική μάθηση με επαληθεύσιμη πρόοδο, που εξελίσσεται μαζί σου",
-        tagline: "Απόδειξη μάθησης, όχι απλή απόδειξη συμμετοχής",
-        desc: "Εξερεύνησε hands-on τεχνική μάθηση με επαληθεύσιμα, evidence-backed αρχεία προόδου σε labs, εργαλεία και εφαρμοσμένα projects.",
-        entryNote: "Ξεκίνα με Google sign-in μέσω Web3Edu Identity ή σύνδεσε wallet αν προτιμάς wallet-first διαδρομή.",
-        cta: "Ξεκινήστε να μαθαίνετε",
+        headline: "Μάθε Web3 στην πράξη.\nΑπόδειξε όσα μαθαίνεις.",
+        tagline: "Απόδειξη μάθησης, όχι απλή παρουσία",
+        desc: "Μάθε blockchain μέσα από πραγματικά labs, on-chain δραστηριότητες και εφαρμοσμένα projects — με επαληθεύσιμη πρόοδο που γίνεται μέρος της Web3Edu μαθησιακής σου ταυτότητας.",
+        cta: "Ξεκίνα να μαθαίνεις",
+        ctaHref: "/#/start-here-gr",
+        secondaryCta: "Εξερεύνησε το Web3Edu",
+        exploreSectionId: "home-explore",
     },
 
     // -------------------------

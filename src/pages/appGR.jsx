@@ -5,8 +5,6 @@ import gr from "../content/gr.js";
 const AppGR = () => (
     <HomePageLayout
         heroContent={gr.hero}
-        heroCtaHref="/#/join-gr"
-        heroCtaLabel="Απέκτησε την Ταυτότητα σου στο Web3Edu"
         motivationContent={gr.motivation}
         motivationHeading="Γιατί Web3Edu"
         learnPathContent={gr.learnPath}

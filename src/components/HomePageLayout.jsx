@@ -43,7 +43,9 @@ const HomePageLayout = ({
 
                 <div className="w-full my-8 sm:my-10" aria-hidden="true"></div>
 
-                <ChooseYourPath content={choosePathContent} />
+                <div id="home-explore" className="scroll-mt-28">
+                    <ChooseYourPath content={choosePathContent} />
+                </div>
 
                 <div className="w-full h-px my-8 sm:my-10 bg-gradient-to-r from-transparent via-[#8A57FF]/40 to-transparent opacity-60"></div>
                 <div className="w-full px-6 opacity-0 animate-fadeInSlow duration-500">

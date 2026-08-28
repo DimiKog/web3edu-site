@@ -4,11 +4,13 @@ const en = {
     // -------------------------
     hero: {
         welcome: "Welcome to Web3Edu",
-        headline: "Evidence-backed technical learning that grows with your progress",
+        headline: "Learn Web3 by doing it.\nBuild proof of what you learn.",
         tagline: "Proof of learning, not proof of attendance",
-        desc: "Explore hands-on technical learning with verifiable, evidence-backed progress records across labs, tools, and applied projects.",
-        entryNote: "Start with Google sign-in through Web3Edu Identity, or connect a wallet if you prefer a wallet-first path.",
+        desc: "Hands-on blockchain learning through real labs, on-chain activities, and applied projects — with verifiable progress that becomes part of your Web3Edu learning identity.",
         cta: "Start Learning",
+        ctaHref: "/#/start-here",
+        secondaryCta: "Explore Web3Edu",
+        exploreSectionId: "home-explore",
     },
 
     // -------------------------

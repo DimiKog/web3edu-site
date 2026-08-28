@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { FaDiscord } from "react-icons/fa";
 import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
 import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
 
@@ -20,21 +19,22 @@ const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
     if (!content) return null;
 
     const isGreek = content?.lang === "gr";
-    const resolvedCtaHref = ctaHref ?? (isGreek ? "/#/start-here-gr" : "/#/start-here");
-    const ctaLabel = ctaOverride ?? content.cta ?? (
-        isGreek
-            ? "Απέκτησε την Ταυτότητα σου στο Web3Edu"
-            : "Get Your Web3Edu Identity"
-    );
-    const headline = content.headline ?? (
-        isGreek
-            ? "Ένα Web3-native μαθησιακό identity\nπου εξελίσσεται με το οικοσύστημα"
-            : "A Web3-native learning identity\nthat grows with the ecosystem"
-    );
+    const resolvedCtaHref =
+        ctaHref ?? content.ctaHref ?? (isGreek ? "/#/start-here-gr" : "/#/start-here");
+    const ctaLabel =
+        ctaOverride ??
+        content.cta ??
+        (isGreek ? "Ξεκίνα να μαθαίνεις" : "Start Learning");
+    const headline = content.headline ?? "";
     const headlineLines = headline.split("\n");
-    const discordLabel = isGreek
-        ? "Μπείτε στην Κοινότητα Web3Edu"
-        : "Join the Web3Edu Community";
+    const secondaryCtaLabel = content.secondaryCta;
+    const exploreSectionId = content.exploreSectionId;
+
+    const handleExploreClick = (event) => {
+        if (!exploreSectionId) return;
+        event.preventDefault();
+        document.getElementById(exploreSectionId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
 
     return (
         <header className="w-full py-20 sm:py-28 px-4 sm:px-6 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#081018] overflow-hidden rounded-b-[80px] lg:rounded-b-[120px] relative z-10">
@@ -50,9 +50,7 @@ const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
                 <div className="absolute w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-[#4ACBFF]/20 blur-2xl animate-pulse-slow2 bottom-10 right-20"></div>
             </div>
 
-            {/* HOLOGRAM SHIMMER LINE */}
-
-            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-between gap-16">
+            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 sm:gap-16">
 
                 {/* LEFT SIDE — Logo + Tagline */}
                 <div className="flex flex-col items-center lg:items-center text-center lg:text-center gap-4">
@@ -84,7 +82,7 @@ const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
                     <p className="text-sm uppercase tracking-widest text-slate-100 animate-fade-up">
                         {content.welcome}
                     </p>
-                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-tight lg:leading-[1.05] bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text drop-shadow-[0_0_25px_rgba(74,203,255,.28)] animate-fade-up delay-150">
+                    <h1 className="mx-auto max-w-[12ch] text-pretty text-3xl font-extrabold leading-snug tracking-tight bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(74,203,255,.28)] animate-fade-up delay-150 sm:mx-0 sm:max-w-none sm:text-5xl sm:leading-tight lg:text-5xl lg:leading-[1.05] xl:text-6xl">
                         {headlineLines.map((line, idx) => (
                             <span key={`${line}-${idx}`}>
                                 {line}
@@ -97,30 +95,25 @@ const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
                         {content.desc}
                     </p>
 
-                    <div className="flex flex-col sm:flex-row items-center gap-3 animate-fade-up delay-300">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto animate-fade-up delay-300">
                         <a
                             href={resolvedCtaHref}
                             aria-label={ctaLabel}
-                            className="inline-flex items-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300"
+                            className="inline-flex items-center justify-center gap-2 px-8 py-3 sm:px-10 sm:py-4 rounded-full bg-gradient-to-r from-[#FF4FCC] via-[#8A57FF] to-[#36BEEB] hover:from-[#FF4FCC] hover:via-[#7A3FEF] hover:to-[#36BEEB] text-white font-semibold shadow-xl shadow-[0_0_40px_rgba(138,87,255,0.40)] transition duration-300"
                         >
                             🚀 {ctaLabel}
                         </a>
-                        <a
-                            href="https://discord.gg/V3DuwaTUM5"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={discordLabel}
-                            className="inline-flex items-center gap-2 px-7 py-3 sm:px-8 sm:py-4 rounded-full border border-white/35 bg-white/10 hover:bg-white/15 text-white font-semibold backdrop-blur-md transition duration-300"
-                        >
-                            <FaDiscord className="h-4 w-4" aria-hidden="true" />
-                            {discordLabel}
-                        </a>
+                        {secondaryCtaLabel && exploreSectionId ? (
+                            <a
+                                href={`#${exploreSectionId}`}
+                                onClick={handleExploreClick}
+                                aria-label={secondaryCtaLabel}
+                                className="inline-flex items-center justify-center gap-2 px-7 py-3 sm:px-8 sm:py-4 rounded-full border border-white/35 bg-white/10 hover:bg-white/15 text-white font-semibold backdrop-blur-md transition duration-300"
+                            >
+                                {secondaryCtaLabel}
+                            </a>
+                        ) : null}
                     </div>
-                    {content.entryNote && (
-                        <p className="max-w-xl text-sm font-medium leading-6 text-slate-200/85 animate-fade-up delay-300">
-                            {content.entryNote}
-                        </p>
-                    )}
                 </div>
 
             </div>
