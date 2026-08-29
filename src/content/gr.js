@@ -92,51 +92,58 @@ const gr = {
 
     availableNow: {
         badge: "Διαθέσιμο Τώρα",
-        title: "Τι μπορείς να χρησιμοποιήσεις σήμερα",
+        title: "Τι μπορείς να κάνεις σήμερα",
         description:
-            "Ξεκίνα από τις ενεργές περιοχές μάθησης: labs, visual tools, Proof of Escape, identity tracking και Builder projects που ξεκλειδώνουν με την πρόοδο.",
-        items: [
+            "Μάθε, δημιούργησε και επαλήθευσε την πρόοδό σου σε ένα πραγματικό Web3 μαθησιακό περιβάλλον.",
+        capabilities: [
             {
+                id: "labs",
                 icon: "labs",
-                title: "Labs",
-                description: "Foundational, system, DAO, coding και project labs σε μία μαθησιακή περιοχή.",
-                href: "/#/labs-gr",
-                cta: "Εξερεύνηση Labs",
-                meta: "Live",
+                title: "Hands-on Labs",
+                description:
+                    "Μάθε έννοιες του blockchain μέσα από καθοδηγούμενες πρακτικές δραστηριότητες, από τις βασικές αρχές έως το deployment και την αλληλεπίδραση με smart contracts.",
+                cta: { label: "Εξερεύνησε τα Labs", href: "/#/labs-gr" },
             },
             {
-                icon: "poe",
-                title: "Proof of Escape",
-                description: "Μια εφαρμοσμένη on-chain πρόκληση που επαληθεύει έννοιες Web3 μέσα από αλληλεπίδραση.",
-                href: "/#/labs-gr/proof-of-escape",
-                cta: "Άνοιγμα Challenge",
-                meta: "Live",
+                id: "onchain",
+                icon: "onchain",
+                title: "Blockchain στην πράξη",
+                description:
+                    "Χρησιμοποίησε wallets, transactions και smart contracts στο ζωντανό Besu Edu-Net, δουλεύοντας με πραγματική blockchain υποδομή.",
+                cta: { label: "Ξεκίνα να μαθαίνεις", href: "/#/start-here-gr" },
             },
             {
-                icon: "tools",
-                title: "Developer Tools",
-                description: "Mining και PoS visualizers για να εξετάζεις τους μηχανισμούς του πρωτοκόλλου βήμα προς βήμα.",
-                href: "/#/tools-gr",
-                cta: "Άνοιγμα Εργαλείων",
-                meta: "2 tools",
+                id: "progress",
+                icon: "progress",
+                title: "Επαληθεύσιμη Πρόοδος",
+                description:
+                    "Η ολοκληρωμένη δουλειά σου μετατρέπεται σε XP, επιτεύγματα και τεκμηριωμένη μαθησιακή πρόοδο — όχι απλώς σε καταγραφή παρουσίας.",
             },
             {
-                icon: "projects",
-                title: "Projects",
-                description: "Builder-level investigation challenges που ξεκλειδώνουν όσο προχωρά η πρόοδος.",
-                href: "/#/projects-gr",
-                cta: "Δες τα Projects",
-                meta: "Gated",
-            },
-            {
+                id: "identity",
                 icon: "identity",
-                title: "Identity & Dashboard",
-                description: "Χρησιμοποίησε Google sign-in ή wallet access για ταυτότητα, XP, ολοκληρωμένα labs και επόμενα βήματα.",
-                href: "/#/dashboard-gr",
-                cta: "Άνοιγμα Dashboard",
-                meta: "Live",
+                title: "Web3Edu Μαθησιακή Ταυτότητα",
+                description:
+                    "Χτίσε ένα διαρκές μαθησιακό προφίλ όπου συγκεντρώνονται επιτεύγματα και credentials, με σημαντικά ορόσημα που αγκυρώνονται on-chain.",
+                cta: { label: "Web3Edu Ταυτότητα", href: "/#/join-gr" },
             },
         ],
+        alsoExplore: {
+            label: "Εξερεύνησε επίσης",
+            links: [
+                { label: "Proof of Escape", href: "/#/labs-gr/proof-of-escape" },
+                { label: "Developer Tools", href: "/#/tools-gr" },
+                { label: "Builder Projects", href: "/#/projects-gr" },
+            ],
+        },
+        productPreview: {
+            eyebrow: "Μέσα στο Web3Edu",
+            title: "Πραγματική πρόοδος. Επαληθεύσιμα ορόσημα.",
+            description:
+                "Η μαθησιακή σου διαδρομή, τα XP, τα επιτεύγματα και το επαληθεύσιμο προφίλ σου συνδυάζονται σε ένα ενιαίο μαθησιακό περιβάλλον.",
+            dashboardAlt: "Web3Edu dashboard με επόμενα βήματα, πρόοδο, XP και badges",
+            profileAlt: "Web3Edu επαληθεύσιμο προφίλ με verified milestone status",
+        },
     },
 
     teamTrust: {

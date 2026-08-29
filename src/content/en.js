@@ -91,51 +91,58 @@ With evidence-backed progress records and structured contribution paths, learnin
 
     availableNow: {
         badge: "Available Now",
-        title: "What you can use today",
+        title: "What you can do today",
         description:
-            "Start with the live learning areas: labs, visual tools, Proof of Escape, identity tracking, and Builder projects that unlock as you progress.",
-        items: [
+            "Learn, build, and verify your progress in a live Web3 learning environment.",
+        capabilities: [
             {
+                id: "labs",
                 icon: "labs",
-                title: "Labs",
-                description: "Foundational, system, DAO, coding, and project labs in one learning area.",
-                href: "/#/labs",
-                cta: "Explore Labs",
-                meta: "Live",
+                title: "Hands-on Labs",
+                description:
+                    "Learn blockchain concepts through guided practical activities, from fundamentals to smart-contract deployment and interaction.",
+                cta: { label: "Explore Labs", href: "/#/labs" },
             },
             {
-                icon: "poe",
-                title: "Proof of Escape",
-                description: "An applied on-chain challenge that validates Web3 concepts through interaction.",
-                href: "/#/labs/proof-of-escape",
-                cta: "Open Challenge",
-                meta: "Live",
+                id: "onchain",
+                icon: "onchain",
+                title: "Real On-chain Work",
+                description:
+                    "Use wallets, transactions, smart contracts, and the live Besu Edu-Net instead of simulated blockchain workflows.",
+                cta: { label: "Start Learning", href: "/#/start-here" },
             },
             {
-                icon: "tools",
-                title: "Developer Tools",
-                description: "Mining and PoS visualizers for inspecting protocol behavior step by step.",
-                href: "/#/tools",
-                cta: "Open Tools",
-                meta: "2 tools",
+                id: "progress",
+                icon: "progress",
+                title: "Verifiable Progress",
+                description:
+                    "Completed work becomes XP, achievements, and evidence-backed learning progress — not simply a record of attendance.",
             },
             {
-                icon: "projects",
-                title: "Projects",
-                description: "Builder-level investigation challenges that unlock as learners progress.",
-                href: "/#/projects",
-                cta: "View Projects",
-                meta: "Gated",
-            },
-            {
+                id: "identity",
                 icon: "identity",
-                title: "Identity & Dashboard",
-                description: "Use Google sign-in or wallet access to track identity, XP, completed labs, and next recommendations.",
-                href: "/#/dashboard",
-                cta: "Go to Dashboard",
-                meta: "Live",
+                title: "Web3Edu Learning Identity",
+                description:
+                    "Build a persistent learning profile where achievements and credentials accumulate, with key milestones anchored on-chain.",
+                cta: { label: "Web3Edu Identity", href: "/#/join" },
             },
         ],
+        alsoExplore: {
+            label: "Also explore",
+            links: [
+                { label: "Proof of Escape", href: "/#/labs/proof-of-escape" },
+                { label: "Developer Tools", href: "/#/tools" },
+                { label: "Builder Projects", href: "/#/projects" },
+            ],
+        },
+        productPreview: {
+            eyebrow: "Inside Web3Edu",
+            title: "Real progress. Verifiable milestones.",
+            description:
+                "Your learning path, XP, achievements, and verifiable profile come together in one learning environment.",
+            dashboardAlt: "Web3Edu dashboard showing next steps, progress, XP, and badges",
+            profileAlt: "Web3Edu verifiable profile with verified milestone status",
+        },
     },
 
     teamTrust: {
