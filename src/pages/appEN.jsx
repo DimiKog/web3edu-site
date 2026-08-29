@@ -14,7 +14,7 @@ const AppEN = () => (
         availableNowContent={en.availableNow}
         motivationBadgeLabel="Motivation"
         teamTrustContent={en.teamTrust}
-        daoBadgeLabel="Community Governance"
+        daoBadgeLabel="Governance Research"
     />
 );
 

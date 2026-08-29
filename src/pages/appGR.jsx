@@ -14,7 +14,7 @@ const AppGR = () => (
         availableNowContent={gr.availableNow}
         motivationBadgeLabel="Η Αποστολή Μας"
         teamTrustContent={gr.teamTrust}
-        daoBadgeLabel="Κοινοτική Διακυβέρνηση"
+        daoBadgeLabel="Έρευνα Διακυβέρνησης"
     />
 );
 
