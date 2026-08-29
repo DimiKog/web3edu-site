@@ -173,6 +173,15 @@ With evidence-backed progress records and structured contribution paths, learnin
     whatsNew: {
         items: [
             {
+                id: "walletless-first-learning",
+                category: "update",
+                date: "2026-08-29",
+                title: "Walletless-first learning",
+                description: "Start with your Web3Edu Account and connect a wallet only when a learning activity needs Web3 interaction.",
+                href: "#/start-here",
+                cta: "Start Here",
+            },
+            {
                 id: "easier-web3edu-sign-in",
                 category: "identity",
                 date: "2026-05-08",

@@ -174,6 +174,15 @@ const gr = {
     whatsNew: {
         items: [
             {
+                id: "walletless-first-learning",
+                category: "update",
+                date: "2026-08-29",
+                title: "Walletless-first μάθηση",
+                description: "Ξεκίνα με τον Web3Edu Account σου και σύνδεσε πορτοφόλι μόνο όταν μια μαθησιακή δραστηριότητα χρειάζεται Web3 αλληλεπίδραση.",
+                href: "#/start-here-gr",
+                cta: "Ξεκίνα εδώ",
+            },
+            {
                 id: "easier-web3edu-sign-in",
                 category: "identity",
                 date: "2026-05-08",
