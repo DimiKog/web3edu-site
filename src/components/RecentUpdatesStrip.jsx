@@ -46,7 +46,7 @@ const RecentUpdatesStrip = ({ items = [], isGreek = false }) => {
                         <div className="min-w-0 flex-1">
                             <div className="mb-2 flex flex-wrap items-center gap-2">
                                 <span className="rounded-full border border-cyan-300/70 bg-cyan-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-800 dark:border-cyan-300/30 dark:bg-cyan-400/10 dark:text-cyan-200">
-                                    {isGreek ? "Προστέθηκε πρόσφατα" : "Recently Added"}
+                                    {isGreek ? "Τι νέο υπάρχει" : "What's New"}
                                 </span>
                                 <span className="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700 dark:border-indigo-300/20 dark:bg-indigo-400/10 dark:text-indigo-200">
                                     {featuredCategory}

@@ -157,9 +157,9 @@ With evidence-backed progress records and structured contribution paths, learnin
     // DAO SECTION
     // -------------------------
     dao: {
-        title: "Future Participation & Governance Research",
-        desc: "Web3Edu explores how learners, educators, and researchers can participate in decisions around learning paths, pilots, and platform rules after progress has been established through evidence-backed activity.",
-        imageCaption: "A research track for participation models, governance experiments, and community feedback loops.",
+        title: "Future Participation & Governance",
+        desc: "Web3Edu explores how verified learning activity could support future participation in decisions around learning paths, pilots, and platform governance.",
+        imageCaption: "Research into participation models, governance experiments, and community feedback loops.",
         buttons: {
             learn: "Read the Governance Research",
             enter: "Explore Participation Preview",
