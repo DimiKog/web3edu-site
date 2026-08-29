@@ -93,7 +93,7 @@ const StartHereGR = () => {
                                             </span>
                                         </div>
                                         <p className="mt-1 text-xs text-white/70">
-                                            Χρησιμοποίησε Google Sign-In για πιο γρήγορη πρόσβαση. Το Account Abstraction υποστηρίζει πιο ομαλή πορεία προς wallet-based μαθησιακή ταυτότητα.
+                                            Χρησιμοποίησε Google Sign-In για πιο γρήγορη πρόσβαση. Το Account Abstraction υποστηρίζει μια πιο ομαλή εμπειρία μάθησης στο Web3Edu, χωρίς να απαιτείται εξωτερικό πορτοφόλι για να ξεκινήσεις.
                                         </p>
                                     </div>
                                     <div className="rounded-xl border border-[#4ACBFF]/30 bg-[#4ACBFF]/10 p-4">

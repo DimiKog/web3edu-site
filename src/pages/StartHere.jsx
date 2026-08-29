@@ -93,7 +93,7 @@ const StartHere = () => {
                                             </span>
                                         </div>
                                         <p className="mt-1 text-xs text-white/70">
-                                            Use Google Sign-In for faster access. Account Abstraction supports a smoother path toward wallet-based learning identity.
+                                            Use Google Sign-In for faster access. Account Abstraction supports a smoother Web3Edu learning experience without requiring an external wallet to get started.
                                         </p>
                                     </div>
                                     <div className="rounded-xl border border-[#4ACBFF]/30 bg-[#4ACBFF]/10 p-4">
