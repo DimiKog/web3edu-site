@@ -4,11 +4,13 @@ const en = {
     // -------------------------
     hero: {
         welcome: "Welcome to Web3Edu",
-        headline: "Evidence-backed technical learning that grows with your progress",
+        headline: "Learn Web3 by doing it.\nBuild proof of what you learn.",
         tagline: "Proof of learning, not proof of attendance",
-        desc: "Explore hands-on technical learning with verifiable, evidence-backed progress records across labs, tools, and applied projects.",
-        entryNote: "Start with Google sign-in through Web3Edu Identity, or connect a wallet if you prefer a wallet-first path.",
+        desc: "Hands-on blockchain learning through real labs, on-chain activities, and applied projects — with verifiable progress that becomes part of your Web3Edu learning identity.",
         cta: "Start Learning",
+        ctaHref: "/#/start-here",
+        secondaryCta: "Explore Web3Edu",
+        exploreSectionId: "home-explore",
     },
 
     // -------------------------
@@ -41,124 +43,106 @@ With evidence-backed progress records and structured contribution paths, learnin
     },
 
     // -------------------------
-    // LEARNING PATH
+    // LEARNING JOURNEY (Home)
     // -------------------------
-    learnPath: {
+    learningJourney: {
+        badge: "Learning Journey",
         title: "How Web3Edu Works",
-        subtitle: "Follow a clear rhythm: understand the concepts, experiment with them, then co-create what comes next.",
-        stepLabel: "STEP",
-        steps: [
+        subtitle:
+            "Learn the concepts, use them in practice, turn your work into verifiable progress, and build a learning identity that grows with you.",
+        progression: ["LEARN", "DO", "VERIFY", "OWN"],
+        stages: [
             {
-                emoji: "🪪",
-                title: "Identity & Fundamentals",
-                desc: "Establish your Web3 learning identity and grasp the core blockchain concepts."
+                id: "learn",
+                label: "01 · LEARN",
+                shortLabel: "LEARN",
+                title: "Understand the concepts",
+                description:
+                    "Build a foundation in blockchain, consensus, wallets, smart contracts, and Web3 through guided learning.",
+                cta: { label: "Start Here", href: "/#/start-here" },
             },
             {
-                emoji: "📘",
-                title: "Learn by Doing",
-                desc: "Explore blockchain concepts through hands-on labs and guided experiments."
+                id: "do",
+                label: "02 · DO",
+                shortLabel: "DO",
+                title: "Use Web3 in practice",
+                description:
+                    "Complete hands-on labs, work with wallets and transactions, deploy smart contracts, and explore real blockchain infrastructure.",
+                cta: { label: "Explore Labs", href: "/#/labs" },
             },
             {
-                emoji: "✅",
-                title: "Build Verifiable Progress",
-                desc: "Record completed work, XP, and learning evidence as your Web3Edu profile develops."
+                id: "verify",
+                label: "03 · VERIFY",
+                shortLabel: "VERIFY",
+                title: "Turn activity into evidence",
+                description:
+                    "Completed labs, challenges, and on-chain actions become evidence-backed learning progress — not just attendance records.",
             },
             {
-                emoji: "🛠️",
-                title: "Projects & Contribution",
-                desc: "Apply what you learned through Builder projects, prototypes, and guided technical contribution."
-            }
-        ],
-        ctaLabel: "Start Your Web3 Journey →",
-    },
-
-    // -------------------------
-    // HOMEPAGE PATHS
-    // -------------------------
-    choosePath: {
-        badge: "Choose Your Path",
-        title: "Start with the path that fits your goal",
-        description:
-            "Web3Edu has multiple entry points. Pick the one that matches where you are now, then move through the platform step by step.",
-        cards: [
-            {
-                icon: "learner",
-                title: "New Learner",
-                description: "Create your Web3Edu Identity with Google sign-in, check your setup, and begin with the first guided lab.",
-                href: "/#/start-here",
-                cta: "Start Here",
-            },
-            {
-                icon: "labs",
-                title: "Explore Labs",
-                description: "Work through core, system, DAO, coding, and project labs with progress tracking.",
-                href: "/#/labs",
-                cta: "Browse Labs",
-            },
-            {
-                icon: "tools",
-                title: "Use Tools",
-                description: "Open protocol visualizers for mining and proof-of-stake mechanics.",
-                href: "/#/tools",
-                cta: "Open Tools",
-            },
-            {
-                icon: "builder",
-                title: "Builder Path",
-                description: "Move into applied projects once your learning profile reaches Builder readiness.",
-                href: "/#/projects",
-                cta: "View Projects",
+                id: "own",
+                label: "04 · OWN",
+                shortLabel: "OWN",
+                title: "Build your learning identity",
+                description:
+                    "XP, achievements, and credentials accumulate into a persistent Web3Edu learning identity, with key milestones anchored on-chain.",
             },
         ],
     },
 
     availableNow: {
         badge: "Available Now",
-        title: "What you can use today",
+        title: "What you can do today",
         description:
-            "Start with the live learning areas: labs, visual tools, Proof of Escape, identity tracking, and Builder projects that unlock as you progress.",
-        items: [
+            "Learn, build, and verify your progress in a live Web3 learning environment.",
+        capabilities: [
             {
+                id: "labs",
                 icon: "labs",
-                title: "Labs",
-                description: "Foundational, system, DAO, coding, and project labs in one learning area.",
-                href: "/#/labs",
-                cta: "Explore Labs",
-                meta: "Live",
+                title: "Hands-on Labs",
+                description:
+                    "Learn blockchain concepts through guided practical activities, from fundamentals to smart-contract deployment and interaction.",
+                cta: { label: "Explore Labs", href: "/#/labs" },
             },
             {
-                icon: "poe",
-                title: "Proof of Escape",
-                description: "An applied on-chain challenge that validates Web3 concepts through interaction.",
-                href: "/#/labs/proof-of-escape",
-                cta: "Open Challenge",
-                meta: "Live",
+                id: "onchain",
+                icon: "onchain",
+                title: "Real On-chain Work",
+                description:
+                    "Use wallets, transactions, smart contracts, and the live Besu Edu-Net instead of simulated blockchain workflows.",
+                cta: { label: "Start Learning", href: "/#/start-here" },
             },
             {
-                icon: "tools",
-                title: "Developer Tools",
-                description: "Mining and PoS visualizers for inspecting protocol behavior step by step.",
-                href: "/#/tools",
-                cta: "Open Tools",
-                meta: "2 tools",
+                id: "progress",
+                icon: "progress",
+                title: "Verifiable Progress",
+                description:
+                    "Completed work becomes XP, achievements, and evidence-backed learning progress — not simply a record of attendance.",
             },
             {
-                icon: "projects",
-                title: "Projects",
-                description: "Builder-level investigation challenges that unlock as learners progress.",
-                href: "/#/projects",
-                cta: "View Projects",
-                meta: "Gated",
-            },
-            {
+                id: "identity",
                 icon: "identity",
-                title: "Identity & Dashboard",
-                description: "Use Google sign-in or wallet access to track identity, XP, completed labs, and next recommendations.",
-                href: "/#/dashboard",
-                cta: "Go to Dashboard",
-                meta: "Live",
+                title: "Web3Edu Learning Identity",
+                description:
+                    "Build a persistent learning profile where achievements and credentials accumulate, with key milestones anchored on-chain.",
+                cta: { label: "Web3Edu Identity", href: "/#/join" },
             },
         ],
+        alsoExplore: {
+            label: "Also explore",
+            links: [
+                { label: "Proof of Escape", href: "/#/labs/proof-of-escape" },
+                { label: "Developer Tools", href: "/#/tools" },
+                { label: "Builder Projects", href: "/#/projects" },
+            ],
+        },
+        productPreview: {
+            eyebrow: "Inside Web3Edu",
+            title: "Real progress. Verifiable milestones.",
+            description:
+                "Your learning path, XP, achievements, and verifiable profile come together in one learning environment.",
+            dashboardAlt: "Web3Edu dashboard showing next steps, progress, XP, and badges",
+            profileAlt: "Web3Edu verifiable profile with verified milestone status",
+        },
     },
 
     teamTrust: {

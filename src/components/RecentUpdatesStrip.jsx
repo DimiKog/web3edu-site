@@ -5,6 +5,7 @@ const CATEGORY_LABELS = {
     lab: { en: "Lab", gr: "Lab" },
     project: { en: "Project", gr: "Project" },
     update: { en: "Update", gr: "Ενημέρωση" },
+    identity: { en: "Identity", gr: "Ταυτότητα" },
 };
 
 function formatDate(dateStr, isGreek) {
