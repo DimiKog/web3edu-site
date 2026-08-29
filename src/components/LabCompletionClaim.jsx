@@ -14,11 +14,14 @@ import { getOwnerWallet } from "../utils/aaIdentity.js";
 const COPY = {
     en: {
         claimButton: "✅ Claim completion",
-        claimingButton: "Signing…",
+        completionDescription:
+            "After completing the lab, record your completion to update your progress in Web3Edu.",
+        claimingButton: "Recording…",
         successMessage: "✔ Completion recorded successfully",
         checkingStatus: "Checking completion status…",
         completedOn: "Completed on:",
-        walletNotConnectedError: "Wallet not connected",
+        accountNotReadyError: "Your Web3Edu Account is not ready yet. Finish sign-in or wait a moment, then try again.",
+        provisioningStatus: "Setting up your Web3Edu Account…",
         signInRequiredError: "Sign in to your Web3Edu account to claim completion",
         labIdMissingError: "Lab ID missing",
         backendError: "Failed to record completion",
@@ -26,11 +29,14 @@ const COPY = {
     },
     gr: {
         claimButton: "✅ Δήλωση Ολοκλήρωσης",
-        claimingButton: "Υπογραφή…",
+        completionDescription:
+            "Αφού ολοκληρώσετε το εργαστήριο, καταγράψτε την ολοκλήρωσή του για να ενημερωθεί η πρόοδός σας στο Web3Edu.",
+        claimingButton: "Καταγραφή…",
         successMessage: "✔ Η ολοκλήρωση καταγράφηκε επιτυχώς",
         checkingStatus: "Έλεγχος κατάστασης ολοκλήρωσης…",
         completedOn: "Ολοκληρώθηκε στις:",
-        walletNotConnectedError: "Το πορτοφόλι δεν είναι συνδεδεμένο",
+        accountNotReadyError: "Ο Web3Edu Account σου δεν είναι ακόμα έτοιμος. Ολοκλήρωσε την είσοδο ή περίμενε λίγο και δοκίμασε ξανά.",
+        provisioningStatus: "Ρύθμιση Web3Edu Account…",
         signInRequiredError: "Συνδεθείτε στον λογαριασμό Web3Edu για να δηλώσετε ολοκλήρωση",
         labIdMissingError: "Λείπει το Lab ID",
         backendError: "Αποτυχία καταγραφής ολοκλήρωσης",
@@ -71,6 +77,12 @@ export default function LabCompletionClaim({
     const { identityAddress } = useMemo(
         () => getLabsStatusReadIdentity(identityArgs),
         [identityArgs]
+    );
+    const isProvisioningIdentity = Boolean(
+        identityArgs.idToken &&
+            !effectiveWallet &&
+            (identityArgs.socialIdentityLoading === true ||
+                identityArgs.oidcAuthLoading === true)
     );
     const { signMessageAsync } = useSignMessage();
 
@@ -218,7 +230,7 @@ export default function LabCompletionClaim({
                 smartAccount: effectiveWallet,
                 owner: identityOwner,
             });
-            setError(labels.walletNotConnectedError);
+            setError(labels.accountNotReadyError);
             return;
         }
 
@@ -304,18 +316,28 @@ export default function LabCompletionClaim({
             )}
 
             {!claimed && !checkingStatus && (
-                <button
-                    onClick={handleClaimCompletion}
-                    disabled={claiming}
-                    className={`px-5 py-2 rounded-md font-semibold text-white transition ${claiming
-                        ? "bg-slate-400 cursor-not-allowed"
-                        : "bg-green-600 hover:bg-green-700"
-                        }`}
-                >
-                    {claiming
-                        ? (claimingButtonLabel || labels.claimingButton)
-                        : (claimButtonLabel || labels.claimButton)}
-                </button>
+                <>
+                    <p className="mb-3 text-sm text-slate-600 dark:text-slate-300">
+                        {labels.completionDescription}
+                    </p>
+                    {isProvisioningIdentity ? (
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                            {labels.provisioningStatus}
+                        </p>
+                    ) : null}
+                    <button
+                        onClick={handleClaimCompletion}
+                        disabled={claiming || isProvisioningIdentity}
+                        className={`px-5 py-2 rounded-md font-semibold text-white transition ${claiming || isProvisioningIdentity
+                            ? "bg-slate-400 cursor-not-allowed"
+                            : "bg-green-600 hover:bg-green-700"
+                            }`}
+                    >
+                        {claiming
+                            ? (claimingButtonLabel || labels.claimingButton)
+                            : (claimButtonLabel || labels.claimButton)}
+                    </button>
+                </>
             )}
 
             {claimed && (

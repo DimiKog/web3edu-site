@@ -168,9 +168,14 @@ ring-1 ring-slate-900/5 dark:ring-white/10">
                                         </svg>
                                     </div>
                                     <div className="min-w-0">
-                                        <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                            {t.oidc.heading}
-                                        </p>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                {t.oidc.heading}
+                                            </p>
+                                            <span className="rounded-full border border-[#4ACBFF]/30 bg-[#4ACBFF]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#4ACBFF] dark:border-cyan-400/30 dark:bg-cyan-400/15 dark:text-cyan-300">
+                                                {t.oidc.recommendedBadge}
+                                            </span>
+                                        </div>
                                         <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
                                             {t.oidc.subtitle}
                                         </p>

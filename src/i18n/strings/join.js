@@ -2,7 +2,7 @@ export const JOIN_STRINGS = {
   en: {
     joinTag: "Join Web3Edu",
     pageTitle: "How do you want to enter Web3Edu?",
-    pageSubtitle: "Choose how you want to start. You can switch later.",
+    pageSubtitle: "Most learners start with a Web3Edu Account (Google sign-in). Other paths are optional.",
     returning: {
       label: "Returning on this browser",
       heading: "Continue on this device",
@@ -12,7 +12,8 @@ export const JOIN_STRINGS = {
       resetBtn: "Reset this device session",
     },
     oidc: {
-      heading: "Sign in with Web3Edu",
+      recommendedBadge: "Recommended",
+      heading: "Sign in with Web3Edu Account",
       subtitle: "New or returning — sign in with Web3Edu or Google.",
       signInBtn: "Sign in",
       signedIn: "You're signed in.",
@@ -21,8 +22,8 @@ export const JOIN_STRINGS = {
       retryBtn: "Trouble loading your account? Retry",
     },
     wallet: {
-      heading: "Connect a wallet",
-      subtitle: "For wallet-first users.",
+      heading: "Wallet-first path (advanced)",
+      subtitle: "Optional — start with MetaMask instead of Google.",
       connectBtn: "Connect Wallet",
       wrongNetwork: "Wrong network",
       connectedPrefix: "Connected: ",
@@ -47,7 +48,7 @@ export const JOIN_STRINGS = {
   gr: {
     joinTag: "Join Web3Edu",
     pageTitle: "Πώς θέλεις να μπεις στο Web3Edu;",
-    pageSubtitle: "Διάλεξε πώς θέλεις να ξεκινήσεις. Μπορείς να το αλλάξεις αργότερα.",
+    pageSubtitle: "Οι περισσότεροι ξεκινούν με Web3Edu Account (Google). Οι άλλες διαδρομές είναι προαιρετικές.",
     returning: {
       label: "Επιστροφή σε αυτό το πρόγραμμα",
       heading: "Συνέχεια σε αυτή τη συσκευή",
@@ -57,7 +58,8 @@ export const JOIN_STRINGS = {
       resetBtn: "Επαναφορά συνεδρίας συσκευής",
     },
     oidc: {
-      heading: "Είσοδος με Web3Edu",
+      recommendedBadge: "Προτείνεται",
+      heading: "Είσοδος με Web3Edu Account",
       subtitle: "Νέοι ή επιστρέφοντες — είσοδος με Web3Edu ή Google.",
       signInBtn: "Είσοδος",
       signedIn: "Έχεις συνδεθεί.",
@@ -66,14 +68,14 @@ export const JOIN_STRINGS = {
       retryBtn: "Πρόβλημα φόρτωσης; Δοκίμασε ξανά",
     },
     wallet: {
-      heading: "Σύνδεση με πορτοφόλι",
-      subtitle: "Για wallet-first χρήστες.",
+      heading: "Διαδρομή wallet-first (προχωρημένη)",
+      subtitle: "Προαιρετικό — ξεκίνα με MetaMask αντί για Google.",
       connectBtn: "Σύνδεση πορτοφολιού",
       wrongNetwork: "Λάθος δίκτυο",
       connectedPrefix: "Συνδέθηκε: ",
       walletConnected: "Το πορτοφόλι συνδέθηκε",
       checkingNetwork: "Έλεγχος δικτύου…",
-      continueBtn: "Συνέχεια με συνδεδεμένο wallet",
+      continueBtn: "Συνέχεια με συνδεδεμένο πορτοφόλι",
       checkingBtn: "Έλεγχος…",
       verifyingPulse: "Γίνεται έλεγχος ταυτότητας…",
     },

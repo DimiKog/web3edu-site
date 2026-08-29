@@ -23,8 +23,8 @@ export default function ConnectWalletButton({
       ? "Σύνδεση…"
       : "Connecting…"
     : isGr
-      ? "Είσοδος με wallet"
-      : "Wallet Sign in";
+      ? "Σύνδεση πορτοφολιού για labs"
+      : "Connect wallet for labs";
 
   return (
     <button

@@ -56,7 +56,7 @@ const StartHereGR = () => {
                                     Το Web3Edu είναι ένα πειραματικό μαθησιακό περιβάλλον όπου η τεχνική μάθηση γίνεται hands-on, evidence-backed και επαληθεύσιμη.
                                 </p>
                                 <p className="max-w-3xl mx-auto mt-4 text-base text-white/70 text-center">
-                                    Ξεκίνα με Google Sign-In ή σύνδεσε wallet, και μάθε βήμα προς βήμα μέσα από πραγματικά labs, εργαλεία και καθοδηγούμενη αλληλεπίδραση με εκπαιδευτική blockchain υποδομή.
+                                    Συνδέσου με τον Web3Edu Account σου για να ξεκινήσεις. Σύνδεσε πορτοφόλι αργότερα, όταν ένα lab χρειάζεται on-chain εξάσκηση.
                                 </p>
                                 <p className="max-w-3xl mx-auto mt-4 text-base text-white/80 text-center font-medium">
                                     Αυτή η σελίδα δείχνει πώς να ξεκινήσεις με ασφάλεια.
@@ -97,9 +97,9 @@ const StartHereGR = () => {
                                         </p>
                                     </div>
                                     <div className="rounded-xl border border-[#4ACBFF]/30 bg-[#4ACBFF]/10 p-4">
-                                        <p className="text-sm font-semibold text-white">Επιλογή B — Wallet Sign-In</p>
+                                        <p className="text-sm font-semibold text-white">Επιλογή B — Διαδρομή wallet-first (προχωρημένη)</p>
                                         <p className="mt-1 text-xs text-white/70">
-                                            Σύνδεσε απευθείας MetaMask, ενέκρινε το εκπαιδευτικό δίκτυο και ακολούθησε wallet-first μαθησιακή διαδρομή.
+                                            Σύνδεσε MetaMask για labs που διδάσκουν υπογραφές, συναλλαγές ή deployment. Δεν απαιτείται για τη δημιουργία Web3Edu Account.
                                         </p>
                                     </div>
                                 </div>
@@ -218,7 +218,7 @@ const StartHereGR = () => {
                                                 icon="2️⃣"
                                             >
                                                 <p>Όταν ανοίξετε το Web3Edu, θα δείτε ένα κουμπί <strong>"Σύνδεση Πορτοφολιού"</strong> πάνω δεξιά.</p>
-                                                <p>Πατήστε το και εγκρίνετε τη σύνδεση στο MetaMask. Αυτό δημιουργεί τη μαθησιακή σας ταυτότητα.</p>
+                                                <p>Πάτησέ το και εγκρίνε τη σύνδεση στο MetaMask. Έτσι μπορείς να κάνεις on-chain δραστηριότητες σε συγκεκριμένα labs.</p>
                                                 <p>Σε κινητό, ανοίξτε το Web3Edu από <strong>MetaMask App → Browser</strong>. Αν μείνετε σε Safari/Chrome κινητού, συνήθως δεν ανιχνεύεται πορτοφόλι.</p>
                                                 <p className="text-sm text-white/60">Η διεύθυνσή σας εμφανίζεται, αλλά παραμένει ψευδωνυμική.</p>
                                             </DetailedStep>

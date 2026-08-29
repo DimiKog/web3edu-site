@@ -56,7 +56,7 @@ const StartHere = () => {
                                     Web3Edu is an experimental learning environment where technical learning becomes hands-on, evidence-backed, and verifiable.
                                 </p>
                                 <p className="max-w-3xl mx-auto mt-4 text-base text-white/70 text-center">
-                                    Start with Google Sign-In or connect a wallet, then learn step by step through real labs, tools, and guided interaction with educational blockchain infrastructure.
+                                    Sign in with your Web3Edu Account to start learning. Connect a wallet later when a lab needs on-chain practice.
                                 </p>
                                 <p className="max-w-3xl mx-auto mt-4 text-base text-white/80 text-center font-medium">
                                     This page shows you how to begin safely.
@@ -97,9 +97,9 @@ const StartHere = () => {
                                         </p>
                                     </div>
                                     <div className="rounded-xl border border-[#4ACBFF]/30 bg-[#4ACBFF]/10 p-4">
-                                        <p className="text-sm font-semibold text-white">Option B — Wallet Sign-In</p>
+                                        <p className="text-sm font-semibold text-white">Option B — Wallet-first path (advanced)</p>
                                         <p className="mt-1 text-xs text-white/70">
-                                            Connect MetaMask directly, approve the educational network, and follow a wallet-first learning path.
+                                            Connect MetaMask for labs that teach signing, transactions, or deployment. Not required to create your Web3Edu Account.
                                         </p>
                                     </div>
                                 </div>
@@ -219,7 +219,7 @@ const StartHere = () => {
                                                 icon="2️⃣"
                                             >
                                                 <p>When you navigate to Web3Edu, you'll see a <strong>"Connect Wallet"</strong> button in the top right.</p>
-                                                <p>Click it and approve the connection in MetaMask. This establishes your learning identity.</p>
+                                                <p>Click it and approve the connection in MetaMask. This lets you do on-chain activities in certain labs.</p>
                                                 <p>On mobile, open Web3Edu from <strong>MetaMask App → Browser</strong>. If you stay in Safari/Chrome mobile, wallet detection usually fails.</p>
                                                 <p className="text-sm text-white/60">Your address will be displayed but remains pseudonymous.</p>
                                             </DetailedStep>

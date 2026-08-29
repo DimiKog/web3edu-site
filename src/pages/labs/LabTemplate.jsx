@@ -32,7 +32,7 @@ const DEFAULT_LABELS = {
     // Completion / Claim section
     completionTitle: "Lab completion",
     completionDescription:
-        "After completing the interaction, claim completion inside the interactive lab page.",
+        "After completing the lab, record your completion to update your progress in Web3Edu.",
     successMessage: "✔ Completion recorded successfully",
     completeInsideInteraction: "Complete the interaction and claim completion there.",
     walletNotConnectedError: "Wallet not connected",
