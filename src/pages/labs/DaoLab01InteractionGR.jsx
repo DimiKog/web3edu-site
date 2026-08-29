@@ -1,4 +1,5 @@
 import PageShell from "../../components/PageShell";
+import LabActivityWalletConnect from "../../components/LabActivityWalletConnect.jsx";
 import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
@@ -150,6 +151,13 @@ Vote: ${selectedChoice}
 
                     {!submitted ? (
                         <div className={!proposalRead ? "opacity-40 pointer-events-none" : "opacity-100"}>
+                            {!isConnected && (
+                                <LabActivityWalletConnect
+                                    className="mb-4"
+                                    isGr
+                                    prompt="Σύνδεσε ένα πορτοφόλι για να υπογράψεις την ψήφο σου σε αυτή την άσκηση διακυβέρνησης."
+                                />
+                            )}
                             <p className="text-sm mb-4 text-slate-600 dark:text-slate-400">
                                 1. Επίλεξε στάση · 2. Έλεγξε το payload · 3. Υπέγραψε την ψήφο
                             </p>

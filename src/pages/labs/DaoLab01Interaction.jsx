@@ -1,4 +1,5 @@
 import PageShell from "../../components/PageShell";
+import LabActivityWalletConnect from "../../components/LabActivityWalletConnect.jsx";
 import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 import { useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
@@ -153,6 +154,12 @@ This vote is part of a Web3Edu governance simulation.
 
                     {!submitted ? (
                         <div className={!proposalRead ? "opacity-40 pointer-events-none" : "opacity-100"}>
+                            {!isConnected && (
+                                <LabActivityWalletConnect
+                                    className="mb-4"
+                                    prompt="Connect a wallet to sign your vote for this governance exercise."
+                                />
+                            )}
                             <p className="text-sm mb-4 text-slate-600 dark:text-slate-400">
                                 1. Select your stance. 2. Review the data payload. 3. Sign to cast.
                             </p>

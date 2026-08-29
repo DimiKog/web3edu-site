@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 import { ethers } from "ethers";
 import PageShell from "../../components/PageShell";
+import LabActivityWalletConnect from "../../components/LabActivityWalletConnect.jsx";
 import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 
 /**
@@ -280,9 +281,11 @@ const Lab03InteractionGR = () => {
                             </div>
                         )}
                         {!isConnected && (
-                            <p className="text-xs text-slate-500 mt-1">
-                                Συνδέστε το πορτοφόλι σας για να υπογράψετε με Web3 ταυτότητα.
-                            </p>
+                            <LabActivityWalletConnect
+                                className="mt-3"
+                                isGr
+                                prompt="Σύνδεσε ένα πορτοφόλι για να εξασκηθείς στην υπογραφή μηνύματος."
+                            />
                         )}
                         {/* Visual feedback for message signing */}
                         {labState.signing.signed && (

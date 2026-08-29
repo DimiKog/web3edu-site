@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAccount, useSignMessage } from "wagmi";
 import { ethers } from "ethers";
 import PageShell from "../../components/PageShell";
+import LabActivityWalletConnect from "../../components/LabActivityWalletConnect.jsx";
 import LabCompletionClaim from "../../components/LabCompletionClaim.jsx";
 
 /**
@@ -281,9 +282,10 @@ const Lab03Interaction = () => {
                             </div>
                         )}
                         {!isConnected && (
-                            <p className="text-xs text-slate-500 mt-1">
-                                Connect your wallet to sign using Web3 identity.
-                            </p>
+                            <LabActivityWalletConnect
+                                className="mt-3"
+                                prompt="Connect a wallet to practice message signing."
+                            />
                         )}
                         {/* Visual feedback for message signing */}
                         {labState.signing.signed && (
