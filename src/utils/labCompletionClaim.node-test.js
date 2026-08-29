@@ -50,8 +50,8 @@ test("LabCompletionClaim POSTs lab complete via postLabsComplete without X-API-K
   assert.ok(source.includes("wallet: effectiveWallet"));
   assert.ok(source.includes("owner: ownerForWrites"));
   assert.ok(source.includes("labId,") || source.includes("labId"));
-  assert.ok(source.includes("message,") || source.includes("message"));
-  assert.ok(source.includes("signature,") || source.includes("signature"));
+  assert.equal(source.includes("signMessageAsync"), false);
+  assert.equal(source.includes("getOwnerWallet"), false);
 });
 
 test("repo source tree has no runtime VITE_XP_SECRET reference", () => {

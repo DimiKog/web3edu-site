@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount } from "wagmi";
 import FeedbackModal from "./FeedbackModal";
 import { useEducationalIdentityArgs } from "../hooks/useEducationalIdentityArgs.js";
 import { warnIfIdentityNotInitialized } from "../utils/identityReadiness.js";
@@ -9,7 +9,6 @@ import {
     getWeb3eduBackendUrl,
 } from "../lib/web3eduBackend.js";
 import { getEducationalIdentityInput, getLabsStatusReadIdentity, postLabsStart, postLabsComplete } from "../utils/labWriteApi.js";
-import { getOwnerWallet } from "../utils/aaIdentity.js";
 
 const COPY = {
     en: {
@@ -63,13 +62,12 @@ export default function LabCompletionClaim({
     const labels = COPY[language] || COPY.en;
     const BACKEND = getWeb3eduBackendUrl();
 
-    const { address, isConnected } = useAccount();
+    const { address } = useAccount();
     const identityArgs = useEducationalIdentityArgs();
     const smartAccount = identityArgs.smartAccount;
     const identityOwner = identityArgs.owner;
 
     // identityInput → educational `wallet` (backend canonicalizes).
-    // signerAddress → connected EOA used only to sign the claim message.
     const {
         identityInput: effectiveWallet,
         owner: ownerForWrites,
@@ -84,7 +82,6 @@ export default function LabCompletionClaim({
             (identityArgs.socialIdentityLoading === true ||
                 identityArgs.oidcAuthLoading === true)
     );
-    const { signMessageAsync } = useSignMessage();
 
     const [claiming, setClaiming] = useState(false);
     const [claimed, setClaimed] = useState(false);
@@ -253,29 +250,12 @@ export default function LabCompletionClaim({
                 throw new Error("Could not register lab start");
             }
 
-            const timestamp = new Date().toISOString();
-            // Signer is the connected EOA (or local owner key). It is not the
-            // learner identity input and must not retarget progress.
-            const useEoaSigner = isConnected && !!address;
-            const messageSigner = useEoaSigner ? address : getOwnerWallet().address;
-            const message = `I confirm completion of Web3Edu Lab\nLab ID: ${labId}\nAddress: ${messageSigner}\nTimestamp: ${timestamp}`;
-
-            let signature;
-            if (isConnected && address) {
-                signature = await signMessageAsync({ message });
-            } else {
-                const wallet = getOwnerWallet();
-                signature = await wallet.signMessage(message);
-            }
-
             const { ok, status, data: completePayload } = await postLabsComplete({
                 apiBase: BACKEND,
                 idToken,
                 labId,
                 wallet: effectiveWallet,
                 owner: ownerForWrites,
-                message,
-                signature,
             });
 
             if (completePayload?.identityKey != null) {
