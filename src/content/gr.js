@@ -202,7 +202,7 @@ const gr = {
                 date: "2026-04-08",
                 title: "6 System Labs Διαθέσιμα",
                 description: "Διαδραστικά σενάρια συναίνεσης σε έξι labs (S0-S5) — καλύπτουν συμπεριφορά κόμβων, Byzantine faults, quorums validators και QBFT finality.",
-                href: "#/labs",
+                href: "#/labs-gr",
                 cta: "Εξερεύνηση Labs",
             },
             {
@@ -211,7 +211,7 @@ const gr = {
                 date: "2026-04-07",
                 title: "PoW & PoS Οπτικά Εργαλεία",
                 description: "Δύο διαδραστικά εργαλεία: εξερεύνησε mining δυσκολία και αναζήτηση nonce στο PoW, και stake-weighted επιλογή validator με attestation στο PoS.",
-                href: "#/tools",
+                href: "#/tools-gr",
                 cta: "Άνοιγμα Εργαλείων",
             },
             {
@@ -220,7 +220,7 @@ const gr = {
                 date: "2026-04-04",
                 title: "2 Builder Projects Διαθέσιμα",
                 description: "Πρακτικά project paths για Builders που είναι έτοιμοι να προχωρήσουν πέρα από τα labs σε εφαρμοσμένη ανάπτυξη blockchain.",
-                href: "#/projects",
+                href: "#/projects-gr",
                 cta: "Δες τα Projects",
             },
             {
