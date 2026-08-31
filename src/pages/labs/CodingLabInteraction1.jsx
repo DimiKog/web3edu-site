@@ -6,7 +6,7 @@ import CodingLab01SetupSection from "../../components/labs/CodingLab01SetupSecti
 import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
 import { getWeb3eduBackendUrl } from "../../lib/web3eduBackend.js";
 import {
-    getEffectiveLabsWalletIdentity,
+    postCoding01AttributeDeployment,
     postCoding01VerifyContract,
 } from "../../utils/labWriteApi.js";
 import { normalizeEvmAddress } from "../../utils/evmAddress.js";
@@ -117,6 +117,21 @@ const CONTENT = {
             "Check Remix compiler setting: EVM version Paris.",
             "Blockscout source-code verification is optional and not required for Web3Edu completion.",
         ],
+        deploymentSectionTitle: "Verify deployment ownership",
+        deploymentSectionDescription:
+            "Confirm that your linked wallet deployed this contract on Besu Edu-Net. This is separate from bytecode verification above.",
+        deploymentAttributeButton: "Verify deployment ownership",
+        deploymentAttributingButton: "Checking deployment…",
+        deploymentSuccess: "Deployment ownership verified for your linked wallet.",
+        deploymentAlreadyVerified: "Deployment ownership was already verified.",
+        deploymentDeployerNotBound:
+            "We could not verify that this deployment belongs to your linked wallet. Your contract bytecode verification above may still be valid.",
+        deploymentExplorerUnavailable:
+            "Blockscout is temporarily unavailable. Try again in a moment.",
+        deploymentRpcFailed:
+            "We could not confirm the deployment transaction on Besu Edu-Net. Try again later.",
+        deploymentGenericFailure:
+            "Deployment ownership could not be verified right now.",
         tasks: {
             createFile: "Created the Solidity file in Remix",
             compile: "Compiled the contract successfully",
@@ -242,6 +257,21 @@ contract Counter {
             "Έλεγξε τη ρύθμιση compiler στο Remix: EVM version Paris.",
             "Η επαλήθευση πηγαίου κώδικα στο Blockscout είναι προαιρετική και δεν απαιτείται για ολοκλήρωση Web3Edu.",
         ],
+        deploymentSectionTitle: "Επαλήθευση ιδιοκτησίας deployment",
+        deploymentSectionDescription:
+            "Επιβεβαίωσε ότι το συνδεδεμένο wallet σου έκανε deploy αυτό το contract στο Besu Edu-Net. Αυτό είναι ξεχωριστό από την επαλήθευση bytecode παραπάνω.",
+        deploymentAttributeButton: "Επαλήθευση ιδιοκτησίας deployment",
+        deploymentAttributingButton: "Έλεγχος deployment…",
+        deploymentSuccess: "Η ιδιοκτησία του deployment επιβεβαιώθηκε για το συνδεδεμένο wallet σου.",
+        deploymentAlreadyVerified: "Η ιδιοκτησία του deployment είχε ήδη επιβεβαιωθεί.",
+        deploymentDeployerNotBound:
+            "Δεν μπορέσαμε να επιβεβαιώσουμε ότι αυτό το deployment ανήκει στο συνδεδεμένο wallet σου. Η επαλήθευση bytecode του contract παραπάνω μπορεί να παραμένει έγκυρη.",
+        deploymentExplorerUnavailable:
+            "Το Blockscout δεν είναι προσωρινά διαθέσιμο. Δοκίμασε ξανά σε λίγο.",
+        deploymentRpcFailed:
+            "Δεν μπορέσαμε να επιβεβαιώσουμε το deployment transaction στο Besu Edu-Net. Δοκίμασε ξανά αργότερα.",
+        deploymentGenericFailure:
+            "Η ιδιοκτησία του deployment δεν μπόρεσε να επιβεβαιωθεί αυτή τη στιγμή.",
         tasks: {
             createFile: "Δημιούργησα το Solidity αρχείο στο Remix",
             compile: "Έκανα compile το contract επιτυχώς",
@@ -322,6 +352,10 @@ export default function CodingLabInteraction1({ lang = "en" }) {
     const [verificationResult, setVerificationResult] = useState(null);
     const [verificationError, setVerificationError] = useState(null);
     const [verifying, setVerifying] = useState(false);
+    const [deploymentAttributed, setDeploymentAttributed] = useState(false);
+    const [deploymentAttributionResult, setDeploymentAttributionResult] = useState(null);
+    const [deploymentAttributionError, setDeploymentAttributionError] = useState(null);
+    const [attributingDeployment, setAttributingDeployment] = useState(false);
     const [checkpointAnswer, setCheckpointAnswer] = useState(null);
     const [checkpointSubmitted, setCheckpointSubmitted] = useState(false);
     const [checkpointCorrect, setCheckpointCorrect] = useState(false);
@@ -371,6 +405,10 @@ export default function CodingLabInteraction1({ lang = "en" }) {
         setVerificationResult(null);
         setVerificationError(null);
         setVerifying(false);
+        setDeploymentAttributed(false);
+        setDeploymentAttributionResult(null);
+        setDeploymentAttributionError(null);
+        setAttributingDeployment(false);
         setCheckpointAnswer(null);
         setCheckpointSubmitted(false);
         setCheckpointCorrect(false);
@@ -382,6 +420,9 @@ export default function CodingLabInteraction1({ lang = "en" }) {
             setContractVerified(false);
             setVerificationResult(null);
             setVerificationError(null);
+            setDeploymentAttributed(false);
+            setDeploymentAttributionResult(null);
+            setDeploymentAttributionError(null);
         }
     };
 
@@ -436,6 +477,51 @@ export default function CodingLabInteraction1({ lang = "en" }) {
             setVerificationError(copy.failureTitle);
         } finally {
             setVerifying(false);
+        }
+    };
+
+    const attributeDeployment = async () => {
+        if (!identityArgs.idToken) {
+            setDeploymentAttributionError(copy.signInRequired ?? copy.walletRequired);
+            return;
+        }
+
+        setAttributingDeployment(true);
+        setDeploymentAttributionError(null);
+        setDeploymentAttributionResult(null);
+
+        try {
+            const result = await postCoding01AttributeDeployment({
+                apiBase,
+                idToken: identityArgs.idToken,
+            });
+
+            if (result.ok) {
+                setDeploymentAttributed(true);
+                setDeploymentAttributionResult(result.data);
+                setDeploymentAttributionError(null);
+            } else {
+                setDeploymentAttributed(false);
+                const errorCode = result.data?.error;
+                let message = copy.deploymentGenericFailure;
+                if (errorCode === "deployer_not_bound") {
+                    message = copy.deploymentDeployerNotBound;
+                } else if (errorCode === "explorer_unavailable") {
+                    message = copy.deploymentExplorerUnavailable;
+                } else if (
+                    errorCode === "rpc_confirmation_failed" ||
+                    errorCode === "explorer_no_creation_data"
+                ) {
+                    message = copy.deploymentRpcFailed;
+                } else if (result.data?.message) {
+                    message = result.data.message;
+                }
+                setDeploymentAttributionError(message);
+            }
+        } catch {
+            setDeploymentAttributionError(copy.deploymentGenericFailure);
+        } finally {
+            setAttributingDeployment(false);
         }
     };
 
@@ -673,6 +759,61 @@ export default function CodingLabInteraction1({ lang = "en" }) {
                                         <p className="text-emerald-800 dark:text-emerald-100">
                                             {verificationResult.message}
                                         </p>
+                                    )}
+                                </div>
+                            )}
+
+                            {contractVerified && (
+                                <div className="mt-4 rounded-2xl border border-cyan-200/70 bg-white px-4 py-4 dark:border-cyan-400/20 dark:bg-slate-950/40">
+                                    <h5 className="text-sm font-semibold text-slate-900 dark:text-white">
+                                        {copy.deploymentSectionTitle}
+                                    </h5>
+                                    <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                                        {copy.deploymentSectionDescription}
+                                    </p>
+
+                                    <button
+                                        type="button"
+                                        onClick={attributeDeployment}
+                                        disabled={attributingDeployment || deploymentAttributed}
+                                        className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
+                                            attributingDeployment || deploymentAttributed
+                                                ? "cursor-not-allowed border border-slate-200/70 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-500"
+                                                : "border border-cyan-300/70 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 dark:border-cyan-400/25 dark:bg-cyan-400/10 dark:text-cyan-100 dark:hover:bg-cyan-400/15"
+                                        }`}
+                                    >
+                                        {attributingDeployment ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                {copy.deploymentAttributingButton}
+                                            </>
+                                        ) : deploymentAttributed ? (
+                                            copy.deploymentAlreadyVerified
+                                        ) : (
+                                            copy.deploymentAttributeButton
+                                        )}
+                                    </button>
+
+                                    {deploymentAttributed && deploymentAttributionResult && (
+                                        <div className="mt-4 rounded-xl border border-emerald-300/60 bg-emerald-50 px-4 py-3 text-sm leading-7 text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/10 dark:text-emerald-200">
+                                            <div className="flex items-start gap-2 font-semibold">
+                                                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                                                <span>
+                                                    {deploymentAttributionResult.alreadyAttributed
+                                                        ? copy.deploymentAlreadyVerified
+                                                        : copy.deploymentSuccess}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {deploymentAttributionError && !deploymentAttributed && (
+                                        <div className="mt-4 rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3 text-sm leading-7 text-amber-900 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-100">
+                                            <div className="flex items-start gap-2 font-semibold">
+                                                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                                                <span>{deploymentAttributionError}</span>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             )}

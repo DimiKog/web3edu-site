@@ -414,6 +414,47 @@ export async function postCoding01VerifyContract({
 }
 
 /**
+ * POST /labs/coding01/attribute-deployment — Keycloak Bearer required.
+ * No authority fields in body; backend uses stored canonical Coding01 contract.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function postCoding01AttributeDeployment({
+  apiBase,
+  idToken,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+
+  try {
+    const res = await fetch(`${base}/labs/coding01/attribute-deployment`, {
+      method: "POST",
+      headers: buildLabWriteAuthHeaders(token),
+      body: JSON.stringify({}),
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
+
+/**
  * POST /labs/coding02/start-interaction — loads the learner's verified Counter from Coding Lab 01.
  * @returns {Promise<{ ok: boolean, status: number, data: object }>}
  */

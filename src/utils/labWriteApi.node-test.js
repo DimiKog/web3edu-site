@@ -162,7 +162,7 @@ test("postCoding01VerifyContract sends Authorization Bearer from idToken", () =>
   const src = read(labWritePath);
   assert.match(src, /export async function postCoding01VerifyContract/);
   const fn = src.slice(src.indexOf("export async function postCoding01VerifyContract"));
-  const end = fn.indexOf("export async function postCoding02StartInteraction");
+  const end = fn.indexOf("export async function postCoding01AttributeDeployment");
   const body = end === -1 ? fn : fn.slice(0, end);
   assert.match(body, /normalizeIdToken\(idToken\)/);
   assert.match(body, /buildLabWriteAuthHeaders\(token\)/);
@@ -172,9 +172,34 @@ test("postCoding01VerifyContract sends Authorization Bearer from idToken", () =>
   assert.equal(body.includes("getEffectiveLabsWalletIdentity"), false);
 });
 
+test("postCoding01AttributeDeployment sends Authorization Bearer with empty body", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function postCoding01AttributeDeployment/);
+  const fn = src.slice(src.indexOf("export async function postCoding01AttributeDeployment"));
+  const end = fn.indexOf("export async function postCoding02StartInteraction");
+  const body = end === -1 ? fn : fn.slice(0, end);
+  assert.match(body, /normalizeIdToken\(idToken\)/);
+  assert.match(body, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(body, /fetch\(`\$\{base\}\/labs\/coding01\/attribute-deployment`/);
+  assert.match(body, /body:\s*JSON\.stringify\(\{\}\)/);
+  assert.match(body, /missing_bearer_token/);
+  assert.equal(body.includes("contractAddress"), false);
+  assert.equal(body.includes("deployerAddress"), false);
+});
+
 test("CodingLabInteraction1 passes idToken to postCoding01VerifyContract", () => {
   const src = read(join(__dirname, "../pages/labs/CodingLabInteraction1.jsx"));
   assert.match(src, /postCoding01VerifyContract/);
   assert.match(src, /identityArgs\.idToken/);
+  assert.match(src, /contractAddress:\s*normalizedAddress/);
+});
+
+test("CodingLabInteraction1 triggers deployment attribution without authority fields", () => {
+  const src = read(join(__dirname, "../pages/labs/CodingLabInteraction1.jsx"));
+  assert.match(src, /postCoding01AttributeDeployment/);
+  assert.match(src, /attributeDeployment/);
+  assert.match(src, /deploymentDeployerNotBound/);
+  assert.match(src, /idToken:\s*identityArgs\.idToken/);
+  assert.equal(src.includes("contractAddress:"), true);
   assert.match(src, /contractAddress:\s*normalizedAddress/);
 });
