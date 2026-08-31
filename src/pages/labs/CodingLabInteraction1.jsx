@@ -386,8 +386,8 @@ export default function CodingLabInteraction1({ lang = "en" }) {
     };
 
     const verifyContract = async () => {
-        if (!progressWallet) {
-            setVerificationError(copy.walletRequired);
+        if (!identityArgs.idToken) {
+            setVerificationError(copy.signInRequired ?? copy.walletRequired);
             setContractVerified(false);
             setVerificationResult(null);
             return;
@@ -409,7 +409,7 @@ export default function CodingLabInteraction1({ lang = "en" }) {
         try {
             const result = await postCoding01VerifyContract({
                 apiBase,
-                ...identityArgs,
+                idToken: identityArgs.idToken,
                 contractAddress: normalizedAddress,
             });
 

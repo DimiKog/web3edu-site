@@ -157,3 +157,24 @@ test("OIDC social AA identity input remains preferred (Case A / Case B compatibl
   assert.match(edu, /if \(socialAa\)/);
   assert.match(edu, /identityInput:\s*socialAa/);
 });
+
+test("postCoding01VerifyContract sends Authorization Bearer from idToken", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function postCoding01VerifyContract/);
+  const fn = src.slice(src.indexOf("export async function postCoding01VerifyContract"));
+  const end = fn.indexOf("export async function postCoding02StartInteraction");
+  const body = end === -1 ? fn : fn.slice(0, end);
+  assert.match(body, /normalizeIdToken\(idToken\)/);
+  assert.match(body, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(body, /fetch\(`\$\{base\}\/labs\/coding01\/verify-contract`/);
+  assert.match(body, /contractAddress:\s*addr/);
+  assert.match(body, /missing_bearer_token/);
+  assert.equal(body.includes("getEffectiveLabsWalletIdentity"), false);
+});
+
+test("CodingLabInteraction1 passes idToken to postCoding01VerifyContract", () => {
+  const src = read(join(__dirname, "../pages/labs/CodingLabInteraction1.jsx"));
+  assert.match(src, /postCoding01VerifyContract/);
+  assert.match(src, /identityArgs\.idToken/);
+  assert.match(src, /contractAddress:\s*normalizedAddress/);
+});

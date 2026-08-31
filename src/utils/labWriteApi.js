@@ -354,60 +354,44 @@ export async function postLabsComplete({
 }
 
 /**
- * POST /labs/coding01/verify-contract — checks deployed Counter bytecode on Besu Edu-Net.
+ * POST /labs/coding01/verify-contract — Keycloak Bearer required.
+ * contractAddress is required; wallet/owner are not sent (backend derives learner from token).
  * @returns {Promise<{ ok: boolean, status: number, data: object }>}
  */
 export async function postCoding01VerifyContract({
   apiBase,
-  smartAccount,
-  address,
-  owner,
-  isOidcAuthenticated,
-  socialIdentity,
-  socialIdentityLoading,
-  oidcAuthLoading,
-  walletEntryLinkedAlias,
-  walletEntryResolvePending,
   contractAddress,
+  idToken,
 } = {}) {
-  const { wallet, owner: ownerPayload } = getEffectiveLabsWalletIdentity(
-    educationalIdentityFields({
-      smartAccount,
-      address,
-      owner,
-      isOidcAuthenticated,
-      socialIdentity,
-      socialIdentityLoading,
-      oidcAuthLoading,
-      walletEntryLinkedAlias,
-      walletEntryResolvePending,
-    })
-  );
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
   const addr = normalizeEvmAddress(contractAddress);
 
-  if (!wallet || !addr) {
+  if (!addr) {
     return {
       ok: false,
       status: 400,
       data: {
-        error: "wallet and contractAddress are required for /labs/coding01/verify-contract",
+        error: "contractAddress is required for /labs/coding01/verify-contract",
       },
     };
   }
 
   const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
   const payload = {
-    wallet,
     contractAddress: addr,
   };
-  if (ownerPayload) {
-    payload.owner = ownerPayload;
-  }
 
   try {
     const res = await fetch(`${base}/labs/coding01/verify-contract`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: buildLabWriteAuthHeaders(token),
       body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
