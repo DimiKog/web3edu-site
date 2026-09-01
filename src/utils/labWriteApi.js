@@ -605,3 +605,91 @@ export async function postCoding02VerifyIncrement({
     };
   }
 }
+
+/**
+ * GET /learning-modules/lm08/contract-inspection — deployment inspection challenge.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function fetchLm08ContractInspectionChallenge({
+  apiBase,
+  idToken,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+
+  try {
+    const res = await fetch(`${base}/learning-modules/lm08/contract-inspection`, {
+      method: "GET",
+      headers: buildLabWriteAuthHeaders(token),
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
+
+/**
+ * POST /learning-modules/lm08/contract-inspection — submit inspection answers only.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function postLm08ContractInspectionAnswers({
+  apiBase,
+  idToken,
+  answers,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  if (!answers || typeof answers !== "object") {
+    return {
+      ok: false,
+      status: 400,
+      data: { error: "answers object is required" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+
+  try {
+    const res = await fetch(`${base}/learning-modules/lm08/contract-inspection`, {
+      method: "POST",
+      headers: buildLabWriteAuthHeaders(token),
+      body: JSON.stringify({ answers }),
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}

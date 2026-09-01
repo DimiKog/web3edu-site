@@ -203,3 +203,50 @@ test("CodingLabInteraction1 triggers deployment attribution without authority fi
   assert.equal(src.includes("contractAddress:"), true);
   assert.match(src, /contractAddress:\s*normalizedAddress/);
 });
+
+test("fetchLm08ContractInspectionChallenge sends Authorization Bearer", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function fetchLm08ContractInspectionChallenge/);
+  const fn = src.slice(src.indexOf("export async function fetchLm08ContractInspectionChallenge"));
+  assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(fn, /\/learning-modules\/lm08\/contract-inspection`/);
+  assert.match(fn, /method:\s*"GET"/);
+  assert.match(fn, /missing_bearer_token/);
+});
+
+test("postLm08ContractInspectionAnswers sends answers only with Bearer", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function postLm08ContractInspectionAnswers/);
+  const fn = src.slice(src.indexOf("export async function postLm08ContractInspectionAnswers"));
+  assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(fn, /JSON\.stringify\(\{\s*answers\s*\}\)/);
+  assert.match(fn, /method:\s*"POST"/);
+  assert.equal(fn.includes("contractAddress"), false);
+  assert.equal(fn.includes("deployerAddress"), false);
+  assert.equal(fn.includes("deploymentTxHash"), false);
+  assert.equal(fn.includes("txHash"), false);
+  assert.equal(fn.includes("chainId"), false);
+  assert.equal(fn.includes("wallet"), false);
+});
+
+test("Lm08ContractInspectionPanel uses Bearer-backed inspection APIs", () => {
+  const panel = read(
+    join(__dirname, "../components/learning-modules/Lm08ContractInspectionPanel.jsx")
+  );
+  assert.match(panel, /fetchLm08ContractInspectionChallenge/);
+  assert.match(panel, /postLm08ContractInspectionAnswers/);
+  assert.match(panel, /identityArgs\.idToken/);
+  assert.match(panel, /explorerLinks\?\.contract/);
+  assert.match(panel, /explorerLinks\?\.deploymentTransaction/);
+});
+
+test("Lm08 contract inspection locale includes EN and GR strings", () => {
+  const locale = read(join(__dirname, "../content/lm08ContractInspectionLocale.js"));
+  assert.match(locale, /en:\s*\{/);
+  assert.match(locale, /gr:\s*\{/);
+  assert.match(locale, /Inspect Your Deployed Contract/);
+  assert.match(locale, /Επιθεώρηση του Contract που Έκανες Deploy/);
+  assert.match(locale, /contract_role/);
+  assert.match(locale, /deployer_role/);
+  assert.match(locale, /creation_tx_role/);
+});

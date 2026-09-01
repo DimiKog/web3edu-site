@@ -73,6 +73,9 @@ const CodingLab1 = lazy(() => import("../pages/labs/CodingLab1.jsx"));
 const CodingLabInteraction1 = lazy(() => import("../pages/labs/CodingLabInteraction1.jsx"));
 const CodingLab2 = lazy(() => import("../pages/labs/CodingLab2.jsx"));
 const CodingLabInteraction2 = lazy(() => import("../pages/labs/CodingLabInteraction2.jsx"));
+const Lm08ContractInspectionPage = lazy(
+  () => import("../pages/learning-modules/Lm08ContractInspectionPage.jsx")
+);
 const SystemLabS0 = lazy(() => import("../pages/labs/SystemLabS0.jsx"));
 const SystemLabS0Interaction = lazy(() => import("../pages/labs/SystemLabS0Interaction.jsx"));
 const SystemLabS1 = lazy(() => import("../pages/labs/SystemLabS1.jsx"));
@@ -213,6 +216,12 @@ export const routeTable = {
       { path: "/labs-gr/coding-02", component: CodingLab2, props: { lang: "gr" } },
       { path: "/labs/coding-02/interaction", component: CodingLabInteraction2 },
       { path: "/labs-gr/coding-02/interaction", component: CodingLabInteraction2, props: { lang: "gr" } },
+      { path: "/learning-modules/lm08/contract-inspection", component: Lm08ContractInspectionPage },
+      {
+        path: "/learning-modules-gr/lm08/contract-inspection",
+        component: Lm08ContractInspectionPage,
+        props: { lang: "gr" },
+      },
       { path: "/labs/system/s0", component: SystemLabS0 },
       { path: "/labs-gr/system/s0", component: SystemLabS0, props: { lang: "gr" } },
       { path: "/labs/system/s0/interaction", component: SystemLabS0Interaction },
