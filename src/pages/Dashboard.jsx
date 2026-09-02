@@ -30,6 +30,10 @@ import { useIdentity } from "../context/useIdentity.js";
 import { warnIfIdentityNotInitialized } from "../utils/identityReadiness.js";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
 import { getXpTotalFromBackend } from "../utils/progression.js";
+import ContinueLearningCard, {
+    isValidCanonicalProgression,
+} from "../components/ContinueLearningCard.jsx";
+import { getContinueLearningCopy } from "../content/continueLearningLocale.js";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import {
     getSocialIdentityAaAddress,
@@ -1314,8 +1318,16 @@ export default function Dashboard() {
                     </div>
                 ) : null}
 
-                {/* 3) HERO: Next Action — full width, most important element */}
+                {/* 3) HERO: Continue Learning (canonical) or legacy next step */}
                 <div className="relative z-10 w-full max-w-5xl mx-auto mt-4 mb-6 px-2 md:px-0">
+                    {metadata?.progressionError ? (
+                        <div className="mb-3 rounded-xl border border-amber-200/70 bg-amber-50/80 px-4 py-3 text-xs text-amber-900 dark:border-amber-600/40 dark:bg-amber-950/25 dark:text-amber-100">
+                            {getContinueLearningCopy("en").progressionUnavailable}
+                        </div>
+                    ) : null}
+                    {isValidCanonicalProgression(metadata?.progression) ? (
+                        <ContinueLearningCard progression={metadata.progression} lang="en" />
+                    ) : (
                     <DashboardCard
                         title="Your next step"
                         className="p-5"
@@ -1458,6 +1470,7 @@ export default function Dashboard() {
                             <p className="text-sm text-slate-600 dark:text-slate-300">Loading recommendation…</p>
                         )}
                     </DashboardCard>
+                    )}
                 </div>
 
                 {/* 4) Lower dashboard layout: Progress + Quick Actions | Badges */}

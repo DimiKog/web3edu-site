@@ -63,6 +63,10 @@ import {
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 import { getViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 import { getXpTotalFromBackend } from "../utils/progression.js";
+import ContinueLearningCard, {
+    isValidCanonicalProgression,
+} from "../components/ContinueLearningCard.jsx";
+import { getContinueLearningCopy } from "../content/continueLearningLocale.js";
 
 const EDU_NET_EXPLORER = "https://blockexplorer.dimikog.org";
 const SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY = "web3edu-social-switch-from-local-aa";
@@ -1325,8 +1329,16 @@ export default function Dashboard() {
                     </div>
                 ) : null}
 
-                {/* 3) HERO: Επόμενη ενέργεια — πλήρες πλάτος */}
+                {/* 3) HERO: Συνέχισε τη Μάθηση (canonical) ή legacy επόμενο βήμα */}
                 <div className="relative z-10 w-full max-w-5xl mx-auto mt-4 mb-6 px-2 md:px-0">
+                    {metadata?.progressionError ? (
+                        <div className="mb-3 rounded-xl border border-amber-200/70 bg-amber-50/80 px-4 py-3 text-xs text-amber-900 dark:border-amber-600/40 dark:bg-amber-950/25 dark:text-amber-100">
+                            {getContinueLearningCopy("gr").progressionUnavailable}
+                        </div>
+                    ) : null}
+                    {isValidCanonicalProgression(metadata?.progression) ? (
+                        <ContinueLearningCard progression={metadata.progression} lang="gr" />
+                    ) : (
                     <DashboardCard
                         title="Το επόμενο βήμα σου"
                         className="p-5"
@@ -1457,6 +1469,7 @@ export default function Dashboard() {
                             <p className="text-sm text-slate-600 dark:text-slate-300">Φόρτωση πρότασης…</p>
                         )}
                     </DashboardCard>
+                    )}
                 </div>
 
                 {/* 4) Κάτω διάταξη dashboard: Πρόοδος + Ενέργειες | Σήματα */}
