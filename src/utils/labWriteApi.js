@@ -354,6 +354,45 @@ export async function postLabsComplete({
 }
 
 /**
+ * GET /labs/coding01/status — Keycloak Bearer required; read-only self status.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function fetchCoding01Status({
+  apiBase,
+  idToken,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+
+  try {
+    const res = await fetch(`${base}/labs/coding01/status`, {
+      method: "GET",
+      headers: buildLabWriteAuthHeaders(token),
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
+
+/**
  * POST /labs/coding01/verify-contract — Keycloak Bearer required.
  * contractAddress is required; wallet/owner are not sent (backend derives learner from token).
  * @returns {Promise<{ ok: boolean, status: number, data: object }>}
@@ -678,6 +717,47 @@ export async function postLm08ContractInspectionAnswers({
       method: "POST",
       headers: buildLabWriteAuthHeaders(token),
       body: JSON.stringify({ answers }),
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
+
+/**
+ * POST /learning-modules/lm08/source-verification — Keycloak Bearer required.
+ * No authority fields in body; backend uses canonical Coding01 contract + Blockscout.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function postLm08SourceVerification({
+  apiBase,
+  idToken,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+
+  try {
+    const res = await fetch(`${base}/learning-modules/lm08/source-verification`, {
+      method: "POST",
+      headers: buildLabWriteAuthHeaders(token),
+      body: JSON.stringify({}),
     });
     const data = await res.json().catch(() => ({}));
     return {

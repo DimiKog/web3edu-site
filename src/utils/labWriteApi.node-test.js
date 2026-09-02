@@ -187,6 +187,28 @@ test("postCoding01AttributeDeployment sends Authorization Bearer with empty body
   assert.equal(body.includes("deployerAddress"), false);
 });
 
+test("fetchCoding01Status sends Bearer GET with no authority fields", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function fetchCoding01Status/);
+  const start = src.indexOf("export async function fetchCoding01Status");
+  const end = src.indexOf("/**\n * POST /labs/coding01/verify-contract");
+  const fn = src.slice(start, end);
+  assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(fn, /\/labs\/coding01\/status`/);
+  assert.match(fn, /method:\s*"GET"/);
+  assert.equal(fn.includes("wallet"), false);
+  assert.equal(fn.includes("contractAddress:"), false);
+});
+
+test("CodingLabInteraction1 imports getEffectiveLabsWalletIdentity (ReferenceError guard)", () => {
+  const src = read(join(__dirname, "../pages/labs/CodingLabInteraction1.jsx"));
+  assert.match(src, /getEffectiveLabsWalletIdentity\(identityArgs\)/);
+  assert.match(
+    src,
+    /import\s*\{[\s\S]*?getEffectiveLabsWalletIdentity[\s\S]*?\}\s*from\s*["']\.\.\/\.\.\/utils\/labWriteApi\.js["']/
+  );
+});
+
 test("CodingLabInteraction1 passes idToken to postCoding01VerifyContract", () => {
   const src = read(join(__dirname, "../pages/labs/CodingLabInteraction1.jsx"));
   assert.match(src, /postCoding01VerifyContract/);
@@ -249,4 +271,44 @@ test("Lm08 contract inspection locale includes EN and GR strings", () => {
   assert.match(locale, /contract_role/);
   assert.match(locale, /deployer_role/);
   assert.match(locale, /creation_tx_role/);
+});
+
+test("postLm08SourceVerification sends Bearer with empty body only", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function postLm08SourceVerification/);
+  const fn = src.slice(src.indexOf("export async function postLm08SourceVerification"));
+  assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(fn, /\/learning-modules\/lm08\/source-verification`/);
+  assert.match(fn, /method:\s*"POST"/);
+  assert.match(fn, /JSON\.stringify\(\{\}\)/);
+  assert.equal(fn.includes("contractAddress"), false);
+  assert.equal(fn.includes("wallet"), false);
+  assert.equal(fn.includes("progressAddress"), false);
+  assert.equal(fn.includes("learner"), false);
+});
+
+test("Lm08SourceVerificationPanel uses Bearer-backed API without inspection GET", () => {
+  const panel = read(
+    join(__dirname, "../components/learning-modules/Lm08SourceVerificationPanel.jsx")
+  );
+  assert.match(panel, /postLm08SourceVerification/);
+  assert.match(panel, /identityArgs\.idToken/);
+  assert.match(panel, /refetchResolvedIdentity/);
+  assert.doesNotMatch(panel, /fetchLm08ContractInspectionChallenge/);
+  assert.doesNotMatch(panel, /contract-inspection/);
+});
+
+test("Lm08 source verification locale includes EN and GR strings", () => {
+  const locale = read(join(__dirname, "../content/lm08SourceVerificationLocale.js"));
+  assert.match(locale, /Source-code Verification/);
+  assert.match(locale, /Επαλήθευση Πηγαίου Κώδικα/);
+  assert.match(locale, /Check Source Verification/);
+  assert.match(locale, /Έλεγχος επαλήθευσης κώδικα/);
+});
+
+test("routeTable registers source verification EN and GR routes", () => {
+  const routes = read(join(__dirname, "../routes/routeTable.jsx"));
+  assert.match(routes, /\/learning-modules\/lm08\/source-verification/);
+  assert.match(routes, /\/learning-modules-gr\/lm08\/source-verification/);
+  assert.match(routes, /Lm08SourceVerificationPage/);
 });

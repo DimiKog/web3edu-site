@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import SystemLabTemplate from "./SystemLabTemplate";
 import LabCompletionClaim from "../../components/LabCompletionClaim";
@@ -6,9 +6,12 @@ import CodingLab01SetupSection from "../../components/labs/CodingLab01SetupSecti
 import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
 import { getWeb3eduBackendUrl } from "../../lib/web3eduBackend.js";
 import {
+    getEffectiveLabsWalletIdentity,
+    fetchCoding01Status,
     postCoding01AttributeDeployment,
     postCoding01VerifyContract,
 } from "../../utils/labWriteApi.js";
+import { applyCoding01Hydration } from "../../utils/coding01HydrationView.js";
 import { normalizeEvmAddress } from "../../utils/evmAddress.js";
 import {
     AlertTriangle,
@@ -102,6 +105,7 @@ const CONTENT = {
         contractAddressLabel: "Deployed contract address",
         contractAddressPlaceholder: "0x…",
         verifyButton: "Verify Contract",
+        alreadyVerifiedButton: "Already verified",
         verifyingButton: "Verifying…",
         walletRequired: "Connect your Web3Edu identity before verifying a contract.",
         invalidAddress: "Enter a valid contract address (0x followed by 40 hex characters).",
@@ -242,6 +246,7 @@ contract Counter {
         contractAddressLabel: "Deployed contract address",
         contractAddressPlaceholder: "0x…",
         verifyButton: "Επαλήθευση Contract",
+        alreadyVerifiedButton: "Ήδη επαληθευμένο",
         verifyingButton: "Επαλήθευση…",
         walletRequired: "Σύνδεσε την Web3Edu identity σου πριν την επαλήθευση contract.",
         invalidAddress: "Εισήγαγε έγκυρη contract address (0x ακολουθούμενο από 40 hex χαρακτήρες).",
@@ -359,6 +364,50 @@ export default function CodingLabInteraction1({ lang = "en" }) {
     const [checkpointAnswer, setCheckpointAnswer] = useState(null);
     const [checkpointSubmitted, setCheckpointSubmitted] = useState(false);
     const [checkpointCorrect, setCheckpointCorrect] = useState(false);
+
+    useEffect(() => {
+        if (!identityArgs.idToken) {
+            return undefined;
+        }
+
+        let cancelled = false;
+
+        const hydrateCoding01Status = async () => {
+            try {
+                const result = await fetchCoding01Status({
+                    apiBase,
+                    idToken: identityArgs.idToken,
+                });
+                if (cancelled || !result.ok || result.data?.verified !== true) {
+                    return;
+                }
+
+                const hydrated = applyCoding01Hydration(result.data);
+                if (!hydrated || cancelled) {
+                    return;
+                }
+
+                setContractAddressInput(hydrated.contractAddressInput);
+                setContractVerified(hydrated.contractVerified);
+                setVerificationResult(hydrated.verificationResult);
+                setVerificationError(null);
+
+                if (hydrated.deploymentAttributed) {
+                    setDeploymentAttributed(true);
+                    setDeploymentAttributionResult(hydrated.deploymentAttributionResult);
+                    setDeploymentAttributionError(null);
+                }
+            } catch {
+                /* non-blocking — fresh-session UI remains usable */
+            }
+        };
+
+        void hydrateCoding01Status();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [apiBase, identityArgs.idToken]);
 
     const stepItems = useMemo(() => {
         const current = [
@@ -713,9 +762,9 @@ export default function CodingLabInteraction1({ lang = "en" }) {
                             <button
                                 type="button"
                                 onClick={verifyContract}
-                                disabled={verifying || !contractAddressInput.trim()}
+                                disabled={verifying || !contractAddressInput.trim() || contractVerified}
                                 className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition ${
-                                    verifying || !contractAddressInput.trim()
+                                    verifying || !contractAddressInput.trim() || contractVerified
                                         ? "cursor-not-allowed border border-slate-200/70 bg-slate-100 text-slate-400 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-500"
                                         : "border border-cyan-300/70 bg-cyan-50 text-cyan-700 hover:bg-cyan-100 dark:border-cyan-400/25 dark:bg-cyan-400/10 dark:text-cyan-100 dark:hover:bg-cyan-400/15"
                                 }`}
@@ -725,6 +774,8 @@ export default function CodingLabInteraction1({ lang = "en" }) {
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                         {copy.verifyingButton}
                                     </>
+                                ) : contractVerified ? (
+                                    copy.alreadyVerifiedButton
                                 ) : (
                                     copy.verifyButton
                                 )}

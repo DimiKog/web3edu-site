@@ -85,18 +85,27 @@ test("LM08 contract inspection EN/GR", () => {
     assert.equal(gr.route, "/learning-modules-gr/lm08/contract-inspection");
 });
 
-test("LM08 source verification unavailable", () => {
-    const result = resolveProgressionActionTarget({
+test("LM08 source verification EN/GR ready routes", () => {
+    const en = resolveProgressionActionTarget({
         nextAction: {
             type: "learning_module_evidence",
             evidenceId: "lm08-source-verification",
         },
         lang: "en",
     });
-    assert.equal(result.status, "unavailable");
-    assert.equal(result.route, null);
-    assert.match(result.label, /Source/i);
-    assert.match(result.cta, /not yet available/i);
+    assert.equal(en.status, "ready");
+    assert.equal(en.route, "/learning-modules/lm08/source-verification");
+
+    const gr = resolveProgressionActionTarget({
+        nextAction: {
+            type: "learning_module_evidence",
+            evidenceId: "lm08-source-verification",
+        },
+        lang: "gr",
+    });
+    assert.equal(gr.status, "ready");
+    assert.equal(gr.route, "/learning-modules-gr/lm08/source-verification");
+    assert.match(gr.label, /Πηγαίου/i);
 });
 
 test("assessment coming soon", () => {

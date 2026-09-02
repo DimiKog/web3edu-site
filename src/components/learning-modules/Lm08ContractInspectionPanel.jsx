@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   ExternalLink,
   Loader2,
-  ShieldCheck,
 } from "lucide-react";
 import { LM08_CONTRACT_INSPECTION_COPY } from "../../content/lm08ContractInspectionLocale.js";
 import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
@@ -143,16 +142,7 @@ export default function Lm08ContractInspectionPanel({ lang = "en" }) {
   }, [copy.attributionRequired, copy.coding01Required, notReadyError]);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
-      <div className="rounded-[2rem] border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04] sm:p-8">
-        <div className="flex items-start gap-3 text-cyan-700 dark:text-cyan-200">
-          <ShieldCheck className="mt-1 h-6 w-6 shrink-0" />
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{copy.title}</h1>
-            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">{copy.subtitle}</p>
-          </div>
-        </div>
-
+    <div className="rounded-[2rem] border border-slate-200/70 bg-white/80 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04] sm:p-8">
         {loading && (
           <div className="mt-8 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -298,16 +288,6 @@ export default function Lm08ContractInspectionPanel({ lang = "en" }) {
             )}
           </div>
         )}
-
-        <div className="mt-8">
-          <Link
-            to={copy.labsPath}
-            className="text-sm font-semibold text-cyan-700 underline decoration-cyan-300/70 underline-offset-2 hover:text-cyan-600 dark:text-cyan-200"
-          >
-            {copy.backToLabs}
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }

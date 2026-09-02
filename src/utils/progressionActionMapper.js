@@ -12,6 +12,7 @@ const EVIDENCE_ROUTES = {
         coding01: "/labs/coding-01/interaction",
         coding02: "/labs/coding-02/interaction",
         "lm08-contract-inspection": "/learning-modules/lm08/contract-inspection",
+        "lm08-source-verification": "/learning-modules/lm08/source-verification",
     },
     gr: {
         lab01: "/labs-gr/wallets-keys",
@@ -23,11 +24,11 @@ const EVIDENCE_ROUTES = {
         coding01: "/labs-gr/coding-01/interaction",
         coding02: "/labs-gr/coding-02/interaction",
         "lm08-contract-inspection": "/learning-modules-gr/lm08/contract-inspection",
+        "lm08-source-verification": "/learning-modules-gr/lm08/source-verification",
     },
 };
 
 const UNAVAILABLE_EVIDENCE_IDS = new Set([
-    "lm08-source-verification",
     "lm02-decision",
     "lm03-platform-decision",
     "lm05-pel-transaction",

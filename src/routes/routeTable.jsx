@@ -76,6 +76,9 @@ const CodingLabInteraction2 = lazy(() => import("../pages/labs/CodingLabInteract
 const Lm08ContractInspectionPage = lazy(
   () => import("../pages/learning-modules/Lm08ContractInspectionPage.jsx")
 );
+const Lm08SourceVerificationPage = lazy(
+  () => import("../pages/learning-modules/Lm08SourceVerificationPage.jsx")
+);
 const SystemLabS0 = lazy(() => import("../pages/labs/SystemLabS0.jsx"));
 const SystemLabS0Interaction = lazy(() => import("../pages/labs/SystemLabS0Interaction.jsx"));
 const SystemLabS1 = lazy(() => import("../pages/labs/SystemLabS1.jsx"));
@@ -220,6 +223,12 @@ export const routeTable = {
       {
         path: "/learning-modules-gr/lm08/contract-inspection",
         component: Lm08ContractInspectionPage,
+        props: { lang: "gr" },
+      },
+      { path: "/learning-modules/lm08/source-verification", component: Lm08SourceVerificationPage },
+      {
+        path: "/learning-modules-gr/lm08/source-verification",
+        component: Lm08SourceVerificationPage,
         props: { lang: "gr" },
       },
       { path: "/labs/system/s0", component: SystemLabS0 },
