@@ -28,6 +28,16 @@ const EVIDENCE_ROUTES = {
     },
 };
 
+/** @type {Record<"en"|"gr", Record<string, string>>} */
+const ASSESSMENT_ROUTES = {
+    en: {
+        "lm01-assessment": "/learning-modules/lm01/assessment",
+    },
+    gr: {
+        "lm01-assessment": "/learning-modules-gr/lm01/assessment",
+    },
+};
+
 const UNAVAILABLE_EVIDENCE_IDS = new Set([
     "lm02-decision",
     "lm03-platform-decision",
@@ -80,6 +90,15 @@ export function resolveProgressionActionTarget({ nextAction, lang = "en" }) {
 
     if (type === "assessment") {
         const assessmentId = String(nextAction.assessmentId || "");
+        const route = ASSESSMENT_ROUTES[localeKey][assessmentId] ?? null;
+        if (route) {
+            return {
+                status: "ready",
+                route,
+                label: copy.evidenceLabels[assessmentId] || copy.assessmentDefault,
+                cta: copy.continueArrow,
+            };
+        }
         return {
             status: "coming_soon",
             route: null,
@@ -126,4 +145,4 @@ export function resolveProgressionActionTarget({ nextAction, lang = "en" }) {
     };
 }
 
-export { EVIDENCE_ROUTES };
+export { EVIDENCE_ROUTES, ASSESSMENT_ROUTES };

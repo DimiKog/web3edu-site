@@ -108,7 +108,7 @@ test("LM08 source verification EN/GR ready routes", () => {
     assert.match(gr.label, /Πηγαίου/i);
 });
 
-test("assessment coming soon", () => {
+test("LM01 assessment EN/GR ready routes", () => {
     const en = resolveProgressionActionTarget({
         nextAction: {
             type: "assessment",
@@ -117,9 +117,9 @@ test("assessment coming soon", () => {
         },
         lang: "en",
     });
-    assert.equal(en.status, "coming_soon");
-    assert.equal(en.route, null);
-    assert.match(en.cta, /Assessment coming soon/i);
+    assert.equal(en.status, "ready");
+    assert.equal(en.route, "/learning-modules/lm01/assessment");
+    assert.match(en.cta, /Continue/i);
 
     const gr = resolveProgressionActionTarget({
         nextAction: {
@@ -129,7 +129,23 @@ test("assessment coming soon", () => {
         },
         lang: "gr",
     });
-    assert.match(gr.cta, /αξιολόγηση/i);
+    assert.equal(gr.status, "ready");
+    assert.equal(gr.route, "/learning-modules-gr/lm01/assessment");
+    assert.match(gr.cta, /Συνέχεια/i);
+});
+
+test("other assessments remain coming soon", () => {
+    const en = resolveProgressionActionTarget({
+        nextAction: {
+            type: "assessment",
+            moduleId: "LM04",
+            assessmentId: "lm04-assessment",
+        },
+        lang: "en",
+    });
+    assert.equal(en.status, "coming_soon");
+    assert.equal(en.route, null);
+    assert.match(en.cta, /Assessment coming soon/i);
 });
 
 test("future evidence unavailable", () => {

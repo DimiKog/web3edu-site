@@ -33,7 +33,7 @@ test("no progression.js import in ContinueLearningCard or view helper", () => {
     assert.doesNotMatch(viewSrc, /from ["'].*progression\.js["']/);
 });
 
-test("fresh learner assessment state", () => {
+test("fresh learner assessment state routes to LM01 assessment", () => {
     const progression = {
         earnedTier: "explorer",
         computedTier: null,
@@ -49,8 +49,9 @@ test("fresh learner assessment state", () => {
     const view = getContinueLearningViewState(progression, "en");
     assert.equal(view.mode, "active");
     assert.equal(view.moduleId, "LM01");
-    assert.equal(view.action.status, "coming_soon");
-    assert.match(view.action.cta, /Assessment coming soon/i);
+    assert.equal(view.action.status, "ready");
+    assert.equal(view.action.route, "/learning-modules/lm01/assessment");
+    assert.match(view.action.cta, /Continue/i);
 });
 
 test("legacy Builder bridge required → inspection CTA ready", () => {

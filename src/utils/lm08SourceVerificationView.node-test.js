@@ -169,7 +169,9 @@ test("panel has no XP or LM completion mutation", () => {
 
 test("labWriteApi postLm08SourceVerification uses Bearer only", () => {
     const src = readFileSync(labWritePath, "utf8");
-    const fn = src.slice(src.indexOf("export async function postLm08SourceVerification"));
+    const start = src.indexOf("export async function postLm08SourceVerification");
+    const end = src.indexOf("export async function fetchLm01AssessmentChallenge", start);
+    const fn = end === -1 ? src.slice(start) : src.slice(start, end);
     assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
     assert.match(fn, /\/learning-modules\/lm08\/source-verification`/);
     assert.match(fn, /JSON\.stringify\(\{\}\)/);
