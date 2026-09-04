@@ -265,3 +265,14 @@ test("component stays isolated from mining / System Lab S1 imports", () => {
   assert.doesNotMatch(panelSrc, /labWriteApi/);
   assert.doesNotMatch(panelSrc, /postLabsComplete|fetchLm01Assessment/);
 });
+
+test("embedded presentation changes framing only, not simulator state logic", () => {
+  const panelSrc = readFileSync(
+    join(__dirname, "../components/learning-modules/Lm01BlockchainSimulator.jsx"),
+    "utf8"
+  );
+  assert.match(panelSrc, /presentation = "standalone"/);
+  assert.match(panelSrc, /presentation === "embedded"/);
+  assert.match(panelSrc, /data-presentation=\{presentation\}/);
+  assert.match(panelSrc, /reduceLm01SimulatorState/);
+});

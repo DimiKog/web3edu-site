@@ -19,6 +19,7 @@ import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.
 import { useAuth } from "react-oidc-context";
 import { loadIdentityState } from "../utils/aaIdentity.js";
 import { signOutKeycloakAccount } from "../auth/keycloakSignOut.js";
+import { saveReturnUrl } from "../auth/oidcConfig.js";
 import { isNeutralAfterLogout, setViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 import { resolveNavIdentityMenuHint } from "../utils/dashboardIdentityUi.js";
 import { useAdminEligibility } from "../hooks/useAdminEligibility.js";
@@ -277,6 +278,12 @@ export default function PageShell({
     setMobileOpen(false);
   };
 
+  /** Preserve current non-join route, then open Join for sign-in. */
+  const goToJoinForSignIn = () => {
+    saveReturnUrl();
+    navigateTo(isGR ? "#/join-gr" : "#/join");
+  };
+
   const normalizedHash = currentHash.split("?")[0];
   const isAdminRoute =
     String(location?.pathname || "").startsWith("/admin") ||
@@ -455,6 +462,18 @@ export default function PageShell({
                   Ξεκίνα εδώ
                 </a>
                 <a
+                  href="/#/learning-modules-gr/lm01"
+                  className="relative font-medium
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  Μάθηση
+                </a>
+                <a
                   href="/#/labs-gr"
                   className="relative font-medium 
     text-slate-800 dark:text-slate-100
@@ -535,6 +554,18 @@ export default function PageShell({
                   Start Here
                 </a>
                 <a
+                  href="/#/learning-modules/lm01"
+                  className="relative font-medium
+    text-slate-800 dark:text-slate-100
+    hover:text-indigo-700 dark:hover:text-white
+    after:absolute after:-bottom-1 after:left-0 after:h-[2px]
+    after:w-full after:scale-x-0 after:bg-gradient-to-r
+    after:from-[#7b3df8] after:to-[#00d4ff]
+    after:transition-transform hover:after:scale-x-100"
+                >
+                  Learn
+                </a>
+                <a
                   href="/#/labs"
                   className="relative font-medium 
     text-slate-800 dark:text-slate-100
@@ -607,9 +638,7 @@ export default function PageShell({
             ) : null}
             {showJoinCta && (
                 <button
-                  onClick={() => {
-                    window.location.hash = isGR ? "#/join-gr" : "#/join";
-                  }}
+                  onClick={goToJoinForSignIn}
                   className={navAuthPrimaryClass}
                 >
                   {identityEntryLabel}
@@ -658,6 +687,7 @@ export default function PageShell({
                               String(displayAddress)
                             );
                           }
+                          saveReturnUrl();
                           void auth?.signinRedirect?.();
                         }}
                       >
@@ -810,6 +840,7 @@ export default function PageShell({
                 type="button"
                 onClick={() => {
                   setViewerMode(VIEWER_MODES.social);
+                  saveReturnUrl();
                   void auth?.signinRedirect?.();
                 }}
                 className="inline-flex items-center justify-center rounded-lg bg-sky-700 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500"
@@ -867,6 +898,15 @@ export default function PageShell({
                       Ξεκίνα εδώ
                     </button>
                     <button
+                      onClick={() => navigateTo("#/learning-modules-gr/lm01")}
+                      className="w-full rounded-xl border border-slate-300/40
+    dark:border-slate-700/60 bg-white/70
+    dark:bg-slate-800/80 py-3 text-sm font-semibold
+    text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
+                    >
+                      Μάθηση
+                    </button>
+                    <button
                       onClick={() => navigateTo("#/labs-gr")}
                       className="w-full rounded-xl border border-slate-300/40 
     dark:border-slate-700/60 bg-white/70 
@@ -921,6 +961,15 @@ export default function PageShell({
                       Start Here
                     </button>
                     <button
+                      onClick={() => navigateTo("#/learning-modules/lm01")}
+                      className="w-full rounded-xl border border-slate-300/40
+    dark:border-slate-700/60 bg-white/70
+    dark:bg-slate-800/80 py-3 text-sm font-semibold
+    text-slate-800 dark:text-blue-100 hover:border-indigo-400/50"
+                    >
+                      Learn
+                    </button>
+                    <button
                       onClick={() => navigateTo("#/labs")}
                       className="w-full rounded-xl border border-slate-300/40 
     dark:border-slate-700/60 bg-white/70 
@@ -970,7 +1019,7 @@ export default function PageShell({
               ) : null}
               {showJoinCta && (
                   <button
-                    onClick={() => navigateTo(isGR ? "#/join-gr" : "#/join")}
+                    onClick={goToJoinForSignIn}
                     className={`${navAuthPrimaryClass.replace("rounded-full", "rounded-xl").replace("py-1.5", "py-3")} w-full shadow-lg`}
                   >
                     {identityEntryLabel}
@@ -1018,6 +1067,7 @@ export default function PageShell({
                                 String(displayAddress)
                               );
                             }
+                            saveReturnUrl();
                             void auth?.signinRedirect?.();
                           }}
                         >

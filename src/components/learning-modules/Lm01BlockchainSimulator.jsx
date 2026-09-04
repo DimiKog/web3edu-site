@@ -188,10 +188,14 @@ function LinkConnector({ valid, copy, emphasize = false, vertical = false }) {
 
 /**
  * Isolated LM01 interactive — no XP, evidence, routing, or backend.
- * @param {{ lang?: "en"|"gr" }} props
+ * @param {{ lang?: "en"|"gr", presentation?: "standalone"|"embedded" }} props
  */
-export default function Lm01BlockchainSimulator({ lang = "en" }) {
+export default function Lm01BlockchainSimulator({
+  lang = "en",
+  presentation = "standalone",
+}) {
   const locale = lang === "gr" ? "gr" : "en";
+  const embedded = presentation === "embedded";
   const copy = getLm01BlockchainSimulatorCopy(locale);
   const [state, dispatch] = useReducer(
     reduceLm01SimulatorState,
@@ -255,20 +259,29 @@ export default function Lm01BlockchainSimulator({ lang = "en" }) {
   ];
 
   return (
-    <section className="rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/80 to-indigo-50/50 p-5 shadow-sm dark:border-white/10 dark:from-slate-900/80 dark:via-slate-900/60 dark:to-indigo-950/30 sm:p-7">
-      <header className="max-w-3xl">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-300">
-          LM01
-        </p>
-        <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-          {copy.title}
-        </h2>
-        <p className="mt-2 text-base leading-7 text-slate-600 dark:text-slate-300">
-          {copy.tagline}
-        </p>
-      </header>
+    <section
+      className={
+        embedded
+          ? "border-t border-slate-200/80 pt-6 dark:border-white/10"
+          : "rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/80 to-indigo-50/50 p-5 shadow-sm dark:border-white/10 dark:from-slate-900/80 dark:via-slate-900/60 dark:to-indigo-950/30 sm:p-7"
+      }
+      data-presentation={presentation}
+    >
+      {!embedded ? (
+        <header className="max-w-3xl">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-300">
+            LM01
+          </p>
+          <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
+            {copy.title}
+          </h2>
+          <p className="mt-2 text-base leading-7 text-slate-600 dark:text-slate-300">
+            {copy.tagline}
+          </p>
+        </header>
+      ) : null}
 
-      <div className="mt-5 flex flex-wrap gap-2" aria-label="Experiment stages">
+      <div className={`${embedded ? "" : "mt-5"} flex flex-wrap gap-2`} aria-label="Experiment stages">
         {chips.map(([id, label]) => {
           const active = stageChipActive(state.stage, id);
           return (

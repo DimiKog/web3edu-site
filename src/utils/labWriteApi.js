@@ -775,6 +775,45 @@ export async function postLm08SourceVerification({
 }
 
 /**
+ * GET /learning-modules/progression — canonical Curriculum v2 learner progression.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function fetchLearningModulesProgression({
+  apiBase,
+  idToken,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+
+  try {
+    const res = await fetch(`${base}/learning-modules/progression`, {
+      method: "GET",
+      headers: buildLabWriteAuthHeaders(token),
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
+
+/**
  * GET /learning-modules/lm01/assessment — challenge skeleton (no answer key).
  * @returns {Promise<{ ok: boolean, status: number, data: object }>}
  */
