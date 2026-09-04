@@ -4,6 +4,7 @@ import PageShell from "../../components/PageShell.jsx";
 import LmLearningPath from "../../components/learning-modules/LmLearningPath.jsx";
 import LmProgressSidebar from "../../components/learning-modules/LmProgressSidebar.jsx";
 import LmChapterClose from "../../components/learning-modules/LmChapterClose.jsx";
+import Lm01BlockchainSimulator from "../../components/learning-modules/Lm01BlockchainSimulator.jsx";
 import { LmApprovedVisual, LmHeroMetaMark, LmOutcomeMark } from "../../components/learning-modules/LmVisuals.jsx";
 import { getLmPageCopy } from "../../content/lmPageLocale.js";
 import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
@@ -240,7 +241,13 @@ export default function Lm01Page({ lang = "en" }) {
               </ul>
             </section>
 
-            <LmLearningPath activities={view.activities} lang={locale} />
+            <LmLearningPath
+              activities={view.activities}
+              lang={locale}
+              renderEmbed={(_row, { lang: embedLang }) => (
+                <Lm01BlockchainSimulator lang={embedLang} presentation="embedded" />
+              )}
+            />
             <LmChapterClose view={view} lang={locale} />
           </div>
 

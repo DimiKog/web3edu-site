@@ -1,6 +1,7 @@
 /**
  * Pure LM page view helpers — map canonical progression → presentation.
  * Never invents completion for resources/simulators.
+ * Never owns curriculum rules: evidence satisfaction, module.complete, XP, tiers.
  */
 
 import { ASSESSMENT_ROUTES, resolveProgressionActionTarget } from "./progressionActionMapper.js";
@@ -28,6 +29,32 @@ export function getCanonicalModuleEntry(progression, moduleId) {
   if (!modules || typeof modules !== "object") return null;
   const entry = modules[moduleId];
   return entry && typeof entry === "object" ? entry : null;
+}
+
+/**
+ * @param {object|null|undefined} moduleEntry
+ * @param {string} evidenceId
+ * @returns {boolean|null} true/false when canonical entry exists; null when absent
+ */
+export function getCanonicalEvidenceSatisfied(moduleEntry, evidenceId) {
+  if (!evidenceId || !moduleEntry || typeof moduleEntry !== "object") return null;
+  const map = moduleEntry.requiredEvidence;
+  if (!map || typeof map !== "object") return null;
+  const entry = map[evidenceId];
+  if (!entry || typeof entry !== "object") return null;
+  return Boolean(entry.satisfied);
+}
+
+/**
+ * @param {object|null|undefined} moduleEntry
+ */
+export function moduleHasUnsatisfiedPracticalEvidence(moduleEntry) {
+  const map = moduleEntry?.requiredEvidence;
+  if (!map || typeof map !== "object") return false;
+  return Object.keys(map).some((evidenceId) => {
+    const entry = map[evidenceId];
+    return !(entry && typeof entry === "object" && entry.satisfied);
+  });
 }
 
 /**
@@ -63,7 +90,100 @@ export function getLmAssessmentPresentation(moduleEntry, lang = "en", options = 
 }
 
 /**
- * Activity row presentation. Resources never show "Completed".
+ * Sidebar / evidence checklist from canonical moduleEntry + presentation wiring.
+ * Practical IDs come only from moduleEntry.requiredEvidence; titles from activities.
+ * @param {object|null} moduleEntry
+ * @param {Array<object>} activities registry (or row) activities with optional evidenceId
+ * @param {"en"|"gr"} lang
+ * @param {{
+ *   canonical?: boolean,
+ *   assessment?: ReturnType<typeof getLmAssessmentPresentation>|null,
+ * }} [options]
+ */
+export function getLmRequiredEvidenceListPresentation(
+  moduleEntry,
+  activities = [],
+  lang = "en",
+  options = {}
+) {
+  const copy = getLmPageCopy(lang);
+  const locale = lang === "gr" ? "gr" : "en";
+  const canonical = options.canonical === true;
+  const assessment =
+    options.assessment ??
+    getLmAssessmentPresentation(moduleEntry, locale, { canonical });
+  /** @type {Array<object>} */
+  const items = [];
+
+  const reqMap = moduleEntry?.requiredEvidence;
+  if (reqMap && typeof reqMap === "object") {
+    for (const evidenceId of Object.keys(reqMap)) {
+      const entry = reqMap[evidenceId];
+      const satisfied =
+        entry && typeof entry === "object" ? Boolean(entry.satisfied) : false;
+      const activity = activities.find(
+        (a) => a && (a.evidenceId === evidenceId || a.id === evidenceId)
+      );
+      const title =
+        (activity &&
+          (activity.title?.[locale] ||
+            activity.title?.en ||
+            activity.title)) ||
+        evidenceId;
+      const href =
+        activity?.href ||
+        (activity ? resolveLmActivityHref(activity, locale) : null) ||
+        null;
+      items.push({
+        id: evidenceId,
+        kind: "practical",
+        evidenceId,
+        title,
+        satisfied: canonical ? satisfied : false,
+        requirementLabel: copy.evidenceRequired,
+        statusLabel: !canonical
+          ? null
+          : satisfied
+            ? copy.evidenceSatisfied
+            : null,
+        route: typeof href === "string" ? href : null,
+        ctaLabel: href ? copy.continueActivity : null,
+      });
+    }
+  }
+
+  if (assessment?.required !== false) {
+    const assessmentActivity = activities.find(
+      (a) =>
+        a &&
+        (a.visualType === "assessment" ||
+          a.evidenceId === assessment.assessmentId)
+    );
+    const title =
+      (assessmentActivity &&
+        (assessmentActivity.title?.[locale] ||
+          assessmentActivity.title?.en ||
+          assessmentActivity.title)) ||
+      copy.assessmentTitle;
+    items.push({
+      id: assessment.assessmentId || "assessment",
+      kind: "assessment",
+      evidenceId: assessment.assessmentId || null,
+      title,
+      satisfied: canonical ? Boolean(assessment.passed) : false,
+      requirementLabel: copy.assessmentRequired,
+      statusLabel: assessment.statusLabel,
+      route: assessment.route || null,
+      ctaLabel: assessment.ctaLabel,
+    });
+  }
+
+  return items;
+}
+
+/**
+ * Activity row presentation. Resources never show evidence completion.
+ * Practical rows with evidenceId wire to moduleEntry.requiredEvidence only.
  * @param {object} activity
  * @param {object|null} moduleEntry
  * @param {"en"|"gr"} lang
@@ -77,9 +197,19 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
   const href = resolveLmActivityHref(activity, locale);
   const isAssessment = activity.visualType === "assessment";
   const isSimulator = activity.linkKind === "embed";
+  const evidenceId =
+    typeof activity.evidenceId === "string" && activity.evidenceId.trim()
+      ? activity.evidenceId.trim()
+      : null;
   const assessment = isAssessment
     ? getLmAssessmentPresentation(moduleEntry, locale, { canonical })
     : null;
+
+  const practicalSatisfied =
+    !isAssessment && evidenceId
+      ? getCanonicalEvidenceSatisfied(moduleEntry, evidenceId)
+      : null;
+  const hasPracticalEvidenceWiring = practicalSatisfied !== null;
 
   let statusKind = "available";
   let statusLabel = copy.resourceAvailable;
@@ -105,6 +235,11 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
     statusLabel = copy.simulatorInteractive;
   }
 
+  if (hasPracticalEvidenceWiring && canonical) {
+    statusKind = practicalSatisfied ? "evidence_satisfied" : "evidence_required";
+    statusLabel = practicalSatisfied ? copy.evidenceSatisfied : copy.evidenceRequired;
+  }
+
   if (isAssessment && assessment) {
     statusKind = canonical && assessment.passed ? "assessment_passed" : "assessment_required";
     statusLabel =
@@ -118,6 +253,8 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
     ctaLabel = copy.openSimulator;
   } else if (activity.linkKind === "external") {
     ctaLabel = activity.visualType === "demo" ? copy.openDemo : copy.openExternal;
+  } else if (activity.linkKind === "internal" && href) {
+    ctaLabel = copy.continueActivity;
   }
 
   return {
@@ -133,6 +270,14 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
     href: isAssessment ? assessment?.route || href : href,
     embed: isSimulator,
     presentationOnly: Boolean(activity.presentationOnly),
+    evidenceId,
+    evidenceSatisfied: hasPracticalEvidenceWiring
+      ? canonical
+        ? practicalSatisfied
+        : null
+      : isAssessment
+        ? assessment?.passed ?? null
+        : null,
     statusKind,
     statusLabel,
     ctaLabel,
@@ -141,9 +286,142 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
 }
 
 /**
+ * Canonical next required step for the chapter being viewed.
+ * Presentation only — does not invent curriculum order.
+ * @param {{
+ *   progressionValid?: boolean,
+ *   complete?: boolean,
+ *   moduleId?: string,
+ *   currentModule?: string|null,
+ *   nextAction?: object|null,
+ *   nextRequiredEvidence?: string|null,
+ *   moduleEntry?: object|null,
+ *   activities?: Array<object>,
+ *   assessment?: object|null,
+ * }} view
+ * @param {"en"|"gr"} lang
+ */
+export function getLmNextRequiredStepPresentation(view, lang = "en") {
+  const copy = getLmPageCopy(lang);
+  const locale = lang === "gr" ? "gr" : "en";
+  const moduleId = view?.moduleId || "LM01";
+  const assessment = view?.assessment || null;
+  const activities = Array.isArray(view?.activities) ? view.activities : [];
+
+  const assessmentTitle =
+    activities.find((a) => a.visualType === "assessment")?.title ||
+    copy.assessmentTitle;
+
+  if (view?.complete) {
+    return null;
+  }
+
+  if (!view?.progressionValid) {
+    return {
+      kind: "assessment",
+      evidenceId: null,
+      assessmentId: assessment?.assessmentId || null,
+      title: assessmentTitle,
+      body: copy.closingNextBody,
+      route: assessment?.route || null,
+      ctaLabel: copy.openAssessment,
+      visualSrc: view?.presentation?.visuals?.nextStep || null,
+    };
+  }
+
+  const nextAction =
+    view.nextAction && typeof view.nextAction === "object" ? view.nextAction : null;
+  const actionForThisModule =
+    nextAction && nextAction.moduleId === moduleId ? nextAction : null;
+
+  const findActivityForEvidence = (evidenceId) =>
+    activities.find(
+      (a) => a && (a.evidenceId === evidenceId || a.id === evidenceId)
+    );
+
+  const buildEvidenceStep = (evidenceId) => {
+    const activity = findActivityForEvidence(evidenceId);
+    const mapped = resolveProgressionActionTarget({
+      nextAction: {
+        type: "learning_module_evidence",
+        moduleId,
+        evidenceId,
+      },
+      lang: locale,
+    });
+    const route =
+      (typeof activity?.href === "string" && activity.href) ||
+      (mapped.status === "ready" ? mapped.route : null) ||
+      null;
+    return {
+      kind: "evidence",
+      evidenceId,
+      assessmentId: null,
+      title: activity?.title || mapped.label || evidenceId,
+      body: copy.closingNextEvidenceBody,
+      route,
+      ctaLabel: route ? copy.continueActivity : null,
+      visualSrc: view?.presentation?.visuals?.nextStep || null,
+    };
+  };
+
+  const buildAssessmentStep = () => ({
+    kind: "assessment",
+    evidenceId: null,
+    assessmentId: assessment?.assessmentId || null,
+    title: assessmentTitle,
+    body: copy.closingNextBody,
+    route: assessment?.route || null,
+    ctaLabel: copy.openAssessment,
+    visualSrc: view?.presentation?.visuals?.nextStep || null,
+  });
+
+  if (actionForThisModule?.type === "learning_module_evidence") {
+    const evidenceId = String(actionForThisModule.evidenceId || "");
+    if (evidenceId) return buildEvidenceStep(evidenceId);
+  }
+
+  if (actionForThisModule?.type === "assessment") {
+    return buildAssessmentStep();
+  }
+
+  // Module-local presentation when this chapter is the canonical current module.
+  if (view.currentModule === moduleId) {
+    const nextEvidence =
+      typeof view.nextRequiredEvidence === "string" && view.nextRequiredEvidence
+        ? view.nextRequiredEvidence
+        : null;
+    if (nextEvidence) {
+      return buildEvidenceStep(nextEvidence);
+    }
+    if (assessment && assessment.required !== false && !assessment.passed) {
+      return buildAssessmentStep();
+    }
+  }
+
+  // nextAction targets another module, or currentModule has moved on while this
+  // module remains incomplete (e.g. legacy Builder bridge). Do not invent a step.
+  return {
+    kind: "neutral",
+    evidenceId: null,
+    assessmentId: null,
+    title: moduleId,
+    body: copy.closingNeutralBody,
+    route: null,
+    ctaLabel: null,
+    visualSrc: view?.presentation?.visuals?.nextStep || null,
+  };
+}
+
+/**
  * Learn → Explore → Assess → Complete visual. Learner fill comes only from
- * canonical assessment/module completion — never from resource opens.
- * @param {{ progressionValid?: boolean, complete?: boolean, assessment?: { passed?: boolean } }} view
+ * canonical assessment/module/evidence completion — never from resource opens.
+ * @param {{
+ *   progressionValid?: boolean,
+ *   complete?: boolean,
+ *   assessment?: { passed?: boolean },
+ *   moduleEntry?: object|null,
+ * }} view
  * @param {"en"|"gr"} lang
  */
 export function getLmProgressStages(view, lang = "en") {
@@ -163,7 +441,20 @@ export function getLmProgressStages(view, lang = "en") {
     return stages.map((stage) => ({ ...stage, state: "done" }));
   }
 
+  const practicalPending = moduleHasUnsatisfiedPracticalEvidence(
+    view.moduleEntry ?? null
+  );
   const assessmentPassed = Boolean(view.assessment?.passed);
+
+  if (practicalPending) {
+    return [
+      { ...stages[0], state: "open" },
+      { ...stages[1], state: "current" },
+      { ...stages[2], state: "idle" },
+      { ...stages[3], state: "idle" },
+    ];
+  }
+
   return [
     { ...stages[0], state: "open" },
     { ...stages[1], state: "open" },
@@ -219,9 +510,7 @@ export function getLmOverallPathPresentation(view, lang = "en") {
 }
 
 /**
- * Chapter-ending CTA. Incomplete LM01 always points at the assessment.
- * Complete LM01 acknowledges completion and continues only if canonical
- * nextAction already has a ready route (never invents LM02).
+ * Chapter-ending CTA from canonical complete + nextRequiredStep only.
  * @param {object} view
  * @param {"en"|"gr"} lang
  */
@@ -259,21 +548,55 @@ export function getLmClosingCtaPresentation(view, lang = "en") {
     };
   }
 
+  const step =
+    view?.nextRequiredStep ||
+    getLmNextRequiredStepPresentation(view, locale);
+
+  if (!step || step.kind === "neutral") {
+    return {
+      kind: "neutral",
+      eyebrow: copy.nextRequired,
+      title: step?.title || view?.moduleId || "",
+      body: step?.body || copy.closingNeutralBody,
+      currentModule: null,
+      currentModuleTitle: null,
+      route: null,
+      ctaLabel: null,
+      visualSrc:
+        step?.visualSrc || view?.presentation?.visuals?.nextStep || null,
+    };
+  }
+
+  if (step.kind === "evidence") {
+    return {
+      kind: "next_evidence",
+      eyebrow: copy.nextRequired,
+      title: step.title,
+      body: step.body,
+      currentModule: null,
+      currentModuleTitle: null,
+      route: step.route,
+      ctaLabel: step.ctaLabel,
+      visualSrc: step.visualSrc,
+    };
+  }
+
+  // assessment (LM01 incomplete default)
   return {
     kind: "next_assessment",
     eyebrow: copy.nextRequired,
-    title: copy.assessmentTitle,
-    body: copy.closingNextBody,
+    title: step.title,
+    body: step.body,
     currentModule: null,
     currentModuleTitle: null,
-    route: view?.assessment?.route || null,
-    ctaLabel: copy.openAssessment,
-    visualSrc: view?.presentation?.visuals?.nextStep || null,
+    route: step.route,
+    ctaLabel: step.ctaLabel || copy.openAssessment,
+    visualSrc: step.visualSrc,
   };
 }
 
 /**
- * Full LM01 page view-model from canonical progression + presentation registry.
+ * Full LM page view-model from canonical progression + presentation registry.
  * @param {unknown} progression
  * @param {"en"|"gr"} lang
  * @param {string} [moduleId]
@@ -292,7 +615,8 @@ export function getLmPageViewState(progression, lang = "en", moduleId = "LM01") 
   const assessment = getLmAssessmentPresentation(moduleEntry, locale, {
     canonical: valid,
   });
-  const activities = getLmVisibleActivities(moduleId, locale).map((activity) =>
+  const registryActivities = getLmVisibleActivities(moduleId, locale);
+  const activities = registryActivities.map((activity) =>
     getLmActivityRowPresentation(activity, moduleEntry, locale, {
       canonical: valid,
       moduleId,
@@ -311,6 +635,13 @@ export function getLmPageViewState(progression, lang = "en", moduleId = "LM01") 
     ? formatProgressionTierLabel(earnedTier, locale)
     : null;
 
+  const requiredEvidenceItems = getLmRequiredEvidenceListPresentation(
+    moduleEntry,
+    registryActivities,
+    locale,
+    { canonical: valid, assessment }
+  );
+
   const view = {
     mode: "ready",
     moduleId,
@@ -323,6 +654,8 @@ export function getLmPageViewState(progression, lang = "en", moduleId = "LM01") 
     learnerMeta: getLmLearnerMeta(moduleId, locale),
     activities,
     assessment,
+    requiredEvidenceItems,
+    moduleEntry,
     complete,
     moduleStatusLabel,
     progressionValid: valid,
@@ -332,8 +665,10 @@ export function getLmPageViewState(progression, lang = "en", moduleId = "LM01") 
     targetTier: valid ? progression.currentPath?.targetTier ?? null : null,
     computedTier: valid ? progression.computedTier ?? null : null,
     nextAction: valid ? progression.nextAction ?? null : null,
+    nextRequiredEvidence: valid ? progression.nextRequiredEvidence ?? null : null,
   };
 
+  view.nextRequiredStep = getLmNextRequiredStepPresentation(view, locale);
   view.progressStages = getLmProgressStages(view, locale);
   view.overallPath = getLmOverallPathPresentation(view, locale);
   view.closingCta = getLmClosingCtaPresentation(view, locale);

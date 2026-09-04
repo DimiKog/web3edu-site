@@ -20,9 +20,11 @@ import {
   getLmActivityRowPresentation,
   getLmAssessmentPresentation,
   getLmClosingCtaPresentation,
+  getLmNextRequiredStepPresentation,
   getLmOverallPathPresentation,
   getLmPageViewState,
   getLmProgressStages,
+  getLmRequiredEvidenceListPresentation,
 } from "./lmModuleView.js";
 import { LM_PAGE_COPY } from "../content/lmPageLocale.js";
 
@@ -37,6 +39,7 @@ function freshProgression({ assessmentPassed = false, complete = false } = {}) {
     nextAction: assessmentPassed
       ? null
       : { type: "assessment", moduleId: "LM01", assessmentId: "lm01-assessment" },
+    nextRequiredEvidence: null,
     modules: {
       LM01: {
         complete,
@@ -51,6 +54,154 @@ function freshProgression({ assessmentPassed = false, complete = false } = {}) {
       },
     },
   };
+}
+
+/** Synthetic multi-evidence module — presentation wiring only; not LM08 curriculum. */
+function syntheticMultiEvidenceFixture({
+  satisfied = { "practical-a": true, "practical-b": false, "practical-c": false, "practical-d": false },
+  assessmentPassed = false,
+  complete = false,
+  currentModule = "SYN",
+  nextRequiredEvidence = "practical-b",
+  nextAction = {
+    type: "learning_module_evidence",
+    moduleId: "SYN",
+    evidenceId: "practical-b",
+  },
+} = {}) {
+  const requiredEvidence = {};
+  for (const id of ["practical-a", "practical-b", "practical-c", "practical-d"]) {
+    requiredEvidence[id] = { satisfied: Boolean(satisfied[id]) };
+  }
+  const missingEvidence = Object.keys(requiredEvidence).filter(
+    (id) => !requiredEvidence[id].satisfied
+  );
+  return {
+    progression: {
+      earnedTier: "explorer",
+      computedTier: "explorer",
+      currentModule,
+      currentPath: { targetTier: "builder", alignmentStatus: "current_curriculum_path" },
+      nextAction,
+      nextRequiredEvidence,
+      modules: {
+        SYN: {
+          complete,
+          requiredEvidenceSatisfied: missingEvidence.length === 0,
+          requiredEvidence,
+          missingEvidence,
+          assessment: {
+            id: "syn-assessment",
+            required: true,
+            passed: assessmentPassed,
+          },
+        },
+      },
+    },
+    activities: [
+      {
+        id: "syn-resource",
+        visualType: "book",
+        requirementHint: "recommended",
+        title: { en: "Supporting resource", gr: "Supporting resource" },
+        description: { en: "Presentation only", gr: "Presentation only" },
+        linkKind: "external",
+        href: "https://example.com/resource",
+        presentationOnly: true,
+      },
+      {
+        id: "syn-a",
+        visualType: "observation",
+        requirementHint: "required",
+        title: { en: "Practical A", gr: "Practical A" },
+        description: { en: "A", gr: "A" },
+        linkKind: "internal",
+        href: { en: "/syn/a", gr: "/syn-gr/a" },
+        evidenceId: "practical-a",
+      },
+      {
+        id: "syn-b",
+        visualType: "observation",
+        requirementHint: "required",
+        title: { en: "Practical B", gr: "Practical B" },
+        description: { en: "B", gr: "B" },
+        linkKind: "internal",
+        href: { en: "/syn/b", gr: "/syn-gr/b" },
+        evidenceId: "practical-b",
+      },
+      {
+        id: "syn-c",
+        visualType: "observation",
+        requirementHint: "required",
+        title: { en: "Practical C", gr: "Practical C" },
+        description: { en: "C", gr: "C" },
+        linkKind: "internal",
+        href: { en: "/syn/c", gr: "/syn-gr/c" },
+        evidenceId: "practical-c",
+      },
+      {
+        id: "syn-d",
+        visualType: "observation",
+        requirementHint: "required",
+        title: { en: "Practical D", gr: "Practical D" },
+        description: { en: "D", gr: "D" },
+        linkKind: "internal",
+        href: { en: "/syn/d", gr: "/syn-gr/d" },
+        evidenceId: "practical-d",
+      },
+      {
+        id: "syn-assessment",
+        visualType: "assessment",
+        requirementHint: "required",
+        title: { en: "SYN Assessment", gr: "SYN Assessment" },
+        description: { en: "Final", gr: "Final" },
+        linkKind: "internal",
+        href: { en: "/syn/assessment", gr: "/syn-gr/assessment" },
+        evidenceId: "syn-assessment",
+      },
+    ],
+  };
+}
+
+function buildSyntheticView(overrides = {}) {
+  const { progression, activities } = syntheticMultiEvidenceFixture(overrides);
+  const moduleEntry = progression.modules.SYN;
+  const rows = activities.map((activity) =>
+    getLmActivityRowPresentation(activity, moduleEntry, "en", {
+      canonical: true,
+      moduleId: "SYN",
+    })
+  );
+  const assessment = getLmAssessmentPresentation(moduleEntry, "en", {
+    canonical: true,
+  });
+  // Assessment route may be null (no ASSESSMENT_ROUTES entry) — use registry href.
+  if (!assessment.route) {
+    assessment.route = "/syn/assessment";
+  }
+  const view = {
+    mode: "ready",
+    moduleId: "SYN",
+    presentation: { visuals: { nextStep: "/next.png", completion: "/done.png" } },
+    activities: rows,
+    assessment,
+    moduleEntry,
+    complete: Boolean(moduleEntry.complete),
+    progressionValid: true,
+    currentModule: progression.currentModule,
+    nextAction: progression.nextAction,
+    nextRequiredEvidence: progression.nextRequiredEvidence,
+    requiredEvidenceItems: getLmRequiredEvidenceListPresentation(
+      moduleEntry,
+      activities,
+      "en",
+      { canonical: true, assessment }
+    ),
+  };
+  view.nextRequiredStep = getLmNextRequiredStepPresentation(view, "en");
+  view.closingCta = getLmClosingCtaPresentation(view, "en");
+  view.progressStages = getLmProgressStages(view, "en");
+  return view;
 }
 
 test("EN learning path excludes Greek primary textbook and includes optional Greek reference", () => {
@@ -267,6 +418,9 @@ test("Lm01Page keeps cohesive path, hero facts band, and chapter-ending CTA", ()
   assert.match(pageSrc, /fetchLearningModulesProgression/);
   assert.match(pageSrc, /getLmPageViewState/);
   assert.match(pageSrc, /LmLearningPath/);
+  assert.match(pageSrc, /renderEmbed/);
+  assert.match(pageSrc, /Lm01BlockchainSimulator/);
+  assert.match(pageSrc, /presentation="embedded"/);
   assert.match(pageSrc, /LmOutcomeMark/);
   assert.match(pageSrc, /LmChapterClose/);
   assert.match(pageSrc, /heroTimeLabel/);
@@ -281,12 +435,13 @@ test("Lm01Page keeps cohesive path, hero facts band, and chapter-ending CTA", ()
   assert.doesNotMatch(pageSrc, /heroPathValue/);
   assert.doesNotMatch(pageSrc, /\+20 XP/);
   assert.doesNotMatch(pageSrc, /postLabsComplete/);
-  assert.match(pathSrc, /Lm01BlockchainSimulator/);
-  assert.match(pathSrc, /presentation="embedded"/);
+  assert.doesNotMatch(pathSrc, /Lm01BlockchainSimulator/);
+  assert.match(pathSrc, /renderEmbed/);
   assert.match(pathSrc, /expandedId/);
   assert.match(pathSrc, /aria-expanded/);
   assert.match(pathSrc, /LmActivityTile/);
   assert.match(pathSrc, /visualSrc/);
+  assert.match(pathSrc, /evidence_satisfied|evidence_required/);
   // Mobile: compact accent tile; description uses full content width (col-span-2).
   assert.match(pathSrc, /h-12 w-\[4\.5rem\]/);
   assert.match(pathSrc, /col-span-2[\s\S]*sm:hidden/);
@@ -301,6 +456,7 @@ test("Lm01Page keeps cohesive path, hero facts band, and chapter-ending CTA", ()
   assert.match(sidebarSrc, /loadError === "sign_in"/);
   assert.match(sidebarSrc, /progressStages/);
   assert.match(sidebarSrc, /overallPath/);
+  assert.match(sidebarSrc, /requiredEvidenceItems/);
   assert.doesNotMatch(pageSrc, /Completed/);
   assert.doesNotMatch(pageSrc, /\bPEL\b/);
   assert.doesNotMatch(pageSrc, /Excel Simulator/);
@@ -328,4 +484,171 @@ test("routeTable registers LM01 chapter EN/GR routes", () => {
   assert.match(routes, /path: "\/learning-modules-gr\/lm01"/);
   assert.match(routes, /Lm01Page/);
   assert.doesNotMatch(routes, /simulator-preview/);
+});
+
+test("LM01 required evidence list is assessment-only", () => {
+  const view = getLmPageViewState(freshProgression(), "en");
+  assert.equal(view.requiredEvidenceItems.length, 1);
+  assert.equal(view.requiredEvidenceItems[0].kind, "assessment");
+  assert.equal(view.requiredEvidenceItems[0].satisfied, false);
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+});
+
+test("synthetic multi-evidence: row satisfaction and next practical step", () => {
+  const view = buildSyntheticView();
+  const byId = Object.fromEntries(view.activities.map((r) => [r.id, r]));
+
+  assert.equal(byId["syn-a"].statusKind, "evidence_satisfied");
+  assert.equal(byId["syn-a"].evidenceSatisfied, true);
+  assert.equal(byId["syn-b"].statusKind, "evidence_required");
+  assert.equal(byId["syn-b"].evidenceSatisfied, false);
+  assert.equal(byId["syn-c"].statusKind, "evidence_required");
+  assert.equal(byId["syn-d"].statusKind, "evidence_required");
+  assert.equal(byId["syn-assessment"].statusKind, "assessment_required");
+  assert.equal(byId["syn-assessment"].assessmentPassed, false);
+
+  assert.equal(byId["syn-resource"].statusKind, "external");
+  assert.equal(byId["syn-resource"].evidenceId, null);
+  assert.doesNotMatch(String(byId["syn-resource"].statusLabel), /evidence|completed/i);
+
+  assert.equal(view.nextRequiredStep.kind, "evidence");
+  assert.equal(view.nextRequiredStep.evidenceId, "practical-b");
+  assert.equal(view.nextRequiredStep.title, "Practical B");
+  assert.equal(view.nextRequiredStep.route, "/syn/b");
+  assert.equal(view.closingCta.kind, "next_evidence");
+  assert.notEqual(view.closingCta.kind, "next_assessment");
+  assert.equal(view.complete, false);
+
+  const evidenceIds = view.requiredEvidenceItems.map((i) => i.id);
+  assert.deepEqual(evidenceIds, [
+    "practical-a",
+    "practical-b",
+    "practical-c",
+    "practical-d",
+    "syn-assessment",
+  ]);
+  assert.equal(view.requiredEvidenceItems[0].satisfied, true);
+  assert.equal(view.requiredEvidenceItems[1].satisfied, false);
+  assert.equal(view.requiredEvidenceItems[4].kind, "assessment");
+  assert.equal(view.requiredEvidenceItems[4].satisfied, false);
+
+  const stages = Object.fromEntries(view.progressStages.map((s) => [s.id, s.state]));
+  assert.equal(stages.explore, "current");
+  assert.equal(stages.assess, "idle");
+});
+
+test("synthetic multi-evidence: assessment next only after practical evidence satisfied", () => {
+  const view = buildSyntheticView({
+    satisfied: {
+      "practical-a": true,
+      "practical-b": true,
+      "practical-c": true,
+      "practical-d": true,
+    },
+    assessmentPassed: false,
+    complete: false,
+    currentModule: "SYN",
+    nextRequiredEvidence: null,
+    nextAction: {
+      type: "assessment",
+      moduleId: "SYN",
+      assessmentId: "syn-assessment",
+    },
+  });
+
+  assert.ok(
+    view.activities
+      .filter((r) => r.evidenceId?.startsWith("practical-"))
+      .every((r) => r.statusKind === "evidence_satisfied")
+  );
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+  assert.equal(view.closingCta.route, "/syn/assessment");
+  assert.equal(view.complete, false);
+
+  const stages = Object.fromEntries(view.progressStages.map((s) => [s.id, s.state]));
+  assert.equal(stages.explore, "open");
+  assert.equal(stages.assess, "current");
+});
+
+test("synthetic multi-evidence: complete only when canonical module.complete", () => {
+  const incomplete = buildSyntheticView({
+    satisfied: {
+      "practical-a": true,
+      "practical-b": true,
+      "practical-c": true,
+      "practical-d": true,
+    },
+    assessmentPassed: true,
+    complete: false,
+    currentModule: "SYN",
+    nextRequiredEvidence: null,
+    nextAction: null,
+  });
+  assert.equal(incomplete.complete, false);
+  assert.equal(incomplete.closingCta.kind, "neutral");
+
+  const done = buildSyntheticView({
+    satisfied: {
+      "practical-a": true,
+      "practical-b": true,
+      "practical-c": true,
+      "practical-d": true,
+    },
+    assessmentPassed: true,
+    complete: true,
+    currentModule: "OTHER",
+    nextRequiredEvidence: null,
+    nextAction: null,
+  });
+  assert.equal(done.complete, true);
+  assert.equal(done.closingCta.kind, "complete");
+});
+
+test("legacy-style currentModule elsewhere does not invent this module next step", () => {
+  const view = buildSyntheticView({
+    satisfied: {
+      "practical-a": true,
+      "practical-b": true,
+      "practical-c": true,
+      "practical-d": true,
+    },
+    assessmentPassed: false,
+    complete: false,
+    currentModule: "LM09",
+    nextRequiredEvidence: "something-else",
+    nextAction: {
+      type: "learning_module_evidence",
+      moduleId: "LM09",
+      evidenceId: "something-else",
+    },
+  });
+
+  assert.equal(view.complete, false);
+  assert.equal(view.currentModule, "LM09");
+  assert.equal(view.nextRequiredStep.kind, "neutral");
+  assert.equal(view.closingCta.kind, "neutral");
+  assert.equal(view.closingCta.route, null);
+  assert.equal(view.requiredEvidenceItems[4].satisfied, false);
+});
+
+test("supporting resource rows never become evidence from module completion", () => {
+  const view = buildSyntheticView({
+    satisfied: {
+      "practical-a": true,
+      "practical-b": true,
+      "practical-c": true,
+      "practical-d": true,
+    },
+    assessmentPassed: true,
+    complete: true,
+    currentModule: "OTHER",
+    nextAction: null,
+    nextRequiredEvidence: null,
+  });
+  const resource = view.activities.find((r) => r.id === "syn-resource");
+  assert.equal(resource.statusKind, "external");
+  assert.equal(resource.evidenceSatisfied, null);
+  assert.doesNotMatch(String(resource.statusLabel), /completed|recorded/i);
 });

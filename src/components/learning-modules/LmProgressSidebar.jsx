@@ -105,8 +105,42 @@ function ProgressRail({ stages }) {
   );
 }
 
+function EvidenceItem({ item }) {
+  const done = Boolean(item.satisfied);
+  return (
+    <div className="flex items-start gap-3">
+      {done ? (
+        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-300" />
+      ) : (
+        <Circle className="mt-0.5 h-5 w-5 shrink-0 text-violet-300 dark:text-violet-500" />
+      )}
+      <div className="min-w-0">
+        <p className="font-semibold text-slate-900 dark:text-white">{item.title}</p>
+        {item.requirementLabel ? (
+          <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+            {item.requirementLabel}
+          </p>
+        ) : null}
+        {item.statusLabel ? (
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            {item.statusLabel}
+          </p>
+        ) : null}
+        {item.route && item.ctaLabel ? (
+          <Link
+            to={item.route}
+            className="mt-2 inline-flex text-sm font-semibold text-indigo-700 dark:text-indigo-300"
+          >
+            {item.ctaLabel} →
+          </Link>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 /**
- * Supporting sidebar — canonical LM/assessment state only for evidence.
+ * Supporting sidebar — canonical LM evidence/assessment state only.
  * @param {{
  *   view: object,
  *   lang?: "en"|"gr",
@@ -116,11 +150,49 @@ function ProgressRail({ stages }) {
  */
 export default function LmProgressSidebar({ view, lang = "en", loading = false, loadError = null }) {
   const copy = getLmPageCopy(lang);
-  const assessment = view.assessment;
   const presentation = view.presentation;
   const stages = view.progressStages || [];
   const overall = view.overallPath;
   const signedOut = loadError === "sign_in";
+  const evidenceItems = Array.isArray(view.requiredEvidenceItems)
+    ? view.requiredEvidenceItems
+    : [];
+  const nextStep = view.nextRequiredStep;
+
+  let footer = null;
+  if (view.complete) {
+    footer = (
+      <div className="bg-emerald-50 px-5 py-3.5 text-sm font-semibold text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-100">
+        {copy.statusComplete}
+      </div>
+    );
+  } else if (signedOut) {
+    footer = (
+      <div className="bg-violet-50 px-5 py-3.5 text-sm leading-6 text-violet-950 dark:bg-violet-500/15 dark:text-violet-100">
+        {copy.signInRequired}
+      </div>
+    );
+  } else if (!loading) {
+    if (nextStep?.kind === "assessment") {
+      footer = (
+        <div className="bg-gradient-to-r from-violet-600 to-indigo-500 px-5 py-3.5 text-sm font-semibold text-white dark:from-violet-500 dark:to-indigo-500">
+          {copy.finishAssessmentCta}
+        </div>
+      );
+    } else if (nextStep?.kind === "evidence") {
+      footer = (
+        <div className="bg-gradient-to-r from-violet-600 to-indigo-500 px-5 py-3.5 text-sm font-semibold text-white dark:from-violet-500 dark:to-indigo-500">
+          {copy.finishNextStepCta}
+        </div>
+      );
+    } else if (nextStep?.kind === "neutral") {
+      footer = (
+        <div className="bg-slate-100 px-5 py-3.5 text-sm leading-6 text-slate-700 dark:bg-white/[0.06] dark:text-slate-200">
+          {copy.closingNeutralBody}
+        </div>
+      );
+    }
+  }
 
   return (
     <aside className="space-y-5">
@@ -153,50 +225,19 @@ export default function LmProgressSidebar({ view, lang = "en", loading = false, 
             <p className="text-[11px] font-bold uppercase tracking-wide text-violet-700 dark:text-violet-200">
               {copy.sidebarEvidence}
             </p>
-            <div className="mt-3 flex items-start gap-3">
-              {view.progressionValid && assessment?.passed ? (
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-300" />
+            <div className="mt-3 space-y-4">
+              {evidenceItems.length > 0 ? (
+                evidenceItems.map((item) => <EvidenceItem key={item.id} item={item} />)
               ) : (
-                <Circle className="mt-0.5 h-5 w-5 shrink-0 text-violet-300 dark:text-violet-500" />
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  {view.progressionValid ? copy.statusInProgress : copy.statusUnavailable}
+                </p>
               )}
-              <div className="min-w-0">
-                <p className="font-semibold text-slate-900 dark:text-white">
-                  {copy.assessmentTitle}
-                </p>
-                <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                  {copy.assessmentRequired}
-                </p>
-                {assessment?.statusLabel ? (
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                    {assessment.statusLabel}
-                  </p>
-                ) : null}
-                {assessment?.route ? (
-                  <Link
-                    to={assessment.route}
-                    className="mt-2 inline-flex text-sm font-semibold text-indigo-700 dark:text-indigo-300"
-                  >
-                    {assessment.ctaLabel} →
-                  </Link>
-                ) : null}
-              </div>
             </div>
           </div>
         </div>
 
-        {view.complete ? (
-          <div className="bg-emerald-50 px-5 py-3.5 text-sm font-semibold text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-100">
-            {copy.statusComplete}
-          </div>
-        ) : signedOut ? (
-          <div className="bg-violet-50 px-5 py-3.5 text-sm leading-6 text-violet-950 dark:bg-violet-500/15 dark:text-violet-100">
-            {copy.signInRequired}
-          </div>
-        ) : loading ? null : (
-          <div className="bg-gradient-to-r from-violet-600 to-indigo-500 px-5 py-3.5 text-sm font-semibold text-white dark:from-violet-500 dark:to-indigo-500">
-            {copy.finishAssessmentCta}
-          </div>
-        )}
+        {footer}
       </SidebarCard>
 
       <SidebarCard className="border-indigo-100 dark:border-indigo-500/20">

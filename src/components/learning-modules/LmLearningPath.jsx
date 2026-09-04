@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import Lm01BlockchainSimulator from "./Lm01BlockchainSimulator.jsx";
 import { LmActivityTile } from "./LmVisuals.jsx";
 import { getLmPageCopy } from "../../content/lmPageLocale.js";
 
@@ -20,6 +19,8 @@ const STATUS_STYLES = {
   recommended: "bg-indigo-50 text-indigo-800 dark:bg-indigo-500/15 dark:text-indigo-100",
   optional: "bg-slate-100 text-slate-600 dark:bg-white/[0.06] dark:text-slate-300",
   interactive: "bg-cyan-50 text-cyan-900 dark:bg-cyan-500/15 dark:text-cyan-100",
+  evidence_required: "bg-amber-50 text-amber-950 dark:bg-amber-500/15 dark:text-amber-100",
+  evidence_satisfied: "bg-emerald-50 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-100",
   assessment_required: "bg-amber-50 text-amber-950 dark:bg-amber-500/15 dark:text-amber-100",
   assessment_passed: "bg-emerald-50 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-100",
 };
@@ -80,9 +81,18 @@ function ActivityAction({ row, lang, expanded, onToggle }) {
 
 /**
  * One cohesive Learning Path surface with compact illustrated activity rows.
- * @param {{ activities: Array, lang?: "en"|"gr" }} props
+ * Embed content is supplied by the caller (presentation only).
+ * @param {{
+ *   activities: Array,
+ *   lang?: "en"|"gr",
+ *   renderEmbed?: (row: object, ctx: { lang: "en"|"gr" }) => import("react").ReactNode,
+ * }} props
  */
-export default function LmLearningPath({ activities = [], lang = "en" }) {
+export default function LmLearningPath({
+  activities = [],
+  lang = "en",
+  renderEmbed = null,
+}) {
   const copy = getLmPageCopy(lang);
   const [expandedId, setExpandedId] = useState(null);
 
@@ -175,9 +185,9 @@ export default function LmLearningPath({ activities = [], lang = "en" }) {
                 </div>
               </div>
 
-              {expanded ? (
+              {expanded && typeof renderEmbed === "function" ? (
                 <div className="mb-4 ml-11 rounded-2xl border border-cyan-200/70 bg-slate-50/80 p-3 dark:border-cyan-500/20 dark:bg-slate-950/30 sm:ml-14 sm:p-4">
-                  <Lm01BlockchainSimulator lang={lang} presentation="embedded" />
+                  {renderEmbed(row, { lang })}
                 </div>
               ) : null}
 

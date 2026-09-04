@@ -26,6 +26,8 @@ export const LM_PAGE_COPY = {
     assessmentNotPassed: "Not passed",
     assessmentTitle: "LM01 Assessment",
     assessmentRequired: "Required",
+    evidenceSatisfied: "Evidence recorded",
+    evidenceRequired: "Required",
     resourceAvailable: "Available",
     resourceExternal: "External resource",
     resourceRecommended: "Recommended",
@@ -37,11 +39,17 @@ export const LM_PAGE_COPY = {
     closeSimulator: "Hide simulator",
     openAssessment: "Go to assessment",
     reviewAssessment: "Review assessment",
+    continueActivity: "Continue",
     nextRequired: "Next required step",
     nextRequiredBody:
       "Complete the LM01 Assessment to finish this module. Opening resources or running the simulator does not record completion.",
     finishAssessmentCta: "Finish the assessment to complete LM01",
+    finishNextStepCta: "Continue with the next required step",
     closingNextBody: "Finish the assessment to complete LM01.",
+    closingNextEvidenceBody:
+      "Complete the next required activity to continue this module.",
+    closingNeutralBody:
+      "This module is not complete yet according to your verifiable learning progress.",
     moduleCompleteBody:
       "LM01 is complete according to your verifiable learning progress. You can still revisit resources and the simulator anytime.",
     heroTimeLabel: "Est. time",
@@ -99,6 +107,8 @@ export const LM_PAGE_COPY = {
     assessmentNotPassed: "Δεν έχει περάσει",
     assessmentTitle: "Αξιολόγηση LM01",
     assessmentRequired: "Υποχρεωτικό",
+    evidenceSatisfied: "Καταγράφηκε αποδεικτικό",
+    evidenceRequired: "Υποχρεωτικό",
     resourceAvailable: "Διαθέσιμο",
     resourceExternal: "Εξωτερικός πόρος",
     resourceRecommended: "Προτεινόμενο",
@@ -110,11 +120,17 @@ export const LM_PAGE_COPY = {
     closeSimulator: "Απόκρυψη προσομοιωτή",
     openAssessment: "Μετάβαση στην αξιολόγηση",
     reviewAssessment: "Επανεξέταση αξιολόγησης",
+    continueActivity: "Συνέχεια",
     nextRequired: "Επόμενο απαιτούμενο βήμα",
     nextRequiredBody:
       "Ολοκλήρωσε την Αξιολόγηση LM01 για να τελειώσεις αυτό το module. Το άνοιγμα πόρων ή η χρήση του προσομοιωτή δεν καταγράφει ολοκλήρωση.",
     finishAssessmentCta: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM01",
+    finishNextStepCta: "Συνέχισε με το επόμενο απαιτούμενο βήμα",
     closingNextBody: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM01.",
+    closingNextEvidenceBody:
+      "Ολοκλήρωσε την επόμενη απαιτούμενη δραστηριότητα για να συνεχίσεις αυτό το module.",
+    closingNeutralBody:
+      "Αυτό το module δεν έχει ολοκληρωθεί ακόμη σύμφωνα με την επαληθεύσιμη πρόοδό σου.",
     moduleCompleteBody:
       "Το LM01 ολοκληρώθηκε σύμφωνα με την επαληθεύσιμη πρόοδό σου. Μπορείς να ξαναδείς πόρους και τον προσομοιωτή οποιαδήποτε στιγμή.",
     heroTimeLabel: "Εκτιμώμενος χρόνος",
