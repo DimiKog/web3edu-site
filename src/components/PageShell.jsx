@@ -462,7 +462,7 @@ export default function PageShell({
                   Ξεκίνα εδώ
                 </a>
                 <a
-                  href="/#/learning-modules-gr/lm01"
+                  href="/#/learn-gr"
                   className="relative font-medium
     text-slate-800 dark:text-slate-100
     hover:text-indigo-700 dark:hover:text-white
@@ -554,7 +554,7 @@ export default function PageShell({
                   Start Here
                 </a>
                 <a
-                  href="/#/learning-modules/lm01"
+                  href="/#/learn"
                   className="relative font-medium
     text-slate-800 dark:text-slate-100
     hover:text-indigo-700 dark:hover:text-white
@@ -898,7 +898,7 @@ export default function PageShell({
                       Ξεκίνα εδώ
                     </button>
                     <button
-                      onClick={() => navigateTo("#/learning-modules-gr/lm01")}
+                      onClick={() => navigateTo("#/learn-gr")}
                       className="w-full rounded-xl border border-slate-300/40
     dark:border-slate-700/60 bg-white/70
     dark:bg-slate-800/80 py-3 text-sm font-semibold
@@ -961,7 +961,7 @@ export default function PageShell({
                       Start Here
                     </button>
                     <button
-                      onClick={() => navigateTo("#/learning-modules/lm01")}
+                      onClick={() => navigateTo("#/learn")}
                       className="w-full rounded-xl border border-slate-300/40
     dark:border-slate-700/60 bg-white/70
     dark:bg-slate-800/80 py-3 text-sm font-semibold

@@ -11,13 +11,20 @@ import test from "node:test";
 
 import {
   LM_PRESENTATION_REGISTRY,
+  LM_CURRICULUM_IDS,
   LM01_VISUALS,
   LM08_VISUALS,
   getLmActivityVisualSrc,
+  getLmChapterRoute,
+  getLmCurriculumModules,
   getLmLearnerMeta,
+  getLmModulesForPath,
   getLmModuleVisuals,
+  getLmRegistryModuleTitle,
   getLmVisibleActivities,
+  isLmChapterAvailable,
 } from "./lmRegistry.js";
+import { CONTINUE_LEARNING_LOCALE } from "./continueLearningLocale.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const publicRoot = join(__dirname, "../../public");
@@ -135,4 +142,73 @@ test("LM08 expected visual asset paths are documented for owner drop-in", () => 
     getLmActivityVisualSrc("LM08", "verification"),
     LM08_VISUALS.verification
   );
+});
+
+test("curriculum registry covers exactly LM01–LM11 with correct path groups", () => {
+  assert.deepEqual(LM_CURRICULUM_IDS, [
+    "LM01",
+    "LM02",
+    "LM03",
+    "LM04",
+    "LM05",
+    "LM06",
+    "LM07",
+    "LM08",
+    "LM09",
+    "LM10",
+    "LM11",
+  ]);
+  const mods = getLmCurriculumModules();
+  assert.equal(mods.length, 11);
+  assert.deepEqual(
+    mods.map((m) => m.id),
+    LM_CURRICULUM_IDS
+  );
+  assert.deepEqual(
+    getLmModulesForPath("explorer").map((m) => m.id),
+    ["LM01", "LM02", "LM03"]
+  );
+  assert.deepEqual(
+    getLmModulesForPath("builder").map((m) => m.id),
+    ["LM04", "LM05", "LM06", "LM07", "LM08"]
+  );
+  assert.deepEqual(
+    getLmModulesForPath("architect").map((m) => m.id),
+    ["LM09", "LM10", "LM11"]
+  );
+});
+
+test("chapterAvailable is true only for LM01 and LM08 Interactive Chapters", () => {
+  for (const id of LM_CURRICULUM_IDS) {
+    const available = isLmChapterAvailable(id);
+    if (id === "LM01" || id === "LM08") {
+      assert.equal(available, true, id);
+      assert.ok(getLmChapterRoute(id, "en"));
+      assert.ok(getLmChapterRoute(id, "gr"));
+    } else {
+      assert.equal(available, false, id);
+      assert.equal(getLmChapterRoute(id, "en"), null);
+      assert.equal(getLmChapterRoute(id, "gr"), null);
+      assert.equal(LM_PRESENTATION_REGISTRY[id].chapterRoute, null);
+    }
+  }
+  assert.equal(getLmChapterRoute("LM01", "en"), "/learning-modules/lm01");
+  assert.equal(getLmChapterRoute("LM01", "gr"), "/learning-modules-gr/lm01");
+  assert.equal(getLmChapterRoute("LM08", "en"), "/learning-modules/lm08");
+  assert.equal(getLmChapterRoute("LM08", "gr"), "/learning-modules-gr/lm08");
+});
+
+test("registry titles stay equivalent to Continue Learning moduleTitles (drift guard)", () => {
+  for (const id of LM_CURRICULUM_IDS) {
+    assert.equal(
+      getLmRegistryModuleTitle(id, "en"),
+      CONTINUE_LEARNING_LOCALE.en.moduleTitles[id],
+      `${id} en`
+    );
+    assert.equal(
+      getLmRegistryModuleTitle(id, "gr"),
+      CONTINUE_LEARNING_LOCALE.gr.moduleTitles[id],
+      `${id} gr`
+    );
+  }
 });

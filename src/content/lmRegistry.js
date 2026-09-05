@@ -44,6 +44,12 @@ export const LM_PRESENTATION_REGISTRY = {
     pathKey: "explorer",
     moduleNumber: 1,
     totalModules: 11,
+    /** Interactive Chapter page exists (not curriculum/evidence completeness). */
+    chapterAvailable: true,
+    chapterRoute: {
+      en: "/learning-modules/lm01",
+      gr: "/learning-modules-gr/lm01",
+    },
     title: {
       en: "What is Blockchain?",
       gr: "Τι είναι το Blockchain;",
@@ -250,11 +256,91 @@ export const LM_PRESENTATION_REGISTRY = {
     ],
   },
 
+  /** Thin curriculum stubs — chapter UI not yet implemented. */
+  LM02: {
+    id: "LM02",
+    pathKey: "explorer",
+    moduleNumber: 2,
+    totalModules: 11,
+    chapterAvailable: false,
+    chapterRoute: null,
+    title: {
+      en: "Why Blockchain?",
+      gr: "Γιατί Blockchain;",
+    },
+  },
+  LM03: {
+    id: "LM03",
+    pathKey: "explorer",
+    moduleNumber: 3,
+    totalModules: 11,
+    chapterAvailable: false,
+    chapterRoute: null,
+    title: {
+      en: "From Blockchain Concept to Blockchain Platforms",
+      gr: "Από την Έννοια Blockchain στις Πλατφόρμες Blockchain",
+    },
+  },
+  LM04: {
+    id: "LM04",
+    pathKey: "builder",
+    moduleNumber: 4,
+    totalModules: 11,
+    chapterAvailable: false,
+    chapterRoute: null,
+    title: {
+      en: "Keys, Wallets and Blockchain Identity",
+      gr: "Κλειδιά, Πορτοφόλια και Ταυτότητα Blockchain",
+    },
+  },
+  LM05: {
+    id: "LM05",
+    pathKey: "builder",
+    moduleNumber: 5,
+    totalModules: 11,
+    chapterAvailable: false,
+    chapterRoute: null,
+    title: {
+      en: "Transactions and Blockchain State",
+      gr: "Συναλλαγές και Κατάσταση Blockchain",
+    },
+  },
+  LM06: {
+    id: "LM06",
+    pathKey: "builder",
+    moduleNumber: 6,
+    totalModules: 11,
+    chapterAvailable: false,
+    chapterRoute: null,
+    title: {
+      en: "Consensus and Distributed Agreement",
+      gr: "Συναίνεση και Κατανεμημένη Συμφωνία",
+    },
+  },
+  LM07: {
+    id: "LM07",
+    pathKey: "builder",
+    moduleNumber: 7,
+    totalModules: 11,
+    chapterAvailable: false,
+    chapterRoute: null,
+    title: {
+      en: "Understanding Smart Contracts",
+      gr: "Κατανόηση Έξυπνων Συμβολαίων",
+    },
+  },
+
   LM08: {
     id: "LM08",
     pathKey: "builder",
     moduleNumber: 8,
     totalModules: 11,
+    /** Interactive Chapter page exists (not curriculum/evidence completeness). */
+    chapterAvailable: true,
+    chapterRoute: {
+      en: "/learning-modules/lm08",
+      gr: "/learning-modules-gr/lm08",
+    },
     title: {
       en: "Deploying and Interacting with Smart Contracts",
       gr: "Ανάπτυξη και Αλληλεπίδραση με Έξυπνα Συμβόλαια",
@@ -460,11 +546,119 @@ export const LM_PRESENTATION_REGISTRY = {
       },
     ],
   },
+
+  /** Thin curriculum stubs — chapter UI not yet implemented. */
+  LM09: {
+    id: "LM09",
+    pathKey: "architect",
+    moduleNumber: 9,
+    totalModules: 11,
+    chapterAvailable: false,
+    chapterRoute: null,
+    title: {
+      en: "Building Smart Contracts",
+      gr: "Κατασκευή Έξυπνων Συμβολαίων",
+    },
+  },
+  LM10: {
+    id: "LM10",
+    pathKey: "architect",
+    moduleNumber: 10,
+    totalModules: 11,
+    chapterAvailable: false,
+    chapterRoute: null,
+    title: {
+      en: "Tokens and Tokenization",
+      gr: "Tokens και Tokenization",
+    },
+  },
+  LM11: {
+    id: "LM11",
+    pathKey: "architect",
+    moduleNumber: 11,
+    totalModules: 11,
+    chapterAvailable: false,
+    chapterRoute: null,
+    title: {
+      en: "Building and Using an ERC-20 Token",
+      gr: "Κατασκευή και Χρήση ERC-20 Token",
+    },
+  },
 };
+
+/** Canonical curriculum order for Learn landing presentation. */
+export const LM_CURRICULUM_IDS = Object.freeze([
+  "LM01",
+  "LM02",
+  "LM03",
+  "LM04",
+  "LM05",
+  "LM06",
+  "LM07",
+  "LM08",
+  "LM09",
+  "LM10",
+  "LM11",
+]);
+
+/** Path groups for Learn landing (exclusive module sets). */
+export const LM_LEARN_PATH_KEYS = Object.freeze(["explorer", "builder", "architect"]);
 
 /** @param {string} moduleId */
 export function getLmPresentationModule(moduleId) {
   return LM_PRESENTATION_REGISTRY[moduleId] ?? null;
+}
+
+/**
+ * Ordered LM01–LM11 presentation modules for curriculum overview.
+ * @returns {Array<object>}
+ */
+export function getLmCurriculumModules() {
+  return LM_CURRICULUM_IDS.map((id) => getLmPresentationModule(id)).filter(Boolean);
+}
+
+/**
+ * Modules for one Learn path group, ordered by moduleNumber.
+ * @param {"explorer"|"builder"|"architect"} pathKey
+ */
+export function getLmModulesForPath(pathKey) {
+  return getLmCurriculumModules()
+    .filter((mod) => mod.pathKey === pathKey)
+    .sort((a, b) => a.moduleNumber - b.moduleNumber);
+}
+
+/**
+ * @param {string} moduleId
+ * @returns {boolean} True only when an Interactive Chapter page exists.
+ */
+export function isLmChapterAvailable(moduleId) {
+  return getLmPresentationModule(moduleId)?.chapterAvailable === true;
+}
+
+/**
+ * @param {string} moduleId
+ * @param {"en"|"gr"} lang
+ * @returns {string|null}
+ */
+export function getLmChapterRoute(moduleId, lang = "en") {
+  const mod = getLmPresentationModule(moduleId);
+  if (!mod || mod.chapterAvailable !== true || !mod.chapterRoute) return null;
+  const locale = lang === "gr" ? "gr" : "en";
+  const route = mod.chapterRoute[locale] || mod.chapterRoute.en;
+  return typeof route === "string" && route ? route : null;
+}
+
+/**
+ * Localized module title from the presentation registry.
+ * @param {string} moduleId
+ * @param {"en"|"gr"} lang
+ * @returns {string|null}
+ */
+export function getLmRegistryModuleTitle(moduleId, lang = "en") {
+  const title = getLmPresentationModule(moduleId)?.title;
+  if (!title || typeof title !== "object") return null;
+  const locale = lang === "gr" ? "gr" : "en";
+  return title[locale] || title.en || null;
 }
 
 /**

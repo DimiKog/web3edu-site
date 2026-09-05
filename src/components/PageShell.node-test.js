@@ -16,28 +16,32 @@ test("PageShell imports saveReturnUrl from oidcConfig", () => {
   assert.match(src, /import\s+\{\s*saveReturnUrl\s*\}\s+from\s+"\.\.\/auth\/oidcConfig\.js"/);
 });
 
-test("PageShell adds Learn between Start Here and Labs (EN desktop + mobile)", () => {
+test("PageShell Learn targets curriculum landing (EN desktop + mobile)", () => {
   assert.match(
     src,
-    /href="\/#\/start-here"[\s\S]*?href="\/#\/learning-modules\/lm01"[\s\S]*?href="\/#\/labs"/
+    /href="\/#\/start-here"[\s\S]*?href="\/#\/learn"[\s\S]*?href="\/#\/labs"/
   );
   assert.match(
     src,
-    /navigateTo\("#\/start-here"\)[\s\S]*?navigateTo\("#\/learning-modules\/lm01"\)[\s\S]*?navigateTo\("#\/labs"\)/
+    /navigateTo\("#\/start-here"\)[\s\S]*?navigateTo\("#\/learn"\)[\s\S]*?navigateTo\("#\/labs"\)/
   );
   assert.match(src, />\s*Learn\s*</);
+  assert.doesNotMatch(src, /href="\/#\/learning-modules\/lm01"/);
+  assert.doesNotMatch(src, /navigateTo\("#\/learning-modules\/lm01"\)/);
 });
 
-test("PageShell adds Μάθηση between Start Here and Labs (GR desktop + mobile)", () => {
+test("PageShell Μάθηση targets curriculum landing (GR desktop + mobile)", () => {
   assert.match(
     src,
-    /href="\/#\/start-here-gr"[\s\S]*?href="\/#\/learning-modules-gr\/lm01"[\s\S]*?href="\/#\/labs-gr"/
+    /href="\/#\/start-here-gr"[\s\S]*?href="\/#\/learn-gr"[\s\S]*?href="\/#\/labs-gr"/
   );
   assert.match(
     src,
-    /navigateTo\("#\/start-here-gr"\)[\s\S]*?navigateTo\("#\/learning-modules-gr\/lm01"\)[\s\S]*?navigateTo\("#\/labs-gr"\)/
+    /navigateTo\("#\/start-here-gr"\)[\s\S]*?navigateTo\("#\/learn-gr"\)[\s\S]*?navigateTo\("#\/labs-gr"\)/
   );
   assert.match(src, />\s*Μάθηση\s*</);
+  assert.doesNotMatch(src, /href="\/#\/learning-modules-gr\/lm01"/);
+  assert.doesNotMatch(src, /navigateTo\("#\/learning-modules-gr\/lm01"\)/);
 });
 
 test("PageShell Join CTA preserves return URL before navigating to Join", () => {
@@ -53,11 +57,4 @@ test("PageShell direct signinRedirect paths call saveReturnUrl first", () => {
     redirects.length >= 3,
     `expected ≥3 saveReturnUrl+signinRedirect sites, got ${redirects.length}`
   );
-});
-
-test("PageShell does not invent a Learn overview route", () => {
-  assert.doesNotMatch(src, /href="\/#\/learn"/);
-  assert.doesNotMatch(src, /href="\/#\/learn-gr"/);
-  assert.doesNotMatch(src, /navigateTo\("#\/learn"\)/);
-  assert.doesNotMatch(src, /navigateTo\("#\/learn-gr"\)/);
 });
