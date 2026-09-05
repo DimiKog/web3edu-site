@@ -902,3 +902,101 @@ export async function postLm01AssessmentAnswers({
     };
   }
 }
+
+/**
+ * GET /learning-modules/lm08/assessment — challenge skeleton (no answer key).
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function fetchLm08AssessmentChallenge({
+  apiBase,
+  idToken,
+  lang,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  const locale = lang === "gr" ? "gr" : "en";
+  const url = `${base}/learning-modules/lm08/assessment?lang=${encodeURIComponent(locale)}`;
+
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: buildLabWriteAuthHeaders(token),
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
+
+/**
+ * POST /learning-modules/lm08/assessment — submit answer ids only.
+ * Never send score/passed/xp/wallet as authority.
+ * Optional lang localizes conceptual feedback only.
+ * @returns {Promise<{ ok: boolean, status: number, data: object }>}
+ */
+export async function postLm08AssessmentAnswers({
+  apiBase,
+  idToken,
+  answers,
+  lang,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  if (!answers || typeof answers !== "object") {
+    return {
+      ok: false,
+      status: 400,
+      data: { error: "answers object is required" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  const body = { answers };
+  if (lang === "gr" || lang === "en") {
+    body.lang = lang;
+  }
+
+  try {
+    const res = await fetch(`${base}/learning-modules/lm08/assessment`, {
+      method: "POST",
+      headers: buildLabWriteAuthHeaders(token),
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true,
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}

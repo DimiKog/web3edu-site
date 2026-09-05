@@ -121,6 +121,8 @@ test("LM08 pages use shared LearningModuleActivityShell", () => {
     assert.match(sourcePage, /LearningModuleActivityShell/);
     assert.match(inspectionPage, /moduleId="LM08"/);
     assert.match(sourcePage, /moduleId="LM08"/);
+    assert.doesNotMatch(inspectionPage, /density="compact"/);
+    assert.doesNotMatch(sourcePage, /density="compact"/);
 });
 test("EN shell labels and dashboard navigation", () => {
     const shell = readFileSync(
@@ -129,6 +131,8 @@ test("EN shell labels and dashboard navigation", () => {
     );
     const locale = readFileSync(join(here, "../content/learningModuleActivityShellLocale.js"), "utf8");
     assert.match(shell, /getLearningModuleActivityShellCopy/);
+    assert.match(shell, /density\s*=\s*"default"/);
+    assert.match(shell, /density === "compact"/);
     assert.match(locale, /dashboardPath: "\/dashboard"/);
     assert.match(locale, /breadcrumbDashboard: "Dashboard"/);
 });

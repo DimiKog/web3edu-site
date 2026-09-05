@@ -279,8 +279,10 @@ test("postLm08SourceVerification sends Bearer with empty body only", () => {
   const src = read(labWritePath);
   assert.match(src, /export async function postLm08SourceVerification/);
   const start = src.indexOf("export async function postLm08SourceVerification");
-  const end = src.indexOf("export async function fetchLm01AssessmentChallenge", start);
-  const fn = end === -1 ? src.slice(start) : src.slice(start, end);
+  const nextExport = src.indexOf("\nexport async function", start + 1);
+  let fn = nextExport === -1 ? src.slice(start) : src.slice(start, nextExport);
+  const trailingDoc = fn.lastIndexOf("\n/**");
+  if (trailingDoc > 0) fn = fn.slice(0, trailingDoc);
   assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
   assert.match(fn, /\/learning-modules\/lm08\/source-verification`/);
   assert.match(fn, /method:\s*"POST"/);
@@ -322,14 +324,28 @@ test("postLm01AssessmentAnswers sends answers only with Bearer", () => {
   assert.match(src, /export async function postLm01AssessmentAnswers/);
   assert.match(src, /export async function fetchLm01AssessmentChallenge/);
   const fn = src.slice(src.indexOf("export async function postLm01AssessmentAnswers"));
-  assert.match(fn, /\/learning-modules\/lm01\/assessment/);
-  assert.match(fn, /JSON\.stringify\(\{\s*answers\s*\}\)/);
-  assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
+  const end = src.indexOf("export async function fetchLm08AssessmentChallenge", src.indexOf("export async function postLm01AssessmentAnswers"));
+  const lm01Fn = end > 0 ? src.slice(src.indexOf("export async function postLm01AssessmentAnswers"), end) : fn;
+  assert.match(lm01Fn, /\/learning-modules\/lm01\/assessment/);
+  assert.match(lm01Fn, /JSON\.stringify\(\{\s*answers\s*\}\)/);
+  assert.match(lm01Fn, /buildLabWriteAuthHeaders\(token\)/);
   // Body must be answers-only — reject accidental authority payload construction.
-  assert.doesNotMatch(fn, /JSON\.stringify\(\{[^}]*score/);
-  assert.doesNotMatch(fn, /JSON\.stringify\(\{[^}]*passed/);
-  assert.doesNotMatch(fn, /JSON\.stringify\(\{[^}]*xpAwarded/);
-  assert.doesNotMatch(fn, /JSON\.stringify\(\{[^}]*wallet/);
+  assert.doesNotMatch(lm01Fn, /JSON\.stringify\(\{[^}]*score/);
+  assert.doesNotMatch(lm01Fn, /JSON\.stringify\(\{[^}]*passed/);
+  assert.doesNotMatch(lm01Fn, /JSON\.stringify\(\{[^}]*xpAwarded/);
+  assert.doesNotMatch(lm01Fn, /JSON\.stringify\(\{[^}]*wallet/);
+});
+
+test("postLm08AssessmentAnswers sends answers only with Bearer", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function postLm08AssessmentAnswers/);
+  assert.match(src, /export async function fetchLm08AssessmentChallenge/);
+  const start = src.indexOf("export async function postLm08AssessmentAnswers");
+  const fn = src.slice(start);
+  assert.match(fn, /\/learning-modules\/lm08\/assessment/);
+  assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(fn, /body\.lang/);
+  assert.doesNotMatch(fn.slice(0, 1200), /score:|passed:|xpAwarded:|wallet:/);
 });
 
 test("routeTable registers LM01 assessment EN and GR routes", () => {
@@ -337,4 +353,11 @@ test("routeTable registers LM01 assessment EN and GR routes", () => {
   assert.match(routes, /\/learning-modules\/lm01\/assessment/);
   assert.match(routes, /\/learning-modules-gr\/lm01\/assessment/);
   assert.match(routes, /Lm01AssessmentPage/);
+});
+
+test("routeTable registers LM08 assessment EN and GR routes", () => {
+  const routes = read(join(__dirname, "../routes/routeTable.jsx"));
+  assert.match(routes, /\/learning-modules\/lm08\/assessment/);
+  assert.match(routes, /\/learning-modules-gr\/lm08\/assessment/);
+  assert.match(routes, /Lm08AssessmentPage/);
 });

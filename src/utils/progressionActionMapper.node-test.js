@@ -134,6 +134,30 @@ test("LM01 assessment EN/GR ready routes", () => {
     assert.match(gr.cta, /Συνέχεια/i);
 });
 
+test("LM08 assessment EN/GR ready routes", () => {
+    const en = resolveProgressionActionTarget({
+        nextAction: {
+            type: "assessment",
+            moduleId: "LM08",
+            assessmentId: "lm08-assessment",
+        },
+        lang: "en",
+    });
+    assert.equal(en.status, "ready");
+    assert.equal(en.route, "/learning-modules/lm08/assessment");
+
+    const gr = resolveProgressionActionTarget({
+        nextAction: {
+            type: "assessment",
+            moduleId: "LM08",
+            assessmentId: "lm08-assessment",
+        },
+        lang: "gr",
+    });
+    assert.equal(gr.status, "ready");
+    assert.equal(gr.route, "/learning-modules-gr/lm08/assessment");
+});
+
 test("other assessments remain coming soon", () => {
     const en = resolveProgressionActionTarget({
         nextAction: {

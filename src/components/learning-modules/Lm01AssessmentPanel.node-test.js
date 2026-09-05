@@ -97,10 +97,11 @@ test("orientation block is distinct and localized", () => {
   assert.match(panelSrc, /border-t/);
 });
 
-test("page uses shared LearningModuleActivityShell", () => {
+test("page uses shared LearningModuleActivityShell in compact density", () => {
   assert.match(pageSrc, /LearningModuleActivityShell/);
   assert.match(pageSrc, /Lm01AssessmentPanel/);
-  assert.match(pageSrc, /moduleId=\"LM01\"/);
+  assert.match(pageSrc, /moduleId="LM01"/);
+  assert.match(pageSrc, /density="compact"/);
 });
 
 test("locale has seven questions EN/GR without answer-key authority", () => {
