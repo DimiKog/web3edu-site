@@ -25,8 +25,17 @@ export const LM01_VISUALS = {
 };
 
 /**
- * @typedef {"book"|"reading"|"demo"|"simulator"|"observation"|"assessment"} LmActivityVisualType
- * @typedef {"required"|"recommended"|"optional"} LmRequirementHint
+ * LM08 production visuals (public/ paths).
+ * Spec: same visual family as LM01; no embedded text/logos.
+ */
+export const LM08_VISUALS = {
+  hero: "/learning-modules/visuals/lm08/lm08-hero.png",
+  verification: "/learning-modules/visuals/lm08/lm08-verification.png",
+};
+
+/**
+ * @typedef {"book"|"reading"|"demo"|"simulator"|"observation"|"coding"|"inspection"|"verification"|"assessment"} LmActivityVisualType
+ * @typedef {"required"|"recommended"|"optional"|"core"} LmRequirementHint
  */
 
 export const LM_PRESENTATION_REGISTRY = {
@@ -236,6 +245,217 @@ export const LM_PRESENTATION_REGISTRY = {
           gr: "/learning-modules-gr/lm01/assessment",
         },
         evidenceId: "lm01-assessment",
+        presentationOnly: false,
+      },
+    ],
+  },
+
+  LM08: {
+    id: "LM08",
+    pathKey: "builder",
+    moduleNumber: 8,
+    totalModules: 11,
+    title: {
+      en: "Deploying and Interacting with Smart Contracts",
+      gr: "Ανάπτυξη και Αλληλεπίδραση με Έξυπνα Συμβόλαια",
+    },
+    transition: {
+      from: {
+        en: "I understand smart contracts conceptually",
+        gr: "Κατανοώ τις βασικές έννοιες των έξυπνων συμβολαίων",
+      },
+      to: {
+        en: "I can deploy, interact with, inspect, and verify a contract on Besu Edu-Net.",
+        gr: "Μπορώ να αναπτύξω και να αλληλεπιδράσω με ένα έξυπνο συμβόλαιο στο Besu Edu-Net, καθώς και να το επιθεωρήσω και να επαληθεύσω τον πηγαίο κώδικά του.",
+      },
+    },
+    about: {
+      en: "LM08 teaches the smart-contract deployment lifecycle on Besu Edu-Net — from Solidity source through deployment, interaction, on-chain inspection, and source verification — then checks understanding with a required assessment.",
+      gr: "Το LM08 σε καθοδηγεί από τον πηγαίο κώδικα Solidity έως την ανάπτυξη και την αλληλεπίδραση με ένα έξυπνο συμβόλαιο στο Besu Edu-Net. Στη συνέχεια, μαθαίνεις να το επιθεωρείς στο blockchain και να επαληθεύεις τον πηγαίο κώδικά του.",
+    },
+    learnerMeta: {
+      estimatedTime: { en: "3–5 hours", gr: "3–5 ώρες" },
+      level: { en: "Intermediate", gr: "Μεσαίο" },
+      assessmentXp: 300,
+    },
+    /**
+     * LM08 artwork under public/learning-modules/visuals/lm08/.
+     * Coding/inspection/assessment thumbs still reuse LM01 family placeholders.
+     */
+    visuals: {
+      hero: LM08_VISUALS.hero,
+      completion: LM01_VISUALS.completion,
+      nextStep: LM01_VISUALS.nextStep,
+      meta: {
+        time: LM01_VISUALS.metaTime,
+        level: LM01_VISUALS.metaLevel,
+        xp: LM01_VISUALS.metaXp,
+      },
+      activityByType: {
+        reading: LM01_VISUALS.book,
+        coding: LM01_VISUALS.simulator,
+        inspection: LM01_VISUALS.demo,
+        verification: LM08_VISUALS.verification,
+        assessment: LM01_VISUALS.assessment,
+      },
+    },
+    learningOutcomes: {
+      en: [
+        "Explain the lifecycle and distinguish source code, compiled/deployable code, deployment, and a deployed contract instance",
+        "Deploy a contract and understand what a contract address / deployed instance means",
+        "Distinguish read-only calls from state-changing transactions",
+        "Inspect an on-chain contract and explain what inspection can and cannot establish",
+        "Explain and perform source verification and understand its limits",
+      ],
+      gr: [
+        "Να εξηγείς τον κύκλο ζωής ενός έξυπνου συμβολαίου και να διακρίνεις τον πηγαίο κώδικα, το bytecode, τη διαδικασία ανάπτυξης και το αναπτυγμένο στιγμιότυπό του.",
+        "Να αναπτύσσεις ένα έξυπνο συμβόλαιο και να κατανοείς τι αντιπροσωπεύουν η διεύθυνση του συμβολαίου και το αναπτυγμένο στιγμιότυπό του.",
+        "Να διακρίνεις τις κλήσεις μόνο ανάγνωσης από τις συναλλαγές που μεταβάλλουν την κατάσταση.",
+        "Να επιθεωρείς ένα συμβόλαιο στο blockchain και να εξηγείς τι μπορεί και τι δεν μπορεί να τεκμηριώσει η επιθεώρηση.",
+        "Να εξηγείς και να εκτελείς επαλήθευση πηγαίου κώδικα και να κατανοείς τα όριά της.",
+      ],
+    },
+    activities: [
+      {
+        id: "lm08-lifecycle",
+        visualType: "reading",
+        requirementHint: "core",
+        languages: ["both"],
+        title: {
+          en: "Smart-contract deployment lifecycle",
+          gr: "Κύκλος ζωής ανάπτυξης έξυπνου συμβολαίου",
+        },
+        description: {
+          en: "Read the chapter explainer above: source → compile → bytecode → deploy → address → read vs write → inspect → verify.",
+          gr: "Διάβασε την επεξήγηση παραπάνω: πηγαίος κώδικας → μεταγλώττιση → bytecode → ανάπτυξη → διεύθυνση → ανάγνωση vs μεταβολή κατάστασης → επιθεώρηση → επαλήθευση.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm08-remix-setup",
+        visualType: "reading",
+        requirementHint: "recommended",
+        languages: ["both"],
+        title: {
+          en: "Setup: Remix + Besu Edu-Net",
+          gr: "Ρύθμιση Remix + Besu Edu-Net",
+        },
+        description: {
+          en: "Prepare Remix and connect to Besu Edu-Net before the coding labs.",
+          gr: "Προετοίμασε το Remix και συνδέσου στο Besu Edu-Net πριν τα coding labs.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/tools/remix-besu-setup",
+          gr: "/tools-gr/remix-besu-setup",
+        },
+        presentationOnly: true,
+      },
+      {
+        id: "lm08-coding01",
+        visualType: "coding",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Deploy a contract — Coding Lab 01",
+          gr: "Ανάπτυξη έξυπνου συμβολαίου — Coding Lab 01",
+        },
+        description: {
+          en: "Compile and deploy the Counter contract on Besu Edu-Net, then record deployment evidence.",
+          gr: "Μεταγλώττισε και ανάπτυξε το συμβόλαιο Counter στο Besu Edu-Net και καταχώρισε αποδεικτικό ανάπτυξης.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/labs/coding-01/interaction",
+          gr: "/labs-gr/coding-01/interaction",
+        },
+        evidenceId: "coding01",
+        presentationOnly: false,
+      },
+      {
+        id: "lm08-coding02",
+        visualType: "coding",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Interact with a contract — Coding Lab 02",
+          gr: "Αλληλεπίδραση με έξυπνο συμβόλαιο — Coding Lab 02",
+        },
+        description: {
+          en: "Practice reading state and submitting a state-changing transaction on your deployed instance.",
+          gr: "Εξάσκησε την ανάγνωση κατάστασης και την υποβολή συναλλαγής που μεταβάλλει την κατάσταση στο αναπτυγμένο στιγμιότυπό σου.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/labs/coding-02/interaction",
+          gr: "/labs-gr/coding-02/interaction",
+        },
+        evidenceId: "coding02",
+        presentationOnly: false,
+      },
+      {
+        id: "lm08-contract-inspection",
+        visualType: "inspection",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Inspect an on-chain contract",
+          gr: "Επιθεώρηση συμβολαίου στο blockchain",
+        },
+        description: {
+          en: "Use explorer evidence to inspect a deployed contract and its limits.",
+          gr: "Χρησιμοποίησε στοιχεία από block explorer για να επιθεωρήσεις ένα αναπτυγμένο συμβόλαιο και τα όριά της επιθεώρησης.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm08/contract-inspection",
+          gr: "/learning-modules-gr/lm08/contract-inspection",
+        },
+        evidenceId: "lm08-contract-inspection",
+        presentationOnly: false,
+      },
+      {
+        id: "lm08-source-verification",
+        visualType: "verification",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Source verification",
+          gr: "Επαλήθευση πηγαίου κώδικα",
+        },
+        description: {
+          en: "Relate published source and compilation info to deployed code — and know what verification does not prove.",
+          gr: "Συσχέτισε δημοσιευμένο πηγαίο κώδικα και πληροφορίες μεταγλώττισης με τον κώδικα που έχει αναπτυχθεί — και γνώριζε τι δεν αποδεικνύει η επαλήθευση.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm08/source-verification",
+          gr: "/learning-modules-gr/lm08/source-verification",
+        },
+        evidenceId: "lm08-source-verification",
+        presentationOnly: false,
+      },
+      {
+        id: "lm08-assessment",
+        visualType: "assessment",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "LM08 Assessment",
+          gr: "Αξιολόγηση LM08",
+        },
+        description: {
+          en: "Check your understanding of the deployment lifecycle, interaction, inspection, and source verification.",
+          gr: "Έλεγξε την κατανόησή σου για τον κύκλο ζωής ανάπτυξης, την αλληλεπίδραση, την επιθεώρηση και την επαλήθευση πηγαίου κώδικα.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm08/assessment",
+          gr: "/learning-modules-gr/lm08/assessment",
+        },
+        evidenceId: "lm08-assessment",
         presentationOnly: false,
       },
     ],

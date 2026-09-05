@@ -10,6 +10,9 @@ const TYPE_STYLES = {
   demo: "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-200",
   simulator: "bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-200",
   observation: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200",
+  coding: "bg-teal-100 text-teal-900 dark:bg-teal-500/20 dark:text-teal-100",
+  inspection: "bg-amber-100 text-amber-950 dark:bg-amber-500/20 dark:text-amber-100",
+  verification: "bg-orange-100 text-orange-950 dark:bg-orange-500/20 dark:text-orange-100",
   assessment: "bg-fuchsia-100 text-fuchsia-800 dark:bg-fuchsia-500/20 dark:text-fuchsia-200",
 };
 
@@ -17,6 +20,7 @@ const STATUS_STYLES = {
   available: "bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-200",
   external: "bg-sky-50 text-sky-800 dark:bg-sky-500/15 dark:text-sky-100",
   recommended: "bg-indigo-50 text-indigo-800 dark:bg-indigo-500/15 dark:text-indigo-100",
+  core: "bg-violet-50 text-violet-900 dark:bg-violet-500/15 dark:text-violet-100",
   optional: "bg-slate-100 text-slate-600 dark:bg-white/[0.06] dark:text-slate-300",
   interactive: "bg-cyan-50 text-cyan-900 dark:bg-cyan-500/15 dark:text-cyan-100",
   evidence_required: "bg-amber-50 text-amber-950 dark:bg-amber-500/15 dark:text-amber-100",
@@ -85,15 +89,17 @@ function ActivityAction({ row, lang, expanded, onToggle }) {
  * @param {{
  *   activities: Array,
  *   lang?: "en"|"gr",
+ *   moduleId?: string,
  *   renderEmbed?: (row: object, ctx: { lang: "en"|"gr" }) => import("react").ReactNode,
  * }} props
  */
 export default function LmLearningPath({
   activities = [],
   lang = "en",
+  moduleId = "LM01",
   renderEmbed = null,
 }) {
-  const copy = getLmPageCopy(lang);
+  const copy = getLmPageCopy(lang, moduleId);
   const [expandedId, setExpandedId] = useState(null);
 
   return (

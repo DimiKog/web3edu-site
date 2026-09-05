@@ -652,3 +652,209 @@ test("supporting resource rows never become evidence from module completion", ()
   assert.equal(resource.evidenceSatisfied, null);
   assert.doesNotMatch(String(resource.statusLabel), /completed|recorded/i);
 });
+function lm08ProgressionFixture({
+  satisfied = {
+    coding01: false,
+    coding02: false,
+    "lm08-contract-inspection": false,
+    "lm08-source-verification": false,
+  },
+  assessmentPassed = false,
+  complete = false,
+  currentModule = "LM08",
+  nextRequiredEvidence = "coding01",
+  nextAction = {
+    type: "learning_module_evidence",
+    moduleId: "LM08",
+    evidenceId: "coding01",
+  },
+} = {}) {
+  const requiredEvidence = {};
+  for (const id of [
+    "coding01",
+    "coding02",
+    "lm08-contract-inspection",
+    "lm08-source-verification",
+  ]) {
+    requiredEvidence[id] = { satisfied: Boolean(satisfied[id]) };
+  }
+  const missingEvidence = Object.keys(requiredEvidence).filter(
+    (id) => !requiredEvidence[id].satisfied
+  );
+  return {
+    earnedTier: "explorer",
+    computedTier: "builder",
+    currentModule,
+    currentPath: {
+      targetTier: "builder",
+      alignmentStatus: "current_curriculum_path",
+      isLegacyBuilder: currentModule === "LM09" && missingEvidence.length === 0,
+    },
+    nextAction,
+    nextRequiredEvidence,
+    modules: {
+      LM08: {
+        complete,
+        requiredEvidenceSatisfied: missingEvidence.length === 0,
+        requiredEvidence,
+        missingEvidence,
+        assessment: {
+          id: "lm08-assessment",
+          required: true,
+          passed: assessmentPassed,
+        },
+      },
+    },
+  };
+}
+
+test("LM08 registry view maps exact canonical evidence IDs", () => {
+  const view = getLmPageViewState(lm08ProgressionFixture(), "en", "LM08");
+  assert.equal(view.mode, "ready");
+  assert.equal(view.moduleId, "LM08");
+  assert.match(view.title, /Deploying and Interacting/);
+  assert.equal(view.assessment.assessmentId, "lm08-assessment");
+  assert.equal(view.assessment.route, "/learning-modules/lm08/assessment");
+
+  const practicalIds = view.requiredEvidenceItems
+    .filter((i) => i.kind === "practical")
+    .map((i) => i.evidenceId);
+  assert.deepEqual(practicalIds, [
+    "coding01",
+    "coding02",
+    "lm08-contract-inspection",
+    "lm08-source-verification",
+  ]);
+  const assessmentItem = view.requiredEvidenceItems.find((i) => i.kind === "assessment");
+  assert.equal(assessmentItem.evidenceId, "lm08-assessment");
+  assert.equal(assessmentItem.satisfied, false);
+
+  const coding = view.activities.find((a) => a.evidenceId === "coding01");
+  assert.equal(coding.visualType, "coding");
+  assert.equal(coding.typeLabel, "CODING");
+  assert.equal(coding.href, "/labs/coding-01/interaction");
+  assert.equal(coding.statusKind, "evidence_required");
+
+  const lifecycle = view.activities.find((a) => a.id === "lm08-lifecycle");
+  assert.equal(lifecycle.requirementHint, "core");
+  assert.equal(lifecycle.statusKind, "core");
+  assert.equal(lifecycle.statusLabel, "Core");
+  assert.equal(lifecycle.evidenceId, null);
+  assert.equal(lifecycle.presentationOnly, true);
+  assert.equal(lifecycle.evidenceSatisfied, null);
+
+  const remix = view.activities.find((a) => a.id === "lm08-remix-setup");
+  assert.equal(remix.requirementHint, "recommended");
+  assert.equal(remix.statusKind, "recommended");
+});
+
+test("LM08 4/4 practical + assessment false → assessment next for normal learner", () => {
+  const progression = lm08ProgressionFixture({
+    satisfied: {
+      coding01: true,
+      coding02: true,
+      "lm08-contract-inspection": true,
+      "lm08-source-verification": true,
+    },
+    assessmentPassed: false,
+    complete: false,
+    currentModule: "LM08",
+    nextRequiredEvidence: null,
+    nextAction: {
+      type: "assessment",
+      moduleId: "LM08",
+      assessmentId: "lm08-assessment",
+    },
+  });
+  const view = getLmPageViewState(progression, "en", "LM08");
+  assert.equal(view.complete, false);
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.nextRequiredStep.route, "/learning-modules/lm08/assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+  assert.ok(
+    view.requiredEvidenceItems.filter((i) => i.kind === "practical").every((i) => i.satisfied)
+  );
+  assert.equal(
+    view.requiredEvidenceItems.find((i) => i.kind === "assessment").satisfied,
+    false
+  );
+});
+
+test("LM08 legacy Builder 4/4 + assessment false + currentModule LM09 stays neutral", () => {
+  const progression = lm08ProgressionFixture({
+    satisfied: {
+      coding01: true,
+      coding02: true,
+      "lm08-contract-inspection": true,
+      "lm08-source-verification": true,
+    },
+    assessmentPassed: false,
+    complete: false,
+    currentModule: "LM09",
+    nextRequiredEvidence: "lm09-guided-coding",
+    nextAction: {
+      type: "learning_module_evidence",
+      moduleId: "LM09",
+      evidenceId: "lm09-guided-coding",
+    },
+  });
+  const view = getLmPageViewState(progression, "en", "LM08");
+  assert.equal(view.complete, false);
+  assert.equal(view.currentModule, "LM09");
+  assert.equal(view.nextRequiredStep.kind, "neutral");
+  assert.equal(view.closingCta.kind, "neutral");
+  assert.equal(view.closingCta.route, null);
+  assert.ok(
+    view.requiredEvidenceItems.filter((i) => i.kind === "practical").every((i) => i.satisfied)
+  );
+  assert.equal(
+    view.requiredEvidenceItems.find((i) => i.kind === "assessment").satisfied,
+    false
+  );
+  assert.doesNotMatch(JSON.stringify(view.activities), /localStorage|visit|xp_total/i);
+});
+
+test("LM08 assessment fallback never becomes lm01-assessment", () => {
+  const empty = getLmAssessmentPresentation(null, "en", {
+    moduleId: "LM08",
+    fallbackAssessmentId: "lm08-assessment",
+  });
+  assert.equal(empty.assessmentId, "lm08-assessment");
+  assert.equal(empty.route, "/learning-modules/lm08/assessment");
+
+  const noFallback = getLmAssessmentPresentation(null, "en", { moduleId: "LM08" });
+  assert.equal(noFallback.assessmentId, null);
+  assert.notEqual(noFallback.assessmentId, "lm01-assessment");
+});
+
+test("LM01 page chrome remains LM01-specific after module-aware copy", () => {
+  assert.match(LM_PAGE_COPY.en.learningPathIntro, /LM01/);
+  assert.match(LM_PAGE_COPY.en.sidebarProgress, /LM01/);
+  const lm01 = getLmPageViewState(freshProgression(), "en", "LM01");
+  assert.equal(lm01.mode, "ready");
+  assert.equal(lm01.assessment.assessmentId, "lm01-assessment");
+  assert.match(lm01.pageCopy.learningPathIntro, /LM01/);
+  assert.doesNotMatch(lm01.pageCopy.learningPathIntro, /four practical/);
+});
+
+test("LM08 GR view uses GR routes and chrome", () => {
+  const view = getLmPageViewState(lm08ProgressionFixture(), "gr", "LM08");
+  assert.match(view.title, /Ανάπτυξη/);
+  assert.equal(
+    view.activities.find((a) => a.evidenceId === "coding01").href,
+    "/labs-gr/coding-01/interaction"
+  );
+  assert.equal(view.assessment.route, "/learning-modules-gr/lm08/assessment");
+  assert.match(view.pageCopy.pathBadge, /Builder/);
+  assert.match(view.pageCopy.sidebarProgress, /LM08/);
+  const lifecycle = view.activities.find((a) => a.id === "lm08-lifecycle");
+  assert.equal(lifecycle.title, "Κύκλος ζωής ανάπτυξης έξυπνου συμβολαίου");
+  assert.equal(lifecycle.statusLabel, "Βασικό υλικό");
+});
+
+test("LM08 chapter routes are registered EN/GR", () => {
+  const routesSrc = readFileSync(join(__dirname, "../routes/routeTable.jsx"), "utf8");
+  assert.match(routesSrc, /path: "\/learning-modules\/lm08"/);
+  assert.match(routesSrc, /path: "\/learning-modules-gr\/lm08"/);
+  assert.match(routesSrc, /Lm08Page/);
+});

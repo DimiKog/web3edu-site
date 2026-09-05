@@ -7,7 +7,7 @@ import { LmApprovedVisual } from "./LmVisuals.jsx";
  * @param {{ view: object, lang?: "en"|"gr" }} props
  */
 export default function LmChapterClose({ view, lang = "en" }) {
-  const copy = getLmPageCopy(lang);
+  const copy = getLmPageCopy(lang, view?.moduleId || "LM01");
   const cta = view.closingCta;
   if (!cta) return null;
 

@@ -149,7 +149,7 @@ function EvidenceItem({ item }) {
  * }} props
  */
 export default function LmProgressSidebar({ view, lang = "en", loading = false, loadError = null }) {
-  const copy = getLmPageCopy(lang);
+  const copy = getLmPageCopy(lang, view?.moduleId || "LM01");
   const presentation = view.presentation;
   const stages = view.progressStages || [];
   const overall = view.overallPath;
@@ -218,7 +218,7 @@ export default function LmProgressSidebar({ view, lang = "en", loading = false, 
           </p>
           <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
             {view.moduleId}
-            {presentation?.pathKey === "explorer" ? ` · ${copy.pathBadge}` : ""}
+            {presentation?.pathKey ? ` · ${copy.pathBadge}` : ""}
           </p>
 
           <div className="mt-5 rounded-2xl border border-violet-200/70 bg-white/80 p-4 dark:border-violet-500/20 dark:bg-violet-500/10">
@@ -262,7 +262,7 @@ export default function LmProgressSidebar({ view, lang = "en", loading = false, 
                 {copy.typeLabel}
               </dt>
               <dd className="font-semibold text-slate-900 dark:text-white">
-                {copy.typeFoundational}
+                {copy.moduleTypeLabel || copy.typeFoundational}
               </dd>
             </div>
             <div className="flex items-center justify-between gap-3">

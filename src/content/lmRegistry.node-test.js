@@ -12,6 +12,7 @@ import test from "node:test";
 import {
   LM_PRESENTATION_REGISTRY,
   LM01_VISUALS,
+  LM08_VISUALS,
   getLmActivityVisualSrc,
   getLmLearnerMeta,
   getLmModuleVisuals,
@@ -77,4 +78,61 @@ test("LM01 approved visuals are registered and present on disk", () => {
     assert.match(src, /^\/learning-modules\/visuals\/lm01\/lm01-.+\.png$/);
     assert.equal(existsSync(join(publicRoot, src.slice(1))), true, src);
   }
+});
+
+test("LM08 presentation registry exists with canonical evidence wiring", () => {
+  const mod = LM_PRESENTATION_REGISTRY.LM08;
+  assert.ok(mod);
+  assert.equal(mod.pathKey, "builder");
+  assert.equal(mod.learnerMeta.assessmentXp, 300);
+  assert.equal(mod.learningOutcomes.en.length, 5);
+  assert.equal(mod.learningOutcomes.gr.length, 5);
+  assert.ok(mod.title.en);
+  assert.ok(mod.title.gr);
+  assert.equal(mod.visuals.hero, LM08_VISUALS.hero);
+  assert.equal(mod.visuals.activityByType.verification, LM08_VISUALS.verification);
+
+  const visible = getLmVisibleActivities("LM08", "en");
+  assert.equal(visible.length, 7);
+  const evidenceIds = visible
+    .map((a) => a.evidenceId)
+    .filter(Boolean);
+  assert.deepEqual(evidenceIds, [
+    "coding01",
+    "coding02",
+    "lm08-contract-inspection",
+    "lm08-source-verification",
+    "lm08-assessment",
+  ]);
+  assert.equal(visible[0].id, "lm08-lifecycle");
+  assert.equal(visible[0].visualType, "reading");
+  assert.equal(visible[0].requirementHint, "core");
+  assert.equal(visible[0].presentationOnly, true);
+  assert.equal(visible[0].evidenceId, undefined);
+  assert.equal(visible[0].title.gr, "Κύκλος ζωής ανάπτυξης έξυπνου συμβολαίου");
+  assert.equal(visible[1].id, "lm08-remix-setup");
+  assert.equal(visible[1].requirementHint, "recommended");
+  assert.equal(visible[2].visualType, "coding");
+  assert.equal(visible[4].visualType, "inspection");
+  assert.equal(visible[5].visualType, "verification");
+  assert.equal(getLmActivityVisualSrc("LM08", "coding"), LM01_VISUALS.simulator);
+  assert.equal(getLmLearnerMeta("LM08", "en").assessmentXp, 300);
+});
+
+test("LM08 expected visual asset paths are documented for owner drop-in", () => {
+  assert.equal(LM08_VISUALS.hero, "/learning-modules/visuals/lm08/lm08-hero.png");
+  assert.equal(
+    LM08_VISUALS.verification,
+    "/learning-modules/visuals/lm08/lm08-verification.png"
+  );
+  assert.equal(existsSync(join(publicRoot, LM08_VISUALS.hero.slice(1))), true);
+  assert.equal(
+    existsSync(join(publicRoot, LM08_VISUALS.verification.slice(1))),
+    true
+  );
+  assert.equal(getLmModuleVisuals("LM08").hero, LM08_VISUALS.hero);
+  assert.equal(
+    getLmActivityVisualSrc("LM08", "verification"),
+    LM08_VISUALS.verification
+  );
 });

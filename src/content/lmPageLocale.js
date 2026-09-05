@@ -1,6 +1,10 @@
 /**
  * LM student page chrome copy (EN + GR).
  * Presentation only — no progression authority.
+ *
+ * Shared strings live in LM_PAGE_COPY. Module-specific overrides
+ * (titles, completion explanations, About mix) live in LM_MODULE_PAGE_CHROME.
+ * Default moduleId is LM01 so existing callers stay LM01-correct.
  */
 
 export const LM_PAGE_COPY = {
@@ -31,6 +35,7 @@ export const LM_PAGE_COPY = {
     resourceAvailable: "Available",
     resourceExternal: "External resource",
     resourceRecommended: "Recommended",
+    resourceCore: "Core",
     resourceOptional: "Optional",
     simulatorInteractive: "Interactive activity",
     openExternal: "Open resource",
@@ -66,6 +71,9 @@ export const LM_PAGE_COPY = {
       demo: "DEMO",
       simulator: "SIMULATOR",
       observation: "OBSERVATION",
+      coding: "CODING",
+      inspection: "INSPECTION",
+      verification: "VERIFICATION",
       assessment: "ASSESSMENT",
     },
     stageLearn: "Learn",
@@ -81,6 +89,7 @@ export const LM_PAGE_COPY = {
     pathLabel: "Path",
     typeLabel: "Type",
     typeFoundational: "Foundational",
+    moduleTypeLabel: "Foundational",
     activityMixLabel: "Activity mix",
     activityMixValue: "Textbook, demo, simulator, assessment",
     currentModuleLabel: "Current module",
@@ -112,6 +121,7 @@ export const LM_PAGE_COPY = {
     resourceAvailable: "Διαθέσιμο",
     resourceExternal: "Εξωτερικός πόρος",
     resourceRecommended: "Προτεινόμενο",
+    resourceCore: "Βασικό υλικό",
     resourceOptional: "Προαιρετικό",
     simulatorInteractive: "Διαδραστική δραστηριότητα",
     openExternal: "Άνοιγμα πόρου",
@@ -148,6 +158,9 @@ export const LM_PAGE_COPY = {
       demo: "DEMO",
       simulator: "SIMULATOR",
       observation: "OBSERVATION",
+      coding: "CODING",
+      inspection: "INSPECTION",
+      verification: "VERIFICATION",
       assessment: "ASSESSMENT",
     },
     stageLearn: "Μάθε",
@@ -163,13 +176,80 @@ export const LM_PAGE_COPY = {
     pathLabel: "Διαδρομή",
     typeLabel: "Τύπος",
     typeFoundational: "Θεμελιώδες",
+    moduleTypeLabel: "Θεμελιώδες",
     activityMixLabel: "Μείγμα δραστηριοτήτων",
     activityMixValue: "Σύγγραμμα, demo, προσομοιωτής, αξιολόγηση",
     currentModuleLabel: "Τρέχον module",
   },
 };
 
-/** @param {"en"|"gr"} lang */
-export function getLmPageCopy(lang = "en") {
-  return LM_PAGE_COPY[lang === "gr" ? "gr" : "en"] || LM_PAGE_COPY.en;
+/** Module-specific chrome overrides. Presentation only. */
+export const LM_MODULE_PAGE_CHROME = {
+  LM08: {
+    en: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Learn organizes the journey. Hands-on coding, inspection, and verification activities produce required evidence — LM08 is complete only when all four practical evidence items and the LM08 Assessment are satisfied.",
+      sidebarProgress: "Your progress in LM08",
+      assessmentTitle: "LM08 Assessment",
+      nextRequiredBody:
+        "Complete the next required LM08 activity or assessment. Opening this page or visiting labs does not itself record completion.",
+      finishAssessmentCta: "Finish the assessment to complete LM08",
+      closingNextBody: "Finish the LM08 Assessment to complete this module.",
+      moduleCompleteBody:
+        "LM08 is complete according to your verifiable learning progress. You can still revisit labs and activities anytime.",
+      signInRequired: "Sign in with your Web3Edu identity to load your LM08 progress.",
+      loading: "Loading LM08…",
+      moduleTypeLabel: "Applied",
+      activityMixValue: "Lifecycle reading, coding labs, inspection, verification, assessment",
+    },
+    gr: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Το Learn οργανώνει τη μαθησιακή διαδρομή. Οι πρακτικές δραστηριότητες κώδικα, επιθεώρησης και επαλήθευσης παράγουν τα απαιτούμενα αποδεικτικά. Το LM08 ολοκληρώνεται όταν ικανοποιηθούν και τα τέσσερα πρακτικά αποδεικτικά και ολοκληρωθεί επιτυχώς η Αξιολόγηση LM08.",
+      sidebarProgress: "Η πρόοδός σου στο LM08",
+      sidebarAbout: "Σχετικά με το LM08",
+      assessmentTitle: "Αξιολόγηση LM08",
+      nextRequiredBody:
+        "Ολοκλήρωσε την επόμενη απαιτούμενη δραστηριότητα ή αξιολόγηση LM08. Το άνοιγμα αυτής της σελίδας ή των labs δεν καταγράφει από μόνο του ολοκλήρωση.",
+      finishAssessmentCta: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM08",
+      closingNextBody: "Ολοκλήρωσε την Αξιολόγηση LM08 για να τελειώσεις αυτό το module.",
+      moduleCompleteBody:
+        "Το LM08 ολοκληρώθηκε σύμφωνα με την επαληθεύσιμη πρόοδό σου. Μπορείς να ξαναδείς labs και δραστηριότητες οποιαδήποτε στιγμή.",
+      signInRequired:
+        "Συνδέσου με την ταυτότητα Web3Edu για να φορτωθεί η πρόοδός σου στο LM08.",
+      loading: "Φόρτωση LM08…",
+      moduleTypeLabel: "Εφαρμοσμένο",
+      activityMixValue: "Ανάγνωση, coding labs, επιθεώρηση, επαλήθευση, αξιολόγηση",
+    },
+  },
+};
+
+/**
+ * @param {"en"|"gr"} lang
+ * @param {string|null|undefined} [moduleId] defaults to LM01 chrome (base copy)
+ */
+export function getLmPageCopy(lang = "en", moduleId = "LM01") {
+  const locale = lang === "gr" ? "gr" : "en";
+  const base = LM_PAGE_COPY[locale] || LM_PAGE_COPY.en;
+  const override =
+    moduleId && moduleId !== "LM01"
+      ? LM_MODULE_PAGE_CHROME[moduleId]?.[locale]
+      : null;
+  if (!override) {
+    return {
+      ...base,
+      typeLabels: { ...base.typeLabels },
+    };
+  }
+  return {
+    ...base,
+    ...override,
+    typeLabels: {
+      ...base.typeLabels,
+      ...(override.typeLabels || {}),
+    },
+  };
 }

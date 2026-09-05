@@ -61,19 +61,32 @@ export function moduleHasUnsatisfiedPracticalEvidence(moduleEntry) {
  * Assessment presentation from canonical module.assessment only.
  * @param {object|null} moduleEntry
  * @param {"en"|"gr"} lang
- * @param {{ canonical?: boolean }} [options]
+ * @param {{
+ *   canonical?: boolean,
+ *   fallbackAssessmentId?: string|null,
+ *   moduleId?: string,
+ * }} [options]
  */
 export function getLmAssessmentPresentation(moduleEntry, lang = "en", options = {}) {
-  const copy = getLmPageCopy(lang);
+  const moduleId =
+    typeof options.moduleId === "string" && options.moduleId
+      ? options.moduleId
+      : "LM01";
+  const copy = getLmPageCopy(lang, moduleId);
   const canonical = options.canonical === true;
   const assessment = moduleEntry?.assessment;
+  const fallbackId =
+    typeof options.fallbackAssessmentId === "string" && options.fallbackAssessmentId
+      ? options.fallbackAssessmentId
+      : null;
   const assessmentId =
     typeof assessment?.id === "string" && assessment.id
       ? assessment.id
-      : "lm01-assessment";
+      : fallbackId;
   const passed = Boolean(assessment?.passed);
-  const route =
-    ASSESSMENT_ROUTES[lang === "gr" ? "gr" : "en"][assessmentId] || null;
+  const route = assessmentId
+    ? ASSESSMENT_ROUTES[lang === "gr" ? "gr" : "en"][assessmentId] || null
+    : null;
 
   return {
     assessmentId,
@@ -97,6 +110,7 @@ export function getLmAssessmentPresentation(moduleEntry, lang = "en", options = 
  * @param {"en"|"gr"} lang
  * @param {{
  *   canonical?: boolean,
+ *   moduleId?: string,
  *   assessment?: ReturnType<typeof getLmAssessmentPresentation>|null,
  * }} [options]
  */
@@ -106,12 +120,19 @@ export function getLmRequiredEvidenceListPresentation(
   lang = "en",
   options = {}
 ) {
-  const copy = getLmPageCopy(lang);
+  const moduleId =
+    typeof options.moduleId === "string" && options.moduleId
+      ? options.moduleId
+      : "LM01";
+  const copy = getLmPageCopy(lang, moduleId);
   const locale = lang === "gr" ? "gr" : "en";
   const canonical = options.canonical === true;
   const assessment =
     options.assessment ??
-    getLmAssessmentPresentation(moduleEntry, locale, { canonical });
+    getLmAssessmentPresentation(moduleEntry, locale, {
+      canonical,
+      moduleId,
+    });
   /** @type {Array<object>} */
   const items = [];
 
@@ -190,10 +211,10 @@ export function getLmRequiredEvidenceListPresentation(
  * @param {{ canonical?: boolean, moduleId?: string }} [options]
  */
 export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en", options = {}) {
-  const copy = getLmPageCopy(lang);
   const locale = lang === "gr" ? "gr" : "en";
   const canonical = options.canonical === true;
   const moduleId = typeof options.moduleId === "string" ? options.moduleId : "LM01";
+  const copy = getLmPageCopy(lang, moduleId);
   const href = resolveLmActivityHref(activity, locale);
   const isAssessment = activity.visualType === "assessment";
   const isSimulator = activity.linkKind === "embed";
@@ -202,7 +223,11 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
       ? activity.evidenceId.trim()
       : null;
   const assessment = isAssessment
-    ? getLmAssessmentPresentation(moduleEntry, locale, { canonical })
+    ? getLmAssessmentPresentation(moduleEntry, locale, {
+        canonical,
+        moduleId,
+        fallbackAssessmentId: evidenceId,
+      })
     : null;
 
   const practicalSatisfied =
@@ -217,6 +242,9 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
   if (activity.requirementHint === "optional") {
     statusKind = "optional";
     statusLabel = copy.resourceOptional;
+  } else if (activity.requirementHint === "core") {
+    statusKind = "core";
+    statusLabel = copy.resourceCore;
   } else if (activity.requirementHint === "recommended") {
     statusKind = "recommended";
     statusLabel = copy.resourceRecommended;
@@ -302,9 +330,9 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
  * @param {"en"|"gr"} lang
  */
 export function getLmNextRequiredStepPresentation(view, lang = "en") {
-  const copy = getLmPageCopy(lang);
   const locale = lang === "gr" ? "gr" : "en";
   const moduleId = view?.moduleId || "LM01";
+  const copy = getLmPageCopy(lang, moduleId);
   const assessment = view?.assessment || null;
   const activities = Array.isArray(view?.activities) ? view.activities : [];
 
@@ -425,7 +453,7 @@ export function getLmNextRequiredStepPresentation(view, lang = "en") {
  * @param {"en"|"gr"} lang
  */
 export function getLmProgressStages(view, lang = "en") {
-  const copy = getLmPageCopy(lang);
+  const copy = getLmPageCopy(lang, view?.moduleId || "LM01");
   const stages = [
     { id: "learn", label: copy.stageLearn },
     { id: "explore", label: copy.stageExplore },
@@ -477,7 +505,7 @@ export function getLmProgressStages(view, lang = "en") {
  * @param {"en"|"gr"} lang
  */
 export function getLmOverallPathPresentation(view, lang = "en") {
-  const copy = getLmPageCopy(lang);
+  const copy = getLmPageCopy(lang, view?.moduleId || "LM01");
   const defs = [
     { key: "explorer", title: copy.tierExplorer, description: copy.tierExplorerBody },
     { key: "builder", title: copy.tierBuilder, description: copy.tierBuilderBody },
@@ -515,8 +543,8 @@ export function getLmOverallPathPresentation(view, lang = "en") {
  * @param {"en"|"gr"} lang
  */
 export function getLmClosingCtaPresentation(view, lang = "en") {
-  const copy = getLmPageCopy(lang);
   const locale = lang === "gr" ? "gr" : "en";
+  const copy = getLmPageCopy(lang, view?.moduleId || "LM01");
 
   if (view?.complete) {
     const action = resolveProgressionActionTarget({
@@ -602,8 +630,8 @@ export function getLmClosingCtaPresentation(view, lang = "en") {
  * @param {string} [moduleId]
  */
 export function getLmPageViewState(progression, lang = "en", moduleId = "LM01") {
-  const copy = getLmPageCopy(lang);
   const locale = lang === "gr" ? "gr" : "en";
+  const copy = getLmPageCopy(lang, moduleId);
   const presentation = getLmPresentationModule(moduleId);
   const moduleEntry = getCanonicalModuleEntry(progression, moduleId);
   const valid = isValidCanonicalProgression(progression);
@@ -612,10 +640,19 @@ export function getLmPageViewState(progression, lang = "en", moduleId = "LM01") 
     return { mode: "missing_module" };
   }
 
+  const registryActivities = getLmVisibleActivities(moduleId, locale);
+  const assessmentActivity = registryActivities.find(
+    (a) => a && a.visualType === "assessment"
+  );
+  const fallbackAssessmentId =
+    typeof assessmentActivity?.evidenceId === "string"
+      ? assessmentActivity.evidenceId
+      : null;
   const assessment = getLmAssessmentPresentation(moduleEntry, locale, {
     canonical: valid,
+    moduleId,
+    fallbackAssessmentId,
   });
-  const registryActivities = getLmVisibleActivities(moduleId, locale);
   const activities = registryActivities.map((activity) =>
     getLmActivityRowPresentation(activity, moduleEntry, locale, {
       canonical: valid,
@@ -639,13 +676,14 @@ export function getLmPageViewState(progression, lang = "en", moduleId = "LM01") 
     moduleEntry,
     registryActivities,
     locale,
-    { canonical: valid, assessment }
+    { canonical: valid, assessment, moduleId }
   );
 
   const view = {
     mode: "ready",
     moduleId,
     presentation,
+    pageCopy: copy,
     title: presentation.title[locale] || presentation.title.en,
     transitionFrom: presentation.transition.from[locale],
     transitionTo: presentation.transition.to[locale],
