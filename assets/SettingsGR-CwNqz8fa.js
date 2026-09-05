@@ -1,0 +1,1 @@
+import{j as t}from"./vendor-react-CTtygi22.js";import r from"./Settings-BY96mUgp.js";import"./index-CqrlaBo3.js";import"./vendor-web3-DteUQuq0.js";import"./identityExport-0RG2FTks.js";import"./ExclamationTriangleIcon-CMJrWeFo.js";function e(){return t.jsx(r,{lang:"gr"})}export{e as default};
