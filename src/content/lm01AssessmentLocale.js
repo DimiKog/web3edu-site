@@ -27,7 +27,7 @@ export const LM01_ASSESSMENT_COPY = {
     retry: "Try again",
     failedTitle: "Assessment not passed yet",
     failedScore: (score, total) => `${score} / ${total}`,
-    feedbackTitle: "Review these ideas",
+    feedbackTitle: "Review these questions",
     passedTitle: "LM01 Assessment Complete",
     alreadyPassedTitle: "LM01 Assessment already recorded",
     passedScore: (score, total) => `${score} / ${total}`,
@@ -40,6 +40,7 @@ export const LM01_ASSESSMENT_COPY = {
       "Your learning path updates from the server. Use Continue Learning on the Dashboard for your next step.",
     questions: {
       lm01_q1_distribute_ledger: {
+        heading: "Shared ledger without exclusive control",
         prompt:
           "Several independent organizations need to maintain a common record of transactions. What is a key reason they might consider a distributed ledger rather than a database controlled by one of the organizations?",
         options: {
@@ -50,6 +51,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q2_hash_linkage: {
+        heading: "Hash-linked blocks",
         prompt:
           "A block contains a cryptographic reference derived from the previous block. What is an important consequence of this design?",
         options: {
@@ -60,6 +62,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q3_not_guaranteed: {
+        heading: "What blockchain does not guarantee",
         prompt:
           "Which of the following are NOT guaranteed simply because information has been recorded on a blockchain?",
         options: {
@@ -70,6 +73,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q4_network_model: {
+        heading: "Network models",
         prompt:
           "Five independent companies establish a blockchain network together. Each company participates in the governance of the network, and decisions about the network are made collectively. No single company owns or controls the blockchain. Which network model best describes this arrangement?",
         options: {
@@ -80,6 +84,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q5_blockchain_crypto: {
+        heading: "Blockchain and cryptocurrency",
         prompt: "Which statement is the most accurate?",
         options: {
           A: "Every blockchain requires its own cryptocurrency.",
@@ -89,6 +94,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q6_foodtrace_consider: {
+        heading: "FoodTrace — when to consider blockchain",
         prompt:
           "Five independent organizations participate in a food supply chain (the FoodTrace case). Each organization records events as products move between them. They need a shared history of these events, and disputes sometimes occur about when records were entered or changed. Based only on the information currently available, what is the best initial conclusion?",
         options: {
@@ -99,6 +105,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q7_university_inventory: {
+        heading: "University inventory",
         prompt:
           "A university department wants to track laptops and monitors stored in one equipment room. One administrator manages the inventory. The university already operates a central database, and no independent organization needs to maintain or verify a shared copy of these records. Based on these requirements, what is the most appropriate starting approach?",
         options: {
@@ -134,7 +141,7 @@ export const LM01_ASSESSMENT_COPY = {
     retry: "Δοκιμάστε ξανά",
     failedTitle: "Η αξιολόγηση δεν πέρασε ακόμη",
     failedScore: (score, total) => `${score} / ${total}`,
-    feedbackTitle: "Επανεξετάστε αυτές τις ιδέες",
+    feedbackTitle: "Ξαναδές αυτές τις ερωτήσεις",
     passedTitle: "Η Αξιολόγηση LM01 Ολοκληρώθηκε",
     alreadyPassedTitle: "Η αξιολόγηση LM01 είναι ήδη καταγεγραμμένη",
     passedScore: (score, total) => `${score} / ${total}`,
@@ -147,6 +154,7 @@ export const LM01_ASSESSMENT_COPY = {
       "Η διαδρομή ενημερώνεται από τον διακομιστή. Χρησιμοποιήστε το «Συνέχισε τη Μάθηση» στον Πίνακα για το επόμενο βήμα.",
     questions: {
       lm01_q1_distribute_ledger: {
+        heading: "Κοινό καθολικό χωρίς αποκλειστικό έλεγχο",
         prompt:
           "Αρκετοί ανεξάρτητοι οργανισμοί χρειάζονται κοινό αρχείο συναλλαγών. Ποιος είναι βασικός λόγος να εξετάσουν κατανεμημένο καθολικό αντί για βάση δεδομένων που ελέγχει ένας από αυτούς;",
         options: {
@@ -157,6 +165,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q2_hash_linkage: {
+        heading: "Μπλοκ συνδεδεμένα με hash",
         prompt:
           "Ένα μπλοκ περιέχει κρυπτογραφική αναφορά που προκύπτει από το προηγούμενο μπλοκ. Ποια είναι σημαντική συνέπεια αυτού του σχεδιασμού;",
         options: {
@@ -167,6 +176,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q3_not_guaranteed: {
+        heading: "Τι δεν εγγυάται το blockchain",
         prompt:
           "Ποια από τα παρακάτω ΔΕΝ εγγυώνται απλώς επειδή μια πληροφορία καταγράφηκε σε blockchain;",
         options: {
@@ -177,6 +187,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q4_network_model: {
+        heading: "Μοντέλα δικτύου",
         prompt:
           "Πέντε ανεξάρτητες εταιρείες δημιουργούν μαζί ένα δίκτυο blockchain. Κάθε εταιρεία συμμετέχει στη διακυβέρνηση και οι αποφάσεις λαμβάνονται συλλογικά. Καμία εταιρεία δεν κατέχει ή ελέγχει μόνη το blockchain. Ποιο μοντέλο δικτύου ταιριάζει καλύτερα;",
         options: {
@@ -187,6 +198,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q5_blockchain_crypto: {
+        heading: "Blockchain και κρυπτονόμισμα",
         prompt: "Ποια δήλωση είναι η πιο ακριβής;",
         options: {
           A: "Κάθε blockchain απαιτεί δικό του κρυπτονόμισμα.",
@@ -196,6 +208,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q6_foodtrace_consider: {
+        heading: "FoodTrace — πότε να εξεταστεί το blockchain",
         prompt:
           "Πέντε ανεξάρτητοι οργανισμοί συμμετέχουν σε αλυσίδα τροφίμων (περίπτωση FoodTrace). Καθένας καταγράφει γεγονότα καθώς τα προϊόντα μετακινούνται. Χρειάζονται κοινό ιστορικό και συχνά υπάρχουν διαφωνίες για το πότε καταχωρήθηκαν ή άλλαξαν εγγραφές. Με βάση μόνο αυτές τις πληροφορίες, ποιο είναι το καλύτερο αρχικό συμπέρασμα;",
         options: {
@@ -206,6 +219,7 @@ export const LM01_ASSESSMENT_COPY = {
         },
       },
       lm01_q7_university_inventory: {
+        heading: "Αποθήκη πανεπιστημίου",
         prompt:
           "Ένα πανεπιστημιακό τμήμα θέλει να παρακολουθεί φορητούς υπολογιστές και οθόνες σε μία αίθουσα εξοπλισμού. Ένας διαχειριστής διαχειρίζεται το απόθεμα. Το πανεπιστήμιο έχει ήδη κεντρική βάση δεδομένων και κανένας ανεξάρτητος οργανισμός δεν χρειάζεται κοινό αντίγραφο αυτών των εγγραφών. Ποια είναι η καταλληλότερη αρχική προσέγγιση;",
         options: {

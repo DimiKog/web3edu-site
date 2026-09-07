@@ -327,7 +327,7 @@ test("postLm01AssessmentAnswers sends answers only with Bearer", () => {
   const end = src.indexOf("export async function fetchLm08AssessmentChallenge", src.indexOf("export async function postLm01AssessmentAnswers"));
   const lm01Fn = end > 0 ? src.slice(src.indexOf("export async function postLm01AssessmentAnswers"), end) : fn;
   assert.match(lm01Fn, /\/learning-modules\/lm01\/assessment/);
-  assert.match(lm01Fn, /JSON\.stringify\(\{\s*answers\s*\}\)/);
+  assert.match(lm01Fn, /body\.lang/);
   assert.match(lm01Fn, /buildLabWriteAuthHeaders\(token\)/);
   // Body must be answers-only — reject accidental authority payload construction.
   assert.doesNotMatch(lm01Fn, /JSON\.stringify\(\{[^}]*score/);

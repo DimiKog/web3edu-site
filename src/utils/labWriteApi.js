@@ -861,6 +861,7 @@ export async function postLm01AssessmentAnswers({
   apiBase,
   idToken,
   answers,
+  lang,
 } = {}) {
   const token = normalizeIdToken(idToken);
   if (!token) {
@@ -880,12 +881,16 @@ export async function postLm01AssessmentAnswers({
   }
 
   const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  const body = { answers };
+  if (lang === "gr" || lang === "en") {
+    body.lang = lang;
+  }
 
   try {
     const res = await fetch(`${base}/learning-modules/lm01/assessment`, {
       method: "POST",
       headers: buildLabWriteAuthHeaders(token),
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify(body),
     });
     const data = await res.json().catch(() => ({}));
     // Failed attempts return HTTP 200 with ok:false — surface that as !ok.

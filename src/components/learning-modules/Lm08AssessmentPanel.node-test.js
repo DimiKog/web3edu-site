@@ -172,6 +172,34 @@ test("panel has no frontend correct-answer logic", () => {
   assert.doesNotMatch(panelSrc, /criticalFailures/);
 });
 
+test("failed remediation shows Q-number title and hint separation", () => {
+  assert.match(panelSrc, /buildAssessmentFeedbackRows/);
+  assert.match(panelSrc, /feedbackRows/);
+  assert.match(panelSrc, /row\.label/);
+  assert.match(panelSrc, /row\.hint/);
+  assert.equal(LM08_ASSESSMENT_COPY.en.feedbackTitle, "Review these questions");
+  assert.equal(LM08_ASSESSMENT_COPY.gr.feedbackTitle, "Ξαναδές αυτές τις ερωτήσεις");
+});
+
+test("silent token renewal does not reset attempt; Try again still reshuffles", () => {
+  assert.match(panelSrc, /idTokenRef/);
+  assert.match(panelSrc, /attemptSeededRef/);
+  assert.match(panelSrc, /seedIncompleteAttemptIfNeeded/);
+  assert.match(panelSrc, /assessmentChoiceInputClassName/);
+  const loadStart = panelSrc.indexOf("const loadChallenge = useCallback");
+  const loadEnd = panelSrc.indexOf("}, [apiBase, copy.loading, copy.signInRequired, locale]");
+  assert.ok(loadStart >= 0 && loadEnd > loadStart);
+  const loadFn = panelSrc.slice(loadStart, loadEnd);
+  assert.doesNotMatch(loadFn, /identityArgs\.idToken/);
+  assert.match(loadFn, /idTokenRef\.current/);
+  assert.match(loadFn, /alreadyLoaded/);
+  const tryStart = panelSrc.indexOf("const handleTryAgain");
+  const tryEnd = panelSrc.indexOf("const handleSubmit", tryStart);
+  const tryFn = panelSrc.slice(tryStart, tryEnd);
+  assert.match(tryFn, /buildShuffledOptionOrders/);
+  assert.doesNotMatch(tryFn, /emptyAnswers|setAnswers\(/);
+});
+
 test("single vs multiple selection UI and five-option visual letters", () => {
   assert.match(panelSrc, /type=\{isMulti \? "checkbox" : "radio"\}/);
   assert.equal(visualLetterForIndex(4), "E");

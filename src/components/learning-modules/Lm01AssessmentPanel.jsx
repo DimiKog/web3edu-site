@@ -13,6 +13,11 @@ import {
   postLm01AssessmentAnswers,
 } from "../../utils/labWriteApi.js";
 import {
+  assessmentChoiceInputClassName,
+  seedIncompleteAttemptIfNeeded,
+} from "../../utils/assessmentAttemptStability.js";
+import { buildAssessmentFeedbackRows } from "../../utils/assessmentFeedbackView.js";
+import {
   buildShuffledOptionOrders,
   isFoodtraceDesignCaseIntroQuestion,
   mapOptionsForDisplay,
@@ -27,13 +32,19 @@ function emptyAnswers(questions) {
 }
 
 export default function Lm01AssessmentPanel({ lang = "en" }) {
+  const locale = lang === "gr" ? "gr" : "en";
   const copy = getLm01AssessmentCopy(lang);
   const rationales =
-    LM01_POST_PASS_RATIONALES[lang === "gr" ? "gr" : "en"] || LM01_POST_PASS_RATIONALES.en;
+    LM01_POST_PASS_RATIONALES[locale] || LM01_POST_PASS_RATIONALES.en;
   const identityArgs = useEducationalIdentityArgs();
   const { refetch: refetchResolvedIdentity } = useResolvedIdentityContext();
   const apiBase = getWeb3eduBackendUrl();
   const assessmentTopRef = useRef(null);
+  const idTokenRef = useRef(identityArgs.idToken);
+  const attemptSeededRef = useRef(false);
+  const challengeLoadedRef = useRef(false);
+  const hasIdToken = Boolean(identityArgs.idToken);
+  idTokenRef.current = identityArgs.idToken;
 
   const [loading, setLoading] = useState(true);
   const [challenge, setChallenge] = useState(null);
@@ -58,31 +69,53 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
     }
   }, [refetchResolvedIdentity]);
 
+  useEffect(() => {
+    attemptSeededRef.current = false;
+    challengeLoadedRef.current = false;
+  }, [locale]);
+
   const loadChallenge = useCallback(async () => {
-    if (!identityArgs.idToken) {
+    const idToken = idTokenRef.current;
+    if (!idToken) {
+      attemptSeededRef.current = false;
+      challengeLoadedRef.current = false;
       setLoading(false);
       setLoadError(copy.signInRequired);
       setChallenge(null);
       return;
     }
 
-    setLoading(true);
+    const alreadyLoaded = challengeLoadedRef.current;
+    if (!alreadyLoaded) {
+      setLoading(true);
+    }
     setLoadError(null);
 
     try {
       const result = await fetchLm01AssessmentChallenge({
         apiBase,
-        idToken: identityArgs.idToken,
+        idToken,
       });
 
       if (result.ok && result.data?.ok) {
         setChallenge(result.data);
+        challengeLoadedRef.current = true;
         if (!result.data.completed) {
           const qs = result.data.questions || [];
-          setAnswers(emptyAnswers(qs));
-          setOptionOrders(buildShuffledOptionOrders(qs));
-          setSubmitResult(null);
+          const seeded = seedIncompleteAttemptIfNeeded({
+            attemptSeeded: attemptSeededRef.current,
+            questions: qs,
+            emptyAnswers,
+            buildOptionOrders: buildShuffledOptionOrders,
+          });
+          if (seeded.seeded) {
+            setAnswers(seeded.answers);
+            setOptionOrders(seeded.optionOrders);
+            setSubmitResult(null);
+            attemptSeededRef.current = true;
+          }
         } else {
+          attemptSeededRef.current = true;
           setOptionOrders({});
           setSubmitResult({
             kind: "already_passed",
@@ -102,11 +135,11 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
     } finally {
       setLoading(false);
     }
-  }, [apiBase, copy.loading, copy.signInRequired, identityArgs.idToken]);
+  }, [apiBase, copy.loading, copy.signInRequired]);
 
   useEffect(() => {
     loadChallenge();
-  }, [loadChallenge]);
+  }, [loadChallenge, hasIdToken, locale]);
 
   const questions = useMemo(() => challenge?.questions ?? [], [challenge]);
 
@@ -156,6 +189,7 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
         apiBase,
         idToken: identityArgs.idToken,
         answers,
+        lang: locale,
       });
 
       if (result.ok && result.data?.ok) {
@@ -204,6 +238,21 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
     submitResult?.kind === "passed" || submitResult?.kind === "already_passed";
   const isFailed = submitResult?.kind === "failed";
   const showForm = !loading && !loadError && !isPassed && !isFailed && questions.length > 0;
+  const canonicalQuestionOrder = useMemo(
+    () => questions.map((q) => q.id).filter(Boolean),
+    [questions]
+  );
+  const feedbackRows = useMemo(
+    () =>
+      isFailed
+        ? buildAssessmentFeedbackRows(
+            submitResult?.feedback,
+            copy,
+            canonicalQuestionOrder
+          )
+        : [],
+    [canonicalQuestionOrder, copy, isFailed, submitResult?.feedback]
+  );
 
   return (
     <div
@@ -313,12 +362,27 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
             </div>
           </div>
 
-          {(submitResult.feedback || []).length > 0 && (
+          {feedbackRows.length > 0 && (
             <div className="text-sm leading-6 text-amber-950 dark:text-amber-50">
               <h3 className="font-semibold">{copy.feedbackTitle}</h3>
-              <ul className="mt-2 list-disc space-y-1.5 pl-5">
-                {submitResult.feedback.map((item, idx) => (
-                  <li key={`${item.questionId || "hint"}-${idx}`}>{item.hint}</li>
+              <ul className="mt-3 space-y-3">
+                {feedbackRows.map((row) => (
+                  <li key={row.key}>
+                    {row.label ? (
+                      <p className="font-semibold text-amber-950 dark:text-amber-50">
+                        {row.label}
+                      </p>
+                    ) : null}
+                    <p
+                      className={
+                        row.label
+                          ? "mt-0.5 text-amber-900/95 dark:text-amber-100/95"
+                          : undefined
+                      }
+                    >
+                      {row.hint}
+                    </p>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -387,19 +451,21 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
                         htmlFor={inputId}
                         className="flex cursor-pointer items-start gap-3 rounded-xl px-2 py-2 text-sm leading-6 text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/[0.04]"
                       >
-                        <input
-                          id={inputId}
-                          className="mt-1"
-                          type={isMulti ? "checkbox" : "radio"}
-                          name={question.id}
-                          value={row.canonicalId}
-                          checked={checked}
-                          onChange={() =>
-                            isMulti
-                              ? toggleMulti(question.id, row.canonicalId)
-                              : setSingle(question.id, row.canonicalId)
-                          }
-                        />
+                          <input
+                            id={inputId}
+                            className={assessmentChoiceInputClassName(
+                              isMulti ? "checkbox" : "radio"
+                            )}
+                            type={isMulti ? "checkbox" : "radio"}
+                            name={question.id}
+                            value={row.canonicalId}
+                            checked={checked}
+                            onChange={() =>
+                              isMulti
+                                ? toggleMulti(question.id, row.canonicalId)
+                                : setSingle(question.id, row.canonicalId)
+                            }
+                          />
                         <span>
                           <span className="font-semibold">{row.visualLetter}.</span>{" "}
                           {row.text}

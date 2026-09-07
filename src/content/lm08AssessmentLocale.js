@@ -28,7 +28,7 @@ export const LM08_ASSESSMENT_COPY = {
     retry: "Try again",
     failedTitle: "Assessment not passed yet",
     failedScore: (score, total) => `${score} / ${total}`,
-    feedbackTitle: "Review these ideas",
+    feedbackTitle: "Review these questions",
     passedTitle: "LM08 Assessment Complete",
     alreadyPassedTitle: "LM08 Assessment already recorded",
     passedScore: (score, total) => `${score} / ${total}`,
@@ -41,6 +41,7 @@ export const LM08_ASSESSMENT_COPY = {
       "Your learning path updates from the server. Use Continue Learning on the Dashboard for your next step.",
     questions: {
       lm08_q1_deployment_lifecycle: {
+        heading: "Deployment lifecycle",
         prompt:
           "After writing a Solidity smart contract, which sequence best describes how it becomes a deployed contract that users can interact with on Besu Edu-Net?",
         options: {
@@ -51,6 +52,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q2_contract_instance: {
+        heading: "Contract instance",
         prompt: "After deploying the same smart contract twice, what should you normally expect?",
         options: {
           A: "Both deployments must have the same contract address because the source code is identical.",
@@ -60,6 +62,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q3_reading_state: {
+        heading: "Reading state",
         prompt:
           "You want to read the current value stored by a contract without changing it. Which statement is correct?",
         options: {
@@ -70,6 +73,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q4_changing_state: {
+        heading: "Changing state",
         prompt:
           "A learner calls increment() on the Counter contract and expects its stored value to change. Why is this different from simply reading the current value?",
         options: {
@@ -80,6 +84,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q5_contract_inspection: {
+        heading: "Contract inspection",
         prompt:
           "When inspecting a deployed contract using a blockchain explorer, which information can potentially be established from on-chain/explorer data?",
         options: {
@@ -91,6 +96,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q6_source_verification: {
+        heading: "Source verification",
         prompt: "What is the main value of source verification for a deployed smart contract?",
         options: {
           A: "It proves that the contract is secure.",
@@ -100,6 +106,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q7_verification_limits: {
+        heading: "Verification limits",
         prompt:
           "A contract is shown as source-verified in Blockscout. Which conclusions should you NOT make solely from that fact?",
         options: {
@@ -132,7 +139,7 @@ export const LM08_ASSESSMENT_COPY = {
     retry: "Δοκίμασε ξανά",
     failedTitle: "Η αξιολόγηση δεν έχει περάσει ακόμη",
     failedScore: (score, total) => `${score} / ${total}`,
-    feedbackTitle: "Ξαναδές αυτές τις ιδέες",
+    feedbackTitle: "Ξαναδές αυτές τις ερωτήσεις",
     passedTitle: "Η Αξιολόγηση LM08 Ολοκληρώθηκε",
     alreadyPassedTitle: "Η Αξιολόγηση LM08 έχει ήδη καταγραφεί",
     passedScore: (score, total) => `${score} / ${total}`,
@@ -145,6 +152,7 @@ export const LM08_ASSESSMENT_COPY = {
       "Η διαδρομή μάθησης ενημερώνεται από τον διακομιστή. Χρησιμοποίησε το Continue Learning στο Dashboard για το επόμενο βήμα.",
     questions: {
       lm08_q1_deployment_lifecycle: {
+        heading: "Κύκλος ζωής ανάπτυξης",
         prompt:
           "Αφού γράψεις ένα smart contract σε Solidity, ποια ακολουθία περιγράφει καλύτερα πώς καταλήγει σε ένα ανεπτυγμένο συμβόλαιο με το οποίο μπορούν να αλληλεπιδράσουν χρήστες στο Besu Edu-Net;",
         options: {
@@ -155,6 +163,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q2_contract_instance: {
+        heading: "Στιγμιότυπο συμβολαίου",
         prompt:
           "Αφού αναπτύξεις το ίδιο smart contract δύο φορές, τι πρέπει κανονικά να περιμένεις;",
         options: {
@@ -165,6 +174,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q3_reading_state: {
+        heading: "Ανάγνωση κατάστασης",
         prompt:
           "Θέλεις να διαβάσεις την τρέχουσα τιμή που αποθηκεύει ένα συμβόλαιο χωρίς να την αλλάξεις. Ποια δήλωση είναι σωστή;",
         options: {
@@ -175,6 +185,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q4_changing_state: {
+        heading: "Αλλαγή κατάστασης",
         prompt:
           "Ένας μαθητής καλεί increment() στο συμβόλαιο Counter και περιμένει να αλλάξει η αποθηκευμένη τιμή. Γιατί αυτό διαφέρει από την απλή ανάγνωση της τρέχουσας τιμής;",
         options: {
@@ -185,6 +196,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q5_contract_inspection: {
+        heading: "Επιθεώρηση συμβολαίου",
         prompt:
           "Όταν επιθεωρείς ένα ανεπτυγμένο συμβόλαιο με blockchain explorer, ποιες πληροφορίες μπορούν ενδεχομένως να τεκμηριωθούν από δεδομένα on-chain/explorer;",
         options: {
@@ -196,6 +208,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q6_source_verification: {
+        heading: "Επαλήθευση πηγαίου κώδικα",
         prompt:
           "Ποια είναι η κύρια αξία της επαλήθευσης πηγαίου κώδικα για ένα ανεπτυγμένο smart contract;",
         options: {
@@ -206,6 +219,7 @@ export const LM08_ASSESSMENT_COPY = {
         },
       },
       lm08_q7_verification_limits: {
+        heading: "Όρια επαλήθευσης",
         prompt:
           "Ένα συμβόλαιο εμφανίζεται ως source-verified στο Blockscout. Ποια συμπεράσματα ΔΕΝ πρέπει να βγάλεις μόνο από αυτό το γεγονός;",
         options: {

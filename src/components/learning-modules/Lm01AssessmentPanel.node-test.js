@@ -137,3 +137,28 @@ test("FoodTrace Design Case marker is shown before Q6 only", () => {
   assert.doesNotMatch(panelSrc, /critical question|required question|pass rule/i);
   assert.doesNotMatch(localeSrc, /critical question|required question/i);
 });
+
+test("failed remediation shows Q-number title and hint separation", () => {
+  assert.match(panelSrc, /buildAssessmentFeedbackRows/);
+  assert.match(panelSrc, /feedbackRows/);
+  assert.match(panelSrc, /row\.label/);
+  assert.match(panelSrc, /row\.hint/);
+  assert.equal(LM01_ASSESSMENT_COPY.en.feedbackTitle, "Review these questions");
+  assert.equal(LM01_ASSESSMENT_COPY.gr.feedbackTitle, "Ξαναδές αυτές τις ερωτήσεις");
+});
+
+test("silent token renewal does not reset attempt; Try again still reshuffles", () => {
+  assert.match(panelSrc, /idTokenRef/);
+  assert.match(panelSrc, /attemptSeededRef/);
+  assert.match(panelSrc, /seedIncompleteAttemptIfNeeded/);
+  assert.match(panelSrc, /assessmentChoiceInputClassName/);
+  const loadStart = panelSrc.indexOf("const loadChallenge = useCallback");
+  const loadEnd = panelSrc.indexOf("}, [apiBase, copy.loading, copy.signInRequired]");
+  assert.ok(loadStart >= 0 && loadEnd > loadStart);
+  const loadFn = panelSrc.slice(loadStart, loadEnd);
+  assert.doesNotMatch(loadFn, /identityArgs\.idToken/);
+  assert.match(loadFn, /idTokenRef\.current/);
+  assert.match(loadFn, /seedIncompleteAttemptIfNeeded/);
+  assert.match(loadFn, /alreadyLoaded/);
+  assert.match(panelSrc, /handleTryAgain[\s\S]*buildShuffledOptionOrders/);
+});
