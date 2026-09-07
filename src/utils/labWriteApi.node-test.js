@@ -341,8 +341,21 @@ test("postLm08AssessmentAnswers sends answers only with Bearer", () => {
   assert.match(src, /export async function postLm08AssessmentAnswers/);
   assert.match(src, /export async function fetchLm08AssessmentChallenge/);
   const start = src.indexOf("export async function postLm08AssessmentAnswers");
-  const fn = src.slice(start);
+  const end = src.indexOf("export async function fetchLm02AssessmentChallenge", start);
+  const fn = end > 0 ? src.slice(start, end) : src.slice(start);
   assert.match(fn, /\/learning-modules\/lm08\/assessment/);
+  assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(fn, /body\.lang/);
+  assert.doesNotMatch(fn.slice(0, 1200), /score:|passed:|xpAwarded:|wallet:/);
+});
+
+test("postLm02AssessmentAnswers sends answers only with Bearer", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function postLm02AssessmentAnswers/);
+  assert.match(src, /export async function fetchLm02AssessmentChallenge/);
+  const start = src.indexOf("export async function postLm02AssessmentAnswers");
+  const fn = src.slice(start);
+  assert.match(fn, /\/learning-modules\/lm02\/assessment/);
   assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
   assert.match(fn, /body\.lang/);
   assert.doesNotMatch(fn.slice(0, 1200), /score:|passed:|xpAwarded:|wallet:/);
@@ -360,4 +373,11 @@ test("routeTable registers LM08 assessment EN and GR routes", () => {
   assert.match(routes, /\/learning-modules\/lm08\/assessment/);
   assert.match(routes, /\/learning-modules-gr\/lm08\/assessment/);
   assert.match(routes, /Lm08AssessmentPage/);
+});
+
+test("routeTable registers LM02 assessment EN and GR routes", () => {
+  const routes = read(join(__dirname, "../routes/routeTable.jsx"));
+  assert.match(routes, /\/learning-modules\/lm02\/assessment/);
+  assert.match(routes, /\/learning-modules-gr\/lm02\/assessment/);
+  assert.match(routes, /Lm02AssessmentPage/);
 });

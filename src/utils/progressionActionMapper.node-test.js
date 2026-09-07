@@ -158,6 +158,30 @@ test("LM08 assessment EN/GR ready routes", () => {
     assert.equal(gr.route, "/learning-modules-gr/lm08/assessment");
 });
 
+test("LM02 assessment EN/GR ready routes", () => {
+    const en = resolveProgressionActionTarget({
+        nextAction: {
+            type: "assessment",
+            moduleId: "LM02",
+            assessmentId: "lm02-assessment",
+        },
+        lang: "en",
+    });
+    assert.equal(en.status, "ready");
+    assert.equal(en.route, "/learning-modules/lm02/assessment");
+
+    const gr = resolveProgressionActionTarget({
+        nextAction: {
+            type: "assessment",
+            moduleId: "LM02",
+            assessmentId: "lm02-assessment",
+        },
+        lang: "gr",
+    });
+    assert.equal(gr.status, "ready");
+    assert.equal(gr.route, "/learning-modules-gr/lm02/assessment");
+});
+
 test("other assessments remain coming soon", () => {
     const en = resolveProgressionActionTarget({
         nextAction: {

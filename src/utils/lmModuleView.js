@@ -218,6 +218,7 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
   const href = resolveLmActivityHref(activity, locale);
   const isAssessment = activity.visualType === "assessment";
   const isSimulator = activity.linkKind === "embed";
+  const isDisclosure = activity.expandable === true;
   const evidenceId =
     typeof activity.evidenceId === "string" && activity.evidenceId.trim()
       ? activity.evidenceId.trim()
@@ -251,11 +252,16 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
   }
 
   if (activity.linkKind === "external") {
-    statusKind = activity.requirementHint === "optional" ? "optional" : "external";
-    statusLabel =
-      activity.requirementHint === "optional"
-        ? copy.resourceOptional
-        : copy.resourceExternal;
+    // Default: external rows surface location as status ("External resource"),
+    // except optional (already pedagogical) and activities that opt into
+    // showing requirementHint (LM02 Kallipos: Recommended + Open resource).
+    const preserveRequirementStatus =
+      activity.requirementHint === "optional" ||
+      activity.showRequirementStatus === true;
+    if (!preserveRequirementStatus) {
+      statusKind = "external";
+      statusLabel = copy.resourceExternal;
+    }
   }
 
   if (isSimulator) {
@@ -279,6 +285,8 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
     ctaLabel = assessment?.ctaLabel;
   } else if (isSimulator) {
     ctaLabel = copy.openSimulator;
+  } else if (isDisclosure) {
+    ctaLabel = copy.expandConcept;
   } else if (activity.linkKind === "external") {
     ctaLabel = activity.visualType === "demo" ? copy.openDemo : copy.openExternal;
   } else if (activity.linkKind === "internal" && href) {
@@ -297,6 +305,7 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
     linkKind: activity.linkKind,
     href: isAssessment ? assessment?.route || href : href,
     embed: isSimulator,
+    disclosure: isDisclosure,
     presentationOnly: Boolean(activity.presentationOnly),
     evidenceId,
     evidenceSatisfied: hasPracticalEvidenceWiring

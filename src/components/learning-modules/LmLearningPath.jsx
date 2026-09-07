@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ExternalLink } from "lucide-react";
+import { ChevronDown, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LmActivityTile } from "./LmVisuals.jsx";
 import { getLmPageCopy } from "../../content/lmPageLocale.js";
@@ -7,6 +7,7 @@ import { getLmPageCopy } from "../../content/lmPageLocale.js";
 const TYPE_STYLES = {
   book: "bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-200",
   reading: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-200",
+  concept: "bg-slate-200 text-slate-800 dark:bg-slate-500/25 dark:text-slate-100",
   demo: "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-200",
   simulator: "bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-200",
   observation: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-200",
@@ -41,10 +42,12 @@ function StatusPill({ statusKind, label }) {
   );
 }
 
-function ActivityAction({ row, lang, expanded, onToggle }) {
-  const copy = getLmPageCopy(lang);
+function ActivityAction({ row, lang, moduleId, expanded, onToggle }) {
+  const copy = getLmPageCopy(lang, moduleId);
+  const expandable = Boolean(row.embed || row.disclosure);
 
-  if (row.embed) {
+  if (expandable) {
+    const closeLabel = row.disclosure ? copy.collapseConcept : copy.closeSimulator;
     return (
       <button
         type="button"
@@ -52,7 +55,11 @@ function ActivityAction({ row, lang, expanded, onToggle }) {
         aria-expanded={expanded}
         className="inline-flex items-center gap-1 text-sm font-bold text-indigo-700 transition hover:translate-x-0.5 dark:text-indigo-300"
       >
-        {expanded ? copy.closeSimulator : row.ctaLabel} →
+        {expanded ? closeLabel : row.ctaLabel}
+        <ChevronDown
+          className={`h-3.5 w-3.5 shrink-0 transition-transform ${expanded ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
       </button>
     );
   }
@@ -85,7 +92,7 @@ function ActivityAction({ row, lang, expanded, onToggle }) {
 
 /**
  * One cohesive Learning Path surface with compact illustrated activity rows.
- * Embed content is supplied by the caller (presentation only).
+ * Embed/disclosure content is supplied by the caller (presentation only).
  * @param {{
  *   activities: Array,
  *   lang?: "en"|"gr",
@@ -100,7 +107,17 @@ export default function LmLearningPath({
   renderEmbed = null,
 }) {
   const copy = getLmPageCopy(lang, moduleId);
-  const [expandedId, setExpandedId] = useState(null);
+  /** @type {[Set<string>, function]} Independent open panels — no evidence writes. */
+  const [expandedIds, setExpandedIds] = useState(() => new Set());
+
+  const toggleExpanded = (id) => {
+    setExpandedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   return (
     <section
@@ -126,16 +143,11 @@ export default function LmLearningPath({
         />
 
         {activities.map((row, index) => {
-          const expanded = row.embed && expandedId === row.id;
-          const onToggle = () =>
-            setExpandedId((current) => (current === row.id ? null : row.id));
+          const expandable = Boolean(row.embed || row.disclosure);
+          const expanded = expandable && expandedIds.has(row.id);
+          const onToggle = () => toggleExpanded(row.id);
           return (
             <li key={row.id} className="relative">
-              {/*
-                Mobile: compact illustration accent beside type/title; description +
-                status/CTA use the full content width under that header.
-                Desktop: shared modestly reduced tile scale beside the text column.
-              */}
               <div className="flex items-start gap-3 py-4 sm:items-center sm:gap-4">
                 <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-violet-600 text-[10px] font-bold text-white shadow-sm ring-4 ring-white dark:bg-violet-500 dark:ring-slate-950">
                   {String(index + 1).padStart(2, "0")}
@@ -170,6 +182,7 @@ export default function LmLearningPath({
                       <ActivityAction
                         row={row}
                         lang={lang}
+                        moduleId={moduleId}
                         expanded={expanded}
                         onToggle={onToggle}
                       />
@@ -184,6 +197,7 @@ export default function LmLearningPath({
                     <ActivityAction
                       row={row}
                       lang={lang}
+                      moduleId={moduleId}
                       expanded={expanded}
                       onToggle={onToggle}
                     />

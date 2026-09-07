@@ -33,8 +33,14 @@ export const LM08_VISUALS = {
   verification: "/learning-modules/visuals/lm08/lm08-verification.png",
 };
 
+/** Approved LM02 production visuals (public/ paths). Do not regenerate or substitute. */
+export const LM02_VISUALS = {
+  hero: "/learning-modules/visuals/lm02/lm02-hero.png",
+  concept: "/learning-modules/visuals/lm02/lm02-concept.png",
+};
+
 /**
- * @typedef {"book"|"reading"|"demo"|"simulator"|"observation"|"coding"|"inspection"|"verification"|"assessment"} LmActivityVisualType
+ * @typedef {"book"|"reading"|"concept"|"demo"|"simulator"|"observation"|"coding"|"inspection"|"verification"|"assessment"} LmActivityVisualType
  * @typedef {"required"|"recommended"|"optional"|"core"} LmRequirementHint
  */
 
@@ -262,12 +268,182 @@ export const LM_PRESENTATION_REGISTRY = {
     pathKey: "explorer",
     moduleNumber: 2,
     totalModules: 11,
-    chapterAvailable: false,
-    chapterRoute: null,
+    chapterAvailable: true,
+    chapterRoute: {
+      en: "/learning-modules/lm02",
+      gr: "/learning-modules-gr/lm02",
+    },
     title: {
       en: "Why Blockchain?",
       gr: "Γιατί Blockchain;",
     },
+    transition: {
+      from: {
+        en: "Blockchain could be used here",
+        gr: "Το blockchain θα μπορούσε να χρησιμοποιηθεί εδώ",
+      },
+      to: {
+        en: "I can determine whether blockchain is actually justified and explain why.",
+        gr: "Μπορώ να κρίνω αν το blockchain δικαιολογείται πραγματικά και να εξηγήσω γιατί.",
+      },
+    },
+    about: {
+      en: "LM02 asks whether blockchain is justified for a problem. Learners compare trusted centralized alternatives with shared-control needs, separate record integrity from real-world truth, and prepare for the LM02 Assessment — including FoodTrace as Part B of that assessment.",
+      gr: "Το LM02 εξετάζει αν το blockchain δικαιολογείται για ένα πρόβλημα. Οι εκπαιδευόμενοι συγκρίνουν αξιόπιστες κεντρικές εναλλακτικές με ανάγκες κοινού ελέγχου, διαχωρίζουν την ακεραιότητα εγγραφής από την αλήθεια του πραγματικού κόσμου και προετοιμάζονται για την Αξιολόγηση LM02 — συμπεριλαμβανομένου του FoodTrace ως Μέρος Β της ίδιας αξιολόγησης.",
+    },
+    learnerMeta: {
+      estimatedTime: { en: "1–2 hours", gr: "1–2 ώρες" },
+      level: { en: "Beginner", gr: "Αρχάριο" },
+      assessmentXp: 150,
+    },
+    visuals: {
+      hero: LM02_VISUALS.hero,
+      // Shared chrome tiles until LM02-specific completion/next-step art ships.
+      completion: LM01_VISUALS.completion,
+      nextStep: LM01_VISUALS.nextStep,
+      meta: {
+        time: LM01_VISUALS.metaTime,
+        level: LM01_VISUALS.metaLevel,
+        xp: LM01_VISUALS.metaXp,
+      },
+      activityByType: {
+        concept: LM02_VISUALS.concept,
+        book: LM01_VISUALS.book,
+        reading: LM01_VISUALS.book,
+        assessment: LM01_VISUALS.assessment,
+      },
+    },
+    learningOutcomes: {
+      en: [
+        "Identify trust and coordination conditions that may make blockchain worth considering.",
+        "Recognize when a trusted centralized authority is simpler and sufficient.",
+        "Compare blockchain-based and centralized approaches for the same problem.",
+        "Explain blockchain capabilities and trade-offs — not decentralization as an automatic win.",
+        "Distinguish record integrity from truth about the external world.",
+        "Decide whether blockchain is justified and defend that decision concisely.",
+      ],
+      gr: [
+        "Να εντοπίζεις συνθήκες εμπιστοσύνης και συντονισμού που μπορεί να κάνουν το blockchain άξιο εξέτασης.",
+        "Να αναγνωρίζεις πότε μια αξιόπιστη κεντρική αρχή είναι απλούστερη και επαρκής.",
+        "Να συγκρίνεις προσεγγίσεις με blockchain και κεντρικές προσεγγίσεις για το ίδιο πρόβλημα.",
+        "Να εξηγείς ικανότητες και συμβιβασμούς του blockchain — όχι την αποκέντρωση ως αυτόματη νίκη.",
+        "Να διακρίνεις την ακεραιότητα εγγραφής από την αλήθεια για τον εξωτερικό κόσμο.",
+        "Να κρίνεις αν το blockchain δικαιολογείται και να υπερασπίζεσαι συνοπτικά την απόφαση.",
+      ],
+    },
+    activities: [
+      {
+        id: "lm02-understand-trust-model",
+        visualType: "concept",
+        requirementHint: "core",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "Understand the trust model",
+          gr: "Κατανόησε το μοντέλο εμπιστοσύνης",
+        },
+        description: {
+          en: "Recognize when an accepted trusted authority may be sufficient, and distinguish technical distribution from decentralized authority.",
+          gr: "Αναγνώρισε πότε μια αποδεκτή αξιόπιστη κεντρική αρχή μπορεί να είναι επαρκής και διάκρινε την τεχνική κατανομή από την αποκεντρωμένη αυθεντία.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm02-compare-architecture-choices",
+        visualType: "concept",
+        requirementHint: "core",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "Compare architecture choices",
+          gr: "Σύγκρινε αρχιτεκτονικές επιλογές",
+        },
+        description: {
+          en: "Compare shared-control needs, blockchain capabilities and trade-offs, and distinguish record integrity from truth about the external world.",
+          gr: "Σύγκρινε τις ανάγκες κοινού ελέγχου, τις δυνατότητες και τους συμβιβασμούς του blockchain και διάκρινε την ακεραιότητα μιας εγγραφής από την αλήθεια για τον εξωτερικό κόσμο.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm02-slides",
+        visualType: "reading",
+        requirementHint: "recommended",
+        languages: ["both"],
+        title: {
+          en: "LM02 slides",
+          gr: "Διαφάνειες LM02",
+        },
+        description: {
+          en: "Core teaching slides EN/GR — link reserved until the revised decks are ready.",
+          gr: "Βασικές διαφάνειες EN/GR — ο σύνδεσμος θα προστεθεί όταν είναι έτοιμα τα αναθεωρημένα αρχεία.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+        reserved: true,
+      },
+      {
+        id: "lm02-chapter1-reading",
+        visualType: "book",
+        requirementHint: "recommended",
+        showRequirementStatus: true,
+        languages: ["gr"],
+        title: {
+          en: "Benefits, limitations & when to use blockchain",
+          gr: "Οφέλη, περιορισμοί και πότε δικαιολογείται το blockchain",
+        },
+        description: {
+          en: "Read Kallipos Chapter 1, §1.2 (pp. 15–19) and §1.5 (pp. 28–31) to deepen your understanding of blockchain benefits, limitations, trade-offs, and the criteria used to decide whether a blockchain-based solution is justified.",
+          gr: "Διάβασε από το Κεφάλαιο 1 του Κάλλιπου την §1.2 (σελ. 15–19) και την §1.5 (σελ. 28–31), ώστε να εμβαθύνεις στα οφέλη, τους περιορισμούς και τους συμβιβασμούς του blockchain, καθώς και στα κριτήρια με τα οποία κρίνουμε αν μια λύση βασισμένη σε blockchain δικαιολογείται.",
+        },
+        linkKind: "external",
+        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        presentationOnly: true,
+      },
+      {
+        id: "lm02-chapter1-reading-en-ref",
+        visualType: "book",
+        requirementHint: "recommended",
+        showRequirementStatus: true,
+        languages: ["en"],
+        title: {
+          en: "Benefits, limitations & when to use blockchain",
+          gr: "Οφέλη, περιορισμοί και πότε δικαιολογείται το blockchain",
+        },
+        description: {
+          en: "Read Kallipos Chapter 1, §1.2 (pp. 15–19) and §1.5 (pp. 28–31) to deepen your understanding of blockchain benefits, limitations, trade-offs, and the criteria used to decide whether a blockchain-based solution is justified.",
+          gr: "Διάβασε από το Κεφάλαιο 1 του Κάλλιπου την §1.2 (σελ. 15–19) και την §1.5 (σελ. 28–31), ώστε να εμβαθύνεις στα οφέλη, τους περιορισμούς και τους συμβιβασμούς του blockchain, καθώς και στα κριτήρια με τα οποία κρίνουμε αν μια λύση βασισμένη σε blockchain δικαιολογείται.",
+        },
+        linkKind: "external",
+        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        presentationOnly: true,
+      },
+      {
+        id: "lm02-assessment",
+        visualType: "assessment",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "LM02 Assessment",
+          gr: "Αξιολόγηση LM02",
+        },
+        description: {
+          en: "Test your understanding through 7 questions and apply the architectural reasoning from LM02 to FoodTrace. Successfully passing the assessment completes LM02.",
+          gr: "Έλεγξε την κατανόησή σου μέσα από 7 ερωτήσεις και εφάρμοσε τον αρχιτεκτονικό συλλογισμό του LM02 στο FoodTrace. Η επιτυχής ολοκλήρωση της αξιολόγησης ολοκληρώνει το LM02.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm02/assessment",
+          gr: "/learning-modules-gr/lm02/assessment",
+        },
+        evidenceId: "lm02-assessment",
+        presentationOnly: false,
+      },
+    ],
   },
   LM03: {
     id: "LM03",

@@ -85,7 +85,11 @@ const Lm01AssessmentPage = lazy(
 const Lm08AssessmentPage = lazy(
   () => import("../pages/learning-modules/Lm08AssessmentPage.jsx")
 );
+const Lm02AssessmentPage = lazy(
+  () => import("../pages/learning-modules/Lm02AssessmentPage.jsx")
+);
 const Lm01Page = lazy(() => import("../pages/learning-modules/Lm01Page.jsx"));
+const Lm02Page = lazy(() => import("../pages/learning-modules/Lm02Page.jsx"));
 const Lm08Page = lazy(() => import("../pages/learning-modules/Lm08Page.jsx"));
 const LearnPage = lazy(() => import("../pages/learning-modules/LearnPage.jsx"));
 const SystemLabS0 = lazy(() => import("../pages/labs/SystemLabS0.jsx"));
@@ -258,6 +262,18 @@ export const routeTable = {
       {
         path: "/learning-modules-gr/lm01",
         component: Lm01Page,
+        props: { lang: "gr" },
+      },
+      { path: "/learning-modules/lm02", component: Lm02Page },
+      {
+        path: "/learning-modules-gr/lm02",
+        component: Lm02Page,
+        props: { lang: "gr" },
+      },
+      { path: "/learning-modules/lm02/assessment", component: Lm02AssessmentPage },
+      {
+        path: "/learning-modules-gr/lm02/assessment",
+        component: Lm02AssessmentPage,
         props: { lang: "gr" },
       },
       { path: "/learning-modules/lm08", component: Lm08Page },

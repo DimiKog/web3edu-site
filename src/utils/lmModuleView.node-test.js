@@ -437,8 +437,9 @@ test("Lm01Page keeps cohesive path, hero facts band, and chapter-ending CTA", ()
   assert.doesNotMatch(pageSrc, /postLabsComplete/);
   assert.doesNotMatch(pathSrc, /Lm01BlockchainSimulator/);
   assert.match(pathSrc, /renderEmbed/);
-  assert.match(pathSrc, /expandedId/);
+  assert.match(pathSrc, /expandedIds/);
   assert.match(pathSrc, /aria-expanded/);
+  assert.match(pathSrc, /row\.disclosure/);
   assert.match(pathSrc, /LmActivityTile/);
   assert.match(pathSrc, /visualSrc/);
   assert.match(pathSrc, /evidence_satisfied|evidence_required/);

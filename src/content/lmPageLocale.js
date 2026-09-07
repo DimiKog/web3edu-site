@@ -42,6 +42,8 @@ export const LM_PAGE_COPY = {
     openDemo: "Open demo",
     openSimulator: "Open simulator",
     closeSimulator: "Hide simulator",
+    expandConcept: "Explore",
+    collapseConcept: "Hide",
     openAssessment: "Go to assessment",
     reviewAssessment: "Review assessment",
     continueActivity: "Continue",
@@ -68,6 +70,7 @@ export const LM_PAGE_COPY = {
     typeLabels: {
       book: "BOOK",
       reading: "READING",
+      concept: "CONCEPT",
       demo: "DEMO",
       simulator: "SIMULATOR",
       observation: "OBSERVATION",
@@ -128,6 +131,8 @@ export const LM_PAGE_COPY = {
     openDemo: "Άνοιγμα demo",
     openSimulator: "Άνοιγμα προσομοιωτή",
     closeSimulator: "Απόκρυψη προσομοιωτή",
+    expandConcept: "Εξερεύνησε",
+    collapseConcept: "Απόκρυψη",
     openAssessment: "Μετάβαση στην αξιολόγηση",
     reviewAssessment: "Επανεξέταση αξιολόγησης",
     continueActivity: "Συνέχεια",
@@ -155,6 +160,7 @@ export const LM_PAGE_COPY = {
     typeLabels: {
       book: "BOOK",
       reading: "READING",
+      concept: "CONCEPT",
       demo: "DEMO",
       simulator: "SIMULATOR",
       observation: "OBSERVATION",
@@ -223,6 +229,48 @@ export const LM_MODULE_PAGE_CHROME = {
       loading: "Φόρτωση LM08…",
       moduleTypeLabel: "Εφαρμοσμένο",
       activityMixValue: "Ανάγνωση, coding labs, επιθεώρηση, επαλήθευση, αξιολόγηση",
+    },
+  },
+  LM02: {
+    en: {
+      learningPathIntro:
+        "Follow the reasoning journey from understanding the trust model to comparing architectural choices. Use the recommended reading to deepen your understanding, then complete the LM02 Assessment to test your reasoning and apply it to FoodTrace.",
+      sidebarProgress: "Your progress in LM02",
+      assessmentTitle: "LM02 Assessment",
+      nextRequiredBody:
+        "Complete the LM02 Assessment to test your architectural reasoning and apply it to FoodTrace.",
+      finishAssessmentCta: "Finish the assessment to complete LM02",
+      closingNextBody:
+        "Complete the LM02 Assessment to test your architectural reasoning and apply it to FoodTrace.",
+      closingNextEvidenceBody:
+        "Complete the next required LM02 activity to continue this module.",
+      moduleCompleteBody:
+        "LM02 is complete according to your verifiable learning progress. You can still revisit the reasoning explainer anytime.",
+      signInRequired: "Sign in with your Web3Edu identity to load your LM02 progress.",
+      loading: "Loading LM02…",
+      moduleTypeLabel: "Foundational",
+      activityMixValue: "Reasoning explainer, reading, assessment",
+    },
+    gr: {
+      learningPathIntro:
+        "Ακολούθησε τη διαδρομή συλλογισμού από την κατανόηση του μοντέλου εμπιστοσύνης έως τη σύγκριση αρχιτεκτονικών επιλογών. Χρησιμοποίησε την προτεινόμενη ανάγνωση για να εμβαθύνεις και ολοκλήρωσε την Αξιολόγηση LM02 για να ελέγξεις τον συλλογισμό σου και να τον εφαρμόσεις στο FoodTrace.",
+      sidebarProgress: "Η πρόοδός σου στο LM02",
+      sidebarAbout: "Σχετικά με το LM02",
+      assessmentTitle: "Αξιολόγηση LM02",
+      nextRequiredBody:
+        "Ολοκλήρωσε την Αξιολόγηση LM02 για να ελέγξεις τον αρχιτεκτονικό συλλογισμό σου και να τον εφαρμόσεις στο FoodTrace.",
+      finishAssessmentCta: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM02",
+      closingNextBody:
+        "Ολοκλήρωσε την Αξιολόγηση LM02 για να ελέγξεις τον αρχιτεκτονικό συλλογισμό σου και να τον εφαρμόσεις στο FoodTrace.",
+      closingNextEvidenceBody:
+        "Ολοκλήρωσε την επόμενη απαιτούμενη δραστηριότητα LM02 για να συνεχίσεις αυτό το module.",
+      moduleCompleteBody:
+        "Το LM02 ολοκληρώθηκε σύμφωνα με την επαληθεύσιμη πρόοδό σου. Μπορείς να ξαναδείς την επεξήγηση συλλογισμού οποιαδήποτε στιγμή.",
+      signInRequired:
+        "Συνδέσου με την ταυτότητα Web3Edu για να φορτωθεί η πρόοδός σου στο LM02.",
+      loading: "Φόρτωση LM02…",
+      moduleTypeLabel: "Θεμελιώδες",
+      activityMixValue: "Επεξήγηση συλλογισμού, ανάγνωση, αξιολόγηση",
     },
   },
 };

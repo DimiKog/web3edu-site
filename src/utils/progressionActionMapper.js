@@ -32,16 +32,17 @@ const EVIDENCE_ROUTES = {
 const ASSESSMENT_ROUTES = {
     en: {
         "lm01-assessment": "/learning-modules/lm01/assessment",
+        "lm02-assessment": "/learning-modules/lm02/assessment",
         "lm08-assessment": "/learning-modules/lm08/assessment",
     },
     gr: {
         "lm01-assessment": "/learning-modules-gr/lm01/assessment",
+        "lm02-assessment": "/learning-modules-gr/lm02/assessment",
         "lm08-assessment": "/learning-modules-gr/lm08/assessment",
     },
 };
 
 const UNAVAILABLE_EVIDENCE_IDS = new Set([
-    "lm02-decision",
     "lm03-platform-decision",
     "lm05-pel-transaction",
     "lm09-guided-coding",

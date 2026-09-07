@@ -62,6 +62,7 @@ export function LmActivityTile({ visualType = "reading", visualSrc = null, class
       </span>
     );
   }
+  if (visualType === "concept") return <ConceptTile className={className} rid={rid} />;
   if (visualType === "demo") return <DemoTile className={className} rid={rid} />;
   if (visualType === "simulator") return <SimulatorTile className={className} rid={rid} />;
   if (visualType === "assessment") return <AssessmentTile className={className} rid={rid} />;
@@ -121,6 +122,39 @@ function BookTile({ className, rid }) {
       <rect x="50" y="44" width="9" height="2.2" rx="1" fill="#06B6D4" opacity="0.28" />
       <path d="M58 24 L62 48 L58 46 L54 48 Z" fill="#F472B6" />
       <MiniCube cx={61} cy={54} s={6} top="#A5F3FC" left="#0891B2" right="#0E7490" />
+    </TileFrame>
+  );
+}
+
+/** Balance-scale mark for on-page conceptual explainers (distinct from book resources). */
+function ConceptTile({ className, rid }) {
+  return (
+    <TileFrame className={className} rid={rid} bgFrom="#E2E8F0" bgTo="#67E8F9">
+      <rect x="41" y="22" width="6" height="36" rx="3" fill="#0F172A" opacity="0.85" />
+      <rect x="34" y="56" width="20" height="6" rx="3" fill="#334155" />
+      <path
+        d="M22 34 H66"
+        stroke="#0F172A"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+        opacity="0.9"
+      />
+      <circle cx="22" cy="34" r="3.2" fill="#06B6D4" />
+      <circle cx="66" cy="34" r="3.2" fill="#64748B" />
+      <path
+        d="M16 40 H28 L26 52 H18 Z"
+        fill="#FFFFFF"
+        stroke="#0E7490"
+        strokeWidth="1.4"
+      />
+      <path
+        d="M60 40 H72 L70 52 H62 Z"
+        fill="#F8FAFC"
+        stroke="#475569"
+        strokeWidth="1.4"
+      />
+      <rect x="19" y="44" width="6" height="2" rx="1" fill="#22D3EE" opacity="0.8" />
+      <rect x="63" y="44" width="6" height="2" rx="1" fill="#94A3B8" opacity="0.9" />
     </TileFrame>
   );
 }

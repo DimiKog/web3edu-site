@@ -13,6 +13,7 @@ import {
   LM_PRESENTATION_REGISTRY,
   LM_CURRICULUM_IDS,
   LM01_VISUALS,
+  LM02_VISUALS,
   LM08_VISUALS,
   getLmActivityVisualSrc,
   getLmChapterRoute,
@@ -178,10 +179,11 @@ test("curriculum registry covers exactly LM01–LM11 with correct path groups", 
   );
 });
 
-test("chapterAvailable is true only for LM01 and LM08 Interactive Chapters", () => {
+test("chapterAvailable is true for LM01, LM02, and LM08 Interactive Chapters", () => {
+  const availableIds = new Set(["LM01", "LM02", "LM08"]);
   for (const id of LM_CURRICULUM_IDS) {
     const available = isLmChapterAvailable(id);
-    if (id === "LM01" || id === "LM08") {
+    if (availableIds.has(id)) {
       assert.equal(available, true, id);
       assert.ok(getLmChapterRoute(id, "en"));
       assert.ok(getLmChapterRoute(id, "gr"));
@@ -194,8 +196,49 @@ test("chapterAvailable is true only for LM01 and LM08 Interactive Chapters", () 
   }
   assert.equal(getLmChapterRoute("LM01", "en"), "/learning-modules/lm01");
   assert.equal(getLmChapterRoute("LM01", "gr"), "/learning-modules-gr/lm01");
+  assert.equal(getLmChapterRoute("LM02", "en"), "/learning-modules/lm02");
+  assert.equal(getLmChapterRoute("LM02", "gr"), "/learning-modules-gr/lm02");
   assert.equal(getLmChapterRoute("LM08", "en"), "/learning-modules/lm08");
   assert.equal(getLmChapterRoute("LM08", "gr"), "/learning-modules-gr/lm08");
+});
+
+test("LM02 chapter is bilingual with locked transition and assessment XP display", () => {
+  const mod = LM_PRESENTATION_REGISTRY.LM02;
+  assert.equal(mod.chapterAvailable, true);
+  assert.equal(mod.learnerMeta.assessmentXp, 150);
+  assert.match(mod.transition.from.en, /Blockchain could be used here/i);
+  assert.match(mod.transition.to.en, /actually justified/i);
+  assert.ok(mod.transition.from.gr);
+  assert.ok(mod.transition.to.gr);
+  assert.equal(mod.learningOutcomes.en.length, 6);
+  assert.equal(mod.learningOutcomes.gr.length, 6);
+  assert.ok(mod.activities.some((a) => a.id === "lm02-understand-trust-model"));
+  assert.ok(mod.activities.some((a) => a.id === "lm02-compare-architecture-choices"));
+  assert.ok(mod.activities.some((a) => a.id === "lm02-slides" && a.reserved));
+  const assessment = mod.activities.find((a) => a.id === "lm02-assessment");
+  assert.equal(assessment?.evidenceId, "lm02-assessment");
+  assert.equal(assessment?.linkKind, "internal");
+  assert.deepEqual(assessment?.href, {
+    en: "/learning-modules/lm02/assessment",
+    gr: "/learning-modules-gr/lm02/assessment",
+  });
+  assert.equal(assessment?.reserved, undefined);
+  assert.equal(
+    getLmVisibleActivities("LM02", "en").some((a) => a.id === "lm02-slides"),
+    false
+  );
+  assert.ok(
+    getLmVisibleActivities("LM02", "en").some((a) => a.id === "lm02-assessment")
+  );
+  assert.equal(mod.visuals.hero, LM02_VISUALS.hero);
+  assert.equal(mod.visuals.activityByType.concept, LM02_VISUALS.concept);
+  assert.equal(
+    mod.activities.find((a) => a.id === "lm02-chapter1-reading-en-ref")
+      ?.requirementHint,
+    "recommended"
+  );
+  assert.equal(mod.learningOutcomes.en.length, 6);
+  assert.equal(mod.learningOutcomes.gr.length, 6);
 });
 
 test("registry titles stay equivalent to Continue Learning moduleTitles (drift guard)", () => {
