@@ -204,7 +204,7 @@ function buildSyntheticView(overrides = {}) {
   return view;
 }
 
-test("EN learning path excludes Greek primary textbook and includes optional Greek reference", () => {
+test("EN learning path shows Kallipos §1.1 as recommended supporting reading", () => {
   const en = getLmVisibleActivities("LM01", "en");
   const ids = en.map((a) => a.id);
   assert.ok(ids.includes("lm01-textbook-kallipos-en-ref"));
@@ -215,20 +215,57 @@ test("EN learning path excludes Greek primary textbook and includes optional Gre
   assert.ok(ids.includes("lm01-blockchain-simulator"));
   assert.ok(ids.includes("lm01-assessment"));
 
-  const greekRef = en.find((a) => a.id === "lm01-textbook-kallipos-en-ref");
-  assert.match(greekRef.title.en, /Greek textbook/i);
-  assert.equal(greekRef.requirementHint, "optional");
-  assert.equal(resolveLmActivityHref(greekRef, "en"), LM01_KALLIPOS_TEXTBOOK_URL);
+  const book = en.find((a) => a.id === "lm01-textbook-kallipos-en-ref");
+  assert.equal(book.title.en, "Blockchain fundamentals");
+  assert.equal(book.requirementHint, "recommended");
+  assert.equal(book.showRequirementStatus, true);
+  assert.equal(book.presentationOnly, true);
+  assert.equal(book.evidenceId, undefined);
+  assert.match(book.description.en, /§1\.1/);
+  assert.match(book.description.en, /13–15|13-15/);
+  assert.doesNotMatch(book.description.en, /§1\.3|History|whole Chapter 1|entire Chapter/i);
+  assert.equal(resolveLmActivityHref(book, "en"), LM01_KALLIPOS_TEXTBOOK_URL);
 });
 
-test("GR learning path uses Kallipos as recommended Greek textbook", () => {
+test("GR learning path shows Kallipos §1.1 as recommended supporting reading", () => {
   const gr = getLmVisibleActivities("LM01", "gr");
   const ids = gr.map((a) => a.id);
   assert.ok(ids.includes("lm01-textbook-kallipos"));
   assert.ok(!ids.includes("lm01-textbook-kallipos-en-ref"));
   const book = gr.find((a) => a.id === "lm01-textbook-kallipos");
+  assert.equal(book.title.gr, "Βασικές αρχές του blockchain");
   assert.equal(book.requirementHint, "recommended");
+  assert.equal(book.showRequirementStatus, true);
+  assert.equal(book.presentationOnly, true);
+  assert.equal(book.evidenceId, undefined);
+  assert.match(book.description.gr, /§1\.1/);
+  assert.match(book.description.gr, /13–15|13-15/);
+  assert.doesNotMatch(book.description.gr, /§1\.3|Ιστορία|ολόκληρο το Κεφάλαιο 1/i);
   assert.equal(resolveLmActivityHref(book, "gr"), LM01_KALLIPOS_TEXTBOOK_URL);
+});
+
+test("LM01 Kallipos book row surfaces Recommended status without evidence wiring", () => {
+  const progression = freshProgression();
+  const moduleEntry = progression.modules.LM01;
+  for (const lang of ["en", "gr"]) {
+    const activity = getLmVisibleActivities("LM01", lang).find(
+      (a) => a.visualType === "book"
+    );
+    assert.ok(activity, lang);
+    const row = getLmActivityRowPresentation(activity, moduleEntry, lang, {
+      canonical: true,
+    });
+    assert.equal(row.requirementHint, "recommended");
+    assert.equal(row.statusKind, "recommended");
+    assert.equal(
+      row.statusLabel,
+      lang === "gr" ? "Προτεινόμενο" : "Recommended"
+    );
+    assert.equal(row.presentationOnly, true);
+    assert.equal(row.linkKind, "external");
+    assert.equal(row.href, LM01_KALLIPOS_TEXTBOOK_URL);
+    assert.match(row.description, /§1\.1/);
+  }
 });
 
 test("Anders demo URL is the approved external interactive demo", () => {
