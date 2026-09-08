@@ -86,7 +86,21 @@ test("Learn landing locale exposes EN/GR hero, value points, planned state, foot
   assert.equal(en.paths.explorer.subtitle, "Foundations");
   assert.equal(gr.paths.explorer.subtitle, "Θεμέλια");
   assert.equal(en.available, "Available");
+  assert.equal(en.completed, "Completed");
+  assert.equal(gr.available, "Διαθέσιμο");
+  assert.equal(gr.completed, "Ολοκληρωμένο");
   assert.equal(en.planned, "Planned");
   assert.equal(gr.chapterPlanned, "Διαδραστικό κεφάλαιο");
   assert.match(pageSrc, /xl:grid-cols-5/);
+});
+
+test("Module cards read canonical modules[].complete — not XP or activity guesses", () => {
+  assert.match(pageSrc, /getCanonicalModuleEntry/);
+  assert.match(pageSrc, /ModuleCard[\s\S]*progression=\{progression\}/);
+  assert.match(pageSrc, /getCanonicalModuleEntry\(progression, mod\.id\)\?\.complete/);
+  assert.match(pageSrc, /copy\.completed/);
+  assert.doesNotMatch(pageSrc, /getRoleFromXpTotal|getProgressFromXpTotal|xp_total|score\s*>=/);
+  // Planned/unavailable path must not invent completion labels.
+  assert.match(pageSrc, /copy\.planned/);
+  assert.match(pageSrc, /chapterPlanned/);
 });

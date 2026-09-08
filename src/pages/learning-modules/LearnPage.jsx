@@ -30,6 +30,7 @@ import {
   pickLearnContinueProgression,
   shouldShowLearnContinueSection,
 } from "../../utils/learnContinueUi.js";
+import { getCanonicalModuleEntry } from "../../utils/lmModuleView.js";
 import { fetchLearningModulesProgression } from "../../utils/labWriteApi.js";
 
 const PATH_GRID = {
@@ -144,13 +145,22 @@ function LearnContinueBar({ progression, lang, copy }) {
   );
 }
 
-function ModuleCard({ mod, lang, copy }) {
+function ModuleCard({ mod, lang, copy, progression }) {
   const locale = lang === "gr" ? "gr" : "en";
   const title = getLmRegistryModuleTitle(mod.id, locale) || mod.id;
   const available = mod.chapterAvailable === true;
   const route = available ? getLmChapterRoute(mod.id, locale) : null;
   const heroSrc = available ? getLmModuleVisuals(mod.id)?.hero : null;
   const label = copy.moduleLabel(mod.moduleNumber);
+  // Canonical LM_COMPLETE only — never XP, activities, or local guesses.
+  const complete = Boolean(
+    available && getCanonicalModuleEntry(progression, mod.id)?.complete
+  );
+  const statusLabel = !available
+    ? copy.planned
+    : complete
+      ? copy.completed
+      : copy.available;
 
   const body = (
     <>
@@ -195,7 +205,7 @@ function ModuleCard({ mod, lang, copy }) {
         {available && route ? (
           <>
             <span className="inline-flex items-center rounded-md border border-emerald-300/70 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-200">
-              {copy.available}
+              {statusLabel}
             </span>
             <span className="text-xs font-semibold text-indigo-700 dark:text-cyan-200">
               {copy.openModule}
@@ -224,7 +234,7 @@ function ModuleCard({ mod, lang, copy }) {
       <Link
         to={route}
         className={shellClass}
-        aria-label={`${label}: ${title}. ${copy.available}`}
+        aria-label={`${label}: ${title}. ${statusLabel}`}
       >
         {body}
       </Link>
@@ -442,6 +452,7 @@ export default function LearnPage({ lang = "en" }) {
                       mod={mod}
                       lang={locale}
                       copy={copy}
+                      progression={progression}
                     />
                   ))}
                 </div>
