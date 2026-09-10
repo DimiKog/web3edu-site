@@ -16,9 +16,13 @@ import {
 import { ASSESSMENT_ROUTES, resolveProgressionActionTarget } from "../../utils/progressionActionMapper.js";
 import {
   buildShuffledOptionOrders,
+  isLm08CriticalQuestion,
   mapOptionsForDisplay,
   visualLetterForIndex,
+  LM08_CRITICAL_QUESTION_IDS,
+  LM08_PRESENTATION_PASS_MIN,
 } from "../../utils/lm08AssessmentView.js";
+import { resolveAssessmentFailLead } from "./assessment/assessmentFailPresentation.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const panelSrc = readFileSync(join(__dirname, "Lm08AssessmentPanel.jsx"), "utf8");
@@ -33,6 +37,9 @@ const localeSrc = readFileSync(
 const apiSrc = readFileSync(join(__dirname, "../../utils/labWriteApi.js"), "utf8");
 const routesSrc = readFileSync(join(__dirname, "../../routes/routeTable.jsx"), "utf8");
 const QUESTION_IDS = Object.keys(LM08_ASSESSMENT_COPY.en.questions);
+const NON_CRITICAL_IDS = QUESTION_IDS.filter(
+  (id) => !LM08_CRITICAL_QUESTION_IDS.includes(id)
+);
 
 test("EN/GR LM08 assessment routes exist", () => {
   assert.equal(ASSESSMENT_ROUTES.en["lm08-assessment"], "/learning-modules/lm08/assessment");
@@ -69,14 +76,33 @@ test("Continue Learning maps lm08-assessment to ready route", () => {
   assert.equal(gr.route, "/learning-modules-gr/lm08/assessment");
 });
 
-test("multiple-select instruction is present in EN and GR", () => {
-  assert.match(LM08_ASSESSMENT_COPY.en.multiSelectHint, /Select all that apply/i);
+test("shared meta strip and type chips are wired", () => {
+  assert.match(panelSrc, /AssessmentMetaStrip/);
+  assert.match(panelSrc, /AssessmentQuestionHeader/);
+  assert.match(panelSrc, /AssessmentChoiceList/);
+  assert.match(panelSrc, /multiSelectType/);
+  assert.match(panelSrc, /singleChoiceType/);
+  assert.match(LM08_ASSESSMENT_COPY.en.multiSelectType, /Select all that apply/i);
   assert.equal(
-    LM08_ASSESSMENT_COPY.gr.multiSelectHint,
-    "Επίλεξε όλες τις απαντήσεις που ισχύουν. Μπορεί να είναι σωστές περισσότερες από μία."
+    LM08_ASSESSMENT_COPY.gr.multiSelectType,
+    "Επίλεξε όλες τις σωστές"
   );
-  assert.match(panelSrc, /multiSelectHint/);
   assert.match(panelSrc, /multiple_select/);
+});
+
+test("Critical chip only on curriculum-critical LM08 questions", () => {
+  assert.deepEqual([...LM08_CRITICAL_QUESTION_IDS], [
+    "lm08_q4_changing_state",
+    "lm08_q7_verification_limits",
+  ]);
+  assert.equal(isLm08CriticalQuestion("lm08_q4_changing_state"), true);
+  assert.equal(isLm08CriticalQuestion("lm08_q7_verification_limits"), true);
+  for (const id of NON_CRITICAL_IDS) {
+    assert.equal(isLm08CriticalQuestion(id), false, id);
+  }
+  assert.match(panelSrc, /isLm08CriticalQuestion\(question\.id\)/);
+  assert.equal(LM08_ASSESSMENT_COPY.en.criticalLabel, "Critical");
+  assert.equal(LM08_ASSESSMENT_COPY.gr.criticalLabel, "Κρίσιμη");
 });
 
 test("Greek wording refinements for agreed learner-facing strings", () => {
@@ -128,7 +154,9 @@ test("API helpers never send score/passed authority fields", () => {
   assert.doesNotMatch(fn.slice(0, 800), /score:|passed:|xpAwarded:/);
 });
 
-test("failed state allows immediate retry without clearing answers", () => {
+test("failed state uses shared fail chrome and immediate retry", () => {
+  assert.match(panelSrc, /AssessmentFailState/);
+  assert.match(panelSrc, /resolveAssessmentFailLead/);
   assert.match(panelSrc, /handleTryAgain/);
   const fnStart = panelSrc.indexOf("const handleTryAgain");
   const fnEnd = panelSrc.indexOf("const handleSubmit", fnStart);
@@ -138,15 +166,49 @@ test("failed state allows immediate retry without clearing answers", () => {
   assert.doesNotMatch(fn, /allAnswered/);
   assert.doesNotMatch(fn, /postLm08AssessmentAnswers/);
   assert.doesNotMatch(fn, /emptyAnswers|setAnswers\(/);
+  assert.match(panelSrc, /onRetry=\{handleTryAgain\}/);
 });
 
-test("success state renders score XP and rationales", () => {
-  assert.match(panelSrc, /copy\.passedTitle/);
-  assert.match(panelSrc, /copy\.passedScore/);
-  assert.match(panelSrc, /copy\.xpAwarded/);
-  assert.match(panelSrc, /postPassTitle/);
-  assert.match(panelSrc, /copy\.backToDashboard/);
+test("fail lead uses public criticalFailures when score meets presentation threshold", () => {
+  assert.equal(LM08_PRESENTATION_PASS_MIN, 5);
+  assert.equal(
+    resolveAssessmentFailLead({
+      evaluation: { score: 5, criticalFailures: ["lm08_q4_changing_state"] },
+      defaultLead: "default",
+      criticalThresholdLead: "critical-threshold",
+      passMinCorrect: LM08_PRESENTATION_PASS_MIN,
+    }),
+    "critical-threshold"
+  );
+  assert.equal(
+    resolveAssessmentFailLead({
+      evaluation: { score: 4, criticalFailures: ["lm08_q4_changing_state"] },
+      defaultLead: "default",
+      criticalThresholdLead: "critical-threshold",
+      passMinCorrect: LM08_PRESENTATION_PASS_MIN,
+    }),
+    "default"
+  );
+});
+
+test("pass state uses shared chrome with capabilities and collapsed takeaways", () => {
+  assert.match(panelSrc, /AssessmentPassState/);
+  assert.match(panelSrc, /passCapabilities/);
+  assert.match(panelSrc, /keyPrinciple/);
+  assert.match(panelSrc, /reviewTakeaways/);
+  assert.match(panelSrc, /passRevisitRows/);
+  assert.equal(LM08_ASSESSMENT_COPY.en.passCapabilities.length, 3);
+  assert.equal(LM08_ASSESSMENT_COPY.gr.passCapabilities.length, 3);
+  assert.match(LM08_ASSESSMENT_COPY.en.keyPrinciple, /Source verification/i);
   assert.equal(LM08_ASSESSMENT_COPY.en.xpAwarded(300), "+300 XP");
+  assert.equal(LM08_ASSESSMENT_COPY.en.passedScore(7, 7), "7/7");
+});
+
+test("imperfect PASS revisit only when evaluation.feedback is present", () => {
+  assert.match(panelSrc, /passRevisitRows/);
+  assert.match(panelSrc, /score < total/);
+  assert.match(panelSrc, /evaluation\?\.feedback/);
+  assert.match(panelSrc, /buildAssessmentFeedbackRows\(feedback/);
 });
 
 test("page uses shared LearningModuleActivityShell in compact density", () => {
@@ -162,21 +224,19 @@ test("locale has seven questions EN/GR without answer-key authority", () => {
   assert.equal(enIds.length, 7);
   assert.deepEqual(enIds, grIds);
   assert.doesNotMatch(localeSrc, /correct:\s*["']?[ABCDE]/);
-  assert.doesNotMatch(localeSrc, /passMin|answerKey|correctAnswers|CRITICAL/);
+  assert.doesNotMatch(localeSrc, /passMin|answerKey|correctAnswers|\[CRITICAL\]/);
   assert.match(localeSrc, /lm08_q4_changing_state/);
   assert.match(localeSrc, /lm08_q7_verification_limits/);
 });
 
 test("panel has no frontend correct-answer logic", () => {
-  assert.doesNotMatch(panelSrc, /correctAnswers|passMin|OPTION_B|score\s*>=/);
-  assert.doesNotMatch(panelSrc, /criticalFailures/);
+  assert.doesNotMatch(panelSrc, /correctAnswers|OPTION_B|score\s*>=/);
+  assert.doesNotMatch(panelSrc, /\[CRITICAL\]/);
 });
 
 test("failed remediation shows Q-number title and hint separation", () => {
   assert.match(panelSrc, /buildAssessmentFeedbackRows/);
   assert.match(panelSrc, /feedbackRows/);
-  assert.match(panelSrc, /row\.label/);
-  assert.match(panelSrc, /row\.hint/);
   assert.equal(LM08_ASSESSMENT_COPY.en.feedbackTitle, "Review these questions");
   assert.equal(LM08_ASSESSMENT_COPY.gr.feedbackTitle, "Ξαναδές αυτές τις ερωτήσεις");
 });
@@ -185,7 +245,6 @@ test("silent token renewal does not reset attempt; Try again still reshuffles", 
   assert.match(panelSrc, /idTokenRef/);
   assert.match(panelSrc, /attemptSeededRef/);
   assert.match(panelSrc, /seedIncompleteAttemptIfNeeded/);
-  assert.match(panelSrc, /assessmentChoiceInputClassName/);
   const loadStart = panelSrc.indexOf("const loadChallenge = useCallback");
   const loadEnd = panelSrc.indexOf("}, [apiBase, copy.loading, copy.signInRequired, locale]");
   assert.ok(loadStart >= 0 && loadEnd > loadStart);
@@ -201,7 +260,7 @@ test("silent token renewal does not reset attempt; Try again still reshuffles", 
 });
 
 test("single vs multiple selection UI and five-option visual letters", () => {
-  assert.match(panelSrc, /type=\{isMulti \? "checkbox" : "radio"\}/);
+  assert.match(panelSrc, /AssessmentChoiceList/);
   assert.equal(visualLetterForIndex(4), "E");
   const orders = buildShuffledOptionOrders(
     [{ id: "q5", optionIds: ["A", "B", "C", "D", "E"] }],

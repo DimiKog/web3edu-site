@@ -46,6 +46,7 @@ export const LM_PAGE_COPY = {
     collapseConcept: "Hide",
     openAssessment: "Go to assessment",
     reviewAssessment: "Review assessment",
+    assessmentComingSoon: "Assessment coming soon",
     continueActivity: "Continue",
     nextRequired: "Next required step",
     nextRequiredBody:
@@ -135,6 +136,7 @@ export const LM_PAGE_COPY = {
     collapseConcept: "Απόκρυψη",
     openAssessment: "Μετάβαση στην αξιολόγηση",
     reviewAssessment: "Επανεξέταση αξιολόγησης",
+    assessmentComingSoon: "Η αξιολόγηση έρχεται σύντομα",
     continueActivity: "Συνέχεια",
     nextRequired: "Επόμενο απαιτούμενο βήμα",
     nextRequiredBody:
@@ -271,6 +273,54 @@ export const LM_MODULE_PAGE_CHROME = {
       loading: "Φόρτωση LM02…",
       moduleTypeLabel: "Θεμελιώδες",
       activityMixValue: "Επεξήγηση συλλογισμού, ανάγνωση, αξιολόγηση",
+    },
+  },
+  LM03: {
+    en: {
+      learningPathIntro:
+        "Distinguish architectural dimensions, deepen with recommended reading, translate requirements into platform characteristics, practice a lightweight comparison, then revisit FoodTrace. Complete the LM03 Assessment to verify platform-fit reasoning.",
+      sidebarProgress: "Your progress in LM03",
+      assessmentTitle: "LM03 Assessment",
+      nextRequiredBody:
+        "Complete the LM03 Assessment to verify your platform-fit reasoning.",
+      finishAssessmentCta: "Finish the assessment to complete LM03",
+      closingNextBody:
+        "Complete the LM03 Assessment to verify your platform-fit reasoning and finish this module.",
+      closingNextEvidenceBody:
+        "Complete the next required LM03 activity to continue this module.",
+      moduleCompleteBody:
+        "LM03 is complete according to your verifiable learning progress. You can still revisit the platform-reasoning path anytime.",
+      signInRequired: "Sign in with your Web3Edu identity to load your LM03 progress.",
+      loading: "Loading LM03…",
+      moduleTypeLabel: "Foundational",
+      activityMixValue: "Concepts, reading, comparison practice, FoodTrace application, assessment",
+      typeLabels: {
+        observation: "GUIDED ACTIVITY",
+      },
+    },
+    gr: {
+      learningPathIntro:
+        "Διάκρινε τις αρχιτεκτονικές διαστάσεις, εμβάθυνε με την προτεινόμενη ανάγνωση, μετάφρασε απαιτήσεις σε χαρακτηριστικά πλατφόρμας, εξασκήσου σε μια ελαφριά σύγκριση και ξαναδές το FoodTrace. Ολοκλήρωσε την Αξιολόγηση LM03 για να επαληθεύσεις τον συλλογισμό καταλληλότητας πλατφόρμας.",
+      sidebarProgress: "Η πρόοδός σου στο LM03",
+      sidebarAbout: "Σχετικά με το LM03",
+      assessmentTitle: "Αξιολόγηση LM03",
+      nextRequiredBody:
+        "Ολοκλήρωσε την Αξιολόγηση LM03 για να επαληθεύσεις τον συλλογισμό καταλληλότητας πλατφόρμας.",
+      finishAssessmentCta: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM03",
+      closingNextBody:
+        "Ολοκλήρωσε την Αξιολόγηση LM03 για να επαληθεύσεις τον συλλογισμό καταλληλότητας πλατφόρμας και να τελειώσεις αυτό το module.",
+      closingNextEvidenceBody:
+        "Ολοκλήρωσε την επόμενη απαιτούμενη δραστηριότητα LM03 για να συνεχίσεις αυτό το module.",
+      moduleCompleteBody:
+        "Το LM03 ολοκληρώθηκε σύμφωνα με την επαληθεύσιμη πρόοδό σου. Μπορείς να ξαναδείς τη διαδρομή συλλογισμού πλατφόρμας οποιαδήποτε στιγμή.",
+      signInRequired:
+        "Συνδέσου με την ταυτότητα Web3Edu για να φορτωθεί η πρόοδός σου στο LM03.",
+      loading: "Φόρτωση LM03…",
+      moduleTypeLabel: "Θεμελιώδες",
+      activityMixValue: "Έννοιες, ανάγνωση, εξάσκηση σύγκρισης, εφαρμογή FoodTrace, αξιολόγηση",
+      typeLabels: {
+        observation: "ΚΑΘΟΔΗΓΟΥΜΕΝΗ",
+      },
     },
   },
 };

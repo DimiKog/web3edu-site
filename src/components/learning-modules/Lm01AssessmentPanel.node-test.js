@@ -11,6 +11,12 @@ import test from "node:test";
 
 import { LM01_ASSESSMENT_COPY } from "../../content/lm01AssessmentLocale.js";
 import { ASSESSMENT_ROUTES } from "../../utils/progressionActionMapper.js";
+import {
+  isLm01CriticalQuestion,
+  LM01_CRITICAL_QUESTION_IDS,
+  LM01_PRESENTATION_PASS_MIN,
+} from "../../utils/lm01AssessmentView.js";
+import { resolveAssessmentFailLead } from "./assessment/assessmentFailPresentation.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const panelSrc = readFileSync(join(__dirname, "Lm01AssessmentPanel.jsx"), "utf8");
@@ -22,6 +28,9 @@ const localeSrc = readFileSync(
   join(__dirname, "../../content/lm01AssessmentLocale.js"),
   "utf8"
 );
+const NON_CRITICAL_IDS = Object.keys(LM01_ASSESSMENT_COPY.en.questions).filter(
+  (id) => !LM01_CRITICAL_QUESTION_IDS.includes(id)
+);
 
 test("EN/GR assessment routes exist", () => {
   assert.equal(ASSESSMENT_ROUTES.en["lm01-assessment"], "/learning-modules/lm01/assessment");
@@ -31,11 +40,36 @@ test("EN/GR assessment routes exist", () => {
   );
 });
 
-test("multiple-select instruction is present in EN and GR", () => {
-  assert.match(LM01_ASSESSMENT_COPY.en.multiSelectHint, /More than one answer may be correct/i);
-  assert.match(LM01_ASSESSMENT_COPY.gr.multiSelectHint, /περισσότερες από μία/i);
-  assert.match(panelSrc, /multiSelectHint/);
-  assert.match(panelSrc, /multiple_select/);
+test("shared meta strip and type chips are wired", () => {
+  assert.match(panelSrc, /AssessmentMetaStrip/);
+  assert.match(panelSrc, /AssessmentQuestionHeader/);
+  assert.match(panelSrc, /AssessmentChoiceList/);
+  assert.match(panelSrc, /multiSelectType/);
+  assert.match(panelSrc, /singleChoiceType/);
+  assert.deepEqual(LM01_ASSESSMENT_COPY.en.metaItems.slice(0, 2), [
+    "7 questions",
+    "Single + multiple select",
+  ]);
+  assert.match(LM01_ASSESSMENT_COPY.en.metaItems[2], /Pass: 5\/7/);
+  assert.match(LM01_ASSESSMENT_COPY.gr.metaItems[2], /Επιτυχία: 5\/7/);
+  assert.equal(LM01_ASSESSMENT_COPY.en.singleChoiceType, "Single choice");
+  assert.equal(LM01_ASSESSMENT_COPY.gr.multiSelectType, "Επίλεξε όλες τις σωστές");
+});
+
+test("Critical chip only on curriculum-critical LM01 questions", () => {
+  assert.deepEqual([...LM01_CRITICAL_QUESTION_IDS], [
+    "lm01_q6_foodtrace_consider",
+    "lm01_q7_university_inventory",
+  ]);
+  assert.equal(isLm01CriticalQuestion("lm01_q6_foodtrace_consider"), true);
+  assert.equal(isLm01CriticalQuestion("lm01_q7_university_inventory"), true);
+  for (const id of NON_CRITICAL_IDS) {
+    assert.equal(isLm01CriticalQuestion(id), false, id);
+  }
+  assert.match(panelSrc, /isLm01CriticalQuestion\(question\.id\)/);
+  assert.match(panelSrc, /criticalLabel/);
+  assert.equal(LM01_ASSESSMENT_COPY.en.criticalLabel, "Critical");
+  assert.equal(LM01_ASSESSMENT_COPY.gr.criticalLabel, "Κρίσιμη");
 });
 
 test("panel submits answers only and refreshes progression on pass", () => {
@@ -49,7 +83,9 @@ test("panel submits answers only and refreshes progression on pass", () => {
   assert.match(panelSrc, /refetchResolvedIdentity/);
 });
 
-test("failed state Try Again does not require form completeness", () => {
+test("failed state uses shared fail chrome and immediate retry", () => {
+  assert.match(panelSrc, /AssessmentFailState/);
+  assert.match(panelSrc, /resolveAssessmentFailLead/);
   assert.match(panelSrc, /handleTryAgain/);
   const fnStart = panelSrc.indexOf("const handleTryAgain");
   const fnEnd = panelSrc.indexOf("const handleSubmit", fnStart);
@@ -59,26 +95,56 @@ test("failed state Try Again does not require form completeness", () => {
   assert.doesNotMatch(fn, /allAnswered/);
   assert.doesNotMatch(fn, /postLm01AssessmentAnswers/);
   assert.doesNotMatch(fn, /fetchLm01AssessmentChallenge/);
-  // Answers are intentionally not cleared so prior selections remain.
   assert.doesNotMatch(fn, /emptyAnswers|setAnswers\(/);
-});
-
-test("failed state allows immediate retry", () => {
-  assert.match(panelSrc, /onClick=\{handleTryAgain\}/);
+  assert.match(panelSrc, /onRetry=\{handleTryAgain\}/);
   assert.match(panelSrc, /isFailed/);
   assert.match(panelSrc, /showForm = .*!isFailed/);
 });
 
-test("success state renders score and XP clearly", () => {
-  assert.match(panelSrc, /copy\.passedTitle/);
-  assert.match(panelSrc, /copy\.passedScore/);
-  assert.match(panelSrc, /copy\.xpAwarded/);
-  assert.match(panelSrc, /text-2xl/);
-  assert.match(panelSrc, /Back to Dashboard|copy\.backToDashboard/);
-  assert.match(LM01_ASSESSMENT_COPY.en.passedTitle, /LM01 Assessment Complete/i);
-  assert.equal(LM01_ASSESSMENT_COPY.en.failedTitle, "Assessment not passed yet");
-  assert.equal(LM01_ASSESSMENT_COPY.en.failedScore(6, 7), "6 / 7");
+test("fail lead uses public criticalFailures when score meets presentation threshold", () => {
+  assert.equal(LM01_PRESENTATION_PASS_MIN, 5);
+  assert.equal(
+    resolveAssessmentFailLead({
+      evaluation: { score: 5, criticalFailures: ["lm01_q6_foodtrace_consider"] },
+      defaultLead: "default",
+      criticalThresholdLead: "critical-threshold",
+      passMinCorrect: LM01_PRESENTATION_PASS_MIN,
+    }),
+    "critical-threshold"
+  );
+  assert.equal(
+    resolveAssessmentFailLead({
+      evaluation: { score: 4, criticalFailures: ["lm01_q6_foodtrace_consider"] },
+      defaultLead: "default",
+      criticalThresholdLead: "critical-threshold",
+      passMinCorrect: LM01_PRESENTATION_PASS_MIN,
+    }),
+    "default"
+  );
+});
+
+test("pass state uses shared chrome with capabilities and collapsed takeaways", () => {
+  assert.match(panelSrc, /AssessmentPassState/);
+  assert.match(panelSrc, /passCapabilities/);
+  assert.match(panelSrc, /keyPrinciple/);
+  assert.match(panelSrc, /reviewTakeaways/);
+  assert.match(panelSrc, /passRevisitRows/);
+  assert.equal(LM01_ASSESSMENT_COPY.en.passCapabilities.length, 3);
+  assert.equal(LM01_ASSESSMENT_COPY.gr.passCapabilities.length, 3);
+  assert.match(LM01_ASSESSMENT_COPY.en.keyPrinciple, /conventional database/i);
+  assert.equal(LM01_ASSESSMENT_COPY.en.revisitOne, "One point to revisit");
+  assert.equal(LM01_ASSESSMENT_COPY.gr.revisitMany, "Σημεία για επανάληψη");
+  assert.equal(LM01_ASSESSMENT_COPY.en.failedScore(6, 7), "6/7");
+  assert.equal(LM01_ASSESSMENT_COPY.en.passedScore(7, 7), "7/7");
   assert.equal(LM01_ASSESSMENT_COPY.en.xpAwarded(100), "+100 XP");
+});
+
+test("imperfect PASS revisit only when evaluation.feedback is present", () => {
+  assert.match(panelSrc, /passRevisitRows/);
+  assert.match(panelSrc, /score < total/);
+  assert.match(panelSrc, /evaluation\?\.feedback/);
+  assert.match(panelSrc, /buildAssessmentFeedbackRows\(feedback/);
+  assert.doesNotMatch(panelSrc, /fabricat|inventFeedback|clientSideFeedback/i);
 });
 
 test("EN/GR content still renders", () => {
@@ -88,13 +154,11 @@ test("EN/GR content still renders", () => {
   assert.match(LM01_ASSESSMENT_COPY.gr.classificationNote, /Permissioned \/ Permissionless/);
 });
 
-test("orientation block is distinct and localized", () => {
-  assert.equal(LM01_ASSESSMENT_COPY.en.readFirst, "Read this first");
-  assert.equal(LM01_ASSESSMENT_COPY.gr.readFirst, "Διάβασέ το πρώτα");
-  assert.match(panelSrc, /BookOpen/);
-  assert.match(panelSrc, /copy\.readFirst/);
-  assert.match(panelSrc, /from-cyan-50/);
-  assert.match(panelSrc, /border-t/);
+test("module notes preserved under meta strip", () => {
+  assert.match(panelSrc, /classificationNote/);
+  assert.match(panelSrc, /foodtraceNote/);
+  assert.doesNotMatch(panelSrc, /BookOpen/);
+  assert.match(panelSrc, /AssessmentMetaStrip/);
 });
 
 test("page uses shared LearningModuleActivityShell in compact density", () => {
@@ -110,7 +174,7 @@ test("locale has seven questions EN/GR without answer-key authority", () => {
   assert.equal(enIds.length, 7);
   assert.deepEqual(enIds, grIds);
   assert.doesNotMatch(localeSrc, /correct:\s*["']?[ABCD]/);
-  assert.doesNotMatch(localeSrc, /passMin|answerKey|correctAnswers/);
+  assert.doesNotMatch(localeSrc, /passMin|answerKey|correctAnswers|\[CRITICAL\]|\[CORRECT\]/);
   assert.match(localeSrc, /Public \/ Private \/ Consortium/);
   assert.match(localeSrc, /Permissioned \/ Permissionless/);
 });
@@ -118,9 +182,7 @@ test("locale has seven questions EN/GR without answer-key authority", () => {
 test("panel uses canonical IDs with visual letters from shuffle helper", () => {
   assert.match(panelSrc, /mapOptionsForDisplay/);
   assert.match(panelSrc, /buildShuffledOptionOrders/);
-  assert.match(panelSrc, /row\.canonicalId/);
-  assert.match(panelSrc, /row\.visualLetter/);
-  assert.match(panelSrc, /value=\{row\.canonicalId\}/);
+  assert.match(panelSrc, /AssessmentChoiceList/);
 });
 
 test("FoodTrace Design Case marker is shown before Q6 only", () => {
@@ -134,15 +196,11 @@ test("FoodTrace Design Case marker is shown before Q6 only", () => {
     LM01_ASSESSMENT_COPY.gr.foodtraceDesignCaseMarker,
     "FoodTrace · Μελέτη Περίπτωσης"
   );
-  assert.doesNotMatch(panelSrc, /critical question|required question|pass rule/i);
-  assert.doesNotMatch(localeSrc, /critical question|required question/i);
 });
 
 test("failed remediation shows Q-number title and hint separation", () => {
   assert.match(panelSrc, /buildAssessmentFeedbackRows/);
   assert.match(panelSrc, /feedbackRows/);
-  assert.match(panelSrc, /row\.label/);
-  assert.match(panelSrc, /row\.hint/);
   assert.equal(LM01_ASSESSMENT_COPY.en.feedbackTitle, "Review these questions");
   assert.equal(LM01_ASSESSMENT_COPY.gr.feedbackTitle, "Ξαναδές αυτές τις ερωτήσεις");
 });
@@ -151,7 +209,6 @@ test("silent token renewal does not reset attempt; Try again still reshuffles", 
   assert.match(panelSrc, /idTokenRef/);
   assert.match(panelSrc, /attemptSeededRef/);
   assert.match(panelSrc, /seedIncompleteAttemptIfNeeded/);
-  assert.match(panelSrc, /assessmentChoiceInputClassName/);
   const loadStart = panelSrc.indexOf("const loadChallenge = useCallback");
   const loadEnd = panelSrc.indexOf("}, [apiBase, copy.loading, copy.signInRequired]");
   assert.ok(loadStart >= 0 && loadEnd > loadStart);
@@ -161,4 +218,10 @@ test("silent token renewal does not reset attempt; Try again still reshuffles", 
   assert.match(loadFn, /seedIncompleteAttemptIfNeeded/);
   assert.match(loadFn, /alreadyLoaded/);
   assert.match(panelSrc, /handleTryAgain[\s\S]*buildShuffledOptionOrders/);
+});
+
+test("EN/GR chrome key parity", () => {
+  const enKeys = Object.keys(LM01_ASSESSMENT_COPY.en).filter((k) => k !== "questions").sort();
+  const grKeys = Object.keys(LM01_ASSESSMENT_COPY.gr).filter((k) => k !== "questions").sort();
+  assert.deepEqual(enKeys, grKeys);
 });

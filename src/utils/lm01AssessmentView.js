@@ -9,8 +9,28 @@ export const LM01_VISUAL_LETTERS = Object.freeze(["A", "B", "C", "D"]);
 /** Question that introduces the FoodTrace Design Case (marker shown immediately before it). */
 export const FOODTRACE_DESIGN_CASE_INTRO_QUESTION_ID = "lm01_q6_foodtrace_consider";
 
+/**
+ * Presentation-only critical question ids for LM01 UX transparency.
+ * Mirrors known LM01 curriculum critical outcomes — not a grading source of truth.
+ */
+export const LM01_CRITICAL_QUESTION_IDS = Object.freeze([
+  "lm01_q6_foodtrace_consider",
+  "lm01_q7_university_inventory",
+]);
+
+/** Presentation mirror of the known LM01 numeric pass floor (backend remains authoritative). */
+export const LM01_PRESENTATION_PASS_MIN = 5;
+
 export function isFoodtraceDesignCaseIntroQuestion(questionId) {
   return String(questionId || "") === FOODTRACE_DESIGN_CASE_INTRO_QUESTION_ID;
+}
+
+/**
+ * @param {string} questionId
+ * @returns {boolean}
+ */
+export function isLm01CriticalQuestion(questionId) {
+  return LM01_CRITICAL_QUESTION_IDS.includes(questionId);
 }
 
 /**

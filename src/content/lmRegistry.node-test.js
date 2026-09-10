@@ -98,6 +98,8 @@ test("LM08 presentation registry exists with canonical evidence wiring", () => {
   assert.ok(mod.title.en);
   assert.ok(mod.title.gr);
   assert.equal(mod.visuals.hero, LM08_VISUALS.hero);
+  assert.equal(mod.visuals.nextStep, LM08_VISUALS.nextStep);
+  assert.notEqual(mod.visuals.nextStep, LM01_VISUALS.nextStep);
   assert.equal(mod.visuals.activityByType.verification, LM08_VISUALS.verification);
 
   const visible = getLmVisibleActivities("LM08", "en");
@@ -179,8 +181,8 @@ test("curriculum registry covers exactly LM01–LM11 with correct path groups", 
   );
 });
 
-test("chapterAvailable is true for LM01, LM02, and LM08 Interactive Chapters", () => {
-  const availableIds = new Set(["LM01", "LM02", "LM08"]);
+test("chapterAvailable is true for LM01, LM02, LM03, and LM08 Interactive Chapters", () => {
+  const availableIds = new Set(["LM01", "LM02", "LM03", "LM08"]);
   for (const id of LM_CURRICULUM_IDS) {
     const available = isLmChapterAvailable(id);
     if (availableIds.has(id)) {
@@ -198,8 +200,36 @@ test("chapterAvailable is true for LM01, LM02, and LM08 Interactive Chapters", (
   assert.equal(getLmChapterRoute("LM01", "gr"), "/learning-modules-gr/lm01");
   assert.equal(getLmChapterRoute("LM02", "en"), "/learning-modules/lm02");
   assert.equal(getLmChapterRoute("LM02", "gr"), "/learning-modules-gr/lm02");
+  assert.equal(getLmChapterRoute("LM03", "en"), "/learning-modules/lm03");
+  assert.equal(getLmChapterRoute("LM03", "gr"), "/learning-modules-gr/lm03");
   assert.equal(getLmChapterRoute("LM08", "en"), "/learning-modules/lm08");
   assert.equal(getLmChapterRoute("LM08", "gr"), "/learning-modules-gr/lm08");
+});
+
+test("LM03 chapter is bilingual with locked transition and live assessment wiring", () => {
+  const mod = LM_PRESENTATION_REGISTRY.LM03;
+  assert.equal(mod.chapterAvailable, true);
+  assert.equal(mod.learnerMeta.assessmentXp, 150);
+  assert.equal(mod.learningOutcomes.en.length, 7);
+  assert.equal(mod.learningOutcomes.gr.length, 7);
+  assert.ok(mod.activities.some((a) => a.id === "lm03-separate-dimensions"));
+  assert.ok(mod.activities.some((a) => a.id === "lm03-platform-comparison"));
+  assert.ok(mod.activities.some((a) => a.id === "lm03-foodtrace-revisited"));
+  const assessment = mod.activities.find((a) => a.id === "lm03-assessment");
+  assert.equal(assessment?.linkKind, "internal");
+  assert.deepEqual(assessment?.href, {
+    en: "/learning-modules/lm03/assessment",
+    gr: "/learning-modules-gr/lm03/assessment",
+  });
+  assert.equal(assessment?.evidenceId, "lm03-assessment");
+  assert.equal(assessment?.presentationOnly, false);
+  assert.equal(
+    getLmVisibleActivities("LM03", "en").filter((a) => a.visualType === "book").length,
+    1
+  );
+  assert.ok(
+    getLmVisibleActivities("LM03", "en").some((a) => a.id === "lm03-assessment")
+  );
 });
 
 test("LM02 chapter is bilingual with locked transition and assessment XP display", () => {

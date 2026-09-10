@@ -1,25 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import {
-  LM01_POST_PASS_RATIONALES,
-  getLm01AssessmentCopy,
-} from "../../content/lm01AssessmentLocale.js";
+  LM03_POST_PASS_RATIONALES,
+  getLm03AssessmentCopy,
+} from "../../content/lm03AssessmentLocale.js";
 import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
 import { useResolvedIdentityContext } from "../../hooks/useResolvedIdentityContext.js";
 import { getWeb3eduBackendUrl } from "../../lib/web3eduBackend.js";
 import {
-  fetchLm01AssessmentChallenge,
-  postLm01AssessmentAnswers,
+  fetchLm03AssessmentChallenge,
+  postLm03AssessmentAnswers,
 } from "../../utils/labWriteApi.js";
 import { seedIncompleteAttemptIfNeeded } from "../../utils/assessmentAttemptStability.js";
 import { buildAssessmentFeedbackRows } from "../../utils/assessmentFeedbackView.js";
 import {
   buildShuffledOptionOrders,
-  isFoodtraceDesignCaseIntroQuestion,
-  isLm01CriticalQuestion,
+  isLm03CriticalQuestion,
   mapOptionsForDisplay,
-  LM01_PRESENTATION_PASS_MIN,
-} from "../../utils/lm01AssessmentView.js";
+  LM03_PRESENTATION_PASS_MIN,
+} from "../../utils/lm03AssessmentView.js";
 import AssessmentChoiceList from "./assessment/AssessmentChoiceList.jsx";
 import AssessmentFailState from "./assessment/AssessmentFailState.jsx";
 import AssessmentMetaStrip from "./assessment/AssessmentMetaStrip.jsx";
@@ -35,11 +34,11 @@ function emptyAnswers(questions) {
   return next;
 }
 
-export default function Lm01AssessmentPanel({ lang = "en" }) {
+export default function Lm03AssessmentPanel({ lang = "en" }) {
   const locale = lang === "gr" ? "gr" : "en";
-  const copy = getLm01AssessmentCopy(lang);
+  const copy = getLm03AssessmentCopy(lang);
   const rationales =
-    LM01_POST_PASS_RATIONALES[locale] || LM01_POST_PASS_RATIONALES.en;
+    LM03_POST_PASS_RATIONALES[locale] || LM03_POST_PASS_RATIONALES.en;
   const identityArgs = useEducationalIdentityArgs();
   const { refetch: refetchResolvedIdentity } = useResolvedIdentityContext();
   const apiBase = getWeb3eduBackendUrl();
@@ -96,7 +95,7 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
     setLoadError(null);
 
     try {
-      const result = await fetchLm01AssessmentChallenge({
+      const result = await fetchLm03AssessmentChallenge({
         apiBase,
         idToken,
       });
@@ -189,7 +188,7 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
     setSubmitting(true);
 
     try {
-      const result = await postLm01AssessmentAnswers({
+      const result = await postLm03AssessmentAnswers({
         apiBase,
         idToken: identityArgs.idToken,
         answers,
@@ -310,7 +309,7 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
         evaluation: submitResult?.evaluation,
         defaultLead: copy.failedLead,
         criticalThresholdLead: copy.failedCriticalLead,
-        passMinCorrect: LM01_PRESENTATION_PASS_MIN,
+        passMinCorrect: LM03_PRESENTATION_PASS_MIN,
       }),
     [copy.failedCriticalLead, copy.failedLead, submitResult?.evaluation]
   );
@@ -326,13 +325,6 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
           scopeHint={copy.metaScopeHint}
           summaryLabel={copy.metaSummaryLabel}
         />
-      ) : null}
-
-      {!isPassed && (copy.classificationNote || copy.foodtraceNote) ? (
-        <div className="mt-3 max-w-3xl space-y-2 text-xs leading-5 text-slate-600 dark:text-slate-400">
-          {copy.classificationNote ? <p>{copy.classificationNote}</p> : null}
-          {copy.foodtraceNote ? <p>{copy.foodtraceNote}</p> : null}
-        </div>
       ) : null}
 
       {loading && (
@@ -417,51 +409,43 @@ export default function Lm01AssessmentPanel({ lang = "en" }) {
             const promptId = `${question.id}-prompt`;
 
             return (
-              <div key={question.id} className="space-y-2">
-                {isFoodtraceDesignCaseIntroQuestion(question.id) ? (
-                  <div className="flex justify-start px-0.5">
-                    <span className="inline-flex items-center rounded-full border border-fuchsia-200/70 bg-gradient-to-r from-cyan-50 to-fuchsia-50 px-2.5 py-1 text-xs font-semibold tracking-wide text-cyan-900 dark:border-fuchsia-400/20 dark:from-cyan-950/40 dark:to-fuchsia-950/30 dark:text-cyan-100">
-                      {copy.foodtraceDesignCaseMarker}
-                    </span>
-                  </div>
-                ) : null}
-                <fieldset
-                  className="rounded-2xl border border-slate-200/70 bg-white/90 dark:border-white/10 dark:bg-white/[0.03]"
-                  aria-describedby={promptId}
-                >
-                  {/*
-                    float-left + w-full pulls <legend> out of the default border-cutout
-                    rendering so multiline content sits fully inside the card padding.
-                  */}
-                  <legend className="float-left w-full px-4 pt-3">
-                    <AssessmentQuestionHeader
-                      number={index + 1}
-                      typeLabel={isMulti ? copy.multiSelectType : copy.singleChoiceType}
-                      isMultiple={isMulti}
-                      heading={qCopy.heading}
-                      critical={isLm01CriticalQuestion(question.id)}
-                      criticalLabel={copy.criticalLabel}
-                    />
-                  </legend>
-                  <p
-                    id={promptId}
-                    className="clear-both px-4 pt-2 text-sm leading-6 text-slate-700 dark:text-slate-300"
-                  >
-                    {qCopy.prompt}
-                  </p>
-                  <AssessmentChoiceList
-                    questionId={question.id}
+              <fieldset
+                key={question.id}
+                className="rounded-2xl border border-slate-200/70 bg-white/90 dark:border-white/10 dark:bg-white/[0.03]"
+                aria-describedby={promptId}
+              >
+                {/*
+                  float-left + w-full pulls <legend> out of the default border-cutout
+                  rendering so multiline content sits fully inside the card padding.
+                */}
+                <legend className="float-left w-full px-4 pt-3">
+                  <AssessmentQuestionHeader
+                    number={index + 1}
+                    typeLabel={isMulti ? copy.multiSelectType : copy.singleChoiceType}
                     isMultiple={isMulti}
-                    rows={displayRows}
-                    selected={selected}
-                    onSelect={(canonicalId) =>
-                      isMulti
-                        ? toggleMulti(question.id, canonicalId)
-                        : setSingle(question.id, canonicalId)
-                    }
+                    heading={qCopy.heading}
+                    critical={isLm03CriticalQuestion(question.id)}
+                    criticalLabel={copy.criticalLabel}
                   />
-                </fieldset>
-              </div>
+                </legend>
+                <p
+                  id={promptId}
+                  className="clear-both px-4 pt-2 text-sm leading-6 text-slate-700 dark:text-slate-300"
+                >
+                  {qCopy.prompt}
+                </p>
+                <AssessmentChoiceList
+                  questionId={question.id}
+                  isMultiple={isMulti}
+                  rows={displayRows}
+                  selected={selected}
+                  onSelect={(canonicalId) =>
+                    isMulti
+                      ? toggleMulti(question.id, canonicalId)
+                      : setSingle(question.id, canonicalId)
+                  }
+                />
+              </fieldset>
             );
           })}
 

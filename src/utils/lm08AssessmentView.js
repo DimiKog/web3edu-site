@@ -11,6 +11,26 @@ export const LM08_CANONICAL_OPTION_IDS = Object.freeze(["A", "B", "C", "D", "E"]
 export const LM08_VISUAL_LETTERS = Object.freeze(["A", "B", "C", "D", "E"]);
 
 /**
+ * Presentation-only critical question ids for LM08 UX transparency.
+ * Mirrors known LM08 curriculum critical outcomes — not a grading source of truth.
+ */
+export const LM08_CRITICAL_QUESTION_IDS = Object.freeze([
+  "lm08_q4_changing_state",
+  "lm08_q7_verification_limits",
+]);
+
+/** Presentation mirror of the known LM08 numeric pass floor (backend remains authoritative). */
+export const LM08_PRESENTATION_PASS_MIN = 5;
+
+/**
+ * @param {string} questionId
+ * @returns {boolean}
+ */
+export function isLm08CriticalQuestion(questionId) {
+  return LM08_CRITICAL_QUESTION_IDS.includes(questionId);
+}
+
+/**
  * @param {Array<{ id: string, optionIds?: string[] }>|null|undefined} questions
  * @param {() => number} [random]
  * @returns {Record<string, string[]>}

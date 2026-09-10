@@ -13,7 +13,20 @@ export const LM01_ASSESSMENT_COPY = {
     introBody:
       "This assessment includes seven questions about the key ideas introduced in LM01. Most questions have one best answer, while one asks you to select all answers that apply. If you do not pass on your first attempt, you can review the feedback and try again.",
     responseModeHint: "",
+    /** Compact meta-strip chips (presentation chrome — not grading authority). */
+    metaItems: [
+      "7 questions",
+      "Single + multiple select",
+      "Pass: 5/7 + all Critical questions",
+      "Retries allowed",
+    ],
+    metaScopeHint:
+      "Checks blockchain basics, properties and limits — including FoodTrace and when blockchain is not the right fit.",
+    metaSummaryLabel: "Assessment summary",
     multiSelectHint: "Select all that apply. More than one answer may be correct.",
+    singleChoiceType: "Single choice",
+    multiSelectType: "Select all that apply",
+    criticalLabel: "Critical",
     foodtraceDesignCaseMarker: "FoodTrace · Design Case",
     foodtraceNote:
       "You will also meet FoodTrace, a design case that will continue in later modules. For now, you are only deciding whether blockchain is worth considering. As new requirements are introduced later, you may revise your thinking — and blockchain may or may not remain the most appropriate solution.",
@@ -26,13 +39,27 @@ export const LM01_ASSESSMENT_COPY = {
     submitting: "Submitting…",
     retry: "Try again",
     failedTitle: "Assessment not passed yet",
-    failedScore: (score, total) => `${score} / ${total}`,
+    failedLead: "Review the feedback below, then try again.",
+    failedCriticalLead:
+      "Your score meets the numeric threshold, but a Critical question needs another look.",
+    failedScore: (score, total) => `${score}/${total}`,
     feedbackTitle: "Review these questions",
     passedTitle: "LM01 Assessment Complete",
     alreadyPassedTitle: "LM01 Assessment already recorded",
-    passedScore: (score, total) => `${score} / ${total}`,
+    passedScore: (score, total) => `${score}/${total}`,
     xpAwarded: (xp) => `+${xp} XP`,
-    xpAlready: "XP for this assessment was already awarded earlier.",
+    xpAlready: "XP already awarded",
+    youCanNow: "You can now:",
+    passCapabilities: [
+      "Explain why a shared ledger may avoid exclusive control.",
+      "Separate network models from who may participate.",
+      "Recognize cases where a conventional database is enough.",
+    ],
+    keyPrinciple:
+      "Blockchain is not automatically better than a conventional database.",
+    revisitOne: "One point to revisit",
+    revisitMany: "Points to revisit",
+    reviewTakeaways: "Review key takeaways",
     postPassTitle: "Key Takeaways",
     backToDashboard: "Back to Dashboard",
     dashboardPath: "/dashboard",
@@ -126,8 +153,20 @@ export const LM01_ASSESSMENT_COPY = {
     introBody:
       "Αυτή η αξιολόγηση περιλαμβάνει επτά ερωτήσεις πάνω στις βασικές έννοιες του LM01. Οι περισσότερες έχουν μία καλύτερη απάντηση, ενώ σε μία θα χρειαστεί να επιλέξεις όλες τις απαντήσεις που ισχύουν. Αν δεν περάσεις με την πρώτη προσπάθεια, μπορείς να δεις την ανατροφοδότηση και να δοκιμάσεις ξανά.",
     responseModeHint: "",
+    metaItems: [
+      "7 ερωτήσεις",
+      "Μονή + πολλαπλή επιλογή",
+      "Επιτυχία: 5/7 + όλες οι Κρίσιμες ερωτήσεις",
+      "Επιτρέπονται επαναλήψεις",
+    ],
+    metaScopeHint:
+      "Ελέγχει τα βασικά του blockchain, ιδιότητες και όρια — συμπεριλαμβανομένου του FoodTrace και πότε το blockchain δεν είναι η κατάλληλη λύση.",
+    metaSummaryLabel: "Σύνοψη αξιολόγησης",
     multiSelectHint:
       "Επιλέξτε όλες όσες ισχύουν. Μπορεί να είναι σωστές περισσότερες από μία.",
+    singleChoiceType: "Μία απάντηση",
+    multiSelectType: "Επίλεξε όλες τις σωστές",
+    criticalLabel: "Κρίσιμη",
     foodtraceDesignCaseMarker: "FoodTrace · Μελέτη Περίπτωσης",
     foodtraceNote:
       "Θα γνωρίσεις επίσης το FoodTrace, μια μελέτη περίπτωσης που θα συνεχιστεί και σε επόμενα Learning Modules. Προς το παρόν, εξετάζεις μόνο αν αξίζει να εξεταστεί η χρήση blockchain. Καθώς θα προστίθενται νέες απαιτήσεις στα επόμενα modules, μπορεί να αναθεωρήσεις την αρχική σου σκέψη — και το blockchain μπορεί τελικά να είναι ή να μην είναι η καταλληλότερη λύση.",
@@ -140,13 +179,27 @@ export const LM01_ASSESSMENT_COPY = {
     submitting: "Υποβολή…",
     retry: "Δοκιμάστε ξανά",
     failedTitle: "Η αξιολόγηση δεν πέρασε ακόμη",
-    failedScore: (score, total) => `${score} / ${total}`,
+    failedLead: "Δες το feedback παρακάτω και δοκίμασε ξανά.",
+    failedCriticalLead:
+      "Το σκορ σου φτάνει το αριθμητικό όριο, αλλά μια Κρίσιμη ερώτηση χρειάζεται άλλη μια ματιά.",
+    failedScore: (score, total) => `${score}/${total}`,
     feedbackTitle: "Ξαναδές αυτές τις ερωτήσεις",
     passedTitle: "Η Αξιολόγηση LM01 Ολοκληρώθηκε",
     alreadyPassedTitle: "Η αξιολόγηση LM01 είναι ήδη καταγεγραμμένη",
-    passedScore: (score, total) => `${score} / ${total}`,
+    passedScore: (score, total) => `${score}/${total}`,
     xpAwarded: (xp) => `+${xp} XP`,
-    xpAlready: "Τα XP για αυτή την αξιολόγηση έχουν ήδη απονεμηθεί.",
+    xpAlready: "Τα XP έχουν ήδη απονεμηθεί",
+    youCanNow: "Μπορείς πλέον να:",
+    passCapabilities: [
+      "Εξηγείς γιατί ένα κοινό καθολικό μπορεί να αποφεύγει αποκλειστικό έλεγχο.",
+      "Διαχωρίζεις μοντέλα δικτύου από το ποιοι μπορούν να συμμετέχουν.",
+      "Αναγνωρίζεις περιπτώσεις όπου αρκεί μια συμβατική βάση δεδομένων.",
+    ],
+    keyPrinciple:
+      "Το blockchain δεν είναι αυτόματα καλύτερο από μια συμβατική βάση δεδομένων.",
+    revisitOne: "Ένα σημείο για επανάληψη",
+    revisitMany: "Σημεία για επανάληψη",
+    reviewTakeaways: "Δες τα βασικά συμπεράσματα",
     postPassTitle: "Βασικά συμπεράσματα",
     backToDashboard: "Επιστροφή στον Πίνακα",
     dashboardPath: "/dashboard-gr",
