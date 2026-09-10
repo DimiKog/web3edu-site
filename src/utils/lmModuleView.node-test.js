@@ -489,6 +489,16 @@ test("Lm01Page keeps cohesive path, hero facts band, and chapter-ending CTA", ()
   assert.match(pageSrc, /pt-24 pb-8 sm:px-6 sm:py-10/);
   assert.match(closeSrc, /cta\.visualSrc/);
   assert.doesNotMatch(closeSrc, /LmClosingCtaIllustration/);
+  // Long next-step titles must wrap; title heading must not force nowrap.
+  const titleClassMatch = closeSrc.match(
+    /id="lm-chapter-close-title"\s+className="([^"]+)"/
+  );
+  assert.ok(titleClassMatch, "closing title className present");
+  assert.doesNotMatch(titleClassMatch[1], /whitespace-nowrap/);
+  assert.match(titleClassMatch[1], /leading-snug/);
+  assert.match(closeSrc, /min-w-0/);
+  assert.match(closeSrc, /shrink-0/);
+  assert.match(closeSrc, /minmax\(0,/);
   assert.match(visualsSrc, /object-contain/);
   assert.doesNotMatch(visualsSrc, /invert|hue-rotate|mix-blend/);
   assert.match(sidebarSrc, /loadError === "sign_in"/);
@@ -644,7 +654,7 @@ test("synthetic multi-evidence: complete only when canonical module.complete", (
   assert.equal(done.closingCta.kind, "complete");
 });
 
-test("legacy-style currentModule elsewhere does not invent this module next step", () => {
+test("incomplete module viewed while currentModule elsewhere still shows local next step", () => {
   const view = buildSyntheticView({
     satisfied: {
       "practical-a": true,
@@ -665,9 +675,9 @@ test("legacy-style currentModule elsewhere does not invent this module next step
 
   assert.equal(view.complete, false);
   assert.equal(view.currentModule, "LM09");
-  assert.equal(view.nextRequiredStep.kind, "neutral");
-  assert.equal(view.closingCta.kind, "neutral");
-  assert.equal(view.closingCta.route, null);
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+  assert.equal(view.closingCta.route, "/syn/assessment");
   assert.equal(view.requiredEvidenceItems[4].satisfied, false);
 });
 
@@ -818,7 +828,7 @@ test("LM08 4/4 practical + assessment false → assessment next for normal learn
   );
 });
 
-test("LM08 legacy Builder 4/4 + assessment false + currentModule LM09 stays neutral", () => {
+test("LM08 4/4 practical + assessment false + currentModule LM09 still shows local assessment CTA", () => {
   const progression = lm08ProgressionFixture({
     satisfied: {
       coding01: true,
@@ -839,9 +849,9 @@ test("LM08 legacy Builder 4/4 + assessment false + currentModule LM09 stays neut
   const view = getLmPageViewState(progression, "en", "LM08");
   assert.equal(view.complete, false);
   assert.equal(view.currentModule, "LM09");
-  assert.equal(view.nextRequiredStep.kind, "neutral");
-  assert.equal(view.closingCta.kind, "neutral");
-  assert.equal(view.closingCta.route, null);
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+  assert.equal(view.closingCta.route, "/learning-modules/lm08/assessment");
   assert.ok(
     view.requiredEvidenceItems.filter((i) => i.kind === "practical").every((i) => i.satisfied)
   );
@@ -895,4 +905,225 @@ test("LM08 chapter routes are registered EN/GR", () => {
   assert.match(routesSrc, /path: "\/learning-modules\/lm08"/);
   assert.match(routesSrc, /path: "\/learning-modules-gr\/lm08"/);
   assert.match(routesSrc, /Lm08Page/);
+});
+
+function lm02ProgressionFixture({
+  decisionSatisfied = false,
+  assessmentPassed = false,
+  complete = false,
+  currentModule = "LM02",
+  nextRequiredEvidence = "lm02-decision",
+  nextAction = {
+    type: "learning_module_evidence",
+    moduleId: "LM02",
+    evidenceId: "lm02-decision",
+  },
+} = {}) {
+  return {
+    earnedTier: "explorer",
+    computedTier: "explorer",
+    currentModule,
+    currentPath: { targetTier: "explorer", alignmentStatus: "current_curriculum_path" },
+    nextAction,
+    nextRequiredEvidence,
+    modules: {
+      LM01: {
+        complete: true,
+        requiredEvidenceSatisfied: true,
+        requiredEvidence: {},
+        missingEvidence: [],
+        assessment: { id: "lm01-assessment", required: true, passed: true },
+      },
+      LM02: {
+        complete,
+        requiredEvidenceSatisfied: decisionSatisfied,
+        requiredEvidence: {
+          "lm02-decision": { satisfied: decisionSatisfied },
+        },
+        missingEvidence: decisionSatisfied ? [] : ["lm02-decision"],
+        assessment: {
+          id: "lm02-assessment",
+          required: true,
+          passed: assessmentPassed,
+        },
+      },
+    },
+  };
+}
+
+function lm03ProgressionFixture({
+  assessmentPassed = false,
+  complete = false,
+  currentModule = "LM03",
+  nextAction = {
+    type: "assessment",
+    moduleId: "LM03",
+    assessmentId: "lm03-assessment",
+  },
+} = {}) {
+  return {
+    earnedTier: "explorer",
+    computedTier: "explorer",
+    currentModule,
+    currentPath: { targetTier: "explorer", alignmentStatus: "current_curriculum_path" },
+    nextAction,
+    nextRequiredEvidence: null,
+    modules: {
+      LM03: {
+        complete,
+        requiredEvidenceSatisfied: true,
+        requiredEvidence: {},
+        missingEvidence: [],
+        assessment: {
+          id: "lm03-assessment",
+          required: true,
+          passed: assessmentPassed,
+        },
+      },
+    },
+  };
+}
+
+test("LM01 current incomplete → assessment CTA unchanged", () => {
+  const view = getLmPageViewState(freshProgression(), "en", "LM01");
+  assert.equal(view.complete, false);
+  assert.equal(view.currentModule, "LM01");
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.nextRequiredStep.title, "LM01 Assessment");
+  assert.equal(view.nextRequiredStep.route, "/learning-modules/lm01/assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+  assert.equal(view.closingCta.ctaLabel, "Go to assessment");
+});
+
+test("LM02 viewed while currentModule=LM01 → assessment CTA not neutral", () => {
+  const progression = lm02ProgressionFixture({
+    currentModule: "LM01",
+    nextRequiredEvidence: null,
+    nextAction: {
+      type: "assessment",
+      moduleId: "LM01",
+      assessmentId: "lm01-assessment",
+    },
+  });
+  // LM01 still incomplete in this browse-ahead fixture.
+  progression.modules.LM01.complete = false;
+  progression.modules.LM01.assessment.passed = false;
+
+  const view = getLmPageViewState(progression, "en", "LM02");
+  assert.equal(view.moduleId, "LM02");
+  assert.equal(view.currentModule, "LM01");
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.nextRequiredStep.route, "/learning-modules/lm02/assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+  assert.equal(view.closingCta.ctaLabel, "Go to assessment");
+  assert.notEqual(view.closingCta.kind, "neutral");
+});
+
+test("LM02 current with nextAction=lm02-decision → assessment CTA", () => {
+  const view = getLmPageViewState(lm02ProgressionFixture(), "en", "LM02");
+  assert.equal(view.currentModule, "LM02");
+  assert.equal(view.nextAction.evidenceId, "lm02-decision");
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.nextRequiredStep.title, "LM02 Assessment");
+  assert.equal(view.nextRequiredStep.route, "/learning-modules/lm02/assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+  assert.equal(view.closingCta.ctaLabel, "Go to assessment");
+});
+
+test("LM03 assessment-only behavior unchanged", () => {
+  const view = getLmPageViewState(lm03ProgressionFixture(), "en", "LM03");
+  assert.equal(view.complete, false);
+  assert.equal(view.requiredEvidenceItems.length, 1);
+  assert.equal(view.requiredEvidenceItems[0].kind, "assessment");
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.nextRequiredStep.route, "/learning-modules/lm03/assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+
+  const done = getLmPageViewState(
+    lm03ProgressionFixture({
+      assessmentPassed: true,
+      complete: true,
+      currentModule: "LM04",
+      nextAction: {
+        type: "learning_module_evidence",
+        moduleId: "LM04",
+        evidenceId: "lab01",
+      },
+    }),
+    "en",
+    "LM03"
+  );
+  assert.equal(done.complete, true);
+  assert.equal(done.closingCta.kind, "complete");
+});
+
+test("LM08 viewed ahead → first unsatisfied practical step CTA", () => {
+  const progression = lm08ProgressionFixture({
+    satisfied: {
+      coding01: false,
+      coding02: false,
+      "lm08-contract-inspection": false,
+      "lm08-source-verification": false,
+    },
+    currentModule: "LM04",
+    nextRequiredEvidence: "lab01",
+    nextAction: {
+      type: "learning_module_evidence",
+      moduleId: "LM04",
+      evidenceId: "lab01",
+    },
+  });
+  const view = getLmPageViewState(progression, "en", "LM08");
+  assert.equal(view.currentModule, "LM04");
+  assert.equal(view.nextRequiredStep.kind, "evidence");
+  assert.equal(view.nextRequiredStep.evidenceId, "coding01");
+  assert.equal(view.nextRequiredStep.route, "/labs/coding-01/interaction");
+  assert.equal(view.closingCta.kind, "next_evidence");
+  assert.equal(view.closingCta.ctaLabel, "Continue");
+  assert.notEqual(view.nextRequiredStep.kind, "assessment");
+});
+
+test("LM08 current → first unsatisfied practical step CTA", () => {
+  const view = getLmPageViewState(lm08ProgressionFixture(), "en", "LM08");
+  assert.equal(view.currentModule, "LM08");
+  assert.equal(view.nextRequiredStep.kind, "evidence");
+  assert.equal(view.nextRequiredStep.evidenceId, "coding01");
+  assert.equal(view.nextRequiredStep.route, "/labs/coding-01/interaction");
+  assert.equal(view.closingCta.kind, "next_evidence");
+});
+
+test("LM08 all practical satisfied → assessment CTA", () => {
+  const progression = lm08ProgressionFixture({
+    satisfied: {
+      coding01: true,
+      coding02: true,
+      "lm08-contract-inspection": true,
+      "lm08-source-verification": true,
+    },
+    assessmentPassed: false,
+    complete: false,
+    currentModule: "LM08",
+    nextRequiredEvidence: null,
+    nextAction: {
+      type: "assessment",
+      moduleId: "LM08",
+      assessmentId: "lm08-assessment",
+    },
+  });
+  const view = getLmPageViewState(progression, "en", "LM08");
+  assert.equal(view.nextRequiredStep.kind, "assessment");
+  assert.equal(view.nextRequiredStep.route, "/learning-modules/lm08/assessment");
+  assert.equal(view.closingCta.kind, "next_assessment");
+});
+
+test("completed module preserves existing completion behavior", () => {
+  const view = getLmPageViewState(
+    freshProgression({ assessmentPassed: true, complete: true }),
+    "en",
+    "LM01"
+  );
+  assert.equal(view.complete, true);
+  assert.equal(view.nextRequiredStep, null);
+  assert.equal(view.closingCta.kind, "complete");
+  assert.equal(view.closingCta.eyebrow, "Module complete");
 });

@@ -23,7 +23,7 @@ export default function LmChapterClose({ view, lang = "en" }) {
           : "border-violet-200/80 bg-gradient-to-br from-violet-100 via-indigo-50 to-cyan-50 dark:border-violet-500/25 dark:from-violet-950/50 dark:via-slate-900 dark:to-cyan-950/40"
       }`}
     >
-      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(15rem,1.05fr)_auto] xl:items-center xl:gap-6">
+      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1.2fr)_max-content] xl:items-center xl:gap-8">
         <LmApprovedVisual
           src={visualSrc}
           className={
@@ -44,7 +44,7 @@ export default function LmChapterClose({ view, lang = "en" }) {
           </p>
           <h2
             id="lm-chapter-close-title"
-            className="mt-1 text-xl font-extrabold tracking-tight text-slate-950 dark:text-white xl:whitespace-nowrap"
+            className="mt-1 text-xl font-extrabold leading-snug tracking-tight text-slate-950 dark:text-white"
           >
             {cta.title}
           </h2>

@@ -64,7 +64,16 @@ function ActivityAction({ row, lang, moduleId, expanded, onToggle }) {
     );
   }
 
-  if (!row.href) return null;
+  if (!row.href) {
+    if (row.visualType === "assessment" && row.ctaLabel) {
+      return (
+        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+          {row.ctaLabel}
+        </span>
+      );
+    }
+    return null;
+  }
 
   if (row.linkKind === "external") {
     return (

@@ -182,6 +182,30 @@ test("LM02 assessment EN/GR ready routes", () => {
     assert.equal(gr.route, "/learning-modules-gr/lm02/assessment");
 });
 
+test("LM03 assessment EN/GR ready routes", () => {
+    const en = resolveProgressionActionTarget({
+        nextAction: {
+            type: "assessment",
+            moduleId: "LM03",
+            assessmentId: "lm03-assessment",
+        },
+        lang: "en",
+    });
+    assert.equal(en.status, "ready");
+    assert.equal(en.route, "/learning-modules/lm03/assessment");
+
+    const gr = resolveProgressionActionTarget({
+        nextAction: {
+            type: "assessment",
+            moduleId: "LM03",
+            assessmentId: "lm03-assessment",
+        },
+        lang: "gr",
+    });
+    assert.equal(gr.status, "ready");
+    assert.equal(gr.route, "/learning-modules-gr/lm03/assessment");
+});
+
 test("other assessments remain coming soon", () => {
     const en = resolveProgressionActionTarget({
         nextAction: {
@@ -206,6 +230,31 @@ test("future evidence unavailable", () => {
     });
     assert.equal(result.status, "unavailable");
     assert.equal(result.route, null);
+});
+
+test("lm02-decision maps to LM02 assessment route EN/GR (co-satisfied presentation)", () => {
+    const en = resolveProgressionActionTarget({
+        nextAction: {
+            type: "learning_module_evidence",
+            moduleId: "LM02",
+            evidenceId: "lm02-decision",
+        },
+        lang: "en",
+    });
+    assert.equal(en.status, "ready");
+    assert.equal(en.route, "/learning-modules/lm02/assessment");
+    assert.match(en.label, /LM02 Assessment/i);
+
+    const gr = resolveProgressionActionTarget({
+        nextAction: {
+            type: "learning_module_evidence",
+            moduleId: "LM02",
+            evidenceId: "lm02-decision",
+        },
+        lang: "gr",
+    });
+    assert.equal(gr.status, "ready");
+    assert.equal(gr.route, "/learning-modules-gr/lm02/assessment");
 });
 
 test("enrichment_xp EN/GR browse labs", () => {

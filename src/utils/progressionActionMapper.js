@@ -33,23 +33,34 @@ const ASSESSMENT_ROUTES = {
     en: {
         "lm01-assessment": "/learning-modules/lm01/assessment",
         "lm02-assessment": "/learning-modules/lm02/assessment",
+        "lm03-assessment": "/learning-modules/lm03/assessment",
         "lm08-assessment": "/learning-modules/lm08/assessment",
     },
     gr: {
         "lm01-assessment": "/learning-modules-gr/lm01/assessment",
         "lm02-assessment": "/learning-modules-gr/lm02/assessment",
+        "lm03-assessment": "/learning-modules-gr/lm03/assessment",
         "lm08-assessment": "/learning-modules-gr/lm08/assessment",
     },
 };
 
 const UNAVAILABLE_EVIDENCE_IDS = new Set([
-    "lm03-platform-decision",
     "lm05-pel-transaction",
     "lm09-guided-coding",
     "lm10-pel-tokenization",
     "lm10-token-decision",
     "lm11-erc20-activity",
 ]);
+
+/**
+ * Evidence ids with no standalone activity page — co-satisfied only via the
+ * module assessment. Presentation maps them to that assessment route.
+ * Backend requiredEvidence / order remain authoritative.
+ * @type {Readonly<Record<string, string>>}
+ */
+export const ASSESSMENT_CO_SATISFIED_EVIDENCE_IDS = Object.freeze({
+    "lm02-decision": "lm02-assessment",
+});
 
 /**
  * Map backend semantic nextAction to frontend route + localized labels.
@@ -120,6 +131,22 @@ export function resolveProgressionActionTarget({ nextAction, lang = "en" }) {
                 label: copy.evidenceLabels[evidenceId] || evidenceId,
                 cta: copy.activityNotAvailable,
             };
+        }
+
+        const coAssessmentId = ASSESSMENT_CO_SATISFIED_EVIDENCE_IDS[evidenceId];
+        if (coAssessmentId) {
+            const route = ASSESSMENT_ROUTES[localeKey][coAssessmentId] ?? null;
+            if (route) {
+                return {
+                    status: "ready",
+                    route,
+                    label:
+                        copy.evidenceLabels[coAssessmentId] ||
+                        copy.evidenceLabels[evidenceId] ||
+                        copy.assessmentDefault,
+                    cta: copy.continueArrow,
+                };
+            }
         }
 
         const route = EVIDENCE_ROUTES[localeKey][evidenceId] ?? null;

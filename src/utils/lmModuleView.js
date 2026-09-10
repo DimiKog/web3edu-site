@@ -4,7 +4,11 @@
  * Never owns curriculum rules: evidence satisfaction, module.complete, XP, tiers.
  */
 
-import { ASSESSMENT_ROUTES, resolveProgressionActionTarget } from "./progressionActionMapper.js";
+import {
+  ASSESSMENT_CO_SATISFIED_EVIDENCE_IDS,
+  ASSESSMENT_ROUTES,
+  resolveProgressionActionTarget,
+} from "./progressionActionMapper.js";
 import {
   getLmActivityVisualSrc,
   getLmLearnerMeta,
@@ -98,7 +102,11 @@ export function getLmAssessmentPresentation(moduleEntry, lang = "en", options = 
       : passed
         ? copy.assessmentPassed
         : copy.assessmentNotPassed,
-    ctaLabel: passed ? copy.reviewAssessment : copy.openAssessment,
+    ctaLabel: !route
+      ? copy.assessmentComingSoon
+      : passed
+        ? copy.reviewAssessment
+        : copy.openAssessment,
   };
 }
 
@@ -282,7 +290,12 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
 
   let ctaLabel = null;
   if (isAssessment) {
-    ctaLabel = assessment?.ctaLabel;
+    // Prefer live assessment route; otherwise surface coming-soon (e.g. LM03 placeholder).
+    ctaLabel = assessment?.route
+      ? assessment.ctaLabel
+      : href
+        ? assessment?.ctaLabel || copy.openAssessment
+        : copy.assessmentComingSoon;
   } else if (isSimulator) {
     ctaLabel = copy.openSimulator;
   } else if (isDisclosure) {
@@ -296,7 +309,7 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
   return {
     id: activity.id,
     visualType: activity.visualType,
-    visualSrc: getLmActivityVisualSrc(moduleId, activity.visualType),
+    visualSrc: getLmActivityVisualSrc(moduleId, activity.visualType, activity.id),
     typeLabel: copy.typeLabels[activity.visualType] || activity.visualType,
     title: activity.title?.[locale] || activity.title?.en || activity.id,
     description:
@@ -323,8 +336,45 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
 }
 
 /**
+ * First unsatisfied practical evidence id from canonical moduleEntry.
+ * Uses the entry map's key order (backend builds in registry order).
+ * @param {object|null|undefined} moduleEntry
+ * @returns {string|null}
+ */
+export function getFirstUnsatisfiedRequiredEvidenceId(moduleEntry) {
+  const reqMap = moduleEntry?.requiredEvidence;
+  if (!reqMap || typeof reqMap !== "object") return null;
+  for (const evidenceId of Object.keys(reqMap)) {
+    if (!evidenceId) continue;
+    const entry = reqMap[evidenceId];
+    const satisfied =
+      entry && typeof entry === "object" ? Boolean(entry.satisfied) : false;
+    if (!satisfied) return evidenceId;
+  }
+  return null;
+}
+
+/**
+ * Evidence that is co-satisfied only via the module assessment (no standalone page).
+ * @param {string} evidenceId
+ * @returns {boolean}
+ */
+export function isAssessmentCoSatisfiedEvidence(evidenceId) {
+  return Boolean(
+    evidenceId && ASSESSMENT_CO_SATISFIED_EVIDENCE_IDS[String(evidenceId)]
+  );
+}
+
+/**
  * Canonical next required step for the chapter being viewed.
- * Presentation only — does not invent curriculum order.
+ * Presentation only — does not invent curriculum order or change backend semantics.
+ *
+ * Rule:
+ * 1. Prefer global nextAction when it targets this module.
+ * 2. Else derive module-local next from this module's moduleEntry:
+ *    first unsatisfied requiredEvidence, else unfinished required assessment.
+ * 3. Assessment-co-satisfied evidence (e.g. lm02-decision) presents as assessment.
+ *
  * @param {{
  *   progressionValid?: boolean,
  *   complete?: boolean,
@@ -354,14 +404,15 @@ export function getLmNextRequiredStepPresentation(view, lang = "en") {
   }
 
   if (!view?.progressionValid) {
+    const route = assessment?.route || null;
     return {
       kind: "assessment",
       evidenceId: null,
       assessmentId: assessment?.assessmentId || null,
       title: assessmentTitle,
       body: copy.closingNextBody,
-      route: assessment?.route || null,
-      ctaLabel: copy.openAssessment,
+      route,
+      ctaLabel: route ? copy.openAssessment : null,
       visualSrc: view?.presentation?.visuals?.nextStep || null,
     };
   }
@@ -376,7 +427,25 @@ export function getLmNextRequiredStepPresentation(view, lang = "en") {
       (a) => a && (a.evidenceId === evidenceId || a.id === evidenceId)
     );
 
+  const buildAssessmentStep = () => {
+    const route = assessment?.route || null;
+    return {
+      kind: "assessment",
+      evidenceId: null,
+      assessmentId: assessment?.assessmentId || null,
+      title: assessmentTitle,
+      body: copy.closingNextBody,
+      route,
+      ctaLabel: route ? copy.openAssessment : null,
+      visualSrc: view?.presentation?.visuals?.nextStep || null,
+    };
+  };
+
   const buildEvidenceStep = (evidenceId) => {
+    // Co-satisfied only through the module assessment — no standalone page.
+    if (isAssessmentCoSatisfiedEvidence(evidenceId)) {
+      return buildAssessmentStep();
+    }
     const activity = findActivityForEvidence(evidenceId);
     const mapped = resolveProgressionActionTarget({
       nextAction: {
@@ -402,17 +471,6 @@ export function getLmNextRequiredStepPresentation(view, lang = "en") {
     };
   };
 
-  const buildAssessmentStep = () => ({
-    kind: "assessment",
-    evidenceId: null,
-    assessmentId: assessment?.assessmentId || null,
-    title: assessmentTitle,
-    body: copy.closingNextBody,
-    route: assessment?.route || null,
-    ctaLabel: copy.openAssessment,
-    visualSrc: view?.presentation?.visuals?.nextStep || null,
-  });
-
   if (actionForThisModule?.type === "learning_module_evidence") {
     const evidenceId = String(actionForThisModule.evidenceId || "");
     if (evidenceId) return buildEvidenceStep(evidenceId);
@@ -422,22 +480,17 @@ export function getLmNextRequiredStepPresentation(view, lang = "en") {
     return buildAssessmentStep();
   }
 
-  // Module-local presentation when this chapter is the canonical current module.
-  if (view.currentModule === moduleId) {
-    const nextEvidence =
-      typeof view.nextRequiredEvidence === "string" && view.nextRequiredEvidence
-        ? view.nextRequiredEvidence
-        : null;
-    if (nextEvidence) {
-      return buildEvidenceStep(nextEvidence);
-    }
-    if (assessment && assessment.required !== false && !assessment.passed) {
-      return buildAssessmentStep();
-    }
+  // Module-local next from this chapter's canonical entry — even when the global
+  // pointer targets another module (viewing ahead). Does not invent evidence ids.
+  const localEvidence = getFirstUnsatisfiedRequiredEvidenceId(view.moduleEntry);
+  if (localEvidence) {
+    return buildEvidenceStep(localEvidence);
+  }
+  if (assessment && assessment.required !== false && !assessment.passed) {
+    return buildAssessmentStep();
   }
 
-  // nextAction targets another module, or currentModule has moved on while this
-  // module remains incomplete (e.g. legacy Builder bridge). Do not invent a step.
+  // Incomplete with no remaining practical/assessment gap exposed in the entry.
   return {
     kind: "neutral",
     evidenceId: null,
@@ -618,7 +671,7 @@ export function getLmClosingCtaPresentation(view, lang = "en") {
     };
   }
 
-  // assessment (LM01 incomplete default)
+  // assessment (LM01 incomplete default; LM03 may be route-less / coming soon)
   return {
     kind: "next_assessment",
     eyebrow: copy.nextRequired,
@@ -626,8 +679,8 @@ export function getLmClosingCtaPresentation(view, lang = "en") {
     body: step.body,
     currentModule: null,
     currentModuleTitle: null,
-    route: step.route,
-    ctaLabel: step.ctaLabel || copy.openAssessment,
+    route: step.route || null,
+    ctaLabel: step.route ? step.ctaLabel || copy.openAssessment : null,
     visualSrc: step.visualSrc,
   };
 }

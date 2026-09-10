@@ -27,16 +27,30 @@ export const LM01_VISUALS = {
 /**
  * LM08 production visuals (public/ paths).
  * Spec: same visual family as LM01; no embedded text/logos.
+ * nextStep/completion reuse the LM08 hero until dedicated chrome art ships —
+ * do not reuse lm01-next-step.png (it embeds “LM01 Assessment”).
  */
 export const LM08_VISUALS = {
   hero: "/learning-modules/visuals/lm08/lm08-hero.png",
   verification: "/learning-modules/visuals/lm08/lm08-verification.png",
+  nextStep: "/learning-modules/visuals/lm08/lm08-hero.png",
 };
 
 /** Approved LM02 production visuals (public/ paths). Do not regenerate or substitute. */
 export const LM02_VISUALS = {
   hero: "/learning-modules/visuals/lm02/lm02-hero.png",
   concept: "/learning-modules/visuals/lm02/lm02-concept.png",
+};
+
+/** Approved LM03 production visuals (public/ paths). Do not regenerate or substitute. */
+export const LM03_VISUALS = {
+  hero: "/learning-modules/visuals/lm03/lm03-hero.png",
+  architecturalDimensions:
+    "/learning-modules/visuals/lm03/lm03-architectural-dimensions.png",
+  requirementsToCharacteristics:
+    "/learning-modules/visuals/lm03/lm03-requirements-to-characteristics.png",
+  foodtraceRevisited:
+    "/learning-modules/visuals/lm03/lm03-foodtrace-revisited.png",
 };
 
 /**
@@ -452,12 +466,209 @@ export const LM_PRESENTATION_REGISTRY = {
     pathKey: "explorer",
     moduleNumber: 3,
     totalModules: 11,
-    chapterAvailable: false,
-    chapterRoute: null,
+    chapterAvailable: true,
+    chapterRoute: {
+      en: "/learning-modules/lm03",
+      gr: "/learning-modules-gr/lm03",
+    },
     title: {
       en: "From Blockchain Concept to Blockchain Platforms",
       gr: "Από την Έννοια Blockchain στις Πλατφόρμες Blockchain",
     },
+    transition: {
+      from: {
+        en: "Blockchain is justified here",
+        gr: "Το blockchain δικαιολογείται εδώ",
+      },
+      to: {
+        en: "I can determine the required participation, governance and deployment characteristics, evaluate a candidate blockchain platform against them, and justify its fit or rejection.",
+        gr: "Μπορώ να προσδιορίσω τα απαιτούμενα χαρακτηριστικά συμμετοχής, διακυβέρνησης και ανάπτυξης, να αξιολογήσω μια υποψήφια πλατφόρμα blockchain με βάση αυτά και να δικαιολογήσω την καταλληλότητα ή την απόρριψή της.",
+      },
+    },
+    about: {
+      en: "LM03 moves from a justified blockchain need to platform reasoning. Learners separate participation/permissioning, governance/control and deployment model, translate requirements into platform characteristics, compare a candidate platform, and practice that reasoning on FoodTrace — without treating textbook taxonomies as the Web3Edu architecture model.",
+      gr: "Το LM03 μεταβαίνει από μια δικαιολογημένη ανάγκη για blockchain στον συλλογισμό επιλογής πλατφόρμας. Οι εκπαιδευόμενοι διακρίνουν συμμετοχή/άδειες, διακυβέρνηση/έλεγχο και μοντέλο ανάπτυξης, μεταφράζουν απαιτήσεις σε χαρακτηριστικά πλατφόρμας, συγκρίνουν μια υποψήφια πλατφόρμα και εξασκούν τον συλλογισμό στο FoodTrace — χωρίς να αντιμετωπίζουν τις ταξινομήσεις του συγγράμματος ως το αρχιτεκτονικό μοντέλο του Web3Edu.",
+    },
+    learnerMeta: {
+      estimatedTime: { en: "1–2 hours", gr: "1–2 ώρες" },
+      level: { en: "Beginner", gr: "Αρχάριο" },
+      assessmentXp: 150,
+    },
+    visuals: {
+      hero: LM03_VISUALS.hero,
+      completion: LM01_VISUALS.completion,
+      nextStep: LM01_VISUALS.nextStep,
+      meta: {
+        time: LM01_VISUALS.metaTime,
+        level: LM01_VISUALS.metaLevel,
+        xp: LM01_VISUALS.metaXp,
+      },
+      activityByType: {
+        // Shared type fallbacks; step-specific concept art is in activityById.
+        concept: LM03_VISUALS.architecturalDimensions,
+        observation: LM01_VISUALS.demo,
+        book: LM01_VISUALS.book,
+        reading: LM01_VISUALS.book,
+        assessment: LM01_VISUALS.assessment,
+      },
+      activityById: {
+        "lm03-separate-dimensions": LM03_VISUALS.architecturalDimensions,
+        "lm03-requirements-to-characteristics":
+          LM03_VISUALS.requirementsToCharacteristics,
+        "lm03-foodtrace-revisited": LM03_VISUALS.foodtraceRevisited,
+      },
+    },
+    learningOutcomes: {
+      en: [
+        "Distinguish permissionless from permissioned participation.",
+        "Distinguish network participation from governance and control.",
+        "Explain public, private and consortium blockchain deployments without treating them as synonyms for permissioning.",
+        "Translate application requirements into required blockchain-platform characteristics.",
+        "Compare candidate blockchain platforms against those requirements.",
+        "Determine whether a candidate platform is a good fit or misfit and justify the decision.",
+        "Recognize that rejecting a blockchain platform is a valid architectural outcome even when blockchain itself was justified.",
+      ],
+      gr: [
+        "Να διακρίνεις τη permissionless από τη permissioned συμμετοχή.",
+        "Να διακρίνεις τη συμμετοχή στο δίκτυο από τη διακυβέρνηση και τον έλεγχο.",
+        "Να εξηγείς δημόσιες, ιδιωτικές και consortium αναπτύξεις blockchain χωρίς να τις αντιμετωπίζεις ως συνώνυμα του permissioning.",
+        "Να μεταφράζεις απαιτήσεις εφαρμογής σε απαιτούμενα χαρακτηριστικά πλατφόρμας blockchain.",
+        "Να συγκρίνεις υποψήφιες πλατφόρμες blockchain με βάση αυτές τις απαιτήσεις.",
+        "Να κρίνεις αν μια υποψήφια πλατφόρμα ταιριάζει ή όχι και να δικαιολογείς την απόφαση.",
+        "Να αναγνωρίζεις ότι η απόρριψη μιας πλατφόρμας blockchain είναι έγκυρο αρχιτεκτονικό αποτέλεσμα ακόμη και όταν το ίδιο το blockchain δικαιολογείται.",
+      ],
+    },
+    activities: [
+      {
+        id: "lm03-separate-dimensions",
+        visualType: "concept",
+        requirementHint: "core",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "Separate the architectural dimensions",
+          gr: "Διάκρινε τις αρχιτεκτονικές διαστάσεις",
+        },
+        description: {
+          en: "Keep participation/permissioning, governance/control and deployment model as related but separate dimensions — a distributed system is not automatically decentralized in governance.",
+          gr: "Κράτα τη συμμετοχή/άδειες, τη διακυβέρνηση/έλεγχο και το μοντέλο ανάπτυξης ως συναφείς αλλά διακριτές διαστάσεις — ένα κατανεμημένο σύστημα δεν είναι αυτόματα αποκεντρωμένο στη διακυβέρνηση.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm03-chapter1-reading",
+        visualType: "book",
+        requirementHint: "recommended",
+        showRequirementStatus: true,
+        languages: ["gr"],
+        title: {
+          en: "Participation, governance & deployment readings",
+          gr: "Ανάγνωση για συμμετοχή, διακυβέρνηση και ανάπτυξη",
+        },
+        description: {
+          en: "Read Kallipos Chapter 1, §1.4–§1.4.4 (pp. 23–28) as background. Treat the textbook taxonomy as supporting reading — Web3Edu keeps participation/permissioning, governance/control and deployment model as separate architectural dimensions.",
+          gr: "Διάβασε από το Κεφάλαιο 1 του Κάλλιπου τις §1.4–§1.4.4 (σελ. 23–28) ως υποστηρικτικό υλικό. Αντιμετώπισε την ταξινόμηση του συγγράμματος ως συμπληρωματική ανάγνωση — το Web3Edu διατηρεί τη συμμετοχή/άδειες, τη διακυβέρνηση/έλεγχο και το μοντέλο ανάπτυξης ως διακριτές αρχιτεκτονικές διαστάσεις.",
+        },
+        linkKind: "external",
+        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        presentationOnly: true,
+      },
+      {
+        id: "lm03-chapter1-reading-en-ref",
+        visualType: "book",
+        requirementHint: "recommended",
+        showRequirementStatus: true,
+        languages: ["en"],
+        title: {
+          en: "Participation, governance & deployment readings",
+          gr: "Ανάγνωση για συμμετοχή, διακυβέρνηση και ανάπτυξη",
+        },
+        description: {
+          en: "Read Kallipos Chapter 1, §1.4–§1.4.4 (pp. 23–28) as background. Treat the textbook taxonomy as supporting reading — Web3Edu keeps participation/permissioning, governance/control and deployment model as separate architectural dimensions.",
+          gr: "Διάβασε από το Κεφάλαιο 1 του Κάλλιπου τις §1.4–§1.4.4 (σελ. 23–28) ως υποστηρικτικό υλικό. Αντιμετώπισε την ταξινόμηση του συγγράμματος ως συμπληρωματική ανάγνωση — το Web3Edu διατηρεί τη συμμετοχή/άδειες, τη διακυβέρνηση/έλεγχο και το μοντέλο ανάπτυξης ως διακριτές αρχιτεκτονικές διαστάσεις.",
+        },
+        linkKind: "external",
+        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        presentationOnly: true,
+      },
+      {
+        id: "lm03-requirements-to-characteristics",
+        visualType: "concept",
+        requirementHint: "core",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "From requirements to platform characteristics",
+          gr: "Από τις απαιτήσεις στα χαρακτηριστικά της πλατφόρμας",
+        },
+        description: {
+          en: "Move from application requirements to required blockchain characteristics, then to a candidate platform and a fit / misfit judgment — do not pick a platform first.",
+          gr: "Πέρασε από τις απαιτήσεις της εφαρμογής στα απαιτούμενα χαρακτηριστικά blockchain, μετά σε μια υποψήφια πλατφόρμα και σε κρίση καταλληλότητας / ακαταλληλότητας — μην επιλέγεις πρώτα πλατφόρμα.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm03-platform-comparison",
+        visualType: "observation",
+        requirementHint: "optional",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "Platform Comparison Canvas",
+          gr: "Καμβάς Σύγκρισης Πλατφόρμας",
+        },
+        description: {
+          en: "Practice only (0 XP) — reason from scenario requirements to characteristics, compare a candidate platform, and choose Fit / Misfit / Insufficient information. Nothing is saved.",
+          gr: "Μόνο εξάσκηση (0 XP) — συλλογίσου από τις απαιτήσεις του σεναρίου στα χαρακτηριστικά, σύγκρινε μια υποψήφια πλατφόρμα και επίλεξε Κατάλληλη / Ακατάλληλη / Ανεπαρκείς πληροφορίες. Τίποτα δεν αποθηκεύεται.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm03-foodtrace-revisited",
+        visualType: "concept",
+        requirementHint: "core",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "FoodTrace revisited",
+          gr: "FoodTrace ξανά",
+        },
+        description: {
+          en: "Reconsider FoodTrace now that blockchain may be justified — who participates, who controls membership, and what platform characteristics follow. No single platform answer is required.",
+          gr: "Ξανασκέψου το FoodTrace τώρα που το blockchain μπορεί να δικαιολογείται — ποιοι συμμετέχουν, ποιος ελέγχει τη συμμετοχή και ποια χαρακτηριστικά πλατφόρμας προκύπτουν. Δεν απαιτείται μία απάντηση πλατφόρμας.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm03-assessment",
+        visualType: "assessment",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "LM03 Assessment",
+          gr: "Αξιολόγηση LM03",
+        },
+        description: {
+          en: "Test your platform-fit reasoning through 7 questions — including FoodTrace revisited. Successfully passing the assessment completes LM03.",
+          gr: "Έλεγξε τον συλλογισμό καταλληλότητας πλατφόρμας μέσα από 7 ερωτήσεις — συμπεριλαμβανομένου του FoodTrace ξανά. Η επιτυχής ολοκλήρωση της αξιολόγησης ολοκληρώνει το LM03.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm03/assessment",
+          gr: "/learning-modules-gr/lm03/assessment",
+        },
+        evidenceId: "lm03-assessment",
+        presentationOnly: false,
+      },
+    ],
   },
   LM04: {
     id: "LM04",
@@ -549,7 +760,7 @@ export const LM_PRESENTATION_REGISTRY = {
     visuals: {
       hero: LM08_VISUALS.hero,
       completion: LM01_VISUALS.completion,
-      nextStep: LM01_VISUALS.nextStep,
+      nextStep: LM08_VISUALS.nextStep,
       meta: {
         time: LM01_VISUALS.metaTime,
         level: LM01_VISUALS.metaLevel,
@@ -848,6 +1059,7 @@ export function getLmRegistryModuleTitle(moduleId, lang = "en") {
  *   nextStep?: string,
  *   meta?: { time?: string, level?: string, xp?: string },
  *   activityByType?: Record<string, string>,
+ *   activityById?: Record<string, string>,
  * }|null}
  */
 export function getLmModuleVisuals(moduleId) {
@@ -857,12 +1069,19 @@ export function getLmModuleVisuals(moduleId) {
 
 /**
  * Activity thumbnail src from the module's approved visual set.
+ * Prefers activityById when present, then activityByType.
  * @param {string} moduleId
  * @param {string} visualType
+ * @param {string|null|undefined} [activityId]
  * @returns {string|null}
  */
-export function getLmActivityVisualSrc(moduleId, visualType) {
-  const src = getLmModuleVisuals(moduleId)?.activityByType?.[visualType];
+export function getLmActivityVisualSrc(moduleId, visualType, activityId = null) {
+  const visuals = getLmModuleVisuals(moduleId);
+  if (typeof activityId === "string" && activityId) {
+    const byId = visuals?.activityById?.[activityId];
+    if (typeof byId === "string" && byId) return byId;
+  }
+  const src = visuals?.activityByType?.[visualType];
   return typeof src === "string" && src ? src : null;
 }
 
