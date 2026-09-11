@@ -13,7 +13,7 @@ export const VERIFIABLE_PROFILE_COPY = {
 
     statusVerified: "Verified",
     statusOutdated: "Valid seal — profile updated since anchor",
-    statusOutdatedShort: "Outdated",
+    statusOutdatedShort: "New progress since last seal",
     statusNotAnchored: "Not anchored yet",
     statusNotAnchoredShort: "Not Anchored",
     statusInvalid: "Verification issue",
@@ -97,7 +97,7 @@ export const VERIFIABLE_PROFILE_COPY = {
 
     statusVerified: "Επαληθευμένο",
     statusOutdated: "Έγκυρη σφράγιση — το προφίλ ενημερώθηκε μετά την αγκύρωση",
-    statusOutdatedShort: "Ενημερώθηκε μετά τη σφράγιση",
+    statusOutdatedShort: "Νεότερη πρόοδος από τη σφράγιση",
     statusNotAnchored: "Δεν έχει γίνει ακόμη αγκύρωση",
     statusNotAnchoredShort: "Χωρίς αγκύρωση",
     statusInvalid: "Πρόβλημα επαλήθευσης",

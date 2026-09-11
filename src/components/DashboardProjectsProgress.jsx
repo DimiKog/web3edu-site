@@ -256,24 +256,24 @@ export default function DashboardProjectsProgress({
 }) {
     const copy = isGR
         ? {
-            title: "Builder Projects",
+            title: "Έργα",
             completed: "Ολοκληρωμένα",
             inProgress: "Σε εξέλιξη",
             pendingReview: "Σε αναμονή αξιολόγησης",
             needsRevision: "Χρειάζεται διόρθωση",
-            empty: "Η πρόοδος στα projects θα εμφανιστεί εδώ μόλις ξεκινήσεις ένα Builder project.",
+            empty: "Η πρόοδος στα projects θα εμφανιστεί εδώ μόλις ξεκινήσεις ένα project.",
             viewProjects: "Προβολή Projects",
             recent: "Τρέχοντα projects",
             reviewerNote: "Σημείωση αξιολόγησης",
             projectsLink: "/projects-gr",
         }
         : {
-            title: "Builder Projects",
+            title: "Projects",
             completed: "Completed",
             inProgress: "In progress",
             pendingReview: "Pending review",
             needsRevision: "Needs revision",
-            empty: "Your project progress will appear here once you start a Builder project.",
+            empty: "Your project progress will appear here once you start a project.",
             viewProjects: "View Projects",
             recent: "Recent projects",
             reviewerNote: "Reviewer note",
@@ -317,7 +317,7 @@ export default function DashboardProjectsProgress({
             icon={<TrophyIcon className="h-5 w-5 text-white" />}
         >
             <div className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-[minmax(10.5rem,0.34fr)_minmax(0,1fr)] md:items-start">
+                <div className="grid gap-4 md:grid-cols-[minmax(10.5rem,0.34fr)_minmax(0,1fr)] md:items-stretch">
                     <div className="grid grid-cols-2 gap-2">
                         {summaryCards.map((card) => (
                             <div
@@ -327,7 +327,7 @@ export default function DashboardProjectsProgress({
                                 <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                     {card.label}
                                 </p>
-                                <p className="mt-1 text-xl font-bold text-slate-900 dark:text-white">
+                                <p className="mt-1 text-xl font-bold tabular-nums text-slate-900 dark:text-white">
                                     {card.value}
                                 </p>
                             </div>
@@ -335,7 +335,7 @@ export default function DashboardProjectsProgress({
                     </div>
 
                     {!hasItems ? (
-                        <p className="rounded-2xl border border-slate-200/70 bg-white/50 px-4 py-4 text-sm text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300 md:min-h-[8.5rem]">
+                        <p className="flex items-center rounded-2xl border border-slate-200/70 bg-white/50 px-4 py-4 text-sm text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300 md:min-h-[8.5rem]">
                             {copy.empty}
                         </p>
                     ) : (
@@ -353,7 +353,7 @@ export default function DashboardProjectsProgress({
                                     return (
                                         <div
                                             key={`${projectId}-${idx}`}
-                                            className="rounded-xl border border-slate-200/70 bg-white/50 px-3 py-2.5 dark:border-white/10 dark:bg-white/[0.04]"
+                                            className="flex h-full flex-col rounded-xl border border-slate-200/70 bg-white/50 px-3 py-2.5 dark:border-white/10 dark:bg-white/[0.04]"
                                         >
                                             <p className="text-sm font-semibold leading-snug text-slate-900 dark:text-white line-clamp-2">
                                                 {title}
@@ -361,7 +361,7 @@ export default function DashboardProjectsProgress({
                                             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                                                 {formatProjectDate(relevantDate, isGR)}
                                             </p>
-                                            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                                            <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
                                                 <span
                                                     className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold ${statusMeta.className}`}
                                                 >

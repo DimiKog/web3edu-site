@@ -4,20 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
 import PageShell from "../components/PageShell.jsx";
 import DashboardCard from "../components/DashboardCard.jsx";
-import XPProgressCard from "../components/XPProgressCard.jsx";
-
-import { UserIcon, AcademicCapIcon, StarIcon, ShieldCheckIcon } from "@heroicons/react/24/solid";
-import { KeyIcon, TrophyIcon, BookOpenIcon } from "@heroicons/react/24/solid";
-import {
-    ShareIcon,
-    ChevronDownIcon,
-} from "@heroicons/react/24/outline";
-import { BookOpenIcon as BookOpenIcon2, AcademicCapIcon as AcademicCapIcon2, TrophyIcon as TrophyIcon2 } from "@heroicons/react/24/solid";
+import { AcademicCapIcon } from "@heroicons/react/24/solid";
 import LearningTimeline from "../components/LearningTimeline.jsx";
 import DashboardProjectsProgress from "../components/DashboardProjectsProgress.jsx";
-import DashboardIdentityAddresses from "../components/DashboardIdentityAddresses.jsx";
-import VerifiableProfileCard from "../components/VerifiableProfileCard.jsx";
-import IdentityCard from "../components/IdentityCard.jsx";
+import DashboardIdentityStrip from "../components/dashboard-v2/DashboardIdentityStrip.jsx";
+import DashboardRecordCard from "../components/dashboard-v2/DashboardRecordCard.jsx";
+import DashboardProofCard from "../components/dashboard-v2/DashboardProofCard.jsx";
 import IdentityBackupBanner from "../components/IdentityBackupBanner.jsx";
 import SocialLoginRecoveryPrompt from "../components/SocialLoginRecoveryPrompt.jsx";
 import SocialWalletHistoryPrompt from "../components/SocialWalletHistoryPrompt.jsx";
@@ -63,10 +55,14 @@ import {
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 import { getViewerMode, VIEWER_MODES } from "../utils/viewerMode.js";
 import { getXpTotalFromBackend } from "../utils/progression.js";
-import ContinueLearningCard, {
-    isValidCanonicalProgression,
-} from "../components/ContinueLearningCard.jsx";
+import { isValidCanonicalProgression } from "../utils/continueLearningView.js";
 import { getContinueLearningCopy } from "../content/continueLearningLocale.js";
+import DashboardJourneySlice from "../components/dashboard-v2/DashboardJourneySlice.jsx";
+import {
+    getLegacyBuilderStatusLabel,
+    hasHistoricalWeb3EduRecord,
+} from "../utils/dashboardJourneyView.js";
+import { getPassedAssessmentTimelineEntries } from "../utils/dashboardRecordView.js";
 
 const EDU_NET_EXPLORER = "https://blockexplorer.dimikog.org";
 const SOCIAL_SWITCH_FROM_LOCAL_AA_SESSION_KEY = "web3edu-social-switch-from-local-aa";
@@ -762,6 +758,14 @@ export default function Dashboard() {
             });
         });
 
+        getPassedAssessmentTimelineEntries(
+            metadata?.moduleAssessments ?? metadata?.module_assessments ?? metadata,
+            "gr"
+        ).forEach((entry) => {
+            if (!entry?.id) return;
+            merged.set(`assessment:${entry.id}`, entry);
+        });
+
         return [...merged.values()]
             .sort(
                 (a, b) => parseCompletedAt(b?.completedAt) - parseCompletedAt(a?.completedAt)
@@ -1178,11 +1182,11 @@ export default function Dashboard() {
                     <div className="absolute bottom-[15%] right-[25%] w-[340px] h-[340px] bg-indigo-400/30 dark:bg-indigo-500/20 blur-[140px] rounded-full"></div>
                 </div>
 
-                {/* 1) User header — labeled identity addresses */}
+                {/* 1) Compact identity strip */}
                 {identityAddress ? (
-                    <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-6 px-2 md:px-0">
-                        <DashboardIdentityAddresses
-                            isGR
+                    <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-4 px-2 md:px-0">
+                        <DashboardIdentityStrip
+                            lang="gr"
                             profileMode={identityProfileMode}
                             identityAddress={identityAddress}
                             linkedWallet={
@@ -1191,45 +1195,25 @@ export default function Dashboard() {
                                     ? walletEntryLinkedWalletAddress ?? connectedWalletNorm
                                     : null)
                             }
-                            connectedWallet={isConnected ? connectedWalletNorm : null}
-                            linkedAccount={
-                                isWalletEntryLinkedAlias ? null : linkedAccountForDisplay
-                            }
-                            progressSource={linkProgressSource}
-                            tier={displayedMetadata?.tier}
                             displayTokenId={displayTokenId}
+                            progressSource={linkProgressSource}
                             isLoading={isIdentityMetadataLoading}
-                            showWalletOnlyProgressNote={showWalletOnlyProgressNote}
                             onViewExplorer={handleIdentityViewExplorer}
                             onCopyIdentity={handleIdentityCopyAddress}
                             identityCopyFeedback={addressCopyFeedback}
+                            settingUp={Boolean(isOidcAuthenticated && !socialIsActive)}
+                            deviceAccessNote={showDeviceBasedAccessNote}
+                            legacyStatusLabel={getLegacyBuilderStatusLabel(
+                                metadata?.progression,
+                                "gr"
+                            )}
                         />
-                        {isOidcAuthenticated && !socialIsActive ? (
-                            <div className="mt-3">
-                                <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/50 bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800 dark:border-amber-600/40 dark:bg-amber-900/40 dark:text-amber-200">
-                                    ⚠ Ρύθμιση…
-                                </span>
-                            </div>
-                        ) : null}
-                        {showDeviceBasedAccessNote ? (
-                            <div className="rounded-xl border border-slate-200/75 bg-white/55 px-4 py-3 text-left shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-slate-900/35">
-                                <p className="text-xs font-semibold text-slate-800 dark:text-slate-100">
-                                    Τρέχουσα μέθοδος πρόσβασης: ταυτότητα σε αυτό το πρόγραμμα και τη συσκευή σου
-                                </p>
-                                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                                    Μπορείς να συνδέσεις Web3Edu Account ή πορτοφόλι για ευκολότερη είσοδο αργότερα.
-                                </p>
-                            </div>
-                        ) : null}
-                        <div className="mt-4">
-                            <VerifiableProfileCard isGR />
-                        </div>
                     </div>
                 ) : null}
 
-                {/* 2) Account status region — explicit priority resolver */}
+                {/* 2) Account status — secondary */}
                 {topStatusKey ? (
-                    <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-6 px-2 md:px-0">
+                    <div className="relative z-10 w-full max-w-5xl mx-auto mb-4 px-2 md:px-0">
                         {topStatusKey === "social-switch" ? (
                             <div className="rounded-2xl border border-sky-200/70 bg-sky-50/90 px-4 py-3 text-left text-sm text-sky-950 shadow-sm backdrop-blur-sm dark:border-sky-500/30 dark:bg-sky-950/25 dark:text-sky-50 md:px-4">
                                 <p className="font-semibold">Επιτυχής είσοδος</p>
@@ -1329,395 +1313,81 @@ export default function Dashboard() {
                     </div>
                 ) : null}
 
-                {/* 3) HERO: Συνέχισε τη Μάθηση (canonical) ή legacy επόμενο βήμα */}
-                <div className="relative z-10 w-full max-w-5xl mx-auto mt-4 mb-6 px-2 md:px-0">
-                    {metadata?.progressionError ? (
-                        <div className="mb-3 rounded-xl border border-amber-200/70 bg-amber-50/80 px-4 py-3 text-xs text-amber-900 dark:border-amber-600/40 dark:bg-amber-950/25 dark:text-amber-100">
-                            {getContinueLearningCopy("gr").progressionUnavailable}
-                        </div>
-                    ) : null}
+                {/* 3) NOW — Next Action + Learning Journey */}
+                <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-6 px-2 md:px-0">
                     {isValidCanonicalProgression(metadata?.progression) ? (
-                        <ContinueLearningCard progression={metadata.progression} lang="gr" />
+                        <DashboardJourneySlice
+                            progression={metadata.progression}
+                            hasHistoricalRecord={hasHistoricalWeb3EduRecord(displayedMetadata)}
+                            progressionError={Boolean(metadata?.progressionError)}
+                            lang="gr"
+                            onScrollToRecord={() => {
+                                const el = document.getElementById("dashboard-record");
+                                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }}
+                        />
                     ) : (
-                    <DashboardCard
-                        title="Το επόμενο βήμα σου"
-                        className="p-5"
-                        icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
-                    >
-                        {showBuilderUnlock ? (
-                            <div className="space-y-3">
-                                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                    Ξεκλειδώθηκε το Builder milestone
-                                </p>
-                                <p className="text-xs text-slate-600 dark:text-slate-300">
-                                    Έφτασες Builder. Κάνε claim για να αποθηκευτεί σε αυτή τη συσκευή.
-                                </p>
-                                {builderJustClaimed ? (
-                                    <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-                                        ✅ Αποθηκεύτηκε το Builder milestone
-                                    </p>
-                                ) : (
-                                    <button
-                                        type="button"
+                        <>
+                            {metadata?.progressionError ? (
+                                <div className="mb-3 rounded-xl border border-amber-200/70 bg-amber-50/80 px-4 py-3 text-xs text-amber-900 dark:border-amber-600/40 dark:bg-amber-950/25 dark:text-amber-100">
+                                    {getContinueLearningCopy("gr").progressionUnavailable}
+                                </div>
+                            ) : null}
+                            <DashboardCard
+                                title="Το επόμενο βήμα σου"
+                                className="p-5"
+                                icon={<AcademicCapIcon className="w-5 h-5 text-white" />}
+                            >
+                                {recommended ? (
+                                    <div
+                                        className="cursor-pointer rounded-2xl border border-slate-200/60 bg-white/45 p-4 shadow-sm backdrop-blur-sm transition hover:bg-white/55 dark:border-white/10 dark:bg-white/[0.04]"
                                         onClick={() => {
-                                            localStorage.setItem(builderClaimedStorageKey, "true");
-                                            setBuilderRewardClaimed(true);
-                                            setBuilderJustClaimed(true);
-                                            setTimeout(() => {
-                                                setShowBuilderUnlock(false);
-                                                setBuilderJustClaimed(false);
-                                            }, 1400);
+                                            if (recommended.type === "guide" && recommended.slug) { navigate(`/${recommended.slug}-gr`); return; }
+                                            if (recommended.type === "lab" && recommendedLabPath) { navigate(recommendedLabPath); return; }
+                                            if (recommended.type === "lesson" && recommended.slug) { navigate(`/lessons/${recommended.slug}-gr`); return; }
+                                            if (recommended.type === "project" && recommended.slug) { navigate(`/projects/${recommended.slug}`); return; }
+                                            navigate("/education-gr");
                                         }}
-                                        className="rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md hover:opacity-95"
                                     >
-                                        Claim Builder milestone
-                                    </button>
-                                )}
-                            </div>
-                        ) : recommended ? (
-                            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.9fr)_minmax(17rem,1fr)] lg:items-start">
-                                <div
-                                    className="cursor-pointer rounded-2xl border border-slate-200/60 bg-white/45 p-4 shadow-sm backdrop-blur-sm transition hover:bg-white/55 dark:border-white/10 dark:bg-white/[0.04] dark:hover:bg-white/[0.06]"
-                                    onClick={() => {
-                                        if (recommended.type === "guide" && recommended.slug) { navigate(`/${recommended.slug}-gr`); return; }
-                                        if (recommended.type === "lab" && recommendedLabPath) { navigate(`${recommendedLabPath}-gr`); return; }
-                                        if (recommended.type === "lesson" && recommended.slug) { navigate(`/lessons/${recommended.slug}-gr`); return; }
-                                        if (recommended.type === "project" && recommended.slug) { navigate(`/projects/${recommended.slug}`); return; }
-                                        navigate("/education");
-                                    }}
-                                >
-                                    <div className="flex items-center gap-3 flex-wrap">
                                         <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-400 font-semibold">
                                             {isFallbackRecommendation ? "Συνέχισε τη διαδρομή σου" : "Το επόμενο βήμα σου"}
                                         </p>
-                                        {isBuilderRequired && (
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100/80 dark:bg-purple-900/40 border border-purple-300/40 dark:border-purple-600/60 text-purple-700 dark:text-purple-300">
-                                                Διαδρομή Builder
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="mt-2 text-xl font-bold text-slate-900 dark:text-white leading-snug">
-                                        {typeof recommended.title === "object" ? recommended.title.gr || recommended.title.en : recommended.title}
-                                    </p>
-                                    {recommended.why && (
-                                        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
-                                            {typeof recommended.why === "object" ? recommended.why.gr || recommended.why.en : recommended.why}
+                                        <p className="mt-2 text-xl font-bold text-slate-900 dark:text-white leading-snug">
+                                            {typeof recommended.title === "object" ? recommended.title.gr || recommended.title.en : recommended.title}
                                         </p>
-                                    )}
-                                    <div className="mt-4 flex flex-wrap items-center gap-6 text-sm text-slate-600 dark:text-slate-400">
-                                        {recommended.estimatedTime && <span>⏱ {recommended.estimatedTime} λεπτά</span>}
-                                        {recommended.xp && <span>🏅 +{recommended.xp} XP</span>}
-                                    </div>
-                                    <div className="mt-4">
-                                        <span className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#5F2BD8] px-4 py-2.5 text-sm font-semibold text-white shadow-md">
-                                            Συνέχεια →
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {builderChecklist ? (
-                                    <div className="rounded-2xl border border-purple-300/30 dark:border-purple-700/40 bg-purple-50/70 dark:bg-purple-900/20 p-4">
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div>
-                                                <p className="text-xs font-semibold uppercase tracking-wide text-purple-700 dark:text-purple-300">
-                                                    Διαδρομή Builder
-                                                </p>
-                                                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                                                    {builderChecklist.coreLabs?.done && builderChecklist.daoLabs?.done && builderChecklist.proofOfEscape?.done && builderChecklist.xpRequirement?.done
-                                                        ? "Builder ξεκλειδωμένο"
-                                                        : "Η πρόοδος συνεχίζεται"}
-                                                </p>
-                                            </div>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); setShowBuilderPath(prev => !prev); }}
-                                                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
-                                            >
-                                                {showBuilderPath ? "Απόκρυψη" : "Δες απαιτήσεις"}
-                                            </button>
+                                        {recommended.why && (
+                                            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-3xl">
+                                                {typeof recommended.why === "object" ? recommended.why.gr || recommended.why.en : recommended.why}
+                                            </p>
+                                        )}
+                                        <div className="mt-4">
+                                            <span className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#5F2BD8] px-4 py-2.5 text-sm font-semibold text-white shadow-md">
+                                                Συνέχεια →
+                                            </span>
                                         </div>
-                                        {(() => {
-                                            const total = 3;
-                                            const completed = (builderChecklist.coreLabs?.done ? 1 : 0) + (builderChecklist.daoLabs?.done ? 1 : 0) + (builderChecklist.proofOfEscape?.done ? 1 : 0);
-                                            const percent = Math.round((completed / total) * 100);
-                                            return (
-                                                <div className="mt-4">
-                                                    <div className="mb-1 flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
-                                                        <span>Πρόοδος Builder</span>
-                                                        <span>{completed}/{total} απαιτήσεις</span>
-                                                    </div>
-                                                    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                                                        <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-500" style={{ width: `${percent}%` }} />
-                                                    </div>
-                                                </div>
-                                            );
-                                        })()}
-                                        <div className="mt-4 grid grid-cols-1 gap-2 text-xs text-slate-700 dark:text-slate-200">
-                                            <div>{builderChecklist.coreLabs?.done ? "✔" : "⏳"} Core Labs ({builderChecklist.coreLabs?.completed}/{builderChecklist.coreLabs?.required})</div>
-                                            <div>{builderChecklist.daoLabs?.done ? "✔" : "⏳"} DAO Labs ({builderChecklist.daoLabs?.completed}/{builderChecklist.daoLabs?.required})</div>
-                                            <div>{builderChecklist.proofOfEscape?.done ? "✔" : "⏳"} Proof of Escape</div>
-                                            <div>{builderChecklist.xpRequirement?.done ? "✔" : "⏳"} XP ({builderChecklist.xpRequirement?.current}/{builderChecklist.xpRequirement?.required})</div>
-                                        </div>
-                                        {showBuilderPath ? (
-                                            <div className="mt-4 rounded-xl border border-purple-300/30 bg-white/55 px-3 py-3 text-xs text-slate-600 dark:border-purple-700/30 dark:bg-white/[0.04] dark:text-slate-300">
-                                                Ολοκλήρωσε τα επόμενα milestones για να προχωρήσεις στη διαδρομή Builder και να ξεκλειδώσεις όλο το μονοπάτι.
-                                            </div>
-                                        ) : null}
                                     </div>
-                                ) : null}
-                            </div>
-                        ) : (
-                            <p className="text-sm text-slate-600 dark:text-slate-300">Φόρτωση πρότασης…</p>
-                        )}
-                    </DashboardCard>
+                                ) : (
+                                    <p className="text-sm text-slate-600 dark:text-slate-300">Φόρτωση πρότασης…</p>
+                                )}
+                            </DashboardCard>
+                        </>
                     )}
                 </div>
 
-                {/* 4) Κάτω διάταξη dashboard: Πρόοδος + Ενέργειες | Σήματα */}
-                <div className="relative z-10 w-full max-w-5xl mx-auto mb-6 px-2 md:px-0 space-y-6">
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
-                        <div>
-
-                            {/* Πρόοδος + Βαθμίδα */}
-                            <DashboardCard
-                                title="Πρόοδος"
-                                className="p-5"
-                                icon={<StarIcon className="w-5 h-5 text-white" />}
-                            >
-                                <div
-                                    className="cursor-pointer rounded-2xl border border-slate-200/60 bg-white/45 p-4 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/[0.04]"
-                                    onClick={() => setShowTierPopup(true)}
-                                    title="Δες τα οφέλη βαθμίδας"
-                                >
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 font-semibold">Τρέχουσα Βαθμίδα</p>
-                                            <p className="mt-1 text-2xl font-bold text-purple-700 dark:text-purple-200">
-                                                {metadata?.tier ?? "Explorer"}
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-xs uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400 font-semibold">Συνολικό XP</p>
-                                            <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
-                                                {metadata?.xp_total ?? 0}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {metadata?.tier && metadata.tier !== "Architect" ? (
-                                        <div className="mt-4 rounded-xl border border-purple-200/60 bg-purple-50/70 px-3 py-3 text-sm dark:border-purple-700/30 dark:bg-purple-900/20">
-                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-purple-700 dark:text-purple-300">
-                                                Επόμενο Milestone
-                                            </p>
-                                            <p className="mt-1 font-semibold text-slate-900 dark:text-white">
-                                                {metadata.tier === "Builder" ? "Architect" : "Builder"}
-                                            </p>
-                                            <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                                                {metadata?.remainingXp ?? 0} XP ακόμα
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <div className="mt-4 rounded-xl border border-emerald-200/60 bg-emerald-50/70 px-3 py-3 text-sm dark:border-emerald-700/30 dark:bg-emerald-900/20">
-                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-                                                Κατάσταση Βαθμίδας
-                                            </p>
-                                            <p className="mt-1 font-semibold text-slate-900 dark:text-white">
-                                                Η ανώτατη βαθμίδα έχει ξεκλειδωθεί
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="mt-3">
-                                    <XPProgressCard
-                                        xp={metadata?.xp_total ?? 0}
-                                        xpPercent={metadata?.xpPercent ?? 0}
-                                        remainingXp={metadata?.remainingXp ?? 0}
-                                        nextTierPercent={metadata?.nextTierPercent ?? 0}
-                                        tier={metadata?.tier ?? "Explorer"}
-                                        xpLeveledUp={xpLeveledUp}
-                                    />
-                                </div>
-                                {(metadata?.tier === "Builder" || metadata?.tier === "Architect") ? (
-                                    <div className="mt-2 rounded-xl border border-emerald-200/60 bg-emerald-50/70 px-3 py-2.5 text-xs font-semibold text-emerald-700 dark:border-emerald-700/30 dark:bg-emerald-900/20 dark:text-emerald-300">
-                                        🟢 Ερευνητικό Πεδίο Διακυβέρνησης
-                                    </div>
-                                ) : (
-                                    <div className="mt-2 rounded-xl border border-slate-200/70 bg-white/45 px-3 py-2.5 text-xs text-slate-500 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-400">
-                                        🔒 Φτάσε Builder για πρόσβαση DAO
-                                    </div>
-                                )}
-                            </DashboardCard>
-                        </div>
-
-                        {/* Σήματα */}
-                        <DashboardCard
-                            title="Σήματα"
-                            className="p-5"
-                            icon={<StarIcon className="w-5 h-5 text-white" />}
-                        >
-                            {(() => {
-                                const earnedBadges = Array.isArray(metadata?.badges) ? metadata.badges : [];
-                                const earnedEventBadges = Array.isArray(eventBadges) ? eventBadges : [];
-                                const totalBadges = earnedBadges.length + earnedEventBadges.length;
-
-                                const renderBadgeLabel = (badge) =>
-                                    typeof badge === "string" ? badge : badge?.gr || badge?.en || badge?.label || JSON.stringify(badge);
-
-                                const renderBadgeIcon = (badge) => {
-                                    let Icon = StarIcon;
-                                    const lower = typeof badge === "string"
-                                        ? badge.toLowerCase()
-                                        : (badge?.label?.toLowerCase?.() || badge?.en?.toLowerCase?.() || badge?.gr?.toLowerCase?.() || "");
-                                    if (lower.includes("wallet")) Icon = KeyIcon;
-                                    if (lower.includes("lesson")) Icon = BookOpenIcon;
-                                    if (lower.includes("quiz")) Icon = TrophyIcon;
-                                    return Icon;
-                                };
-
-                                const featuredGenesisBadge = earnedEventBadges.find((badge) => {
-                                    const label = typeof badge === "string" ? badge : badge?.name || badge?.label || badge?.en || badge?.gr || "";
-                                    return String(label).toLowerCase().includes("genesis");
-                                });
-
-                                const regularBadges = earnedBadges.slice(0, 4);
-                                const additionalBadgeCount = Math.max(totalBadges - regularBadges.length - (featuredGenesisBadge ? 1 : 0), 0);
-
-                                return (
-                                    <div className="space-y-4">
-                                        {(featuredGenesisBadge || (hasGenesisBadgeEffective && !featuredGenesisBadge)) ? (
-                                            <div className="rounded-2xl border border-purple-300/40 bg-gradient-to-r from-purple-500/85 to-fuchsia-500/85 p-4 text-white shadow-[0_0_20px_rgba(168,85,247,0.35)]">
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div>
-                                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/75">
-                                                            Κορυφαίο Achievement
-                                                        </p>
-                                                        <p className="mt-1 text-base font-bold">
-                                                            {typeof featuredGenesisBadge === "string" ? featuredGenesisBadge : featuredGenesisBadge?.name || "Genesis Badge"}
-                                                        </p>
-                                                        <p className="mt-1 text-xs text-white/80">
-                                                            Το Genesis event badge είναι ήδη μέρος της συλλογής ταυτότητάς σου.
-                                                        </p>
-                                                    </div>
-                                                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/20 bg-white/15 px-2.5 py-1 text-[10px] font-semibold">
-                                                        Κερδισμένο
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="rounded-2xl border border-purple-200/60 bg-purple-50/70 p-4 dark:border-purple-700/30 dark:bg-purple-900/20">
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div>
-                                                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-purple-700 dark:text-purple-300">
-                                                            Διαθέσιμη Ανταμοιβή
-                                                        </p>
-                                                        <p className="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                                                            Genesis Event Badge
-                                                        </p>
-                                                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
-                                                            Κάνε claim το Genesis badge για να προσθέσεις το πρώτο featured achievement σε αυτή την ταυτότητα.
-                                                        </p>
-                                                    </div>
-                                                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-purple-300/40 bg-white/70 px-2.5 py-1 text-[10px] font-semibold text-purple-700 dark:border-purple-600/40 dark:bg-white/10 dark:text-purple-200">
-                                                        Έτοιμο
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {totalBadges === 0 ? (
-                                            <div className="rounded-2xl border border-slate-200/70 bg-white/50 px-4 py-4 text-sm text-slate-600 dark:border-white/10 dark:bg-white/[0.04] dark:text-slate-300">
-                                                <p className="font-semibold text-slate-900 dark:text-white">Δεν υπάρχουν achievements ακόμα</p>
-                                                <p className="mt-1">
-                                                    Κέρδισε σήματα ολοκληρώνοντας labs, lessons και events. Το πρώτο milestone μπορεί να ξεκινήσει με το Genesis event.
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            <div className="space-y-3">
-                                                <div className="flex items-center justify-between gap-3">
-                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                                        Πρόσφατα achievements
-                                                    </p>
-                                                    <span className="text-xs text-slate-500 dark:text-slate-400">
-                                                        {totalBadges} συνολικά
-                                                    </span>
-                                                </div>
-                                                <div className="grid grid-cols-1 gap-2">
-                                                    {regularBadges.map((badge, index) => {
-                                                        const Icon = renderBadgeIcon(badge);
-                                                        return (
-                                                            <div
-                                                                key={`badge-${index}-${typeof badge === "string" ? badge : badge?.id || "badge"}`}
-                                                                className="flex items-center gap-2 rounded-xl border border-indigo-200/60 bg-indigo-50/70 px-3 py-2 text-xs font-semibold text-slate-800 dark:border-indigo-700/30 dark:bg-indigo-900/20 dark:text-slate-100"
-                                                            >
-                                                                <Icon className="h-4 w-4 shrink-0 text-indigo-500 dark:text-indigo-300" />
-                                                                <span className="truncate">{renderBadgeLabel(badge)}</span>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                    {earnedEventBadges.filter((badge) => badge !== featuredGenesisBadge).slice(0, 2).map((badge, index) => {
-                                                        const label = typeof badge === "string" ? badge : badge?.name || "Event Badge";
-                                                        return (
-                                                            <div
-                                                                key={`event-badge-${index}`}
-                                                                className="flex items-center gap-2 rounded-xl border border-purple-200/60 bg-purple-50/70 px-3 py-2 text-xs font-semibold text-slate-900 dark:border-purple-700/30 dark:bg-purple-900/20 dark:text-slate-100"
-                                                            >
-                                                                <StarIcon className="h-4 w-4 shrink-0 text-purple-500 dark:text-purple-300" />
-                                                                <span className="truncate">{label}</span>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                                {additionalBadgeCount > 0 ? (
-                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                        +{additionalBadgeCount} ακόμη achievement{additionalBadgeCount === 1 ? "" : "s"} στη συλλογή σου
-                                                    </p>
-                                                ) : null}
-                                            </div>
-                                        )}
-
-                                        {!hasGenesisBadgeEffective ? (
-                                            <button
-                                                onClick={() => navigate("/events/genesis")}
-                                                className="w-full rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 px-4 py-2 text-xs font-semibold text-white transition shadow-md hover:scale-[1.02]"
-                                            >
-                                                Κάνε mint το Genesis Event Badge
-                                            </button>
-                                        ) : null}
-
-                                        <div className="border-t border-slate-200/70 pt-4 dark:border-white/10">
-                                            <div className="mb-3 flex items-center justify-between gap-3">
-                                                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                                    Ενέργειες
-                                                </p>
-                                                <span className="text-xs text-slate-500 dark:text-slate-400">
-                                                    Μπες ξανά γρήγορα
-                                                </span>
-                                            </div>
-                                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                                                <button
-                                                    onClick={() => navigate("/sbt-view-gr")}
-                                                    className="rounded-xl bg-gradient-to-r from-[#7F3DF1] to-[#5F2BD8] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
-                                                >
-                                                    🏅 Δες το SBT μου
-                                                </button>
-                                                <button
-                                                    onClick={() => navigate("/labs-gr")}
-                                                    className="rounded-xl bg-gradient-to-r from-[#33D6FF] to-[#24A9D0] px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
-                                                >
-                                                    📚 Συνέχισε τα μαθήματα
-                                                </button>
-                                                <button
-                                                    onClick={() => navigate("/start-here-gr")}
-                                                    className="rounded-xl bg-gradient-to-r from-indigo-500/80 to-purple-500/80 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
-                                                >
-                                                    🚀 Ξεκίνα εδώ
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })()}
-                        </DashboardCard>
+                {/* 4) RECORD + PROOF */}
+                <div className="relative z-10 w-full max-w-5xl mx-auto mb-6 px-2 md:px-0">
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)] lg:items-stretch">
+                        <DashboardRecordCard
+                            metadata={displayedMetadata}
+                            lang="gr"
+                            hasGenesisBadge={hasGenesisBadgeEffective}
+                        />
+                        <DashboardProofCard lang="gr" />
                     </div>
+                </div>
 
+                {/* 5) HISTORY — projects */}
+                <div className="relative z-10 w-full max-w-5xl mx-auto mb-6 px-2 md:px-0">
                     <DashboardProjectsProgress
                         resolveData={resolveData}
                         metadata={metadata}
@@ -1727,45 +1397,17 @@ export default function Dashboard() {
                     />
                 </div>
 
-                {/* 5) Χρονολόγιο μάθησης — απόδειξη συμμετοχής */}
+                {/* 6) Detailed timeline */}
                 <div className="relative z-10 w-full max-w-5xl mx-auto mb-10 px-2 md:px-0">
                     <LearningTimeline timeline={timelineForGr} lang="gr" isLoading={isTimelineLoading} />
                 </div>
+
                 {/* Side Gradient Glow */}
                 <div
                     className="pointer-events-none fixed top-0 right-0 w-[300px] h-full
                                 bg-gradient-to-b from-[#8A57FF]/35 via-[#4ACBFF]/25 to-[#FF67D2]/35
                                 blur-[160px] opacity-60"
                 ></div>
-
-                {showTierPopup && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-                        <div className="bg-[#0f0f17] p-6 rounded-2xl w-80 border border-white/10 shadow-xl">
-                            <h2 className="text-xl font-bold mb-3 flex items-center gap-2">
-                                Οφέλη βαθμίδας
-                            </h2>
-                            <ul className="text-white/80 text-sm space-y-2">
-                                <li>🟣 Explorer — Βασική πρόσβαση, ρόλος στην κοινότητα, παρακολούθηση προόδου</li>
-                                <li>🔵 Builder — Ξεκλείδωσε προχωρημένα μαθήματα, πρώιμες προτάσεις DAO</li>
-                                <li>🟡 Architect — Πλήρης πρόσβαση DAO, beta δυνατότητες, προτεραιότητα σε σήματα</li>
-                            </ul>
-                            <p className="text-white/70 text-sm mt-4">
-                                Πώς να αναβαθμίσεις τη βαθμίδα σου:
-                            </p>
-                            <ul className="text-white/80 text-sm space-y-1 mt-1">
-                                <li>• Ολοκλήρωσε μαθήματα και κουίζ για να κερδίσεις XP.</li>
-                                <li>• Επεστρέφε τακτικά και ολοκλήρωσε τις διαδρομές μάθησης.</li>
-                                <li>• Συμμετέχεις σε δράσεις της κοινότητας / DAO (μελλοντικά).</li>
-                            </ul>
-                            <button
-                                onClick={() => setShowTierPopup(false)}
-                                className="mt-5 w-full py-2 rounded-xl bg-white/10 hover:bg-white/40 transition text-white font-semibold text-sm tracking-wide"
-                            >
-                                Κλείσιμο
-                            </button>
-                        </div>
-                    </div>
-                )}
             </div>
         </PageShell>
     );
