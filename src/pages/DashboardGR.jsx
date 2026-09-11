@@ -1120,7 +1120,7 @@ export default function Dashboard() {
                 "
             >
                 {shouldShowDebugPanel ? (
-                    <div className="relative z-50 w-full max-w-5xl mx-auto mb-4 px-2 md:px-0">
+                    <div className="relative z-50 w-full max-w-6xl mx-auto mb-4 px-2 md:px-0">
                         <div className="rounded-2xl border border-fuchsia-200/70 bg-fuchsia-50/90 px-4 py-3 text-left text-xs text-fuchsia-950 shadow-sm backdrop-blur-sm dark:border-fuchsia-500/30 dark:bg-fuchsia-950/25 dark:text-fuchsia-50">
                             <div className="flex flex-wrap items-center justify-between gap-2">
                                 <p className="font-semibold">
@@ -1184,7 +1184,7 @@ export default function Dashboard() {
 
                 {/* 1) Compact identity strip */}
                 {identityAddress ? (
-                    <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-4 px-2 md:px-0">
+                    <div className="relative z-10 w-full max-w-6xl mx-auto mt-2 mb-4 px-2 md:px-0">
                         <DashboardIdentityStrip
                             lang="gr"
                             profileMode={identityProfileMode}
@@ -1213,7 +1213,7 @@ export default function Dashboard() {
 
                 {/* 2) Account status — secondary */}
                 {topStatusKey ? (
-                    <div className="relative z-10 w-full max-w-5xl mx-auto mb-4 px-2 md:px-0">
+                    <div className="relative z-10 w-full max-w-6xl mx-auto mb-4 px-2 md:px-0">
                         {topStatusKey === "social-switch" ? (
                             <div className="rounded-2xl border border-sky-200/70 bg-sky-50/90 px-4 py-3 text-left text-sm text-sky-950 shadow-sm backdrop-blur-sm dark:border-sky-500/30 dark:bg-sky-950/25 dark:text-sky-50 md:px-4">
                                 <p className="font-semibold">Επιτυχής είσοδος</p>
@@ -1314,7 +1314,7 @@ export default function Dashboard() {
                 ) : null}
 
                 {/* 3) NOW — Next Action + Learning Journey */}
-                <div className="relative z-10 w-full max-w-5xl mx-auto mt-2 mb-6 px-2 md:px-0">
+                <div className="relative z-10 w-full max-w-6xl mx-auto mt-2 mb-6 px-2 md:px-0">
                     {isValidCanonicalProgression(metadata?.progression) ? (
                         <DashboardJourneySlice
                             progression={metadata.progression}
@@ -1375,7 +1375,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* 4) RECORD + PROOF */}
-                <div className="relative z-10 w-full max-w-5xl mx-auto mb-6 px-2 md:px-0">
+                <div className="relative z-10 w-full max-w-6xl mx-auto mb-6 px-2 md:px-0">
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)] lg:items-stretch">
                         <DashboardRecordCard
                             metadata={displayedMetadata}
@@ -1387,7 +1387,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* 5) HISTORY — projects */}
-                <div className="relative z-10 w-full max-w-5xl mx-auto mb-6 px-2 md:px-0">
+                <div className="relative z-10 w-full max-w-6xl mx-auto mb-6 px-2 md:px-0">
                     <DashboardProjectsProgress
                         resolveData={resolveData}
                         metadata={metadata}
@@ -1398,7 +1398,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* 6) Detailed timeline */}
-                <div className="relative z-10 w-full max-w-5xl mx-auto mb-10 px-2 md:px-0">
+                <div className="relative z-10 w-full max-w-6xl mx-auto mb-10 px-2 md:px-0">
                     <LearningTimeline timeline={timelineForGr} lang="gr" isLoading={isTimelineLoading} />
                 </div>
 
