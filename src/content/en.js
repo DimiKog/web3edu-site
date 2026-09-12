@@ -100,33 +100,37 @@ With evidence-backed progress records and structured contribution paths, learnin
             {
                 id: "modules",
                 icon: "modules",
+                systemLabel: "Learn",
                 title: "Learning Modules",
                 description:
-                    "Follow structured paths that combine resources, activities, evidence, and assessment into one clear learning journey.",
+                    "Structured paths that combine resources, activities, evidence, and assessment into one clear journey.",
                 cta: { label: "Browse Learning Modules", href: "/#/learn" },
             },
             {
                 id: "handsOn",
                 icon: "handsOn",
+                systemLabel: "Demonstrate",
                 title: "Hands-on Web3",
                 description:
-                    "Practice with labs, wallets, smart contracts, projects, and the live Besu Edu-Net — real activity that supports your modules.",
+                    "Labs, wallets, smart contracts, projects, and the live Besu Edu-Net — real activity that supports your modules.",
                 cta: { label: "Explore Labs", href: "/#/labs" },
             },
             {
                 id: "progress",
                 icon: "progress",
+                systemLabel: "Progress",
                 title: "Learning Progress",
                 description:
-                    "Track module completion, XP, Badges, and milestone progress toward Explorer, Builder, and Architect.",
+                    "Module completion, XP, Badges, and milestone progress toward Explorer, Builder, and Architect.",
                 cta: { label: "Open Dashboard", href: "/#/dashboard" },
             },
             {
                 id: "identity",
                 icon: "identity",
+                systemLabel: "Verify",
                 title: "Verifiable Learning Identity",
                 description:
-                    "Build a persistent educational profile that links your progress, credentials, and verifiable learning records.",
+                    "A persistent educational profile linking progress, credentials, badges, and verifiable learning records.",
                 cta: { label: "Web3Edu Identity", href: "/#/join" },
             },
         ],

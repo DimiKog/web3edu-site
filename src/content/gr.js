@@ -101,33 +101,37 @@ const gr = {
             {
                 id: "modules",
                 icon: "modules",
+                systemLabel: "Μάθε",
                 title: "Εκπαιδευτικές Ενότητες",
                 description:
-                    "Ακολούθησε δομημένες διαδρομές που συνδυάζουν πόρους, δραστηριότητες, αποδεικτικά και αξιολόγηση σε μία καθαρή μαθησιακή πορεία.",
+                    "Δομημένες διαδρομές που συνδυάζουν πόρους, δραστηριότητες, αποδεικτικά και αξιολόγηση σε μία καθαρή πορεία.",
                 cta: { label: "Δες τις Εκπαιδευτικές Ενότητες", href: "/#/learn-gr" },
             },
             {
                 id: "handsOn",
                 icon: "handsOn",
+                systemLabel: "Απόδειξε",
                 title: "Web3 στην πράξη",
                 description:
-                    "Εξασκήσου με labs, wallets, smart contracts, projects και το ζωντανό Besu Edu-Net — πραγματική δραστηριότητα που υποστηρίζει τις ενότητές σου.",
+                    "Labs, wallets, smart contracts, projects και το ζωντανό Besu Edu-Net — πραγματική δραστηριότητα που υποστηρίζει τις ενότητές σου.",
                 cta: { label: "Εξερεύνησε τα Labs", href: "/#/labs-gr" },
             },
             {
                 id: "progress",
                 icon: "progress",
+                systemLabel: "Προχώρα",
                 title: "Μαθησιακή Πρόοδος",
                 description:
-                    "Παρακολούθησε ολοκλήρωση ενοτήτων, XP, Badges και πρόοδο milestones προς Explorer, Builder και Architect.",
+                    "Ολοκλήρωση ενοτήτων, XP, Badges και πρόοδος milestones προς Explorer, Builder και Architect.",
                 cta: { label: "Άνοιξε τον Πίνακα", href: "/#/dashboard-gr" },
             },
             {
                 id: "identity",
                 icon: "identity",
+                systemLabel: "Επαλήθευσε",
                 title: "Επαληθεύσιμη Μαθησιακή Ταυτότητα",
                 description:
-                    "Χτίσε ένα διαρκές εκπαιδευτικό προφίλ που συνδέει πρόοδο, credentials και επαληθεύσιμα μαθησιακά αρχεία.",
+                    "Διαρκές εκπαιδευτικό προφίλ που συνδέει πρόοδο, credentials, badges και επαληθεύσιμα μαθησιακά αρχεία.",
                 cta: { label: "Web3Edu Ταυτότητα", href: "/#/join-gr" },
             },
         ],
