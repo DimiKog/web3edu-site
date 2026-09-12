@@ -5,6 +5,45 @@ import { visualizer } from "rollup-plugin-visualizer";
 
 const shouldAnalyze = process.env.ANALYZE === "true";
 
+/**
+ * Inject a production preload for the public Hero LIGHT logo.
+ * Resolves the hashed asset from the build bundle (same file Hero.jsx imports).
+ * Dev uses the source path Vite already serves.
+ */
+function preloadHeroLightLogo() {
+  const DEV_HREF = "/src/assets/web3edu_logo_light.webp";
+  const isLightLogoAsset = (fileName) =>
+    typeof fileName === "string" &&
+    fileName.includes("web3edu_logo_light") &&
+    fileName.endsWith(".webp");
+
+  const preloadTag = (href) =>
+    `<link rel="preload" as="image" href="${href}" fetchpriority="high" />`;
+
+  return {
+    name: "preload-hero-light-logo",
+    transformIndexHtml: {
+      order: "post",
+      handler(html, ctx) {
+        if (html.includes("web3edu_logo_light") && html.includes('rel="preload"')) {
+          return html;
+        }
+
+        let href = DEV_HREF;
+        if (ctx.bundle) {
+          const asset = Object.values(ctx.bundle).find(
+            (item) => item?.type === "asset" && isLightLogoAsset(item.fileName)
+          );
+          if (!asset?.fileName) return html;
+          href = `/${asset.fileName}`.replace(/\/{2,}/g, "/");
+        }
+
+        return html.replace(/\n?\s*<\/head>/i, `\n    ${preloadTag(href)}\n  </head>`);
+      },
+    },
+  };
+}
+
 const REACT_VENDOR_PACKAGES = new Set([
   "react",
   "react-dom",
@@ -34,6 +73,7 @@ export default defineConfig({
   base: "/",
   plugins: [
     react(),
+    preloadHeroLightLogo(),
     viteCompression({
       algorithm: "gzip",
       ext: ".gz",
