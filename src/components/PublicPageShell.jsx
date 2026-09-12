@@ -296,7 +296,7 @@ export default function PublicPageShell({
           <button
             type="button"
             className="lg:hidden text-xl"
-            onClick={() => setMobileOpen(!mobileOpen)}
+            onClick={() => setMobileOpen((v) => !v)}
             aria-label={
               mobileOpen
                 ? isGR
@@ -321,7 +321,7 @@ export default function PublicPageShell({
         {mobileOpen && (
           <div
             id="public-mobile-navigation-menu"
-            className="fixed inset-0 lg:hidden z-40 px-4 pt-24 pb-8 bg-slate-900/70 dark:bg-slate-950/80 backdrop-blur-xl"
+            className="fixed inset-0 lg:hidden z-40 px-4 pt-24 pb-8 bg-slate-950/95 dark:bg-black/95"
           >
             <div className="h-full w-full overflow-y-auto rounded-2xl border border-white/10 bg-white/80 dark:bg-slate-900/85 shadow-2xl shadow-indigo-500/10 p-5 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

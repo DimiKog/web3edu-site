@@ -39,13 +39,13 @@ const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
     return (
         <header className="w-full py-20 sm:py-28 px-4 sm:px-6 bg-gradient-to-br from-[#090C14] via-[#120A1E] via-[#7F3DF1]/25 to-[#081018] overflow-hidden rounded-b-[80px] lg:rounded-b-[120px] relative z-10">
 
-            <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute inset-0 pointer-events-none hidden lg:block">
                 <div className="absolute top-1/3 left-1/3 w-[360px] h-[360px] sm:w-[520px] sm:h-[520px] bg-[#4ACBFF]/18 blur-[120px] rounded-full"></div>
                 <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] sm:w-[420px] sm:h-[420px] bg-[#FF67D2]/20 blur-[160px] rounded-full"></div>
             </div>
 
-            {/* FLOATING PARTICLES */}
-            <div className="pointer-events-none absolute inset-0 opacity-55">
+            {/* FLOATING PARTICLES — lg+ only (mobile GPU) */}
+            <div className="pointer-events-none absolute inset-0 opacity-55 hidden lg:block">
                 <div className="absolute w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-[#FF67D2]/10 blur-3xl animate-pulse-slow top-10 left-10"></div>
                 <div className="absolute w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-[#4ACBFF]/20 blur-2xl animate-pulse-slow2 bottom-10 right-20"></div>
             </div>
@@ -54,7 +54,7 @@ const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
 
                 {/* LEFT SIDE — Logo + Tagline */}
                 <div className="flex flex-col items-center lg:items-center text-center lg:text-center gap-4">
-                    <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-xl border border-white/10 hover:shadow-[0_0_28px_rgba(74,203,255,0.28)] transition duration-300 [perspective:1000px] relative min-w-[160px] min-h-[160px]">
+                    <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-none lg:backdrop-blur-xl border border-white/10 hover:shadow-[0_0_28px_rgba(74,203,255,0.28)] transition duration-300 [perspective:1000px] relative min-w-[160px] min-h-[160px]">
                         <div className="transition-transform duration-500 sm:hover:[transform:rotateX(6deg)_rotateY(-6deg)_scale(1.05)]">
                             <picture>
                                 <source srcSet={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp} type="image/webp" />
@@ -78,7 +78,7 @@ const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
 
                 {/* RIGHT SIDE — Text + CTA */}
                 <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-6 max-w-2xl relative">
-                    <div className="absolute -z-10 -top-10 left-1/2 -translate-x-1/2 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-[#4ACBFF]/10 to-[#8A57FF]/10 rounded-full blur-3xl opacity-40 animate-pulse-slow"></div>
+                    <div className="absolute -z-10 -top-10 left-1/2 -translate-x-1/2 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-[#4ACBFF]/10 to-[#8A57FF]/10 rounded-full blur-3xl opacity-40 animate-pulse-slow hidden lg:block"></div>
                     <p className="text-sm uppercase tracking-widest text-slate-100 animate-fade-up">
                         {content.welcome}
                     </p>

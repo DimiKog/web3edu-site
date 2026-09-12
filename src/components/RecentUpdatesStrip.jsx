@@ -31,7 +31,7 @@ const RecentUpdatesStrip = ({ items = [], isGreek = false }) => {
         CATEGORY_LABELS.update[isGreek ? "gr" : "en"];
 
     return (
-        <section className="w-full px-6 opacity-0 animate-fadeInSlow duration-500">
+        <section className="w-full px-6 opacity-100 lg:opacity-0 lg:animate-fadeInSlow duration-500">
             <div className="relative overflow-hidden rounded-3xl border border-cyan-200/70 bg-white/85 p-5 shadow-lg shadow-cyan-950/5 backdrop-blur dark:border-cyan-400/20 dark:bg-slate-900/70 sm:p-6">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(74,203,255,0.16),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(255,103,210,0.12),transparent_34%)]" />
 

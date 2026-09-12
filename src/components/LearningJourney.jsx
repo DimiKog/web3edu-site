@@ -43,7 +43,7 @@ const LearningJourney = ({ content }) => {
     return (
         <section
             id="home-explore"
-            className="scroll-mt-28 w-full px-6 opacity-0 animate-fadeInSlow duration-500"
+            className="scroll-mt-28 w-full px-6 opacity-100 lg:opacity-0 lg:animate-fadeInSlow duration-500"
             aria-labelledby="learning-journey-title"
         >
             <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/80 p-6 shadow-xl backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-900/60 sm:p-8 lg:p-10">
