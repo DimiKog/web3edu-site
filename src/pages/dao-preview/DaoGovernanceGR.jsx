@@ -1,4 +1,4 @@
-import PageShell from "../../components/PageShell";
+import PublicPageShell from "../../components/PublicPageShell.jsx";
 import SectionBadge from "../../components/SectionBadge";
 import { Link } from "react-router-dom";
 import {
@@ -13,7 +13,7 @@ import {
 
 export default function DaoGovernanceGR() {
     return (
-        <PageShell>
+        <PublicPageShell>
             <div className="relative min-h-screen">
                 {/* Animated background layers */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -300,7 +300,7 @@ export default function DaoGovernanceGR() {
 
                 </main>
             </div>
-        </PageShell>
+        </PublicPageShell>
     );
 }
 

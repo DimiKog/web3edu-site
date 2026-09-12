@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import PageShell from "../components/PageShell.jsx";
+import PublicPageShell from "../components/PublicPageShell.jsx";
 
 const COPY = {
     en: {
@@ -40,7 +40,7 @@ export default function Tools({ lang = "en" }) {
     const copy = COPY[lang] || COPY.en;
 
     return (
-        <PageShell>
+        <PublicPageShell>
             <div className="relative min-h-screen overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute -top-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[#8A57FF]/20 blur-3xl" />
@@ -121,6 +121,6 @@ export default function Tools({ lang = "en" }) {
                     </section>
                 </main>
             </div>
-        </PageShell>
+        </PublicPageShell>
     );
 }

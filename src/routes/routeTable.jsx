@@ -150,10 +150,6 @@ export const routeTable = {
     { path: "/poe-gr", component: PoeGR },
     { path: "/education", component: Education },
     { path: "/education-gr", component: EducationGR },
-    { path: "/education/network-check", component: NetworkCheck },
-    { path: "/education/network-check-gr", component: NetworkCheckGR },
-    { path: "/network-check", component: NetworkCheckStandalone },
-    { path: "/network-check-gr", component: NetworkCheckStandaloneGR },
     { path: "/team", component: TeamPageEN },
     { path: "/team-gr", component: TeamPageGR },
     { path: "/start-here", component: StartHere },
@@ -161,19 +157,11 @@ export const routeTable = {
 
     // Example of bilingual single-component route variant:
     // same component, two paths, GR uses lang prop.
-    { paths: ["/projects", "/projects-gr"], component: Projects },
-    {
-      paths: ["/projects/:id", "/projects-gr/:id"],
-      component: ProjectDetail,
-    },
-
     { path: "/dao-preview", component: DaoPreview },
     { path: "/dao-preview-gr", component: DaoPreviewGR },
     { path: "/dao-info", component: DaoGovernance },
     { path: "/dao-governance", component: DaoGovernance },
     { path: "/dao-info-gr", component: DaoGovernanceGR },
-
-    { paths: ["/events/genesis", "/events/genesis-gr", "/events-gr/genesis"], component: GenesisEvent },
 
     { path: "/tools", component: Tools },
     { path: "/tools-gr", component: Tools, props: { lang: "gr" } },
@@ -188,6 +176,18 @@ export const routeTable = {
   web3: {
     layout: Web3Layout,
     routes: [
+      // Web3-capable public-access routes (may load vendor-web3)
+      { paths: ["/projects", "/projects-gr"], component: Projects },
+      {
+        paths: ["/projects/:id", "/projects-gr/:id"],
+        component: ProjectDetail,
+      },
+      { paths: ["/events/genesis", "/events/genesis-gr", "/events-gr/genesis"], component: GenesisEvent },
+      { path: "/education/network-check", component: NetworkCheck },
+      { path: "/education/network-check-gr", component: NetworkCheckGR },
+      { path: "/network-check", component: NetworkCheckStandalone },
+      { path: "/network-check-gr", component: NetworkCheckStandaloneGR },
+
       { path: "/join", component: Join },
       { path: "/join-gr", component: JoinGR },
       { path: "/mint-identity", component: MintIdentity },

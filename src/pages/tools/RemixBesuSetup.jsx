@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import PageShell from "../../components/PageShell.jsx";
+import PublicPageShell from "../../components/PublicPageShell.jsx";
 import { AlertTriangle, CheckCircle2, ExternalLink, Copy, Settings2, Rocket, XCircle } from "lucide-react";
 
 const REMIX_URL = "https://remix.ethereum.org/";
@@ -293,7 +293,7 @@ export default function RemixBesuSetup({ lang = "en" }) {
     const copy = COPY[lang] || COPY.en;
 
     return (
-        <PageShell>
+        <PublicPageShell>
             <div className="relative min-h-screen overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute -top-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[#8A57FF]/20 blur-3xl" />
@@ -435,6 +435,6 @@ export default function RemixBesuSetup({ lang = "en" }) {
                     </div>
                 </main>
             </div>
-        </PageShell>
+        </PublicPageShell>
     );
 }

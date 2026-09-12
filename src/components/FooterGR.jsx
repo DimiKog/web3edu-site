@@ -1,5 +1,5 @@
-import web3EduLogoLightSvg from "../assets/web3edu_logo_light.svg";
-import web3EduLogoDarkSvg from "../assets/web3edu_logo.svg";
+import web3EduLogoLightWebp from "../assets/web3edu_logo_light.webp";
+import web3EduLogoDarkWebp from "../assets/web3edu_logo_dark.webp";
 import { FaGithub, FaDiscord, FaLinkedin } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
@@ -84,8 +84,8 @@ const FooterGr = ({ content }) => {
             <div className="relative flex flex-col md:flex-row items-center justify-between gap-10">
                 <div className="flex flex-col items-center text-center gap-3">
                     <picture>
-                        <source srcSet={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg} type="image/svg+xml" />
-                        <img src={isDark ? web3EduLogoDarkSvg : web3EduLogoLightSvg}
+                        <source srcSet={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp} type="image/webp" />
+                        <img src={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp}
                             className="h-12 w-auto drop-shadow-[0_0_15px_rgba(138,87,255,0.35)] hover:scale-105 transition-transform duration-500"
                             alt="Web3Edu Logo" loading="lazy" />
                     </picture>

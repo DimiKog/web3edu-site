@@ -1,4 +1,4 @@
-import PageShell from '../../components/PageShell.jsx';
+import PublicPageShell from "../../components/PublicPageShell.jsx";
 import { ACCENT_SECONDARY } from '../../design/theme.js';
 
 const accentCardClasses = {
@@ -74,7 +74,7 @@ export default function Poe({ language = 'EN' }) {
     const strings = content[language] ?? content.EN;
 
     return (
-        <PageShell innerClassName="items-center">
+        <PublicPageShell innerClassName="items-center">
             <div className="relative w-full max-w-3xl rounded-2xl border border-slate-200/80 bg-white/95 p-8 shadow-lg backdrop-blur-sm transition dark:border-slate-700/50 dark:bg-slate-900/80 sm:p-12">
                 <div className="absolute top-5 right-5 flex items-center gap-2 text-sm">
                     <a
@@ -152,6 +152,6 @@ export default function Poe({ language = 'EN' }) {
                     </a>
                 </div>
             </div>
-        </PageShell>
+        </PublicPageShell>
     );
 }

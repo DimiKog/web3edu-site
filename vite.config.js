@@ -90,6 +90,11 @@ export default defineConfig({
           // Keep React/runtime internals in the public entry vendor chunk.
           if (REACT_VENDOR_PACKAGES.has(pkg)) return "vendor-react";
 
+          // Shared keccak used by public address normalize AND by viem/ethers.
+          // Must NOT land inside vendor-web3 or the public entry will import that chunk.
+          // Do not put @noble/curves here — that would pull web3 curve code onto `/`.
+          if (pkg === "@noble/hashes") return "vendor-noble";
+
           // Keep wallet/web3 dependencies split so only web3 routes request them.
           if (WEB3_VENDOR_PACKAGES.has(pkg)) return "vendor-web3";
         }

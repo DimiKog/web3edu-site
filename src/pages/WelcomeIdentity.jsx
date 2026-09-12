@@ -4,8 +4,8 @@ import { useIdentity } from "../context/useIdentity.js";
 import { buildWeb3SbtResolveUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import PageShell from "../components/PageShell.jsx";
-import web3eduLogoDark from "../assets/web3edu_logo.svg";
-import web3eduLogoLight from "../assets/web3edu_logo_light.svg";
+import web3eduLogoDark from "../assets/web3edu_logo_dark.webp";
+import web3eduLogoLight from "../assets/web3edu_logo_light.webp";
 
 const WelcomeIdentity = () => {
     const navigate = useNavigate();

@@ -6,9 +6,6 @@ import "./index.css";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import AppRoutes from "./routes/AppRoutes.jsx";
 import AppErrorBoundary from "./components/AppErrorBoundary.jsx";
-import { IdentityProvider } from "./context/IdentityContext.jsx";
-import { ResolvedIdentityProvider } from "./context/ResolvedIdentityProvider.jsx";
-import Web3Providers from "./providers/Web3Providers.jsx";
 import {
   createOidcConfig,
   queuePostLoginRouterNavigation,
@@ -32,19 +29,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider {...createOidcConfig()} onSigninCallback={onSigninCallback}>
       <AppErrorBoundary>
-        <Web3Providers>
-          <SocialIdentityProvider>
-            <IdentityProvider>
-              <ResolvedIdentityProvider>
-                <HashRouter>
-                  <OidcPostLoginNavigate />
-                  <ScrollToTop />
-                  <AppRoutes />
-                </HashRouter>
-              </ResolvedIdentityProvider>
-            </IdentityProvider>
-          </SocialIdentityProvider>
-        </Web3Providers>
+        <SocialIdentityProvider>
+          <HashRouter>
+            <OidcPostLoginNavigate />
+            <ScrollToTop />
+            <AppRoutes />
+          </HashRouter>
+        </SocialIdentityProvider>
       </AppErrorBoundary>
     </AuthProvider>
   </React.StrictMode>

@@ -1,5 +1,5 @@
 // src/pages/team/TeamPageEN.jsx
-import PageShell from "../../components/PageShell.jsx";
+import PublicPageShell from "../../components/PublicPageShell.jsx";
 import TeamMemberCard from "../../components/TeamMemberCard.jsx";
 import dimi from "../../assets/team/dimi.webp";
 import nelly from "../../assets/team/nelly.jpg";
@@ -9,7 +9,7 @@ import michael from "../../assets/team/michael.webp";
 
 export default function TeamPageEN() {
     return (
-        <PageShell>
+        <PublicPageShell>
             <div className="min-h-screen bg-gradient-to-b from-[#F6F1FF] via-white to-[#EAF8FF] dark:from-[#0A0F1A] dark:via-[#111626] dark:to-[#131B2D] py-20 px-4 sm:py-28 sm:px-6 relative overflow-hidden">
                 <div className="absolute top-0 left-1/3 w-56 h-56 sm:w-72 sm:h-72 bg-[#8A57FF]/25 dark:bg-[#8A57FF]/15 blur-3xl rounded-full animate-pulse-slow"></div>
                 <div className="absolute bottom-0 right-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-[#4ACBFF]/20 dark:bg-[#4ACBFF]/15 blur-[120px] rounded-full animate-pulse-slower"></div>
@@ -202,6 +202,6 @@ Michael leads Web3Edu’s Infrastructure and Community Operations sector. He sup
             }
             `}
             </style>
-        </PageShell>
+        </PublicPageShell>
     );
 }

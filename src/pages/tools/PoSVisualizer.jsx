@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import PageShell from "../../components/PageShell.jsx";
+import PublicPageShell from "../../components/PublicPageShell.jsx";
 import ValidatorCard from "../../components/pos/ValidatorCard.jsx";
 import SelectionPanel from "../../components/pos/SelectionPanel.jsx";
 import RoundState from "../../components/pos/RoundState.jsx";
@@ -353,5 +353,5 @@ export default function PoSVisualizer({ lang = "en", embedded = false }) {
 
     if (embedded) return content;
 
-    return <PageShell>{content}</PageShell>;
+    return <PublicPageShell>{content}</PublicPageShell>;
 }

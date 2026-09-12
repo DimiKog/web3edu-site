@@ -1,9 +1,9 @@
-import PageShell from "../../components/PageShell.jsx";
+import PublicPageShell from "../../components/PublicPageShell.jsx";
 import SectionBadge from "../../components/SectionBadge.jsx";
 
 export default function DaoPreviewGR() {
     return (
-        <PageShell>
+        <PublicPageShell>
             <div className="relative min-h-screen">
                 {/* Animated background layers */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -253,6 +253,6 @@ export default function DaoPreviewGR() {
 
                 </main>
             </div>
-        </PageShell>
+        </PublicPageShell>
     );
 }

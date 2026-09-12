@@ -1,4 +1,4 @@
-import PageShell from "../components/PageShell.jsx";
+import PublicPageShell from "../components/PublicPageShell.jsx";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -7,7 +7,7 @@ const StartHereGR = () => {
     const [showSetupDetails, setShowSetupDetails] = useState(false);
 
     return (
-        <PageShell>
+        <PublicPageShell>
             <div className="relative min-h-screen">
                 {/* Animated background layers */}
                 <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -624,7 +624,7 @@ const StartHereGR = () => {
                     </StartCard>
                 </main>
             </div>
-        </PageShell>
+        </PublicPageShell>
     );
 };
 

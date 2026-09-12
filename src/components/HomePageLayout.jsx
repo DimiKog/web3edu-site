@@ -1,5 +1,5 @@
 import Hero from "./Hero.jsx";
-import PageShell from "./PageShell.jsx";
+import PublicPageShell from "./PublicPageShell.jsx";
 import DaoSection from "./DaoSection.jsx";
 import DaoSectionGR from "./DaoSectionGR.jsx";
 import RecentUpdatesStrip from "./RecentUpdatesStrip.jsx";
@@ -24,7 +24,7 @@ const HomePageLayout = ({
     return (
         <>
             <Hero content={heroContent} ctaHref={heroCtaHref} ctaLabel={heroCtaLabel} />
-            <PageShell footerContent={footerContent}>
+            <PublicPageShell footerContent={footerContent}>
                 <div className="w-full my-8 sm:my-10" aria-hidden="true"></div>
 
                 <LearningJourney content={learningJourneyContent} />
@@ -59,7 +59,7 @@ const HomePageLayout = ({
                 <div className="w-full my-8" aria-hidden="true"></div>
 
                 <TeamTrustBand content={teamTrustContent} />
-            </PageShell>
+            </PublicPageShell>
         </>
     );
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import PageShell from "../components/PageShell.jsx";
+import PublicPageShell from "../components/PublicPageShell.jsx";
 import BlockchainView from "../components/mining/BlockchainView";
 import Mempool from "../components/mining/Mempool";
 import MiningControls from "../components/mining/MiningControls";
@@ -74,7 +74,7 @@ export default function MiningLab({ lang = "en" }) {
     }, [allTxs]);
 
     return (
-        <PageShell>
+        <PublicPageShell>
             <div className="relative min-h-screen overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute -top-24 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-[#8A57FF]/18 blur-3xl" />
@@ -138,7 +138,7 @@ export default function MiningLab({ lang = "en" }) {
                     </section>
                 </main>
             </div>
-        </PageShell>
+        </PublicPageShell>
     );
 }
 

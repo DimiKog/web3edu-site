@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
-import PageShell from "../../components/PageShell.jsx";
+import PublicPageShell from "../../components/PublicPageShell.jsx";
 import { ACCENT_SECONDARY } from "../../design/theme.js";
 
 export default function EducationGR() {
     return (
-        <PageShell innerClassName="items-center">
+        <PublicPageShell innerClassName="items-center">
             <div className="relative w-full max-w-3xl rounded-2xl bg-white/90 p-8 shadow-lg backdrop-blur-sm transition dark:bg-slate-900/80 sm:p-12">
 
                 {/* 🌐 Εναλλαγή Γλώσσας */}
@@ -91,6 +91,6 @@ export default function EducationGR() {
                     </a>
                 </div>
             </div>
-        </PageShell>
+        </PublicPageShell>
     );
 }

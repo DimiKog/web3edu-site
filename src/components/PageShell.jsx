@@ -3,8 +3,8 @@
 import React from "react";
 import Footer from "./Footer.jsx";
 import FooterGr from "./FooterGR.jsx";
-import web3EduLogoLight from "../assets/web3edu_logo_light.svg";
-import web3EduLogoDark from "../assets/web3edu_logo.svg";
+import web3EduLogoLight from "../assets/web3edu_logo_light.webp";
+import web3EduLogoDark from "../assets/web3edu_logo_dark.webp";
 import {
   AddressIdenticon,
   generateAvatarStyle,
@@ -427,12 +427,13 @@ export default function PageShell({
           <div className="flex items-center gap-3">
             <a href={isGR ? "/#/gr" : "/#/"} aria-label={isGR ? "Αρχική" : "Home"}>
               <picture>
-                <source srcSet={isDark ? web3EduLogoDark : web3EduLogoLight} type="image/svg+xml" />
+                <source srcSet={isDark ? web3EduLogoDark : web3EduLogoLight} type="image/webp" />
                 <img src={isDark ? web3EduLogoDark : web3EduLogoLight}
                   alt="Web3Edu"
                   className="h-10 w-auto drop-shadow-[0_0_12px_rgba(120,60,255,0.45)]
                   transition-opacity duration-500"
                   loading="eager"
+                  fetchPriority="low"
                 />
               </picture>
             </a>
