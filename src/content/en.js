@@ -6,7 +6,7 @@ const en = {
         welcome: "Welcome to Web3Edu",
         headline: "Learn Web3 by doing it.\nBuild proof of what you learn.",
         tagline: "Proof of learning, not proof of attendance",
-        desc: "Hands-on blockchain learning through real labs, on-chain activities, and applied projects — with verifiable progress that becomes part of your Web3Edu learning identity.",
+        desc: "Follow structured Learning Modules, practice with real Web3 activities, and turn your progress into a verifiable Web3Edu learning identity.",
         cta: "Start Learning",
         ctaHref: "/#/start-here",
         secondaryCta: "Explore Web3Edu",
@@ -49,42 +49,44 @@ With evidence-backed progress records and structured contribution paths, learnin
         badge: "Learning Journey",
         title: "How Web3Edu Works",
         subtitle:
-            "Learn the concepts, use them in practice, turn your work into verifiable progress, and build a learning identity that grows with you.",
-        progression: ["LEARN", "DO", "VERIFY", "OWN"],
+            "Learn through structured modules, demonstrate with real Web3 work, progress through milestones, and verify your learning identity.",
+        progression: ["LEARN", "DEMONSTRATE", "PROGRESS", "VERIFY"],
         stages: [
             {
                 id: "learn",
                 label: "01 · LEARN",
                 shortLabel: "LEARN",
-                title: "Understand the concepts",
+                title: "Follow Learning Modules",
                 description:
-                    "Build a foundation in blockchain, consensus, wallets, smart contracts, and Web3 through guided learning.",
-                cta: { label: "Start Here", href: "/#/start-here" },
+                    "Structured modules guide you through concepts, resources, and clear learning outcomes — from foundations to advanced Web3 topics.",
+                cta: { label: "Open Learning Modules", href: "/#/learn" },
             },
             {
-                id: "do",
-                label: "02 · DO",
-                shortLabel: "DO",
-                title: "Use Web3 in practice",
+                id: "demonstrate",
+                label: "02 · DEMONSTRATE",
+                shortLabel: "DEMONSTRATE",
+                title: "Apply what you learn",
                 description:
-                    "Complete hands-on labs, work with wallets and transactions, deploy smart contracts, and explore real blockchain infrastructure.",
+                    "Use labs, on-chain activities, projects, quizzes, and other practical tasks to produce evidence of what you can do.",
                 cta: { label: "Explore Labs", href: "/#/labs" },
             },
             {
-                id: "verify",
-                label: "03 · VERIFY",
-                shortLabel: "VERIFY",
-                title: "Turn activity into evidence",
+                id: "progress",
+                label: "03 · PROGRESS",
+                shortLabel: "PROGRESS",
+                title: "Complete modules and milestones",
                 description:
-                    "Completed labs, challenges, and on-chain actions become evidence-backed learning progress — not just attendance records.",
+                    "Evidence and assessments complete modules. XP and completed modules advance you through Explorer, Builder, and Architect.",
+                cta: { label: "Open Dashboard", href: "/#/dashboard" },
             },
             {
-                id: "own",
-                label: "04 · OWN",
-                shortLabel: "OWN",
-                title: "Build your learning identity",
+                id: "verify",
+                label: "04 · VERIFY",
+                shortLabel: "VERIFY",
+                title: "Build a verifiable learning identity",
                 description:
-                    "XP, achievements, and credentials accumulate into a persistent Web3Edu learning identity, with key milestones anchored on-chain.",
+                    "Progress, Badges, credentials, and learning records come together in your persistent Web3Edu identity and profile.",
+                cta: { label: "Web3Edu Identity", href: "/#/join" },
             },
         ],
     },
@@ -93,37 +95,38 @@ With evidence-backed progress records and structured contribution paths, learnin
         badge: "Available Now",
         title: "What you can do today",
         description:
-            "Learn, build, and verify your progress in a live Web3 learning environment.",
+            "Learn through modules, demonstrate with real Web3 work, track your progress, and grow a verifiable learning identity.",
         capabilities: [
             {
-                id: "labs",
-                icon: "labs",
-                title: "Hands-on Labs",
+                id: "modules",
+                icon: "modules",
+                title: "Learning Modules",
                 description:
-                    "Learn blockchain concepts through guided practical activities, from fundamentals to smart-contract deployment and interaction.",
-                cta: { label: "Explore Labs", href: "/#/labs" },
+                    "Follow structured paths that combine resources, activities, evidence, and assessment into one clear learning journey.",
+                cta: { label: "Browse Learning Modules", href: "/#/learn" },
             },
             {
-                id: "onchain",
-                icon: "onchain",
-                title: "Real On-chain Work",
+                id: "handsOn",
+                icon: "handsOn",
+                title: "Hands-on Web3",
                 description:
-                    "Use wallets, transactions, smart contracts, and the live Besu Edu-Net instead of simulated blockchain workflows.",
-                cta: { label: "Start Learning", href: "/#/start-here" },
+                    "Practice with labs, wallets, smart contracts, projects, and the live Besu Edu-Net — real activity that supports your modules.",
+                cta: { label: "Explore Labs", href: "/#/labs" },
             },
             {
                 id: "progress",
                 icon: "progress",
-                title: "Verifiable Progress",
+                title: "Learning Progress",
                 description:
-                    "Completed work becomes XP, achievements, and evidence-backed learning progress — not simply a record of attendance.",
+                    "Track module completion, XP, Badges, and milestone progress toward Explorer, Builder, and Architect.",
+                cta: { label: "Open Dashboard", href: "/#/dashboard" },
             },
             {
                 id: "identity",
                 icon: "identity",
-                title: "Web3Edu Learning Identity",
+                title: "Verifiable Learning Identity",
                 description:
-                    "Build a persistent learning profile where achievements and credentials accumulate, with key milestones anchored on-chain.",
+                    "Build a persistent educational profile that links your progress, credentials, and verifiable learning records.",
                 cta: { label: "Web3Edu Identity", href: "/#/join" },
             },
         ],
@@ -137,11 +140,11 @@ With evidence-backed progress records and structured contribution paths, learnin
         },
         productPreview: {
             eyebrow: "Inside Web3Edu",
-            title: "Real progress. Verifiable milestones.",
+            title: "Your journey, record, and profile — in one place.",
             description:
-                "Your learning path, XP, achievements, and verifiable profile come together in one learning environment.",
-            dashboardAlt: "Web3Edu dashboard showing next steps, progress, XP, and badges",
-            profileAlt: "Web3Edu verifiable profile with verified milestone status",
+                "See your Learning Journey, module and milestone progress, XP, Badges, Web3Edu Record, and Verifiable Profile together.",
+            dashboardAlt: "Web3Edu dashboard showing Learning Journey, progress, XP, Badges, and Verifiable Profile",
+            profileAlt: "Web3Edu verifiable profile with verified status",
         },
     },
 
@@ -172,6 +175,15 @@ With evidence-backed progress records and structured contribution paths, learnin
     // -------------------------
     whatsNew: {
         items: [
+            {
+                id: "learning-modules-journey",
+                category: "update",
+                date: "2026-09-05",
+                title: "Learning Modules are live",
+                description: "Structured learning paths now bring resources, practical activities, evidence, and assessment together.",
+                href: "#/learn",
+                cta: "Explore Learning Modules",
+            },
             {
                 id: "walletless-first-learning",
                 category: "update",
@@ -230,15 +242,6 @@ With evidence-backed progress records and structured contribution paths, learnin
                 description: "Applied project paths for Builders ready to move beyond labs into hands-on blockchain development work.",
                 href: "#/projects",
                 cta: "View Projects",
-            },
-            {
-                id: "builder-readiness-dashboard",
-                category: "update",
-                date: "2026-04-03",
-                title: "Ready to Become a Builder?",
-                description: "Complete the Core Labs first, then use the recommendations block in your dashboard to see which labs and Builder path you should tackle next.",
-                href: "#/dashboard",
-                cta: "Go to Dashboard",
             },
         ],
     },

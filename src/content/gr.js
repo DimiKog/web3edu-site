@@ -7,7 +7,7 @@ const gr = {
         welcome: "Καλώς ήρθατε στο Web3Edu",
         headline: "Μάθε Web3 στην πράξη.\nΑπόδειξε όσα μαθαίνεις.",
         tagline: "Απόδειξη μάθησης, όχι απλή παρουσία",
-        desc: "Μάθε blockchain μέσα από πραγματικά labs, on-chain δραστηριότητες και εφαρμοσμένα projects — με επαληθεύσιμη πρόοδο που γίνεται μέρος της Web3Edu μαθησιακής σου ταυτότητας.",
+        desc: "Ακολούθησε δομημένες Εκπαιδευτικές Ενότητες, εξάσκησε πραγματικές Web3 δραστηριότητες και μετέτρεψε την πρόοδό σου σε επαληθεύσιμη Web3Edu μαθησιακή ταυτότητα.",
         cta: "Ξεκίνα να μαθαίνεις",
         ctaHref: "/#/start-here-gr",
         secondaryCta: "Εξερεύνησε το Web3Edu",
@@ -50,42 +50,44 @@ const gr = {
         badge: "Μαθησιακή Διαδρομή",
         title: "Πώς λειτουργεί το Web3Edu",
         subtitle:
-            "Μάθε τις βασικές έννοιες, εφάρμοσέ τες στην πράξη, μετέτρεψε τη δουλειά σου σε επαληθεύσιμη πρόοδο και χτίσε μια μαθησιακή ταυτότητα που εξελίσσεται μαζί σου.",
-        progression: ["Μάθε", "Κάνε", "Επαλήθευσε", "Χτίσε"],
+            "Μάθε μέσα από δομημένες ενότητες, απόδειξε όσα μαθαίνεις με πραγματική Web3 εργασία, προχώρα σε milestones και επαλήθευσε τη μαθησιακή σου ταυτότητα.",
+        progression: ["Μάθε", "Απόδειξε", "Προχώρα", "Επαλήθευσε"],
         stages: [
             {
                 id: "learn",
                 label: "01 · ΜΑΘΕ",
                 shortLabel: "ΜΑΘΕ",
-                title: "Κατανόησε τις βασικές έννοιες",
+                title: "Ακολούθησε τις Εκπαιδευτικές Ενότητες",
                 description:
-                    "Χτίσε τις βάσεις σου στο blockchain, το consensus, τα wallets, τα smart contracts και το Web3 μέσα από καθοδηγούμενη μάθηση.",
-                cta: { label: "Ξεκίνα εδώ", href: "/#/start-here-gr" },
+                    "Δομημένες ενότητες σε καθοδηγούν μέσα από έννοιες, πόρους και ξεκάθαρα μαθησιακά αποτελέσματα — από τα θεμέλια έως προχωρημένα θέματα Web3.",
+                cta: { label: "Άνοιξε τις Εκπαιδευτικές Ενότητες", href: "/#/learn-gr" },
             },
             {
-                id: "do",
-                label: "02 · ΚΑΝΕ",
-                shortLabel: "ΚΑΝΕ",
-                title: "Εφάρμοσέ τα στην πράξη",
+                id: "demonstrate",
+                label: "02 · ΑΠΟΔΕΙΞΕ",
+                shortLabel: "ΑΠΟΔΕΙΞΕ",
+                title: "Εφάρμοσε όσα μαθαίνεις",
                 description:
-                    "Ολοκλήρωσε hands-on labs, χρησιμοποίησε wallets και transactions, κάνε deploy smart contracts και εξερεύνησε πραγματική blockchain υποδομή.",
+                    "Χρησιμοποίησε labs, on-chain δραστηριότητες, projects, quizzes και άλλες πρακτικές εργασίες για να δημιουργήσεις αποδεικτικά όσων μπορείς να κάνεις.",
                 cta: { label: "Εξερεύνησε τα Labs", href: "/#/labs-gr" },
             },
             {
-                id: "verify",
-                label: "03 · ΕΠΑΛΗΘΕΥΣΕ",
-                shortLabel: "ΕΠΑΛΗΘΕΥΣΕ",
-                title: "Μετέτρεψε τη δραστηριότητα σε αποδείξεις",
+                id: "progress",
+                label: "03 · ΠΡΟΧΩΡΑ",
+                shortLabel: "ΠΡΟΧΩΡΑ",
+                title: "Ολοκλήρωσε ενότητες και milestones",
                 description:
-                    "Τα ολοκληρωμένα labs, challenges και on-chain actions μετατρέπονται σε τεκμηριωμένη, επαληθεύσιμη μαθησιακή πρόοδο — όχι απλώς σε καταγραφή παρουσίας.",
+                    "Τα αποδεικτικά και οι αξιολογήσεις ολοκληρώνουν τις ενότητες. Το XP και οι ολοκληρωμένες ενότητες σε προχωρούν στα milestones Explorer, Builder και Architect.",
+                cta: { label: "Άνοιξε τον Πίνακα", href: "/#/dashboard-gr" },
             },
             {
-                id: "own",
-                label: "04 · ΧΤΙΣΕ",
-                shortLabel: "ΧΤΙΣΕ",
-                title: "Χτίσε τη μαθησιακή σου ταυτότητα",
+                id: "verify",
+                label: "04 · ΕΠΑΛΗΘΕΥΣΕ",
+                shortLabel: "ΕΠΑΛΗΘΕΥΣΕ",
+                title: "Χτίσε επαληθεύσιμη μαθησιακή ταυτότητα",
                 description:
-                    "XP, επιτεύγματα και credentials συνθέτουν μια διαρκή Web3Edu μαθησιακή ταυτότητα, με σημαντικά ορόσημα που μπορούν να επαληθευτούν on-chain.",
+                    "Πρόοδος, Badges, credentials και μαθησιακά αρχεία συνθέτουν τη διαρκή Web3Edu ταυτότητα και το προφίλ σου.",
+                cta: { label: "Web3Edu Ταυτότητα", href: "/#/join-gr" },
             },
         ],
     },
@@ -94,37 +96,38 @@ const gr = {
         badge: "Διαθέσιμο Τώρα",
         title: "Τι μπορείς να κάνεις σήμερα",
         description:
-            "Μάθε, δημιούργησε και επαλήθευσε την πρόοδό σου σε ένα πραγματικό Web3 μαθησιακό περιβάλλον.",
+            "Μάθε μέσα από ενότητες, απόδειξε με πραγματική Web3 εργασία, παρακολούθησε την πρόοδό σου και χτίσε επαληθεύσιμη μαθησιακή ταυτότητα.",
         capabilities: [
             {
-                id: "labs",
-                icon: "labs",
-                title: "Hands-on Labs",
+                id: "modules",
+                icon: "modules",
+                title: "Εκπαιδευτικές Ενότητες",
                 description:
-                    "Μάθε έννοιες του blockchain μέσα από καθοδηγούμενες πρακτικές δραστηριότητες, από τις βασικές αρχές έως το deployment και την αλληλεπίδραση με smart contracts.",
-                cta: { label: "Εξερεύνησε τα Labs", href: "/#/labs-gr" },
+                    "Ακολούθησε δομημένες διαδρομές που συνδυάζουν πόρους, δραστηριότητες, αποδεικτικά και αξιολόγηση σε μία καθαρή μαθησιακή πορεία.",
+                cta: { label: "Δες τις Εκπαιδευτικές Ενότητες", href: "/#/learn-gr" },
             },
             {
-                id: "onchain",
-                icon: "onchain",
-                title: "Blockchain στην πράξη",
+                id: "handsOn",
+                icon: "handsOn",
+                title: "Web3 στην πράξη",
                 description:
-                    "Χρησιμοποίησε wallets, transactions και smart contracts στο ζωντανό Besu Edu-Net, δουλεύοντας με πραγματική blockchain υποδομή.",
-                cta: { label: "Ξεκίνα να μαθαίνεις", href: "/#/start-here-gr" },
+                    "Εξασκήσου με labs, wallets, smart contracts, projects και το ζωντανό Besu Edu-Net — πραγματική δραστηριότητα που υποστηρίζει τις ενότητές σου.",
+                cta: { label: "Εξερεύνησε τα Labs", href: "/#/labs-gr" },
             },
             {
                 id: "progress",
                 icon: "progress",
-                title: "Επαληθεύσιμη Πρόοδος",
+                title: "Μαθησιακή Πρόοδος",
                 description:
-                    "Η ολοκληρωμένη δουλειά σου μετατρέπεται σε XP, επιτεύγματα και τεκμηριωμένη μαθησιακή πρόοδο — όχι απλώς σε καταγραφή παρουσίας.",
+                    "Παρακολούθησε ολοκλήρωση ενοτήτων, XP, Badges και πρόοδο milestones προς Explorer, Builder και Architect.",
+                cta: { label: "Άνοιξε τον Πίνακα", href: "/#/dashboard-gr" },
             },
             {
                 id: "identity",
                 icon: "identity",
-                title: "Web3Edu Μαθησιακή Ταυτότητα",
+                title: "Επαληθεύσιμη Μαθησιακή Ταυτότητα",
                 description:
-                    "Χτίσε ένα διαρκές μαθησιακό προφίλ όπου συγκεντρώνονται επιτεύγματα και credentials, με σημαντικά ορόσημα που αγκυρώνονται on-chain.",
+                    "Χτίσε ένα διαρκές εκπαιδευτικό προφίλ που συνδέει πρόοδο, credentials και επαληθεύσιμα μαθησιακά αρχεία.",
                 cta: { label: "Web3Edu Ταυτότητα", href: "/#/join-gr" },
             },
         ],
@@ -138,11 +141,11 @@ const gr = {
         },
         productPreview: {
             eyebrow: "Μέσα στο Web3Edu",
-            title: "Πραγματική πρόοδος. Επαληθεύσιμα ορόσημα.",
+            title: "Η διαδρομή, το record και το προφίλ σου — σε ένα μέρος.",
             description:
-                "Η μαθησιακή σου διαδρομή, τα XP, τα επιτεύγματα και το επαληθεύσιμο προφίλ σου συνδυάζονται σε ένα ενιαίο μαθησιακό περιβάλλον.",
-            dashboardAlt: "Web3Edu dashboard με επόμενα βήματα, πρόοδο, XP και badges",
-            profileAlt: "Web3Edu επαληθεύσιμο προφίλ με verified milestone status",
+                "Δες μαζί τη Διαδρομή Μάθησης, την πρόοδο ενοτήτων και milestones, XP, Badges, Web3Edu Record και Verifiable Profile.",
+            dashboardAlt: "Web3Edu dashboard με Διαδρομή Μάθησης, πρόοδο, XP, Badges και Verifiable Profile",
+            profileAlt: "Web3Edu επαληθεύσιμο προφίλ με verified status",
         },
     },
 
@@ -173,6 +176,15 @@ const gr = {
     // -------------------------
     whatsNew: {
         items: [
+            {
+                id: "learning-modules-journey",
+                category: "update",
+                date: "2026-09-05",
+                title: "Οι Εκπαιδευτικές Ενότητες είναι διαθέσιμες",
+                description: "Δομημένες μαθησιακές διαδρομές που ενώνουν πόρους, πρακτικές δραστηριότητες, αποδεικτικά και αξιολόγηση.",
+                href: "#/learn-gr",
+                cta: "Εξερεύνησε τις Εκπαιδευτικές Ενότητες",
+            },
             {
                 id: "walletless-first-learning",
                 category: "update",
@@ -231,15 +243,6 @@ const gr = {
                 description: "Πρακτικά project paths για Builders που είναι έτοιμοι να προχωρήσουν πέρα από τα labs σε εφαρμοσμένη ανάπτυξη blockchain.",
                 href: "#/projects-gr",
                 cta: "Δες τα Projects",
-            },
-            {
-                id: "builder-readiness-dashboard",
-                category: "update",
-                date: "2026-04-03",
-                title: "Έτοιμος να γίνεις Builder;",
-                description: "Ολοκλήρωσε πρώτα τα Core Labs και μετά δες το block προτάσεων στο dashboard για να δεις ποια labs και ποιο Builder path σου ταιριάζουν στη συνέχεια.",
-                href: "#/dashboard-gr",
-                cta: "Πήγαινε στο Dashboard",
             },
         ],
     },

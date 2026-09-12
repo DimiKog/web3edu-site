@@ -138,15 +138,18 @@ const FooterGr = ({ content }) => {
                         <FaDiscord className="relative" aria-hidden="true" />
                     </a>
 
-                    <button
-                        type="button"
-                        disabled
-                        aria-label="Σελίδα LinkedIn (έρχεται σύντομα)"
-                        title="Σελίδα LinkedIn (έρχεται σύντομα)"
-                        className="relative opacity-60 cursor-not-allowed"
+                    <a
+                        href="https://www.linkedin.com/company/web3edu/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Άνοιγμα σελίδας Web3Edu στο LinkedIn"
+                        title="Web3Edu LinkedIn"
+                        className="relative hover:scale-110 transition-transform group"
                     >
+                        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8A57FF]/20 to-[#4ACBFF]/20 blur-xl opacity-0
+                                group-hover:opacity-100 transition"></div>
                         <FaLinkedin className="relative" aria-hidden="true" />
-                    </button>
+                    </a>
                 </div>
             </div>
 

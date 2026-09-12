@@ -1,26 +1,31 @@
 import {
     ArrowRight,
     BadgeCheck,
+    BookOpen,
     Blocks,
     FlaskConical,
     Fingerprint,
 } from "lucide-react";
 import SectionBadge from "./SectionBadge.jsx";
 import dashboardPreview from "../assets/home/web3edu-dashboard-preview.png";
-import profilePreview from "../assets/home/verifiable-profile-preview.png";
 
 const ICONS = {
-    labs: FlaskConical,
-    onchain: Blocks,
+    modules: BookOpen,
+    handsOn: FlaskConical,
     progress: BadgeCheck,
     identity: Fingerprint,
+    // legacy keys kept for safety if older content is referenced
+    labs: FlaskConical,
+    onchain: Blocks,
 };
 
 const ICON_STYLES = {
-    labs: "bg-[#8A57FF]/12 text-[#8A57FF] dark:bg-[#8A57FF]/20 dark:text-[#B794FF]",
-    onchain: "bg-cyan-500/12 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-200",
+    modules: "bg-[#8A57FF]/12 text-[#8A57FF] dark:bg-[#8A57FF]/20 dark:text-[#B794FF]",
+    handsOn: "bg-cyan-500/12 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-200",
     progress: "bg-fuchsia-500/12 text-fuchsia-700 dark:bg-fuchsia-400/15 dark:text-fuchsia-300",
     identity: "bg-indigo-500/12 text-indigo-700 dark:bg-indigo-400/15 dark:text-indigo-200",
+    labs: "bg-[#8A57FF]/12 text-[#8A57FF] dark:bg-[#8A57FF]/20 dark:text-[#B794FF]",
+    onchain: "bg-cyan-500/12 text-cyan-700 dark:bg-cyan-400/15 dark:text-cyan-200",
 };
 
 const AvailableNow = ({ content }) => {
@@ -110,7 +115,7 @@ const AvailableNow = ({ content }) => {
 
                     {/* RIGHT — product preview */}
                     {productPreview ? (
-                        <div className="mt-10 min-w-0 overflow-visible lg:mt-0 lg:pr-14">
+                        <div className="mt-10 min-w-0 lg:mt-0">
                             <div className="mb-4 max-w-xl lg:mb-4">
                                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8A57FF] dark:text-[#B794FF]">
                                     {productPreview.eyebrow}
@@ -123,31 +128,17 @@ const AvailableNow = ({ content }) => {
                                 </p>
                             </div>
 
-                            <div className="relative mx-auto w-full max-w-xl max-lg:w-[107%] max-lg:max-w-[107%] max-lg:-mx-[3.5%] overflow-visible lg:mx-0 lg:mr-auto lg:w-[72%] lg:max-w-[72%]">
+                            <div className="relative mx-auto w-full max-lg:w-[107%] max-lg:max-w-[107%] max-lg:-mx-[3.5%] lg:w-[65%] lg:max-w-[65%]">
                                 <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-950/5 shadow-md shadow-slate-950/10 dark:border-white/10 dark:bg-black/20 dark:shadow-black/30">
                                     <img
                                         src={dashboardPreview}
                                         alt={productPreview.dashboardAlt}
-                                        width={1184}
-                                        height={970}
+                                        width={1380}
+                                        height={1140}
                                         loading="lazy"
                                         decoding="async"
                                         className="block h-auto w-full object-contain"
                                     />
-                                </div>
-
-                                <div className="pointer-events-none absolute bottom-0 right-0 z-10 hidden w-[clamp(14rem,35%,18.5rem)] translate-x-[38%] translate-y-[8%] lg:block">
-                                    <div className="overflow-hidden rounded-xl border border-slate-200/90 bg-white p-1.5 shadow-xl shadow-slate-950/15 dark:border-white/15 dark:bg-slate-900 dark:shadow-black/40">
-                                        <img
-                                            src={profilePreview}
-                                            alt={productPreview.profileAlt}
-                                            width={1614}
-                                            height={396}
-                                            loading="lazy"
-                                            decoding="async"
-                                            className="block h-auto w-full rounded-lg object-contain"
-                                        />
-                                    </div>
                                 </div>
                             </div>
                         </div>
