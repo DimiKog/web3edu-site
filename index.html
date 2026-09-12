@@ -5,9 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Performance Optimization -->
-    <link rel="preconnect" href="https://rpc.dimikog.org" crossorigin />
-    <link rel="preconnect" href="https://web3edu-api.dimikog.org" crossorigin />
+    <!-- Performance hints: avoid preconnecting origins unused on anonymous public boot -->
     <link rel="dns-prefetch" href="https://blockexplorer.dimikog.org" />
     <link rel="dns-prefetch" href="https://faucet.dimikog.org" />
 
@@ -57,6 +55,7 @@
     <link rel="modulepreload" crossorigin href="/assets/vendor-noble-DhNKwdjr.js">
     <link rel="modulepreload" crossorigin href="/assets/vendor-react-NrBKANSf.js">
     <link rel="stylesheet" crossorigin href="/assets/index--sYaMG3G.css">
+    <link rel="preload" as="image" href="/assets/web3edu_logo_light-DRajzFdP.webp" fetchpriority="high" />
   </head>
   <body>
     <div id="root"></div>
