@@ -501,6 +501,7 @@ test("Lm01Page keeps cohesive path, hero facts band, and chapter-ending CTA", ()
   assert.match(closeSrc, /minmax\(0,/);
   assert.match(visualsSrc, /object-contain/);
   assert.doesNotMatch(visualsSrc, /invert|hue-rotate|mix-blend/);
+  assert.doesNotMatch(visualsSrc, /lmVisualNeedsLightSurface|LM_LIGHT_ILLUSTRATION_SURFACE/);
   assert.match(sidebarSrc, /loadError === "sign_in"/);
   assert.match(sidebarSrc, /progressStages/);
   assert.match(sidebarSrc, /overallPath/);
@@ -1126,4 +1127,120 @@ test("completed module preserves existing completion behavior", () => {
   assert.equal(view.nextRequiredStep, null);
   assert.equal(view.closingCta.kind, "complete");
   assert.equal(view.closingCta.eyebrow, "Module complete");
+});
+
+function lm04ProgressionFixture({
+  satisfied = { lab01: false, lab02: false, lab03: false },
+  assessmentPassed = false,
+  complete = false,
+  currentModule = "LM04",
+  nextRequiredEvidence = "lab01",
+  nextAction = {
+    type: "learning_module_evidence",
+    moduleId: "LM04",
+    evidenceId: "lab01",
+  },
+} = {}) {
+  const requiredEvidence = {
+    lab01: { satisfied: Boolean(satisfied.lab01) },
+    lab02: { satisfied: Boolean(satisfied.lab02) },
+    lab03: { satisfied: Boolean(satisfied.lab03) },
+  };
+  const missingEvidence = Object.keys(requiredEvidence).filter(
+    (id) => !requiredEvidence[id].satisfied
+  );
+  return {
+    earnedTier: "explorer",
+    computedTier: "builder",
+    currentModule,
+    currentPath: { targetTier: "builder", alignmentStatus: "current_curriculum_path" },
+    nextAction,
+    nextRequiredEvidence,
+    modules: {
+      LM04: {
+        complete,
+        requiredEvidenceSatisfied: missingEvidence.length === 0,
+        requiredEvidence,
+        missingEvidence,
+        assessment: {
+          id: "lm04-assessment",
+          required: true,
+          passed: assessmentPassed,
+        },
+      },
+    },
+  };
+}
+
+test("LM04 readings never appear as required evidence and never complete the module", () => {
+  const view = getLmPageViewState(lm04ProgressionFixture(), "en", "LM04");
+  assert.equal(view.complete, false);
+  const bookRows = view.activities.filter((a) => a.visualType === "book");
+  assert.equal(bookRows.length, 2);
+  for (const row of bookRows) {
+    assert.equal(row.presentationOnly, true);
+    assert.equal(row.evidenceId, null);
+    assert.equal(row.evidenceSatisfied, null);
+    assert.doesNotMatch(String(row.statusLabel), /completed|recorded/i);
+  }
+  assert.deepEqual(
+    view.requiredEvidenceItems
+      .filter((i) => i.kind === "practical")
+      .map((i) => i.evidenceId),
+    ["lab01", "lab02", "lab03"]
+  );
+  assert.ok(view.requiredEvidenceItems.some((i) => i.kind === "assessment"));
+});
+
+test("LM04 completion still requires labs 01–03 and passed assessment", () => {
+  assert.equal(
+    getLmPageViewState(lm04ProgressionFixture(), "en", "LM04").complete,
+    false
+  );
+
+  assert.equal(
+    getLmPageViewState(
+      lm04ProgressionFixture({
+        assessmentPassed: true,
+        complete: false,
+        nextRequiredEvidence: "lab01",
+      }),
+      "en",
+      "LM04"
+    ).complete,
+    false
+  );
+
+  assert.equal(
+    getLmPageViewState(
+      lm04ProgressionFixture({
+        satisfied: { lab01: true, lab02: true, lab03: true },
+        assessmentPassed: false,
+        complete: false,
+        nextRequiredEvidence: null,
+        nextAction: {
+          type: "assessment",
+          moduleId: "LM04",
+          assessmentId: "lm04-assessment",
+        },
+      }),
+      "en",
+      "LM04"
+    ).complete,
+    false
+  );
+
+  const done = getLmPageViewState(
+    lm04ProgressionFixture({
+      satisfied: { lab01: true, lab02: true, lab03: true },
+      assessmentPassed: true,
+      complete: true,
+      nextRequiredEvidence: null,
+      nextAction: { type: "learning_module", moduleId: "LM05" },
+    }),
+    "en",
+    "LM04"
+  );
+  assert.equal(done.complete, true);
+  assert.equal(done.closingCta.kind, "complete");
 });

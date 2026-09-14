@@ -54,6 +54,21 @@ export const LM03_VISUALS = {
 };
 
 /**
+ * LM04 production visuals (public/ paths).
+ * Spec: same visual family as LM01/LM08; no embedded text/logos.
+ * completion reuses the LM04 hero until dedicated chrome art ships.
+ * nextStep uses the assessment art so the chapter-close CTA matches the
+ * assessment Learning Path row (do not reuse lm01-next-step.png).
+ */
+export const LM04_VISUALS = {
+  hero: "/learning-modules/visuals/lm04/lm04-hero.png",
+  concept: "/learning-modules/visuals/lm04/lm04-concept.png",
+  assessment: "/learning-modules/visuals/lm04/lm04-assessment.png",
+  nextStep: "/learning-modules/visuals/lm04/lm04-assessment.png",
+  completion: "/learning-modules/visuals/lm04/lm04-hero.png",
+};
+
+/**
  * @typedef {"book"|"reading"|"concept"|"demo"|"simulator"|"observation"|"coding"|"inspection"|"verification"|"assessment"} LmActivityVisualType
  * @typedef {"required"|"recommended"|"optional"|"core"} LmRequirementHint
  */
@@ -278,7 +293,6 @@ export const LM_PRESENTATION_REGISTRY = {
     ],
   },
 
-  /** Thin curriculum stubs — chapter UI not yet implemented. */
   LM02: {
     id: "LM02",
     pathKey: "explorer",
@@ -675,12 +689,211 @@ export const LM_PRESENTATION_REGISTRY = {
     pathKey: "builder",
     moduleNumber: 4,
     totalModules: 11,
-    chapterAvailable: false,
-    chapterRoute: null,
+    /** Interactive Chapter page exists (not curriculum/evidence completeness). */
+    chapterAvailable: true,
+    chapterRoute: {
+      en: "/learning-modules/lm04",
+      gr: "/learning-modules-gr/lm04",
+    },
     title: {
       en: "Keys, Wallets and Blockchain Identity",
       gr: "Κλειδιά, Πορτοφόλια και Ταυτότητα Blockchain",
     },
+    transition: {
+      from: {
+        en: "I understand blockchain platforms in principle",
+        gr: "Κατανοώ τις πλατφόρμες blockchain στην αρχή τους",
+      },
+      to: {
+        en: "I can distinguish wallets, keys, addresses, and carefully interpret Web3 identity",
+        gr: "Μπορώ να διακρίνω πορτοφόλια, κλειδιά, διευθύνσεις και να ερμηνεύω προσεκτικά την ταυτότητα στο Web3",
+      },
+    },
+    about: {
+      en: "LM04 connects key roles, wallets, and addresses to two practical capabilities — encryption for confidentiality and signing for proof of control — then checks understanding with three existing labs and a required assessment.",
+      gr: "Το LM04 συνδέει ρόλους κλειδιών, πορτοφόλια και διευθύνσεις με δύο πρακτικές δυνατότητες — κρυπτογράφηση για εμπιστευτικότητα και υπογραφή για απόδειξη ελέγχου — και ελέγχει την κατανόηση με τρία υπάρχοντα labs και μια απαιτούμενη αξιολόγηση.",
+    },
+    learnerMeta: {
+      estimatedTime: { en: "2–3 hours", gr: "2–3 ώρες" },
+      level: { en: "Beginner–Intermediate", gr: "Αρχάριο–Μεσαίο" },
+      assessmentXp: 200,
+    },
+    /**
+     * LM04 artwork under public/learning-modules/visuals/lm04/.
+     * Meta, book, and coding thumbs still reuse shared LM01 family assets.
+     */
+    visuals: {
+      hero: LM04_VISUALS.hero,
+      completion: LM04_VISUALS.completion,
+      nextStep: LM04_VISUALS.nextStep,
+      meta: {
+        time: LM01_VISUALS.metaTime,
+        level: LM01_VISUALS.metaLevel,
+        xp: LM01_VISUALS.metaXp,
+      },
+      activityByType: {
+        concept: LM04_VISUALS.concept,
+        book: LM01_VISUALS.book,
+        coding: LM01_VISUALS.simulator,
+        assessment: LM04_VISUALS.assessment,
+      },
+    },
+    learningOutcomes: {
+      en: [
+        "Explain the roles of private key, public key, and address",
+        "Explain that a wallet manages keys/signing and is not itself the identity",
+        "Distinguish confidentiality (encryption) from authenticity / proof of control (signing)",
+        "Prove control of an address with a signature without a transaction or revealing the private key",
+        "Interpret Web3 identity carefully: address control ≠ real-world identity, social login, or educational credentials",
+      ],
+      gr: [
+        "Να εξηγείς τους ρόλους ιδιωτικού κλειδιού, δημόσιου κλειδιού και διεύθυνσης",
+        "Να εξηγείς ότι το πορτοφόλι διαχειρίζεται κλειδιά/υπογραφές και δεν είναι από μόνο του η ταυτότητα",
+        "Να διακρίνεις την εμπιστευτικότητα (κρυπτογράφηση) από την αυθεντικότητα / απόδειξη ελέγχου (υπογραφή)",
+        "Να αποδεικνύεις έλεγχο διεύθυνσης με υπογραφή χωρίς συναλλαγή και χωρίς αποκάλυψη ιδιωτικού κλειδιού",
+        "Να ερμηνεύεις προσεκτικά την ταυτότητα στο Web3: έλεγχος διεύθυνσης ≠ πραγματική ταυτότητα, social login ή εκπαιδευτικά διαπιστευτήρια",
+      ],
+    },
+    activities: [
+      {
+        id: "lm04-interactive-chapter",
+        visualType: "concept",
+        requirementHint: "core",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "Interactive Chapter — Keys, wallets, identity",
+          gr: "Διαδραστικό Κεφάλαιο — Κλειδιά, πορτοφόλια, ταυτότητα",
+        },
+        description: {
+          en: "Build the conceptual spine: keys → addresses → wallets → encryption vs signing → proving control → interpreting identity.",
+          gr: "Χτίσε τον εννοιολογικό άξονα: κλειδιά → διευθύνσεις → πορτοφόλια → κρυπτογράφηση vs υπογραφή → απόδειξη ελέγχου → ερμηνεία ταυτότητας.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm04-chapter3-reading",
+        visualType: "book",
+        requirementHint: "recommended",
+        showRequirementStatus: true,
+        languages: ["both"],
+        title: {
+          en: "Core Reading — Keys, Addresses and Wallets",
+          gr: "Βασική Μελέτη — Κλειδιά, Διευθύνσεις και Πορτοφόλια",
+        },
+        description: {
+          en: "Study Chapter 3 of the course textbook (“Χρήση Κλειδιών και Απόκτηση Διευθύνσεων”, pp. 57–75) for the core theory behind cryptographic keys, blockchain addresses and wallets.",
+          gr: "Μελέτησε το Κεφάλαιο 3 του βιβλίου («Χρήση Κλειδιών και Απόκτηση Διευθύνσεων», σελ. 57–75) για τη βασική θεωρία γύρω από τα κρυπτογραφικά κλειδιά, τις διευθύνσεις blockchain και τα πορτοφόλια.",
+        },
+        linkKind: "external",
+        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        presentationOnly: true,
+      },
+      {
+        id: "lm04-lab01",
+        visualType: "coding",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Lab 01 — Wallets & Web3 Identity",
+          gr: "Lab 01 — Πορτοφόλια & Ταυτότητα Web3",
+        },
+        description: {
+          en: "Observe network context, inspect an address, and see how wallets relate keys to a public address.",
+          gr: "Παρατήρησε το δίκτυο, επιθεώρησε μια διεύθυνση και δες πώς τα πορτοφόλια συνδέουν κλειδιά με δημόσια διεύθυνση.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/labs/wallets-keys",
+          gr: "/labs-gr/wallets-keys",
+        },
+        evidenceId: "lab01",
+        presentationOnly: false,
+      },
+      {
+        id: "lm04-lab02",
+        visualType: "coding",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Lab 02 — Encrypted Messages",
+          gr: "Lab 02 — Κρυπτογραφημένα Μηνύματα",
+        },
+        description: {
+          en: "Practice confidentiality: encrypt with a public key (not an address) and decrypt with the matching private key — off-chain.",
+          gr: "Εξάσκησε την εμπιστευτικότητα: κρυπτογράφησε με δημόσιο κλειδί (όχι διεύθυνση) και αποκρυπτογράφησε με το αντίστοιχο ιδιωτικό κλειδί — εκτός αλυσίδας.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/labs/lab02",
+          gr: "/labs-gr/lab02",
+        },
+        evidenceId: "lab02",
+        presentationOnly: false,
+      },
+      {
+        id: "lm04-section43-reading",
+        visualType: "book",
+        requirementHint: "recommended",
+        showRequirementStatus: true,
+        languages: ["both"],
+        title: {
+          en: "Focused Reading — Digital Signatures",
+          gr: "Εστιασμένη Μελέτη — Ψηφιακές Υπογραφές",
+        },
+        description: {
+          en: "Read Section 4.3 of the course textbook (“Χρήση ψηφιακών υπογραφών”, pp. 93–97) before Lab 03 to connect private-key signing, verification and proof of control.",
+          gr: "Μελέτησε την ενότητα 4.3 του βιβλίου («Χρήση ψηφιακών υπογραφών», σελ. 93–97) πριν από το Lab 03, ώστε να συνδέσεις την υπογραφή με ιδιωτικό κλειδί, την επαλήθευση και την απόδειξη ελέγχου μιας διεύθυνσης.",
+        },
+        linkKind: "external",
+        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        presentationOnly: true,
+      },
+      {
+        id: "lm04-lab03",
+        visualType: "coding",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Lab 03 — Message Signing & Ownership",
+          gr: "Lab 03 — Υπογραφή Μηνυμάτων & Ιδιοκτησία",
+        },
+        description: {
+          en: "Prove control of an address by signing and verifying — without revealing the private key or sending a transaction.",
+          gr: "Απόδειξε έλεγχο διεύθυνσης με υπογραφή και επαλήθευση — χωρίς αποκάλυψη ιδιωτικού κλειδιού και χωρίς συναλλαγή.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/labs/lab03",
+          gr: "/labs-gr/lab03",
+        },
+        evidenceId: "lab03",
+        presentationOnly: false,
+      },
+      {
+        id: "lm04-assessment",
+        visualType: "assessment",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "LM04 Assessment",
+          gr: "Αξιολόγηση LM04",
+        },
+        description: {
+          en: "Check that you can separate keys, wallets, encryption, signing, and careful identity interpretation. Module completion also requires Labs 01–03.",
+          gr: "Έλεγξε ότι μπορείς να διακρίνεις κλειδιά, πορτοφόλια, κρυπτογράφηση, υπογραφή και προσεκτική ερμηνεία ταυτότητας. Η ολοκλήρωση του module απαιτεί επίσης τα Labs 01–03.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm04/assessment",
+          gr: "/learning-modules-gr/lm04/assessment",
+        },
+        evidenceId: "lm04-assessment",
+        presentationOnly: false,
+      },
+    ],
   },
   LM05: {
     id: "LM05",
@@ -1087,7 +1300,7 @@ export function getLmActivityVisualSrc(moduleId, visualType, activityId = null) 
 
 /**
  * Localized learner-facing course metadata for a module.
- * Returns null when a module has not defined it yet (LM02–LM11 later).
+ * Returns null when a module has not defined learnerMeta yet.
  * @param {string} moduleId
  * @param {"en"|"gr"} lang
  * @returns {{ estimatedTime: string, level: string, assessmentXp: number }|null}

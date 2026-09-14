@@ -323,6 +323,52 @@ export const LM_MODULE_PAGE_CHROME = {
       },
     },
   },
+  LM04: {
+    en: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Read the interactive chapter and the recommended textbook sections, then complete Labs 01–03 as required evidence. Finish the LM04 Assessment to check keys, wallets, encryption vs signing, and careful identity interpretation. Opening this page or textbook links does not itself record completion.",
+      sidebarProgress: "Your progress in LM04",
+      assessmentTitle: "LM04 Assessment",
+      nextRequiredBody:
+        "Complete the next required LM04 lab or assessment. Opening this page or visiting labs does not itself record completion.",
+      finishAssessmentCta: "Finish the assessment to complete LM04",
+      closingNextBody:
+        "Finish Labs 01–03 and the LM04 Assessment to complete this module.",
+      closingNextEvidenceBody:
+        "Complete the next required LM04 lab to continue this module.",
+      moduleCompleteBody:
+        "LM04 is complete according to your verifiable learning progress. You can still revisit labs and the chapter anytime.",
+      signInRequired: "Sign in with your Web3Edu identity to load your LM04 progress.",
+      loading: "Loading LM04…",
+      moduleTypeLabel: "Foundational",
+      activityMixValue: "Chapter, textbook readings, Labs 01–03, assessment",
+    },
+    gr: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Διάβασε το διαδραστικό κεφάλαιο και τις προτεινόμενες ενότητες του συγγράμματος, και ολοκλήρωσε τα Labs 01–03 ως απαιτούμενα αποδεικτικά. Ολοκλήρωσε την Αξιολόγηση LM04 για να ελέγξεις κλειδιά, πορτοφόλια, κρυπτογράφηση vs υπογραφή και προσεκτική ερμηνεία ταυτότητας. Το άνοιγμα αυτής της σελίδας ή των συνδέσμων του συγγράμματος δεν καταγράφει από μόνο του ολοκλήρωση.",
+      sidebarProgress: "Η πρόοδός σου στο LM04",
+      sidebarAbout: "Σχετικά με το LM04",
+      assessmentTitle: "Αξιολόγηση LM04",
+      nextRequiredBody:
+        "Ολοκλήρωσε το επόμενο απαιτούμενο lab ή αξιολόγηση LM04. Το άνοιγμα αυτής της σελίδας ή των labs δεν καταγράφει από μόνο του ολοκλήρωση.",
+      finishAssessmentCta: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM04",
+      closingNextBody:
+        "Ολοκλήρωσε τα Labs 01–03 και την Αξιολόγηση LM04 για να τελειώσεις αυτό το module.",
+      closingNextEvidenceBody:
+        "Ολοκλήρωσε το επόμενο απαιτούμενο lab LM04 για να συνεχίσεις αυτό το module.",
+      moduleCompleteBody:
+        "Το LM04 ολοκληρώθηκε σύμφωνα με την επαληθεύσιμη πρόοδό σου. Μπορείς να ξαναδείς labs και κεφάλαιο οποιαδήποτε στιγμή.",
+      signInRequired:
+        "Συνδέσου με την ταυτότητα Web3Edu για να φορτωθεί η πρόοδός σου στο LM04.",
+      loading: "Φόρτωση LM04…",
+      moduleTypeLabel: "Θεμελιώδες",
+      activityMixValue: "Κεφάλαιο, αναγνώσεις συγγράμματος, Labs 01–03, αξιολόγηση",
+    },
+  },
 };
 
 /**

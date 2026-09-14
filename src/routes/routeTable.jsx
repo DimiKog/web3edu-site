@@ -91,9 +91,13 @@ const Lm02AssessmentPage = lazy(
 const Lm03AssessmentPage = lazy(
   () => import("../pages/learning-modules/Lm03AssessmentPage.jsx")
 );
+const Lm04AssessmentPage = lazy(
+  () => import("../pages/learning-modules/Lm04AssessmentPage.jsx")
+);
 const Lm01Page = lazy(() => import("../pages/learning-modules/Lm01Page.jsx"));
 const Lm02Page = lazy(() => import("../pages/learning-modules/Lm02Page.jsx"));
 const Lm03Page = lazy(() => import("../pages/learning-modules/Lm03Page.jsx"));
+const Lm04Page = lazy(() => import("../pages/learning-modules/Lm04Page.jsx"));
 const Lm08Page = lazy(() => import("../pages/learning-modules/Lm08Page.jsx"));
 const LearnPage = lazy(() => import("../pages/learning-modules/LearnPage.jsx"));
 const SystemLabS0 = lazy(() => import("../pages/labs/SystemLabS0.jsx"));
@@ -290,6 +294,18 @@ export const routeTable = {
       {
         path: "/learning-modules-gr/lm03/assessment",
         component: Lm03AssessmentPage,
+        props: { lang: "gr" },
+      },
+      { path: "/learning-modules/lm04", component: Lm04Page },
+      {
+        path: "/learning-modules-gr/lm04",
+        component: Lm04Page,
+        props: { lang: "gr" },
+      },
+      { path: "/learning-modules/lm04/assessment", component: Lm04AssessmentPage },
+      {
+        path: "/learning-modules-gr/lm04/assessment",
+        component: Lm04AssessmentPage,
         props: { lang: "gr" },
       },
       { path: "/learning-modules/lm08", component: Lm08Page },

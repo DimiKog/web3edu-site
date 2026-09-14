@@ -206,12 +206,23 @@ test("LM03 assessment EN/GR ready routes", () => {
     assert.equal(gr.route, "/learning-modules-gr/lm03/assessment");
 });
 
-test("other assessments remain coming soon", () => {
-    const en = resolveProgressionActionTarget({
+test("lm04 assessment is ready; later assessments remain coming soon", () => {
+    const lm04 = resolveProgressionActionTarget({
         nextAction: {
             type: "assessment",
             moduleId: "LM04",
             assessmentId: "lm04-assessment",
+        },
+        lang: "en",
+    });
+    assert.equal(lm04.status, "ready");
+    assert.equal(lm04.route, "/learning-modules/lm04/assessment");
+
+    const en = resolveProgressionActionTarget({
+        nextAction: {
+            type: "assessment",
+            moduleId: "LM05",
+            assessmentId: "lm05-assessment",
         },
         lang: "en",
     });

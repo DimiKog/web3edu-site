@@ -12,8 +12,10 @@ import test from "node:test";
 import {
   LM_PRESENTATION_REGISTRY,
   LM_CURRICULUM_IDS,
+  LM01_KALLIPOS_TEXTBOOK_URL,
   LM01_VISUALS,
   LM02_VISUALS,
+  LM04_VISUALS,
   LM08_VISUALS,
   getLmActivityVisualSrc,
   getLmChapterRoute,
@@ -181,8 +183,8 @@ test("curriculum registry covers exactly LM01–LM11 with correct path groups", 
   );
 });
 
-test("chapterAvailable is true for LM01, LM02, LM03, and LM08 Interactive Chapters", () => {
-  const availableIds = new Set(["LM01", "LM02", "LM03", "LM08"]);
+test("chapterAvailable is true for LM01, LM02, LM03, LM04, and LM08 Interactive Chapters", () => {
+  const availableIds = new Set(["LM01", "LM02", "LM03", "LM04", "LM08"]);
   for (const id of LM_CURRICULUM_IDS) {
     const available = isLmChapterAvailable(id);
     if (availableIds.has(id)) {
@@ -202,8 +204,114 @@ test("chapterAvailable is true for LM01, LM02, LM03, and LM08 Interactive Chapte
   assert.equal(getLmChapterRoute("LM02", "gr"), "/learning-modules-gr/lm02");
   assert.equal(getLmChapterRoute("LM03", "en"), "/learning-modules/lm03");
   assert.equal(getLmChapterRoute("LM03", "gr"), "/learning-modules-gr/lm03");
+  assert.equal(getLmChapterRoute("LM04", "en"), "/learning-modules/lm04");
+  assert.equal(getLmChapterRoute("LM04", "gr"), "/learning-modules-gr/lm04");
   assert.equal(getLmChapterRoute("LM08", "en"), "/learning-modules/lm08");
   assert.equal(getLmChapterRoute("LM08", "gr"), "/learning-modules-gr/lm08");
+});
+
+test("LM04 chapter wires lab01–03 evidence and assessment", () => {
+  const mod = LM_PRESENTATION_REGISTRY.LM04;
+  assert.equal(mod.chapterAvailable, true);
+  assert.equal(mod.pathKey, "builder");
+  assert.equal(mod.learnerMeta.assessmentXp, 200);
+  assert.equal(mod.learningOutcomes.en.length, 5);
+  assert.equal(mod.learningOutcomes.gr.length, 5);
+  const visible = getLmVisibleActivities("LM04", "en");
+  assert.deepEqual(
+    visible.map((a) => a.id),
+    [
+      "lm04-interactive-chapter",
+      "lm04-chapter3-reading",
+      "lm04-lab01",
+      "lm04-lab02",
+      "lm04-section43-reading",
+      "lm04-lab03",
+      "lm04-assessment",
+    ]
+  );
+  assert.equal(visible[0].presentationOnly, true);
+  const evidenceIds = visible.map((a) => a.evidenceId).filter(Boolean);
+  assert.deepEqual(evidenceIds, ["lab01", "lab02", "lab03", "lm04-assessment"]);
+  assert.equal(visible.find((a) => a.id === "lm04-lab01")?.href.en, "/labs/wallets-keys");
+  assert.equal(visible.find((a) => a.id === "lm04-lab02")?.href.en, "/labs/lab02");
+  assert.equal(visible.find((a) => a.id === "lm04-lab03")?.href.en, "/labs/lab03");
+  const assessment = visible.find((a) => a.id === "lm04-assessment");
+  assert.equal(assessment?.linkKind, "internal");
+  assert.equal(assessment?.href.gr, "/learning-modules-gr/lm04/assessment");
+});
+
+test("LM04 textbook readings are presentation-only Kallipos resources", () => {
+  const visible = getLmVisibleActivities("LM04", "en");
+  const core = visible.find((a) => a.id === "lm04-chapter3-reading");
+  const focused = visible.find((a) => a.id === "lm04-section43-reading");
+  assert.ok(core);
+  assert.ok(focused);
+  for (const reading of [core, focused]) {
+    assert.equal(reading.visualType, "book");
+    assert.equal(reading.requirementHint, "recommended");
+    assert.equal(reading.presentationOnly, true);
+    assert.equal(reading.evidenceId, undefined);
+    assert.equal(reading.linkKind, "external");
+    assert.equal(reading.href, LM01_KALLIPOS_TEXTBOOK_URL);
+  }
+  assert.match(core.description.en, /Chapter 3/);
+  assert.match(core.description.en, /57–75|57-75/);
+  assert.match(focused.description.en, /4\.3/);
+  assert.match(focused.description.en, /93–97|93-97/);
+  assert.equal(getLmActivityVisualSrc("LM04", "book"), LM01_VISUALS.book);
+  assert.equal(
+    getLmVisibleActivities("LM04", "gr").filter((a) => a.visualType === "book")
+      .length,
+    2
+  );
+});
+
+test("LM04 uses dedicated hero/concept/assessment; nextStep uses assessment art", () => {
+  const mod = LM_PRESENTATION_REGISTRY.LM04;
+  assert.equal(mod.visuals.hero, LM04_VISUALS.hero);
+  assert.equal(mod.visuals.nextStep, LM04_VISUALS.nextStep);
+  assert.equal(mod.visuals.completion, LM04_VISUALS.completion);
+  assert.equal(mod.visuals.nextStep, LM04_VISUALS.assessment);
+  assert.equal(mod.visuals.completion, LM04_VISUALS.hero);
+  assert.notEqual(mod.visuals.hero, LM01_VISUALS.hero);
+  assert.notEqual(mod.visuals.nextStep, LM01_VISUALS.nextStep);
+  assert.notEqual(mod.visuals.completion, LM01_VISUALS.completion);
+  assert.equal(mod.visuals.activityByType.concept, LM04_VISUALS.concept);
+  assert.notEqual(mod.visuals.activityByType.concept, LM01_VISUALS.demo);
+  assert.equal(mod.visuals.activityByType.assessment, LM04_VISUALS.assessment);
+  assert.notEqual(mod.visuals.activityByType.assessment, LM01_VISUALS.assessment);
+  assert.equal(getLmActivityVisualSrc("LM04", "concept"), LM04_VISUALS.concept);
+  assert.equal(getLmActivityVisualSrc("LM04", "book"), LM01_VISUALS.book);
+  assert.equal(getLmActivityVisualSrc("LM04", "coding"), LM01_VISUALS.simulator);
+  assert.equal(getLmActivityVisualSrc("LM04", "assessment"), LM04_VISUALS.assessment);
+  assert.equal(mod.visuals.meta.time, LM01_VISUALS.metaTime);
+  assert.equal(mod.visuals.meta.level, LM01_VISUALS.metaLevel);
+  assert.equal(mod.visuals.meta.xp, LM01_VISUALS.metaXp);
+});
+
+test("LM04 expected visual asset paths exist for owner drop-in", () => {
+  assert.equal(LM04_VISUALS.hero, "/learning-modules/visuals/lm04/lm04-hero.png");
+  assert.equal(
+    LM04_VISUALS.concept,
+    "/learning-modules/visuals/lm04/lm04-concept.png"
+  );
+  assert.equal(
+    LM04_VISUALS.assessment,
+    "/learning-modules/visuals/lm04/lm04-assessment.png"
+  );
+  assert.equal(existsSync(join(publicRoot, LM04_VISUALS.hero.slice(1))), true);
+  assert.equal(existsSync(join(publicRoot, LM04_VISUALS.concept.slice(1))), true);
+  assert.equal(
+    existsSync(join(publicRoot, LM04_VISUALS.assessment.slice(1))),
+    true
+  );
+  assert.equal(getLmModuleVisuals("LM04").hero, LM04_VISUALS.hero);
+  assert.equal(getLmActivityVisualSrc("LM04", "concept"), LM04_VISUALS.concept);
+  assert.equal(
+    getLmActivityVisualSrc("LM04", "assessment"),
+    LM04_VISUALS.assessment
+  );
 });
 
 test("LM03 chapter is bilingual with locked transition and live assessment wiring", () => {
