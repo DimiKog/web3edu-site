@@ -69,6 +69,25 @@ export const LM04_VISUALS = {
 };
 
 /**
+ * LM05 production visuals (public/ paths).
+ * Hero file is `lm05-hero.png` (owner drop-in name; not lm05-hero-transactions-state.png).
+ * Interactive Chapter reuses the hero path (no duplicate file).
+ * nextStep keeps shared assessment art so chapter-close matches the coming-soon assessment row.
+ * Book + assessment stay on the shared LM01 vocabulary.
+ */
+export const LM05_VISUALS = {
+  hero: "/learning-modules/visuals/lm05/lm05-hero.png",
+  concept: "/learning-modules/visuals/lm05/lm05-hero.png",
+  lab04: "/learning-modules/visuals/lm05/lm05-lab04-transactions-gas.png",
+  lab05: "/learning-modules/visuals/lm05/lm05-lab05-smart-contracts-state.png",
+  educationalLedger:
+    "/learning-modules/visuals/lm05/lm05-educational-ledger-contribution.png",
+  assessment: LM01_VISUALS.assessment,
+  nextStep: LM01_VISUALS.assessment,
+  completion: "/learning-modules/visuals/lm05/lm05-hero.png",
+};
+
+/**
  * @typedef {"book"|"reading"|"concept"|"demo"|"simulator"|"observation"|"coding"|"inspection"|"verification"|"assessment"} LmActivityVisualType
  * @typedef {"required"|"recommended"|"optional"|"core"} LmRequirementHint
  */
@@ -900,12 +919,195 @@ export const LM_PRESENTATION_REGISTRY = {
     pathKey: "builder",
     moduleNumber: 5,
     totalModules: 11,
-    chapterAvailable: false,
-    chapterRoute: null,
+    /** Interactive Chapter page exists (not curriculum/evidence completeness). */
+    chapterAvailable: true,
+    chapterRoute: {
+      en: "/learning-modules/lm05",
+      gr: "/learning-modules-gr/lm05",
+    },
     title: {
       en: "Transactions and Blockchain State",
       gr: "Συναλλαγές και Κατάσταση Blockchain",
     },
+    transition: {
+      from: {
+        en: "Understands keys, wallets and identity",
+        gr: "Κατανοεί κλειδιά, πορτοφόλια και ταυτότητα",
+      },
+      to: {
+        en: "Explains transactions, state and lifecycle using evidence",
+        gr: "Εξηγεί συναλλαγές, κατάσταση και κύκλο ζωής με αποδεικτικά στοιχεία",
+      },
+    },
+    about: {
+      en: "LM05 connects proof of address control to authorized requests that can change shared blockchain state. Learners trace Intent → Transaction → Successful Execution → State Transition → Shared State, practice on Labs 04–05, and prepare for an Educational Ledger contribution and assessment.",
+      gr: "Το LM05 συνδέει την απόδειξη ελέγχου διεύθυνσης με εξουσιοδοτημένα αιτήματα που μπορούν να αλλάξουν την κοινή κατάσταση blockchain. Οι εκπαιδευόμενοι ακολουθούν Intent → Transaction → Successful Execution → State Transition → Shared State, εξασκούνται στα Labs 04–05 και προετοιμάζονται για συνεισφορά στο Εκπαιδευτικό Ledger και αξιολόγηση.",
+    },
+    learnerMeta: {
+      estimatedTime: { en: "2–3 hours", gr: "2–3 ώρες" },
+      level: { en: "Beginner–Intermediate", gr: "Αρχάριο–Μεσαίο" },
+      assessmentXp: 200,
+    },
+    /**
+     * LM05 artwork under public/learning-modules/visuals/lm05/.
+     * Lab/PEL rows use activityById overrides so coding/observation type
+     * fallbacks stay shared and Lab04/Lab05 pages are untouched.
+     */
+    visuals: {
+      hero: LM05_VISUALS.hero,
+      completion: LM05_VISUALS.completion,
+      nextStep: LM05_VISUALS.nextStep,
+      meta: {
+        time: LM01_VISUALS.metaTime,
+        level: LM01_VISUALS.metaLevel,
+        xp: LM01_VISUALS.metaXp,
+      },
+      activityByType: {
+        concept: LM05_VISUALS.concept,
+        book: LM01_VISUALS.book,
+        coding: LM01_VISUALS.simulator,
+        observation: LM01_VISUALS.demo,
+        assessment: LM05_VISUALS.assessment,
+      },
+      activityById: {
+        "lm05-interactive-chapter": LM05_VISUALS.concept,
+        "lm05-lab04": LM05_VISUALS.lab04,
+        "lm05-lab05": LM05_VISUALS.lab05,
+        "lm05-pel-transaction": LM05_VISUALS.educationalLedger,
+      },
+    },
+    learningOutcomes: {
+      en: [
+        "Explain a blockchain transaction as an authorized request that can change shared blockchain state",
+        "Interpret the main elements and lifecycle of an Ethereum transaction, including sender, receiver, value/data, nonce, gas, pending and included states",
+        "Explain blockchain state as the current result of previously executed transactions, using examples such as balances, account nonces and contract state",
+        "Distinguish a read-only blockchain interaction from a state-changing transaction",
+        "Trace State S0 → Transaction → Execution → State S1 and explain how executed transactions contribute to a shared ledger/history",
+      ],
+      gr: [
+        "Να εξηγείς μια συναλλαγή blockchain ως εξουσιοδοτημένο αίτημα που μπορεί να αλλάξει την κοινή κατάσταση blockchain",
+        "Να ερμηνεύεις τα βασικά στοιχεία και τον κύκλο ζωής μιας συναλλαγής Ethereum, συμπεριλαμβανομένων αποστολέα, παραλήπτη, value/data, nonce, gas, καταστάσεων pending και included",
+        "Να εξηγείς την κατάσταση blockchain ως το τρέχον αποτέλεσμα προηγούμενων εκτελεσμένων συναλλαγών, με παραδείγματα όπως υπόλοιπα, nonce λογαριασμών και κατάσταση συμβολαίων",
+        "Να διακρίνεις μια αλληλεπίδραση μόνο ανάγνωσης από μια συναλλαγή που αλλάζει κατάσταση",
+        "Να ακολουθείς State S0 → Transaction → Execution → State S1 και να εξηγείς πώς οι εκτελεσμένες συναλλαγές συμβάλλουν σε κοινό ledger/ιστορικό",
+      ],
+    },
+    activities: [
+      {
+        id: "lm05-interactive-chapter",
+        visualType: "concept",
+        requirementHint: "core",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "Interactive Chapter — Transactions and state",
+          gr: "Διαδραστικό Κεφάλαιο — Συναλλαγές και κατάσταση",
+        },
+        description: {
+          en: "Follow the conceptual spine: Intent → Transaction → Successful Execution → State Transition → Shared State — and see why not every interaction changes state.",
+          gr: "Ακολούθησε τον εννοιολογικό άξονα: Intent → Transaction → Successful Execution → State Transition → Shared State — και δες γιατί δεν αλλάζει κατάσταση κάθε αλληλεπίδραση.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm05-chapter4-reading",
+        visualType: "book",
+        requirementHint: "recommended",
+        showRequirementStatus: true,
+        languages: ["both"],
+        title: {
+          en: "Core Reading — Transactions and State Transition",
+          gr: "Βασική Μελέτη — Συναλλαγές και Μετάβαση Κατάστασης",
+        },
+        description: {
+          en: "Study Chapter 4 of the course textbook with emphasis on §4.2.2 and the material around Ethereum transactions, transaction structure, and state transition.",
+          gr: "Μελέτησε το Κεφάλαιο 4 του βιβλίου με έμφαση στην ενότητα §4.2.2 και το υλικό γύρω από συναλλαγές Ethereum, δομή συναλλαγής και μετάβαση κατάστασης.",
+        },
+        linkKind: "external",
+        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        presentationOnly: true,
+      },
+      {
+        id: "lm05-lab04",
+        visualType: "coding",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Lab 04 — Transactions & Gas",
+          gr: "Lab 04 — Συναλλαγές & Gas",
+        },
+        description: {
+          en: "Observe a real transaction on Besu Edu-Net: how it is formed and signed, how nonce and gas appear, and how execution produces state effects.",
+          gr: "Παρατήρησε μια πραγματική συναλλαγή στο Besu Edu-Net: πώς σχηματίζεται και υπογράφεται, πώς εμφανίζονται nonce και gas, και πώς η εκτέλεση παράγει επιπτώσεις στην κατάσταση.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/labs/lab04",
+          gr: "/labs-gr/lab04",
+        },
+        evidenceId: "lab04",
+        presentationOnly: false,
+      },
+      {
+        id: "lm05-lab05",
+        visualType: "coding",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Lab 05 — Smart Contracts & State",
+          gr: "Lab 05 — Smart Contracts & Κατάσταση",
+        },
+        description: {
+          en: "Compare a read-only interaction (for example reading `value()`) with a state-changing transaction (for example executing `increment()`).",
+          gr: "Σύγκρινε μια αλληλεπίδραση μόνο ανάγνωσης (π.χ. ανάγνωση του `value()`) με μια συναλλαγή που αλλάζει κατάσταση (π.χ. εκτέλεση `increment()`).",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/labs/lab05",
+          gr: "/labs-gr/lab05",
+        },
+        evidenceId: "lab05",
+        presentationOnly: false,
+      },
+      {
+        id: "lm05-pel-transaction",
+        visualType: "observation",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Educational Ledger Contribution",
+          gr: "Συνεισφορά στο Εκπαιδευτικό Ledger",
+        },
+        description: {
+          en: "Create a valid educational transaction and contribute it to the shared transaction pool. This activity is coming soon.",
+          gr: "Δημιούργησε μια έγκυρη εκπαιδευτική συναλλαγή και πρόσθεσέ την στην κοινή δεξαμενή συναλλαγών. Αυτή η δραστηριότητα έρχεται σύντομα.",
+        },
+        linkKind: "none",
+        href: null,
+        evidenceId: "lm05-pel-transaction",
+        presentationOnly: false,
+      },
+      {
+        id: "lm05-assessment",
+        visualType: "assessment",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "LM05 Assessment",
+          gr: "Αξιολόγηση LM05",
+        },
+        description: {
+          en: "Check that you can explain transactions, state, read-only interaction vs state-changing transaction, and the conceptual lifecycle. Required for module completion together with Labs 04–05 and the Educational Ledger contribution. Assessment coming soon.",
+          gr: "Έλεγξε ότι μπορείς να εξηγείς συναλλαγές, κατάσταση, αλληλεπίδραση μόνο ανάγνωσης vs state-changing transaction και τον εννοιολογικό κύκλο ζωής. Απαιτείται για ολοκλήρωση του module μαζί με τα Labs 04–05 και τη συνεισφορά στο Εκπαιδευτικό Ledger. Η αξιολόγηση έρχεται σύντομα.",
+        },
+        linkKind: "none",
+        href: null,
+        evidenceId: "lm05-assessment",
+        presentationOnly: false,
+      },
+    ],
   },
   LM06: {
     id: "LM06",

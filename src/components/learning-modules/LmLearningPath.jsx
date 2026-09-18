@@ -28,6 +28,7 @@ const STATUS_STYLES = {
   evidence_satisfied: "bg-emerald-50 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-100",
   assessment_required: "bg-amber-50 text-amber-950 dark:bg-amber-500/15 dark:text-amber-100",
   assessment_passed: "bg-emerald-50 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-100",
+  coming_soon: "bg-slate-100 text-slate-600 dark:bg-white/[0.06] dark:text-slate-300",
 };
 
 function StatusPill({ statusKind, label }) {
@@ -65,7 +66,7 @@ function ActivityAction({ row, lang, moduleId, expanded, onToggle }) {
   }
 
   if (!row.href) {
-    if (row.visualType === "assessment" && row.ctaLabel) {
+    if (row.ctaLabel) {
       return (
         <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">
           {row.ctaLabel}

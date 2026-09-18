@@ -46,7 +46,7 @@ const ASSESSMENT_ROUTES = {
     },
 };
 
-const UNAVAILABLE_EVIDENCE_IDS = new Set([
+export const UNAVAILABLE_EVIDENCE_IDS = new Set([
     "lm05-pel-transaction",
     "lm09-guided-coding",
     "lm10-pel-tokenization",

@@ -16,6 +16,7 @@ import {
   LM01_VISUALS,
   LM02_VISUALS,
   LM04_VISUALS,
+  LM05_VISUALS,
   LM08_VISUALS,
   getLmActivityVisualSrc,
   getLmChapterRoute,
@@ -183,8 +184,8 @@ test("curriculum registry covers exactly LM01–LM11 with correct path groups", 
   );
 });
 
-test("chapterAvailable is true for LM01, LM02, LM03, LM04, and LM08 Interactive Chapters", () => {
-  const availableIds = new Set(["LM01", "LM02", "LM03", "LM04", "LM08"]);
+test("chapterAvailable is true for LM01, LM02, LM03, LM04, LM05, and LM08 Interactive Chapters", () => {
+  const availableIds = new Set(["LM01", "LM02", "LM03", "LM04", "LM05", "LM08"]);
   for (const id of LM_CURRICULUM_IDS) {
     const available = isLmChapterAvailable(id);
     if (availableIds.has(id)) {
@@ -206,6 +207,8 @@ test("chapterAvailable is true for LM01, LM02, LM03, LM04, and LM08 Interactive 
   assert.equal(getLmChapterRoute("LM03", "gr"), "/learning-modules-gr/lm03");
   assert.equal(getLmChapterRoute("LM04", "en"), "/learning-modules/lm04");
   assert.equal(getLmChapterRoute("LM04", "gr"), "/learning-modules-gr/lm04");
+  assert.equal(getLmChapterRoute("LM05", "en"), "/learning-modules/lm05");
+  assert.equal(getLmChapterRoute("LM05", "gr"), "/learning-modules-gr/lm05");
   assert.equal(getLmChapterRoute("LM08", "en"), "/learning-modules/lm08");
   assert.equal(getLmChapterRoute("LM08", "gr"), "/learning-modules-gr/lm08");
 });
@@ -240,6 +243,128 @@ test("LM04 chapter wires lab01–03 evidence and assessment", () => {
   assert.equal(assessment?.linkKind, "internal");
   assert.equal(assessment?.href.gr, "/learning-modules-gr/lm04/assessment");
 });
+
+test("LM05 chapter wires lab04–05, unavailable PEL, and coming-soon assessment", () => {
+  const mod = LM_PRESENTATION_REGISTRY.LM05;
+  assert.equal(mod.chapterAvailable, true);
+  assert.equal(mod.pathKey, "builder");
+  assert.equal(mod.learnerMeta.assessmentXp, 200);
+  assert.equal(mod.learningOutcomes.en.length, 5);
+  assert.equal(mod.learningOutcomes.gr.length, 5);
+  assert.equal(mod.transition.from.en, "Understands keys, wallets and identity");
+  assert.match(mod.transition.to.en, /transactions, state and lifecycle/i);
+  assert.ok(mod.transition.from.gr);
+  assert.ok(mod.transition.to.gr);
+
+  const visible = getLmVisibleActivities("LM05", "en");
+  assert.deepEqual(
+    visible.map((a) => a.id),
+    [
+      "lm05-interactive-chapter",
+      "lm05-chapter4-reading",
+      "lm05-lab04",
+      "lm05-lab05",
+      "lm05-pel-transaction",
+      "lm05-assessment",
+    ]
+  );
+  assert.equal(visible[0].presentationOnly, true);
+  assert.equal(visible[0].expandable, true);
+
+  const evidenceIds = visible.map((a) => a.evidenceId).filter(Boolean);
+  assert.deepEqual(evidenceIds, [
+    "lab04",
+    "lab05",
+    "lm05-pel-transaction",
+    "lm05-assessment",
+  ]);
+
+  assert.equal(visible.find((a) => a.id === "lm05-lab04")?.href.en, "/labs/lab04");
+  assert.equal(visible.find((a) => a.id === "lm05-lab04")?.href.gr, "/labs-gr/lab04");
+  assert.equal(visible.find((a) => a.id === "lm05-lab05")?.href.en, "/labs/lab05");
+  assert.equal(visible.find((a) => a.id === "lm05-lab05")?.href.gr, "/labs-gr/lab05");
+
+  const pel = visible.find((a) => a.id === "lm05-pel-transaction");
+  assert.equal(pel?.requirementHint, "required");
+  assert.equal(pel?.linkKind, "none");
+  assert.equal(pel?.href, null);
+  assert.equal(pel?.evidenceId, "lm05-pel-transaction");
+  assert.match(pel?.title.en || "", /Educational Ledger Contribution/i);
+  assert.match(pel?.title.gr || "", /Εκπαιδευτικό Ledger/);
+
+  const assessment = visible.find((a) => a.id === "lm05-assessment");
+  assert.equal(assessment?.visualType, "assessment");
+  assert.equal(assessment?.linkKind, "none");
+  assert.equal(assessment?.href, null);
+  assert.equal(assessment?.evidenceId, "lm05-assessment");
+
+  const reading = visible.find((a) => a.id === "lm05-chapter4-reading");
+  assert.equal(reading?.visualType, "book");
+  assert.equal(reading?.presentationOnly, true);
+  assert.equal(reading?.href, LM01_KALLIPOS_TEXTBOOK_URL);
+  assert.match(reading?.description.en || "", /Chapter 4/);
+  assert.match(reading?.description.en || "", /4\.2\.2/);
+});
+
+test("LM05 wires dedicated hero/lab/PEL visuals via presentation overrides", () => {
+  const mod = LM_PRESENTATION_REGISTRY.LM05;
+  assert.equal(LM05_VISUALS.hero, "/learning-modules/visuals/lm05/lm05-hero.png");
+  assert.equal(LM05_VISUALS.concept, LM05_VISUALS.hero);
+  assert.equal(
+    LM05_VISUALS.lab04,
+    "/learning-modules/visuals/lm05/lm05-lab04-transactions-gas.png"
+  );
+  assert.equal(
+    LM05_VISUALS.lab05,
+    "/learning-modules/visuals/lm05/lm05-lab05-smart-contracts-state.png"
+  );
+  assert.equal(
+    LM05_VISUALS.educationalLedger,
+    "/learning-modules/visuals/lm05/lm05-educational-ledger-contribution.png"
+  );
+  assert.equal(LM05_VISUALS.assessment, LM01_VISUALS.assessment);
+  assert.equal(LM05_VISUALS.nextStep, LM01_VISUALS.assessment);
+
+  for (const rel of [
+    LM05_VISUALS.hero,
+    LM05_VISUALS.lab04,
+    LM05_VISUALS.lab05,
+    LM05_VISUALS.educationalLedger,
+  ]) {
+    assert.equal(existsSync(join(publicRoot, rel.slice(1))), true);
+  }
+
+  assert.equal(mod.visuals.hero, LM05_VISUALS.hero);
+  assert.equal(mod.visuals.activityByType.concept, LM05_VISUALS.concept);
+  assert.equal(mod.visuals.activityByType.book, LM01_VISUALS.book);
+  assert.equal(mod.visuals.activityByType.assessment, LM01_VISUALS.assessment);
+  assert.equal(mod.visuals.activityByType.coding, LM01_VISUALS.simulator);
+
+  assert.equal(
+    getLmActivityVisualSrc("LM05", "concept", "lm05-interactive-chapter"),
+    LM05_VISUALS.hero
+  );
+  assert.equal(
+    getLmActivityVisualSrc("LM05", "coding", "lm05-lab04"),
+    LM05_VISUALS.lab04
+  );
+  assert.equal(
+    getLmActivityVisualSrc("LM05", "coding", "lm05-lab05"),
+    LM05_VISUALS.lab05
+  );
+  assert.equal(
+    getLmActivityVisualSrc("LM05", "observation", "lm05-pel-transaction"),
+    LM05_VISUALS.educationalLedger
+  );
+  assert.equal(
+    getLmActivityVisualSrc("LM05", "assessment", "lm05-assessment"),
+    LM01_VISUALS.assessment
+  );
+  assert.equal(getLmActivityVisualSrc("LM05", "book"), LM01_VISUALS.book);
+  // Type fallback without activityId stays shared simulator — override is by id only.
+  assert.equal(getLmActivityVisualSrc("LM05", "coding"), LM01_VISUALS.simulator);
+});
+
 
 test("LM04 textbook readings are presentation-only Kallipos resources", () => {
   const visible = getLmVisibleActivities("LM04", "en");

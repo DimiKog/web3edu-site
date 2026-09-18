@@ -47,6 +47,9 @@ export const LM_PAGE_COPY = {
     openAssessment: "Go to assessment",
     reviewAssessment: "Review assessment",
     assessmentComingSoon: "Assessment coming soon",
+    activityNotAvailable: "Activity not yet available",
+    comingSoon: "Coming soon",
+    assessmentRequiredComingSoon: "Required · Coming soon",
     continueActivity: "Continue",
     nextRequired: "Next required step",
     nextRequiredBody:
@@ -137,6 +140,9 @@ export const LM_PAGE_COPY = {
     openAssessment: "Μετάβαση στην αξιολόγηση",
     reviewAssessment: "Επανεξέταση αξιολόγησης",
     assessmentComingSoon: "Η αξιολόγηση έρχεται σύντομα",
+    activityNotAvailable: "Η δραστηριότητα δεν είναι ακόμη διαθέσιμη",
+    comingSoon: "Σύντομα",
+    assessmentRequiredComingSoon: "Υποχρεωτικό · Σύντομα",
     continueActivity: "Συνέχεια",
     nextRequired: "Επόμενο απαιτούμενο βήμα",
     nextRequiredBody:
@@ -367,6 +373,67 @@ export const LM_MODULE_PAGE_CHROME = {
       loading: "Φόρτωση LM04…",
       moduleTypeLabel: "Θεμελιώδες",
       activityMixValue: "Κεφάλαιο, αναγνώσεις συγγράμματος, Labs 01–03, αξιολόγηση",
+    },
+  },
+  LM05: {
+    en: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Read the interactive chapter and the recommended textbook section, then complete Lab 04 and Lab 05 as required evidence. An Educational Ledger contribution and the LM05 Assessment will complete this module when available. Opening this page or textbook links does not itself record completion.",
+      sidebarProgress: "Your progress in LM05",
+      assessmentTitle: "LM05 Assessment",
+      nextRequiredBody:
+        "Complete the next required LM05 lab or activity. Opening this page or visiting labs does not itself record completion.",
+      finishAssessmentCta: "Finish the assessment to complete LM05",
+      closingNextBody:
+        "Finish Lab 04, Lab 05, the Educational Ledger contribution, and the LM05 Assessment to complete this module.",
+      closingNextEvidenceBody:
+        "Complete the next required LM05 activity to continue this module.",
+      closingPathEyebrow: "Learning path",
+      closingPathTitle: "Continue your LM05 learning path",
+      closingPathBody:
+        "Complete the available learning activities and return as the remaining required activities become available.",
+      moduleCompleteBody:
+        "LM05 is complete according to your verifiable learning progress. You can still revisit labs and the chapter anytime.",
+      signInRequired: "Sign in with your Web3Edu identity to load your LM05 progress.",
+      loading: "Loading LM05…",
+      moduleTypeLabel: "Foundational",
+      activityMixValue: "Chapter, textbook reading, Labs 04–05, Educational Ledger, assessment",
+      typeLabels: {
+        observation: "ACTIVITY",
+      },
+    },
+    gr: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Διάβασε το διαδραστικό κεφάλαιο και την προτεινόμενη ενότητα του συγγράμματος, και ολοκλήρωσε τα Labs 04 και 05 ως απαιτούμενα αποδεικτικά. Μια συνεισφορά στο Εκπαιδευτικό Ledger και η Αξιολόγηση LM05 θα ολοκληρώσουν αυτό το module όταν είναι διαθέσιμα. Το άνοιγμα αυτής της σελίδας ή των συνδέσμων του συγγράμματος δεν καταγράφει από μόνο του ολοκλήρωση.",
+      sidebarProgress: "Η πρόοδός σου στο LM05",
+      sidebarAbout: "Σχετικά με το LM05",
+      assessmentTitle: "Αξιολόγηση LM05",
+      nextRequiredBody:
+        "Ολοκλήρωσε το επόμενο απαιτούμενο lab ή δραστηριότητα LM05. Το άνοιγμα αυτής της σελίδας ή των labs δεν καταγράφει από μόνο του ολοκλήρωση.",
+      finishAssessmentCta: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM05",
+      closingNextBody:
+        "Ολοκλήρωσε τα Labs 04 και 05, τη συνεισφορά στο Εκπαιδευτικό Ledger και την Αξιολόγηση LM05 για να τελειώσεις αυτό το module.",
+      closingNextEvidenceBody:
+        "Ολοκλήρωσε την επόμενη απαιτούμενη δραστηριότητα LM05 για να συνεχίσεις αυτό το module.",
+      closingPathEyebrow: "Διαδρομή μάθησης",
+      closingPathTitle: "Συνέχισε τη διαδρομή μάθησης LM05",
+      closingPathBody:
+        "Ολοκλήρωσε τις διαθέσιμες δραστηριότητες μάθησης και επέστρεψε όταν γίνουν διαθέσιμες οι υπόλοιπες απαιτούμενες.",
+      moduleCompleteBody:
+        "Το LM05 ολοκληρώθηκε σύμφωνα με την επαληθεύσιμη πρόοδό σου. Μπορείς να ξαναδείς labs και κεφάλαιο οποιαδήποτε στιγμή.",
+      signInRequired:
+        "Συνδέσου με την ταυτότητα Web3Edu για να φορτωθεί η πρόοδός σου στο LM05.",
+      loading: "Φόρτωση LM05…",
+      moduleTypeLabel: "Θεμελιώδες",
+      activityMixValue:
+        "Κεφάλαιο, ανάγνωση συγγράμματος, Labs 04–05, Εκπαιδευτικό Ledger, αξιολόγηση",
+      typeLabels: {
+        observation: "ΔΡΑΣΤΗΡΙΟΤΗΤΑ",
+      },
     },
   },
 };

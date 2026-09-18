@@ -7,6 +7,7 @@
 import {
   ASSESSMENT_CO_SATISFIED_EVIDENCE_IDS,
   ASSESSMENT_ROUTES,
+  UNAVAILABLE_EVIDENCE_IDS,
   resolveProgressionActionTarget,
 } from "./progressionActionMapper.js";
 import {
@@ -282,20 +283,31 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
     statusLabel = practicalSatisfied ? copy.evidenceSatisfied : copy.evidenceRequired;
   }
 
+  if (evidenceId && UNAVAILABLE_EVIDENCE_IDS.has(evidenceId)) {
+    statusKind = "coming_soon";
+    statusLabel = copy.comingSoon;
+  }
+
   if (isAssessment && assessment) {
     statusKind = canonical && assessment.passed ? "assessment_passed" : "assessment_required";
     statusLabel =
-      canonical && assessment.passed ? copy.assessmentPassed : copy.assessmentRequired;
+      canonical && assessment.passed
+        ? copy.assessmentPassed
+        : assessment.route
+          ? copy.assessmentRequired
+          : copy.assessmentRequiredComingSoon;
   }
 
   let ctaLabel = null;
   if (isAssessment) {
-    // Prefer live assessment route; otherwise surface coming-soon (e.g. LM03 placeholder).
+    // Prefer live assessment route; otherwise surface coming-soon (e.g. LM05 placeholder).
     ctaLabel = assessment?.route
       ? assessment.ctaLabel
       : href
         ? assessment?.ctaLabel || copy.openAssessment
         : copy.assessmentComingSoon;
+  } else if (evidenceId && UNAVAILABLE_EVIDENCE_IDS.has(evidenceId)) {
+    ctaLabel = copy.comingSoon;
   } else if (isSimulator) {
     ctaLabel = copy.openSimulator;
   } else if (isDisclosure) {
