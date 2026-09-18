@@ -380,7 +380,7 @@ export const LM_MODULE_PAGE_CHROME = {
       breadcrumbExplorer: "Builder Path",
       pathBadge: "Builder Path",
       learningPathIntro:
-        "Read the interactive chapter and the recommended textbook section, then complete Lab 04 and Lab 05 as required evidence. An Educational Ledger contribution and the LM05 Assessment will complete this module when available. Opening this page or textbook links does not itself record completion.",
+        "Read the interactive chapter and the recommended textbook section, then complete Lab 04 and Lab 05 as required evidence. Take the LM05 Assessment when ready. An Educational Ledger contribution is also required for module completion when available. Opening this page or textbook links does not itself record completion.",
       sidebarProgress: "Your progress in LM05",
       assessmentTitle: "LM05 Assessment",
       nextRequiredBody:
@@ -408,7 +408,7 @@ export const LM_MODULE_PAGE_CHROME = {
       breadcrumbExplorer: "Builder Path",
       pathBadge: "Builder Path",
       learningPathIntro:
-        "Διάβασε το διαδραστικό κεφάλαιο και την προτεινόμενη ενότητα του συγγράμματος, και ολοκλήρωσε τα Labs 04 και 05 ως απαιτούμενα αποδεικτικά. Μια συνεισφορά στο Εκπαιδευτικό Ledger και η Αξιολόγηση LM05 θα ολοκληρώσουν αυτό το module όταν είναι διαθέσιμα. Το άνοιγμα αυτής της σελίδας ή των συνδέσμων του συγγράμματος δεν καταγράφει από μόνο του ολοκλήρωση.",
+        "Διάβασε το διαδραστικό κεφάλαιο και την προτεινόμενη ενότητα του συγγράμματος, και ολοκλήρωσε τα Labs 04 και 05 ως απαιτούμενα αποδεικτικά. Δώσε την Αξιολόγηση LM05 όταν είσαι έτοιμος/η. Απαιτείται επίσης συνεισφορά στο Εκπαιδευτικό Ledger για ολοκλήρωση του module όταν είναι διαθέσιμη. Το άνοιγμα αυτής της σελίδας ή των συνδέσμων του συγγράμματος δεν καταγράφει από μόνο του ολοκλήρωση.",
       sidebarProgress: "Η πρόοδός σου στο LM05",
       sidebarAbout: "Σχετικά με το LM05",
       assessmentTitle: "Αξιολόγηση LM05",

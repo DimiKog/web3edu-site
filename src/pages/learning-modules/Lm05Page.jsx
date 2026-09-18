@@ -73,21 +73,6 @@ export default function Lm05Page({ lang = "en" }) {
 
   const view = getLmPageViewState(progression, locale, "LM05");
 
-  // Slice 1: assessment/PEL are not live — show a neutral path close, not an assessment CTA.
-  if (view.mode === "ready" && !view.complete) {
-    view.closingCta = {
-      kind: "neutral",
-      eyebrow: copy.closingPathEyebrow,
-      title: copy.closingPathTitle,
-      body: copy.closingPathBody,
-      currentModule: null,
-      currentModuleTitle: null,
-      route: null,
-      ctaLabel: null,
-      visualSrc: view.presentation?.visuals?.nextStep || null,
-    };
-  }
-
   if (view.mode !== "ready") {
     return (
       <PageShell>

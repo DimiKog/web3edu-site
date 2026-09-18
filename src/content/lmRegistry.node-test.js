@@ -244,7 +244,7 @@ test("LM04 chapter wires lab01–03 evidence and assessment", () => {
   assert.equal(assessment?.href.gr, "/learning-modules-gr/lm04/assessment");
 });
 
-test("LM05 chapter wires lab04–05, unavailable PEL, and coming-soon assessment", () => {
+test("LM05 chapter wires lab04–05, unavailable PEL, and live assessment", () => {
   const mod = LM_PRESENTATION_REGISTRY.LM05;
   assert.equal(mod.chapterAvailable, true);
   assert.equal(mod.pathKey, "builder");
@@ -294,8 +294,11 @@ test("LM05 chapter wires lab04–05, unavailable PEL, and coming-soon assessment
 
   const assessment = visible.find((a) => a.id === "lm05-assessment");
   assert.equal(assessment?.visualType, "assessment");
-  assert.equal(assessment?.linkKind, "none");
-  assert.equal(assessment?.href, null);
+  assert.equal(assessment?.linkKind, "internal");
+  assert.deepEqual(assessment?.href, {
+    en: "/learning-modules/lm05/assessment",
+    gr: "/learning-modules-gr/lm05/assessment",
+  });
   assert.equal(assessment?.evidenceId, "lm05-assessment");
 
   const reading = visible.find((a) => a.id === "lm05-chapter4-reading");

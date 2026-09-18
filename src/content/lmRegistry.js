@@ -72,7 +72,7 @@ export const LM04_VISUALS = {
  * LM05 production visuals (public/ paths).
  * Hero file is `lm05-hero.png` (owner drop-in name; not lm05-hero-transactions-state.png).
  * Interactive Chapter reuses the hero path (no duplicate file).
- * nextStep keeps shared assessment art so chapter-close matches the coming-soon assessment row.
+ * nextStep keeps shared assessment art so chapter-close matches the assessment Learning Path row.
  * Book + assessment stay on the shared LM01 vocabulary.
  */
 export const LM05_VISUALS = {
@@ -1099,11 +1099,14 @@ export const LM_PRESENTATION_REGISTRY = {
           gr: "Αξιολόγηση LM05",
         },
         description: {
-          en: "Check that you can explain transactions, state, read-only interaction vs state-changing transaction, and the conceptual lifecycle. Required for module completion together with Labs 04–05 and the Educational Ledger contribution. Assessment coming soon.",
-          gr: "Έλεγξε ότι μπορείς να εξηγείς συναλλαγές, κατάσταση, αλληλεπίδραση μόνο ανάγνωσης vs state-changing transaction και τον εννοιολογικό κύκλο ζωής. Απαιτείται για ολοκλήρωση του module μαζί με τα Labs 04–05 και τη συνεισφορά στο Εκπαιδευτικό Ledger. Η αξιολόγηση έρχεται σύντομα.",
+          en: "Check that you can explain transactions, state, read-only interaction vs state-changing transaction, and the conceptual lifecycle. Required for module completion together with Labs 04–05 and the Educational Ledger contribution.",
+          gr: "Έλεγξε ότι μπορείς να εξηγείς συναλλαγές, κατάσταση, αλληλεπίδραση μόνο ανάγνωσης vs state-changing transaction και τον εννοιολογικό κύκλο ζωής. Απαιτείται για ολοκλήρωση του module μαζί με τα Labs 04–05 και τη συνεισφορά στο Εκπαιδευτικό Ledger.",
         },
-        linkKind: "none",
-        href: null,
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm05/assessment",
+          gr: "/learning-modules-gr/lm05/assessment",
+        },
         evidenceId: "lm05-assessment",
         presentationOnly: false,
       },
