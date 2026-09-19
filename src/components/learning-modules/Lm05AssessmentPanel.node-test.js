@@ -81,12 +81,20 @@ test("Continue Learning maps lm05-assessment to ready route", () => {
   assert.equal(gr.route, "/learning-modules-gr/lm05/assessment");
 });
 
-test("lab evidence routes for LM05 remain the real lab paths; PEL stays unavailable", () => {
+test("lab evidence routes for LM05 remain real lab paths; PEL links to educational ledger", () => {
   assert.equal(EVIDENCE_ROUTES.en.lab04, "/labs/lab04");
   assert.equal(EVIDENCE_ROUTES.en.lab05, "/labs/lab05");
   assert.equal(EVIDENCE_ROUTES.gr.lab04, "/labs-gr/lab04");
   assert.equal(EVIDENCE_ROUTES.gr.lab05, "/labs-gr/lab05");
-  assert.equal(UNAVAILABLE_EVIDENCE_IDS.has("lm05-pel-transaction"), true);
+  assert.equal(
+    EVIDENCE_ROUTES.en["lm05-pel-transaction"],
+    "/learning-modules/lm05/educational-ledger"
+  );
+  assert.equal(
+    EVIDENCE_ROUTES.gr["lm05-pel-transaction"],
+    "/learning-modules-gr/lm05/educational-ledger"
+  );
+  assert.equal(UNAVAILABLE_EVIDENCE_IDS.has("lm05-pel-transaction"), false);
 
   const mod = LM_PRESENTATION_REGISTRY.LM05;
   const lab04 = mod.activities.find((a) => a.evidenceId === "lab04");
@@ -94,8 +102,11 @@ test("lab evidence routes for LM05 remain the real lab paths; PEL stays unavaila
   const pel = mod.activities.find((a) => a.evidenceId === "lm05-pel-transaction");
   assert.deepEqual(lab04.href, { en: "/labs/lab04", gr: "/labs-gr/lab04" });
   assert.deepEqual(lab05.href, { en: "/labs/lab05", gr: "/labs-gr/lab05" });
-  assert.equal(pel.linkKind, "none");
-  assert.equal(pel.href, null);
+  assert.equal(pel.linkKind, "internal");
+  assert.deepEqual(pel.href, {
+    en: "/learning-modules/lm05/educational-ledger",
+    gr: "/learning-modules-gr/lm05/educational-ledger",
+  });
 
   const pelAction = resolveProgressionActionTarget({
     nextAction: {
@@ -105,8 +116,8 @@ test("lab evidence routes for LM05 remain the real lab paths; PEL stays unavaila
     },
     lang: "en",
   });
-  assert.equal(pelAction.status, "unavailable");
-  assert.equal(pelAction.route, null);
+  assert.equal(pelAction.status, "ready");
+  assert.equal(pelAction.route, "/learning-modules/lm05/educational-ledger");
 });
 
 test("LM05 questions are single-choice with expected ids", () => {

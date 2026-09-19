@@ -34,13 +34,16 @@ const routesSrc = readFileSync(
   "utf8"
 );
 
-test("routeTable registers LM05 EN/GR chapter and assessment routes", () => {
+test("routeTable registers LM05 EN/GR chapter, assessment, and educational-ledger routes", () => {
   assert.match(routesSrc, /path: "\/learning-modules\/lm05"/);
   assert.match(routesSrc, /path: "\/learning-modules-gr\/lm05"/);
   assert.match(routesSrc, /Lm05Page/);
   assert.match(routesSrc, /path: "\/learning-modules\/lm05\/assessment"/);
   assert.match(routesSrc, /path: "\/learning-modules-gr\/lm05\/assessment"/);
   assert.match(routesSrc, /Lm05AssessmentPage/);
+  assert.match(routesSrc, /path: "\/learning-modules\/lm05\/educational-ledger"/);
+  assert.match(routesSrc, /path: "\/learning-modules-gr\/lm05\/educational-ledger"/);
+  assert.match(routesSrc, /Lm05EducationalLedgerPage/);
   assert.equal(isLmChapterAvailable("LM05"), true);
   assert.equal(getLmChapterRoute("LM05", "en"), "/learning-modules/lm05");
   assert.equal(getLmChapterRoute("LM05", "gr"), "/learning-modules-gr/lm05");
@@ -71,7 +74,7 @@ test("LM05 keeps five bilingual learning outcomes and pedagogical transition", (
   assert.equal(mod.learnerMeta.assessmentXp, 200);
 });
 
-test("LM05 Learning Path exposes labs + live assessment; PEL stays unavailable", async () => {
+test("LM05 Learning Path exposes labs + live PEL + assessment", async () => {
   const { getLmPageViewState, getLmActivityRowPresentation } = await import(
     "../../utils/lmModuleView.js"
   );
@@ -99,12 +102,14 @@ test("LM05 Learning Path exposes labs + live assessment; PEL stays unavailable",
     const pel = getLmActivityRowPresentation(visible[4], null, lang, {
       moduleId: "LM05",
     });
-    assert.equal(pel.href, null);
-    assert.equal(pel.statusKind, "coming_soon");
-    assert.equal(pel.statusLabel, copy.comingSoon);
-    assert.equal(pel.ctaLabel, copy.comingSoon);
+    assert.equal(
+      pel.href,
+      lang === "gr"
+        ? "/learning-modules-gr/lm05/educational-ledger"
+        : "/learning-modules/lm05/educational-ledger"
+    );
+    assert.notEqual(pel.statusKind, "coming_soon");
     assert.equal(pel.typeLabel, copy.typeLabels.observation);
-    assert.notEqual(pel.statusLabel, copy.resourceAvailable);
 
     const assessment = getLmActivityRowPresentation(visible[5], null, lang, {
       moduleId: "LM05",
@@ -121,8 +126,8 @@ test("LM05 Learning Path exposes labs + live assessment; PEL stays unavailable",
   }
 });
 
-test("lm05-pel-transaction stays unavailable; assessment is ready in progression mapper", () => {
-  assert.equal(UNAVAILABLE_EVIDENCE_IDS.has("lm05-pel-transaction"), true);
+test("lm05-pel-transaction and assessment are ready in progression mapper", () => {
+  assert.equal(UNAVAILABLE_EVIDENCE_IDS.has("lm05-pel-transaction"), false);
   assert.equal(ASSESSMENT_ROUTES.en["lm05-assessment"], "/learning-modules/lm05/assessment");
   assert.equal(
     ASSESSMENT_ROUTES.gr["lm05-assessment"],
@@ -137,8 +142,8 @@ test("lm05-pel-transaction stays unavailable; assessment is ready in progression
     },
     lang: "en",
   });
-  assert.equal(pel.status, "unavailable");
-  assert.equal(pel.route, null);
+  assert.equal(pel.status, "ready");
+  assert.equal(pel.route, "/learning-modules/lm05/educational-ledger");
   assert.match(pel.label, /Educational Ledger Contribution/i);
 
   const pelGr = resolveProgressionActionTarget({
@@ -149,6 +154,7 @@ test("lm05-pel-transaction stays unavailable; assessment is ready in progression
     },
     lang: "gr",
   });
+  assert.equal(pelGr.route, "/learning-modules-gr/lm05/educational-ledger");
   assert.match(pelGr.label, /Εκπαιδευτικό Ledger/);
 
   const assessment = resolveProgressionActionTarget({

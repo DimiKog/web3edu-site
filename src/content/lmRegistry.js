@@ -1081,11 +1081,14 @@ export const LM_PRESENTATION_REGISTRY = {
           gr: "Συνεισφορά στο Εκπαιδευτικό Ledger",
         },
         description: {
-          en: "Create a valid educational transaction and contribute it to the shared transaction pool. This activity is coming soon.",
-          gr: "Δημιούργησε μια έγκυρη εκπαιδευτική συναλλαγή και πρόσθεσέ την στην κοινή δεξαμενή συναλλαγών. Αυτή η δραστηριότητα έρχεται σύντομα.",
+          en: "Create a valid educational transaction and contribute it to the shared transaction pool as PENDING.",
+          gr: "Δημιούργησε μια έγκυρη εκπαιδευτική συναλλαγή και πρόσθεσέ την στην κοινή δεξαμενή συναλλαγών ως PENDING.",
         },
-        linkKind: "none",
-        href: null,
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm05/educational-ledger",
+          gr: "/learning-modules-gr/lm05/educational-ledger",
+        },
         evidenceId: "lm05-pel-transaction",
         presentationOnly: false,
       },

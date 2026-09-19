@@ -11,6 +11,7 @@ const EVIDENCE_ROUTES = {
         lab06: "/labs/lab06",
         coding01: "/labs/coding-01/interaction",
         coding02: "/labs/coding-02/interaction",
+        "lm05-pel-transaction": "/learning-modules/lm05/educational-ledger",
         "lm08-contract-inspection": "/learning-modules/lm08/contract-inspection",
         "lm08-source-verification": "/learning-modules/lm08/source-verification",
     },
@@ -23,6 +24,7 @@ const EVIDENCE_ROUTES = {
         lab06: "/labs-gr/lab06",
         coding01: "/labs-gr/coding-01/interaction",
         coding02: "/labs-gr/coding-02/interaction",
+        "lm05-pel-transaction": "/learning-modules-gr/lm05/educational-ledger",
         "lm08-contract-inspection": "/learning-modules-gr/lm08/contract-inspection",
         "lm08-source-verification": "/learning-modules-gr/lm08/source-verification",
     },
@@ -49,7 +51,6 @@ const ASSESSMENT_ROUTES = {
 };
 
 export const UNAVAILABLE_EVIDENCE_IDS = new Set([
-    "lm05-pel-transaction",
     "lm09-guided-coding",
     "lm10-pel-tokenization",
     "lm10-token-decision",

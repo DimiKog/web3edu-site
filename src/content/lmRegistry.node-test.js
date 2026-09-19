@@ -244,7 +244,7 @@ test("LM04 chapter wires lab01–03 evidence and assessment", () => {
   assert.equal(assessment?.href.gr, "/learning-modules-gr/lm04/assessment");
 });
 
-test("LM05 chapter wires lab04–05, unavailable PEL, and live assessment", () => {
+test("LM05 chapter wires lab04–05, live PEL, and live assessment", () => {
   const mod = LM_PRESENTATION_REGISTRY.LM05;
   assert.equal(mod.chapterAvailable, true);
   assert.equal(mod.pathKey, "builder");
@@ -286,8 +286,11 @@ test("LM05 chapter wires lab04–05, unavailable PEL, and live assessment", () =
 
   const pel = visible.find((a) => a.id === "lm05-pel-transaction");
   assert.equal(pel?.requirementHint, "required");
-  assert.equal(pel?.linkKind, "none");
-  assert.equal(pel?.href, null);
+  assert.equal(pel?.linkKind, "internal");
+  assert.deepEqual(pel?.href, {
+    en: "/learning-modules/lm05/educational-ledger",
+    gr: "/learning-modules-gr/lm05/educational-ledger",
+  });
   assert.equal(pel?.evidenceId, "lm05-pel-transaction");
   assert.match(pel?.title.en || "", /Educational Ledger Contribution/i);
   assert.match(pel?.title.gr || "", /Εκπαιδευτικό Ledger/);

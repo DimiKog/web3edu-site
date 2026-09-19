@@ -1385,3 +1385,84 @@ export async function postLm05AssessmentAnswers({
     };
   }
 }
+
+/**
+ * GET /learning-modules/lm05/educational-ledger — shared educational state + PENDING pool.
+ */
+export async function fetchLm05EducationalLedger({ apiBase, idToken } = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  try {
+    const res = await fetch(`${base}/learning-modules/lm05/educational-ledger`, {
+      method: "GET",
+      headers: buildLabWriteAuthHeaders(token),
+    });
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && Array.isArray(data?.participants) && Array.isArray(data?.assets),
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
+
+/**
+ * POST /learning-modules/lm05/educational-ledger/transactions
+ * Body: assetId + toParticipantId only.
+ */
+export async function postLm05EducationalLedgerTransfer({
+  apiBase,
+  idToken,
+  assetId,
+  toParticipantId,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  try {
+    const res = await fetch(
+      `${base}/learning-modules/lm05/educational-ledger/transactions`,
+      {
+        method: "POST",
+        headers: buildLabWriteAuthHeaders(token),
+        body: JSON.stringify({
+          assetId,
+          toParticipantId,
+        }),
+      }
+    );
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true && Boolean(data?.transaction),
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}
