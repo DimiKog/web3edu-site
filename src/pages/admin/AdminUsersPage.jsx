@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import UserDistributionChart from "../../components/admin/UserDistributionChart";
 import { fetchAdminUsers } from "../../services/adminApi";
 import { getSocialIdentityCustodyType } from "../../utils/socialIdentityPayload.js";
 import {
     formatLastActivityEpoch,
     formatLearnerKind,
-    formatSocialRegisteredAt,
     truncateLearnerId,
 } from "../../utils/adminObservability.js";
+import {
+    buildLearnerDirectoryView,
+    formatLearnerRegistered,
+} from "../../utils/adminLearnersView.js";
 import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
 function toNumber(value, fallback = 0) {
@@ -39,8 +41,7 @@ function pickAny(obj, paths) {
 
 /**
  * `/admin/users` rows may be flat or wrap the account under `user` / `account` / `profile`
- * while aggregates (started, xp, …) sit on the outer object. Merge so identity/social
- * match the admin detail payload shape.
+ * while aggregates sit on the outer object. Merge so identity/social match detail shape.
  */
 function mergeAdminListRow(row) {
     if (!row || typeof row !== "object" || Array.isArray(row)) return row;
@@ -57,7 +58,6 @@ function mergeAdminListRow(row) {
     };
 }
 
-/** Coerce API values that may be boolean, count, or string into an "imported" yes/no. */
 function normalizeImportedValue(value) {
     if (value === true) return true;
     if (value === false || value == null) return false;
@@ -86,9 +86,6 @@ function providerLooksSocial(value) {
     return /google|github|apple|keycloak|oidc|discord|twitter|microsoft|facebook|broker|federat/.test(s);
 }
 
-/**
- * Whether the admin row represents a social / OIDC-backed account (not only top-level `social`).
- */
 function isSocialUser(user) {
     const u = mergeAdminListRow(user);
     if (!u || typeof u !== "object") return false;
@@ -134,10 +131,6 @@ function isSocialUser(user) {
     return false;
 }
 
-/**
- * Whether admin user payload indicates prior progress was imported (e.g. after social login).
- * Tolerates alternate field names and loose typing from the backend.
- */
 function isImportedUser(user) {
     const u = mergeAdminListRow(user);
     if (!u || typeof u !== "object") return false;
@@ -210,12 +203,6 @@ function isImportedUser(user) {
 
 function normalizeUser(user) {
     const src = mergeAdminListRow(user);
-
-    const started = toNumber(src?.started ?? src?.startedLabs ?? src?.labsStarted, 0);
-    const completed = toNumber(src?.completed ?? src?.completedLabs ?? src?.labsCompleted, 0);
-    const dropOffCount = toNumber(src?.dropOff ?? src?.dropOffCount, Math.max(0, started - completed));
-    const isDropOff = typeof src?.isDropOff === "boolean" ? src.isDropOff : dropOffCount > 0;
-
     const identity = src?.identity && typeof src.identity === "object" ? src.identity : {};
 
     const tokenId =
@@ -229,25 +216,7 @@ function normalizeUser(user) {
             "sbt.tokenId",
         ]) ?? null;
 
-    const tokenIdCached =
-        pickAny(src, ["tokenIdCached", "identity.tokenIdCached"]) ?? null;
-
-    const hasTokenRaw = pickAny(src, [
-        "tokenAssigned",
-        "hasToken",
-        "hasSbt",
-        "tokenMinted",
-        "identity.hasToken",
-        "identity.tokenAssigned",
-        "sbt.minted",
-        "sbt.exists",
-    ]);
-    const hasToken =
-        typeof hasTokenRaw === "boolean"
-            ? hasTokenRaw
-            : tokenId !== null && tokenId !== undefined
-                ? true
-                : false;
+    const tokenIdCached = pickAny(src, ["tokenIdCached", "identity.tokenIdCached"]) ?? null;
 
     const linkedWallets = asArray(
         pickAny(src, ["linkedWallets", "linkedWalletAddresses", "walletsLinked", "linkedAccounts", "walletLinks"])
@@ -255,22 +224,8 @@ function normalizeUser(user) {
         .map((v) => String(v || "").trim())
         .filter(Boolean);
 
-    const socialSub = String(
-        pickAny(src, [
-            "oidcSub",
-            "socialSub",
-            "social.subject",
-            "social.sub",
-            "identity.oidcSub",
-            "identity.socialSub",
-            "oidc_sub",
-            "social_sub",
-        ]) || ""
-    ).trim();
-
     const walletLinked =
-        Boolean(identity?.walletLinked) ||
-        Boolean(identity?.linkedWalletAddress);
+        Boolean(identity?.walletLinked) || Boolean(identity?.linkedWalletAddress);
 
     const linkedWalletAddress = String(identity?.linkedWalletAddress || "").trim();
     const effectiveLinkedWallets = [
@@ -279,16 +234,10 @@ function normalizeUser(user) {
     ].filter(Boolean);
 
     const hasSocial = isSocialUser(src);
-
-    const hasImportedProgress = isImportedUser(src);
-    const importType = String(
-        pickAny(src, ["importType", "import_type", "identity.importType", "continuity.importType"]) || ""
-    ).trim();
-    const provisioningStatus = String(identity?.provisioningStatus || "").trim();
-
     const learnerKindRaw = String(
         pickAny(src, ["learnerKind", "learner_kind", "canonicalLearnerKind"]) || ""
     ).trim();
+
     const socialRegisteredAt =
         pickAny(src, [
             "socialRegisteredAt",
@@ -305,69 +254,56 @@ function normalizeUser(user) {
                 ? Number(lastActivityRaw)
                 : null;
 
+    const provisioningStatus = String(identity?.provisioningStatus || "").trim();
+
     return {
         wallet: src?.progressAddress || src?.wallet || src?.address || "—",
         progressAddress: src?.progressAddress || src?.wallet || src?.address || null,
         learnerId: src?.learnerId || null,
         learnerKind: learnerKindRaw || null,
-        learnerKindLabel: formatLearnerKind(learnerKindRaw, { hasSocial: isSocialUser(src) }),
+        learnerKindLabel: formatLearnerKind(learnerKindRaw, { hasSocial }),
         socialRegisteredAt,
-        hasProgress: src?.hasProgress,
         xp: toNumber(src?.xp ?? src?.totalXp, 0),
-        // Class F / no progress: do not default to "Explorer" (KPI inflation).
-        tier:
-            src?.hasProgress === false
-                ? src?.tier || "No Progress"
-                : src?.tier || src?.level || "Explorer",
-        started,
-        completed,
-        dropOffCount,
-        isDropOff,
         lastActivityEpoch,
         tokenId,
         tokenIdCached,
-        hasToken,
         linkedWallets: effectiveLinkedWallets,
         hasLinkedWallets: walletLinked || effectiveLinkedWallets.length > 0,
         hasSocial,
-        hasImportedProgress,
-        importType,
+        hasImportedProgress: isImportedUser(src),
         provisioningStatus,
-        socialSub,
         raw: user,
-        /** Flattened row for helpers (same reference as `src` when already flat). */
-        effectiveUser: src,
     };
 }
 
-function engagementScore(user) {
-    if (user.started <= 0 && user.completed > 0) return 1;
-    return user.completed / user.started;
+function truncateAddress(address, head = 6, tail = 4) {
+    const s = String(address || "").trim();
+    if (!s || s === "—") return "—";
+    if (s.length <= head + tail + 1) return s;
+    return `${s.slice(0, head)}…${s.slice(-tail)}`;
 }
 
-function engagementClass(score) {
-    if (score >= 0.8) return "text-emerald-600 dark:text-emerald-300";
-    if (score >= 0.5) return "text-amber-600 dark:text-amber-300";
-    return "text-rose-600 dark:text-rose-300";
-}
+const ALLOWED_SORT_KEYS = new Set(["xp", "registered", "lastActivity"]);
 
 export default function AdminUsersPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const { idToken } = useAdminEligibility();
 
+    const initialSort = ALLOWED_SORT_KEYS.has(searchParams.get("sort"))
+        ? searchParams.get("sort")
+        : "lastActivity";
+
     const [users, setUsers] = useState(null);
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
-    const [sortKey, setSortKey] = useState(searchParams.get("sort") || "xp");
-    const [sortDir, setSortDir] = useState(searchParams.get("dir") || "desc");
-    const [tierFilter, setTierFilter] = useState(searchParams.get("tier") || "all");
-    const [tokenFilter, setTokenFilter] = useState(searchParams.get("token") || "all"); // all|has|none
-    const [linkedFilter, setLinkedFilter] = useState(searchParams.get("linked") || "all"); // all|has|none
-    const [socialFilter, setSocialFilter] = useState(searchParams.get("social") || "all"); // all|has|none
-    const [importFilter, setImportFilter] = useState(searchParams.get("imported") || "all"); // all|has|none
-    const [provisioningFilter, setProvisioningFilter] = useState(searchParams.get("prov") || "all"); // all|<status>
-    const dropoffOnly = searchParams.get("dropoffOnly") === "1";
+    const [sortKey, setSortKey] = useState(initialSort);
+    const [sortDir, setSortDir] = useState(searchParams.get("dir") === "asc" ? "asc" : "desc");
+    const [kindFilter, setKindFilter] = useState(searchParams.get("kind") || "all");
+    const [activityFilter, setActivityFilter] = useState(searchParams.get("activity") || "any");
+    const [linkedFilter, setLinkedFilter] = useState(searchParams.get("linked") || "all");
+    const [importFilter, setImportFilter] = useState(searchParams.get("imported") || "all");
+    const [provisioningFilter, setProvisioningFilter] = useState(searchParams.get("prov") || "all");
 
     const loadUsers = useCallback(() => {
         if (!idToken) {
@@ -390,7 +326,7 @@ export default function AdminUsersPage() {
                 setUsers([]);
             })
             .catch(() => {
-                setError("Could not load users analytics.");
+                setError("Could not load learners.");
                 setUsers([]);
             });
     }, [idToken]);
@@ -399,78 +335,18 @@ export default function AdminUsersPage() {
         loadUsers();
     }, [loadUsers]);
 
-    const {
-        normalizedUsers,
-        totalUsers,
-        builders,
-        explorers,
-        dropOffUsers,
-        sortedUsers,
-        provisioningOptions,
-    } = useMemo(() => {
+    const { population, sortedUsers, provisioningOptions, totalUsers } = useMemo(() => {
         const normalizedUsers = (users ?? []).map(normalizeUser);
-        const totalUsers = normalizedUsers.length;
-        // Tier KPIs are progress-based; Class F stays in Total Users only.
-        const withProgress = normalizedUsers.filter((u) => u.hasProgress !== false);
-        const builders = withProgress.filter((u) => String(u.tier).toLowerCase().includes("builder")).length;
-        const explorers = withProgress.filter((u) => String(u.tier).toLowerCase().includes("explorer")).length;
-        const dropOffUsers = normalizedUsers.filter((u) => u.isDropOff).length;
-
-        const q = searchTerm.trim().toLowerCase();
-        const filteredUsers = normalizedUsers.filter((u) => {
-            if (!q) return true;
-            const wallet = String(u.wallet || "").toLowerCase();
-            const tokenId = u.tokenId != null ? String(u.tokenId).toLowerCase() : "";
-            const tokenIdCached = u.tokenIdCached != null ? String(u.tokenIdCached).toLowerCase() : "";
-            const socialSub = String(u.socialSub || "").toLowerCase();
-            const learnerId = String(u.learnerId || "").toLowerCase();
-            return (
-                wallet.includes(q) ||
-                tokenId.includes(q) ||
-                tokenIdCached.includes(q) ||
-                socialSub.includes(q) ||
-                learnerId.includes(q)
-            );
+        const view = buildLearnerDirectoryView(normalizedUsers, {
+            searchTerm,
+            kindFilter,
+            activityFilter,
+            linkedFilter,
+            importFilter,
+            provisioningFilter,
+            sortKey,
+            sortDir,
         });
-
-        const scopedUsers = filteredUsers
-            .filter((u) => (dropoffOnly ? u.isDropOff : true))
-            .filter((u) => {
-                if (tierFilter === "all") return true;
-                const t = String(u.tier || "").toLowerCase();
-                if (tierFilter === "explorer") return t.includes("explorer");
-                if (tierFilter === "builder") return t.includes("builder");
-                if (tierFilter === "architect") return t.includes("architect");
-                return true;
-            })
-            .filter((u) => {
-                if (tokenFilter === "all") return true;
-                if (tokenFilter === "has") return u.hasToken === true;
-                if (tokenFilter === "none") return u.hasToken === false;
-                return true;
-            })
-            .filter((u) => {
-                if (linkedFilter === "all") return true;
-                if (linkedFilter === "has") return u.hasLinkedWallets === true;
-                if (linkedFilter === "none") return u.hasLinkedWallets === false;
-                return true;
-            })
-            .filter((u) => {
-                if (socialFilter === "all") return true;
-                if (socialFilter === "has") return u.hasSocial === true;
-                if (socialFilter === "none") return u.hasSocial === false;
-                return true;
-            })
-            .filter((u) => {
-                if (importFilter === "all") return true;
-                if (importFilter === "has") return u.hasImportedProgress === true;
-                if (importFilter === "none") return u.hasImportedProgress !== true;
-                return true;
-            })
-            .filter((u) => {
-                if (provisioningFilter === "all") return true;
-                return String(u.provisioningStatus || "") === String(provisioningFilter);
-            });
 
         const provisioningOptions = Array.from(
             new Set(
@@ -480,21 +356,27 @@ export default function AdminUsersPage() {
             )
         ).sort((a, b) => a.localeCompare(b));
 
-        const sortedUsers = [...scopedUsers].sort((a, b) => {
-            const factor = sortDir === "asc" ? 1 : -1;
-            if (sortKey === "xp") return factor * (a.xp - b.xp);
-            if (sortKey === "completed") return factor * (a.completed - b.completed);
-            if (sortKey === "dropOff") return factor * (a.dropOffCount - b.dropOffCount);
-            if (sortKey === "lastActivity") return factor * ((a.lastActivityEpoch || 0) - (b.lastActivityEpoch || 0));
-            return 0;
-        });
-
-        return { normalizedUsers, totalUsers, builders, explorers, dropOffUsers, sortedUsers, provisioningOptions };
-    }, [users, searchTerm, dropoffOnly, tierFilter, tokenFilter, linkedFilter, socialFilter, importFilter, provisioningFilter, sortKey, sortDir]);
+        return {
+            population: view.population,
+            sortedUsers: view.sorted,
+            provisioningOptions,
+            totalUsers: view.population.total,
+        };
+    }, [
+        users,
+        searchTerm,
+        kindFilter,
+        activityFilter,
+        linkedFilter,
+        importFilter,
+        provisioningFilter,
+        sortKey,
+        sortDir,
+    ]);
 
     if (error) {
         return (
-            <div className="max-w-4xl rounded-2xl border border-red-500/30 bg-red-500/10 text-red-200 px-6 py-4 space-y-3">
+            <div className="max-w-4xl space-y-3 rounded-2xl border border-red-500/30 bg-red-500/10 px-6 py-4 text-red-200">
                 <div>{error}</div>
                 <button
                     type="button"
@@ -509,15 +391,11 @@ export default function AdminUsersPage() {
 
     if (!users) {
         return (
-            <div className="max-w-4xl rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl px-6 py-4 text-slate-700 dark:text-slate-200">
-                Loading users analytics…
+            <div className="max-w-4xl rounded-2xl border border-white/10 bg-white/70 px-6 py-4 text-slate-700 backdrop-blur-xl dark:bg-[#0b0f17]/80 dark:text-slate-200">
+                Loading learners…
             </div>
         );
     }
-
-    const formatLastActivity = (epoch) => formatLastActivityEpoch(epoch);
-
-    const isBuilderTier = (tier) => String(tier).toLowerCase().includes("builder");
 
     const toggleSort = (key) => {
         if (sortKey === key) {
@@ -534,291 +412,241 @@ export default function AdminUsersPage() {
     };
 
     return (
-        <div className="relative min-h-[calc(100vh-8rem)] space-y-8">
+        <div className="relative min-h-[calc(100vh-8rem)] space-y-5">
             <div>
-                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text">
-                    Users Analytics
+                <h1 className="bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] bg-clip-text text-3xl font-extrabold tracking-tight text-transparent md:text-4xl">
+                    Learners
                 </h1>
-                <p className="text-base text-slate-600 dark:text-slate-300 mt-2">
-                    User-level activity and engagement indicators
+                <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-300">
+                    Canonical learner roster, identity, and activity
                 </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <KpiCard label="Total Learners" value={totalUsers} />
-                <KpiCard label="Builders" value={builders} />
-                <KpiCard label="Explorers" value={explorers} />
-                <KpiCard label="Drop-off Users" value={dropOffUsers} />
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <KpiCard label="Total learners" value={population.total} accent="cyan" />
+                <KpiCard label="Social learners" value={population.social} accent="emerald" />
+                <KpiCard label="Wallet-only learners" value={population.walletOnly} accent="slate" />
+                <KpiCard label="Active — 30d" value={population.active30d} accent="cyan" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-5">
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                        User Tiers
-                    </h3>
-                    <UserDistributionChart data={normalizedUsers} type="tier" />
+            <div className="rounded-2xl border border-cyan-300/25 bg-white/70 p-4 shadow-[0_16px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:border-cyan-500/20 dark:bg-[#0b0f17]/80 md:p-5">
+                <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm text-slate-600 dark:text-slate-300">
+                        Click a row for learner overview.
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Showing <span className="font-semibold">{sortedUsers.length}</span> of{" "}
+                        <span className="font-semibold">{totalUsers}</span>
+                    </p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-5">
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                        Engagement Level
-                    </h3>
-                    <UserDistributionChart data={normalizedUsers} type="engagement" />
-                </div>
-            </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-6">
-                <div className="mb-4 space-y-3">
-                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="text-sm text-slate-700 dark:text-slate-200">
-                            Click a row for user drill-down.
-                            {dropoffOnly ? (
-                                <span className="ml-2 rounded-full border border-rose-400/30 bg-rose-500/10 px-2 py-0.5 text-xs font-semibold text-rose-700 dark:text-rose-200">
-                                    drop-off only
-                                </span>
-                            ) : null}
-                        </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
-                            Showing <span className="font-semibold">{sortedUsers.length}</span> of{" "}
-                            <span className="font-semibold">{totalUsers}</span>
-                        </div>
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-12 lg:items-end">
+                    <div className="lg:col-span-4">
+                        <FilterLabel>Search</FilterLabel>
+                        <input
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Progress address, learner id, or token id…"
+                            className={filterControlClass}
+                        />
                     </div>
 
-                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-12 lg:items-end">
-                        <div className="lg:col-span-5">
-                            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                Search
-                            </label>
-                            <input
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="Progress address, learner id, or token id…"
-                                className="w-full rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
-                            />
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:col-span-8 lg:grid-cols-5">
+                        <div>
+                            <FilterLabel>Kind</FilterLabel>
+                            <select
+                                value={kindFilter}
+                                onChange={(e) => setKindFilter(e.target.value)}
+                                className={filterControlClass}
+                            >
+                                <option value="all">All</option>
+                                <option value="social">Social</option>
+                                <option value="wallet_only">Wallet-only</option>
+                            </select>
                         </div>
-
-                        <div className="lg:col-span-7">
-                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                                <div>
-                                    <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                        Tier
-                                    </label>
-                                    <select
-                                        value={tierFilter}
-                                        onChange={(e) => setTierFilter(e.target.value)}
-                                        className="w-full rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
-                                    >
-                                        <option value="all">All</option>
-                                        <option value="explorer">Explorer</option>
-                                        <option value="builder">Builder</option>
-                                        <option value="architect">Architect</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                        Token
-                                    </label>
-                                    <select
-                                        value={tokenFilter}
-                                        onChange={(e) => setTokenFilter(e.target.value)}
-                                        className="w-full rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
-                                    >
-                                        <option value="all">Any</option>
-                                        <option value="has">Yes</option>
-                                        <option value="none">No</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                        Linked
-                                    </label>
-                                    <select
-                                        value={linkedFilter}
-                                        onChange={(e) => setLinkedFilter(e.target.value)}
-                                        className="w-full rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
-                                    >
-                                        <option value="all">Any</option>
-                                        <option value="has">Yes</option>
-                                        <option value="none">No</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                        Social
-                                    </label>
-                                    <select
-                                        value={socialFilter}
-                                        onChange={(e) => setSocialFilter(e.target.value)}
-                                        className="w-full rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
-                                    >
-                                        <option value="all">Any</option>
-                                        <option value="has">Yes</option>
-                                        <option value="none">No</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                                <div>
-                                    <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                        Imported
-                                    </label>
-                                    <select
-                                        value={importFilter}
-                                        onChange={(e) => setImportFilter(e.target.value)}
-                                        className="w-full rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
-                                    >
-                                        <option value="all">Any</option>
-                                        <option value="has">Yes</option>
-                                        <option value="none">No</option>
-                                    </select>
-                                </div>
-                                <div className="sm:col-span-2">
-                                    <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                                        Provisioning
-                                    </label>
-                                    <select
-                                        value={provisioningFilter}
-                                        onChange={(e) => setProvisioningFilter(e.target.value)}
-                                        className="w-full rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
-                                    >
-                                        <option value="all">Any</option>
-                                        {provisioningOptions.map((opt) => (
-                                            <option key={opt} value={opt}>
-                                                {opt}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
+                        <div>
+                            <FilterLabel>Activity</FilterLabel>
+                            <select
+                                value={activityFilter}
+                                onChange={(e) => setActivityFilter(e.target.value)}
+                                className={filterControlClass}
+                            >
+                                <option value="any">Any</option>
+                                <option value="active7d">Active 7d</option>
+                                <option value="active30d">Active 30d</option>
+                                <option value="inactive30d">No recent activity</option>
+                            </select>
+                        </div>
+                        <div>
+                            <FilterLabel>Linked</FilterLabel>
+                            <select
+                                value={linkedFilter}
+                                onChange={(e) => setLinkedFilter(e.target.value)}
+                                className={filterControlClass}
+                            >
+                                <option value="all">Any</option>
+                                <option value="has">Yes</option>
+                                <option value="none">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <FilterLabel>Imported</FilterLabel>
+                            <select
+                                value={importFilter}
+                                onChange={(e) => setImportFilter(e.target.value)}
+                                className={filterControlClass}
+                            >
+                                <option value="all">Any</option>
+                                <option value="has">Yes</option>
+                                <option value="none">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <FilterLabel>Provisioning</FilterLabel>
+                            <select
+                                value={provisioningFilter}
+                                onChange={(e) => setProvisioningFilter(e.target.value)}
+                                className={filterControlClass}
+                            >
+                                <option value="all">Any</option>
+                                {provisioningOptions.map((opt) => (
+                                    <option key={opt} value={opt}>
+                                        {opt}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
                 </div>
 
-                <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/60 dark:bg-[#0b0f17]/70 backdrop-blur-xl">
-                    <table className="min-w-full text-sm">
+                <div className="mt-4 overflow-x-auto rounded-xl border border-white/10 bg-white/60 md:overflow-visible dark:bg-[#0b0f17]/70">
+                    <table className="w-full table-fixed text-sm">
+                        <colgroup>
+                            <col className="w-[18%]" />
+                            <col className="w-[10%]" />
+                            <col className="w-[14%]" />
+                            <col className="w-[14%]" />
+                            <col className="w-[8%]" />
+                            <col className="w-[8%]" />
+                            <col className="w-[9%]" />
+                            <col className="w-[19%]" />
+                        </colgroup>
                         <thead className="bg-white/80 dark:bg-[#111827]/80">
-                            <tr>
-                                <th className="p-3 text-left text-slate-700 dark:text-slate-200">Progress address</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Kind</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Registered</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">
-                                    <SortButton onClick={() => toggleSort("xp")} label={`XP${sortIndicator("xp")}`} />
+                            <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                                <th className="px-2 py-2 font-semibold">Progress address</th>
+                                <th className="px-2 py-2 text-center font-semibold">Kind</th>
+                                <th className="px-2 py-2 text-center font-semibold">
+                                    <SortButton
+                                        onClick={() => toggleSort("registered")}
+                                        label={`Registered${sortIndicator("registered")}`}
+                                    />
                                 </th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Tier</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Linked</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Imported</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Provisioning</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Started</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">
-                                    <SortButton onClick={() => toggleSort("completed")} label={`Completed${sortIndicator("completed")}`} />
+                                <th className="px-2 py-2 text-center font-semibold">
+                                    <SortButton
+                                        onClick={() => toggleSort("lastActivity")}
+                                        label={`Last activity${sortIndicator("lastActivity")}`}
+                                    />
                                 </th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">
-                                    <SortButton onClick={() => toggleSort("dropOff")} label={`Drop-Off${sortIndicator("dropOff")}`} />
+                                <th className="px-2 py-2 text-center font-semibold">
+                                    <SortButton
+                                        onClick={() => toggleSort("xp")}
+                                        label={`XP${sortIndicator("xp")}`}
+                                    />
                                 </th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Engagement</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">
-                                    <SortButton onClick={() => toggleSort("lastActivity")} label={`Last Activity${sortIndicator("lastActivity")}`} />
-                                </th>
+                                <th className="px-2 py-2 text-center font-semibold">Linked</th>
+                                <th className="px-2 py-2 text-center font-semibold">Imported</th>
+                                <th className="px-2 py-2 text-center font-semibold">Provisioning</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             {sortedUsers.map((user) => {
-                                const score = engagementScore(user);
                                 const shortId = truncateLearnerId(user.learnerId);
-                                const registeredLabel = formatSocialRegisteredAt(
-                                    user.socialRegisteredAt,
-                                    user.learnerKind || (user.hasSocial ? "social" : "wallet_only")
-                                );
+                                const registeredLabel = formatLearnerRegistered(user);
+                                const kindTone =
+                                    user.learnerKindLabel === "Social"
+                                        ? "emerald"
+                                        : user.learnerKindLabel === "Wallet-only"
+                                            ? "slate"
+                                            : "slate";
+
                                 return (
                                     <tr
                                         key={user.progressAddress || user.wallet}
-                                        onClick={() => navigate(`/admin/users/${encodeURIComponent(user.progressAddress || user.wallet)}`, { state: { user: user.raw } })}
-                                        className={`cursor-pointer border-t border-white/10 hover:bg-white/60 dark:hover:bg-white/5 ${user.isDropOff ? "bg-red-50/50 dark:bg-red-900/15" : ""}`}
+                                        onClick={() =>
+                                            navigate(
+                                                `/admin/users/${encodeURIComponent(
+                                                    user.progressAddress || user.wallet
+                                                )}`,
+                                                { state: { user: user.raw } }
+                                            )
+                                        }
+                                        className="cursor-pointer border-t border-white/10 hover:bg-cyan-500/[0.04] dark:hover:bg-cyan-500/[0.06]"
                                     >
-                                        <td className="p-3 font-mono text-xs text-slate-900 dark:text-slate-100">
-                                            <div className="underline underline-offset-2 decoration-dotted">
-                                                {user.wallet}
+                                        <td className="px-2 py-2 font-mono text-xs text-slate-900 dark:text-slate-100">
+                                            <div
+                                                className="truncate underline decoration-dotted underline-offset-2"
+                                                title={user.wallet}
+                                            >
+                                                {truncateAddress(user.wallet)}
                                             </div>
                                             {shortId ? (
-                                                <div className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                                <div className="mt-0.5 truncate text-[10px] text-slate-500 dark:text-slate-400">
                                                     id {shortId}
                                                 </div>
                                             ) : null}
                                         </td>
-
-                                        <td className="p-3 text-center">
-                                            <span
-                                                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
-                                                    user.learnerKindLabel === "Social"
-                                                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/25 dark:text-emerald-200"
-                                                        : user.learnerKindLabel === "Wallet-only"
-                                                            ? "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                                                            : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                                                }`}
-                                            >
-                                                {user.learnerKindLabel}
-                                            </span>
+                                        <td className="px-2 py-2 text-center">
+                                            <StatusBadge tone={kindTone}>{user.learnerKindLabel}</StatusBadge>
                                         </td>
-
-                                        <td className="p-3 text-center text-xs text-slate-700 dark:text-slate-200">
+                                        <td className="truncate px-2 py-2 text-center text-xs text-slate-700 dark:text-slate-200">
                                             {registeredLabel}
                                         </td>
-
-                                        <td className={`p-3 text-center font-semibold ${user.xp >= 2000 ? "text-indigo-700 dark:text-indigo-300" : "text-slate-800 dark:text-slate-200"}`}>
+                                        <td className="truncate px-2 py-2 text-center text-xs text-slate-700 dark:text-slate-200">
+                                            {formatLastActivityEpoch(user.lastActivityEpoch)}
+                                        </td>
+                                        <td className="px-2 py-2 text-center font-semibold text-slate-800 dark:text-slate-100">
                                             {user.xp}
                                         </td>
-
-                                        <td className="p-3 text-center">
-                                            <span
-                                                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${isBuilderTier(user.tier)
-                                                    ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                                                    : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}
-                                            >
-                                                {user.tier}
-                                            </span>
+                                        <td className="px-2 py-2 text-center">
+                                            <StatusBadge tone={user.hasLinkedWallets ? "cyan" : "slate"}>
+                                                {user.hasLinkedWallets ? "Yes" : "No"}
+                                            </StatusBadge>
                                         </td>
-
-                                        <td className="p-3 text-center">
-                                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.hasLinkedWallets ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/25 dark:text-indigo-200" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>
-                                                {user.hasLinkedWallets ? `${user.linkedWallets.length}` : "0"}
-                                            </span>
-                                        </td>
-
-                                        <td className="p-3 text-center">
-                                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.hasImportedProgress ? "bg-amber-100 text-amber-800 dark:bg-amber-900/25 dark:text-amber-200" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>
+                                        <td className="px-2 py-2 text-center">
+                                            <StatusBadge tone={user.hasImportedProgress ? "amber" : "slate"}>
                                                 {user.hasImportedProgress ? "Yes" : "No"}
-                                            </span>
+                                            </StatusBadge>
                                         </td>
-
-                                        <td className="p-3 text-center">
-                                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.provisioningStatus ? "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>
-                                                {user.provisioningStatus ? user.provisioningStatus : "—"}
-                                            </span>
+                                        <td className="px-2 py-2 text-center">
+                                            <StatusBadge tone="slate">
+                                                {user.provisioningStatus || "—"}
+                                            </StatusBadge>
                                         </td>
-
-                                        <td className="p-3 text-center text-slate-700 dark:text-slate-200">{user.started}</td>
-                                        <td className="p-3 text-center text-slate-700 dark:text-slate-200">{user.completed}</td>
-                                        <td className="p-3 text-center text-slate-700 dark:text-slate-200">{user.dropOffCount}</td>
-                                        <td className={`p-3 text-center font-semibold ${engagementClass(score)}`}>
-                                            {Math.round(score * 100)}%
-                                        </td>
-                                        <td className="p-3 text-center text-slate-700 dark:text-slate-200">{formatLastActivity(user.lastActivityEpoch)}</td>
                                     </tr>
                                 );
                             })}
                         </tbody>
                     </table>
                 </div>
-                {sortedUsers.length === 0 && (
-                    <div className="mt-4 rounded-xl border border-amber-300/40 bg-amber-50/70 dark:bg-amber-900/10 p-4 text-amber-900 dark:text-amber-200">
-                        No users matched the current filter. Try adjusting search or clearing drop-off scope.
+
+                {sortedUsers.length === 0 ? (
+                    <div className="mt-3 rounded-xl border border-amber-300/40 bg-amber-50/70 p-3 text-sm text-amber-900 dark:bg-amber-900/10 dark:text-amber-200">
+                        No learners matched the current filters.
                     </div>
-                )}
+                ) : null}
             </div>
         </div>
+    );
+}
+
+const filterControlClass =
+    "w-full rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400/35 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100";
+
+function FilterLabel({ children }) {
+    return (
+        <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            {children}
+        </label>
     );
 }
 
@@ -826,23 +654,61 @@ function SortButton({ onClick, label }) {
     return (
         <button
             type="button"
-            onClick={onClick}
-            className="text-center text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white"
+            onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+            }}
+            className="text-center text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
         >
             {label}
         </button>
     );
 }
 
-function KpiCard({ label, value }) {
+const KPI_ACCENTS = {
+    cyan: {
+        border: "border-cyan-300/35 dark:border-cyan-500/25",
+        marker: "bg-cyan-500",
+    },
+    emerald: {
+        border: "border-emerald-300/35 dark:border-emerald-500/25",
+        marker: "bg-emerald-500",
+    },
+    slate: {
+        border: "border-slate-300/45 dark:border-slate-600/50",
+        marker: "bg-slate-400 dark:bg-slate-500",
+    },
+};
+
+function KpiCard({ label, value, accent = "slate" }) {
+    const tone = KPI_ACCENTS[accent] || KPI_ACCENTS.slate;
     return (
-        <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl p-4 shadow-md">
-            <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        <div
+            className={`rounded-2xl border bg-white/70 p-3.5 shadow-md backdrop-blur-xl dark:bg-[#0b0f17]/80 ${tone.border}`}
+        >
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${tone.marker}`} aria-hidden />
                 {label}
             </div>
-            <div className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mt-1">
-                {value}
-            </div>
+            <div className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">{value}</div>
         </div>
+    );
+}
+
+function StatusBadge({ tone = "slate", children }) {
+    const tones = {
+        slate: "border-slate-300/40 bg-slate-500/10 text-slate-700 dark:text-slate-200",
+        cyan: "border-cyan-300/40 bg-cyan-500/10 text-cyan-800 dark:text-cyan-200",
+        emerald: "border-emerald-300/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
+        amber: "border-amber-400/40 bg-amber-500/10 text-amber-800 dark:text-amber-200",
+    };
+    return (
+        <span
+            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+                tones[tone] || tones.slate
+            }`}
+        >
+            {children}
+        </span>
     );
 }

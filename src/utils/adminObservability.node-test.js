@@ -34,17 +34,20 @@ test("formatSocialRegisteredAt shows dash for wallet-only", () => {
         "—"
     );
     assert.equal(formatSocialRegisteredAt(null, "social"), "—");
-    const formatted = formatSocialRegisteredAt("2026-09-01T12:00:00Z", "social");
-    assert.notEqual(formatted, "—");
-    assert.match(formatted, /2026/);
+    assert.equal(
+        formatSocialRegisteredAt("2026-09-01T12:00:00Z", "social"),
+        "1 Sep 2026, 12:00"
+    );
 });
 
 test("formatLastActivityEpoch null and zero become dash", () => {
     assert.equal(formatLastActivityEpoch(null), "—");
     assert.equal(formatLastActivityEpoch(0), "—");
     assert.equal(formatLastActivityEpoch(""), "—");
-    const formatted = formatLastActivityEpoch(1758540000);
-    assert.notEqual(formatted, "—");
+    assert.equal(
+        formatLastActivityEpoch(Date.parse("2026-09-22T12:00:00.000Z") / 1000),
+        "22 Sep 2026, 12:00"
+    );
 });
 
 test("normalizeSocialRegistrationsByWeek keeps zero weeks", () => {
@@ -92,8 +95,12 @@ test("users page uses Progress address and learner kind labels", () => {
     assert.match(users, />Progress address</);
     assert.doesNotMatch(users, />Account</);
     assert.match(users, /learnerKindLabel/);
-    assert.match(users, /formatSocialRegisteredAt/);
+    assert.match(users, /formatLearnerRegistered|formatSocialRegisteredAt/);
     assert.match(users, /Progress address, learner id/);
+    assert.match(users, /\bLearners\b/);
+    assert.doesNotMatch(users, /Users Analytics/);
+    assert.doesNotMatch(users, /UserDistributionChart/);
+    assert.doesNotMatch(users, /\bBuilders\b/);
 });
 
 test("user details exposes registration and last activity without email/sub", () => {

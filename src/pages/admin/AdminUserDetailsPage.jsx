@@ -1,14 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import AdminBackButton from "../../components/admin/AdminBackButton";
-import { LabeledAddressField, ProgressSourceHelper } from "../../components/LabeledAddressField.jsx";
+import { LabeledAddressField } from "../../components/LabeledAddressField.jsx";
 import { fetchAdminUserDetails, fetchAdminUsers } from "../../services/adminApi";
 import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 import {
+    formatAdminDateTime,
     formatLastActivityEpoch,
     formatLearnerKind,
     formatSocialRegisteredAt,
 } from "../../utils/adminObservability.js";
+import {
+    buildLabTitleLookup,
+    groupXpBreakdown,
+    normalizeActivityTimeline,
+    normalizeCompletedLabs,
+    normalizeIncompleteLabs,
+    normalizeProjectProgressItems,
+    projectTableColumnFlags,
+    projectTitleLookup,
+} from "../../utils/adminUserDetailsView.js";
 
 function isNonEmptyString(value) {
     return typeof value === "string" && value.trim().length > 0;
@@ -25,19 +36,6 @@ function pickAddressValue(...candidates) {
         if (isNonEmptyString(candidate)) return candidate.trim();
     }
     return null;
-}
-
-function formatDateLike(value) {
-    if (!value) return "—";
-    if (typeof value === "number" && Number.isFinite(value)) {
-        try {
-            return new Date(value).toLocaleString();
-        } catch {
-            return String(value);
-        }
-    }
-    const s = String(value).trim();
-    return s || "—";
 }
 
 const EMPTY_PROJECTS_PROGRESS = {
@@ -101,7 +99,6 @@ export default function AdminUserDetailsPage() {
                 }
             } catch {
                 try {
-                    // Fallback: fetch users list and locate the selected wallet.
                     const listJson = await fetchAdminUsers(idToken);
                     const users = Array.isArray(listJson)
                         ? listJson
@@ -140,19 +137,23 @@ export default function AdminUserDetailsPage() {
         };
     }, [idToken, targetWallet]);
 
-    const labsCompleted = useMemo(() => {
-        if (!data?.labsCompleted) return [];
-        return data.labsCompleted;
-    }, [data]);
+    const labsCompletedRaw = useMemo(
+        () => (Array.isArray(data?.labsCompleted) ? data.labsCompleted : []),
+        [data]
+    );
+    const labsIncompleteRaw = useMemo(
+        () => (Array.isArray(data?.labsStartedNotCompleted) ? data.labsStartedNotCompleted : []),
+        [data]
+    );
 
-    const labsStartedNotCompleted = useMemo(() => {
-        if (!data?.labsStartedNotCompleted) return [];
-        return data.labsStartedNotCompleted;
-    }, [data]);
-
-    const xpBreakdownObj = useMemo(() => {
-        return data?.xpBreakdown || null;
-    }, [data]);
+    const completedLabs = useMemo(
+        () => normalizeCompletedLabs(labsCompletedRaw),
+        [labsCompletedRaw]
+    );
+    const incompleteLabs = useMemo(() => {
+        const lookup = buildLabTitleLookup(labsCompletedRaw);
+        return normalizeIncompleteLabs(labsIncompleteRaw, lookup);
+    }, [labsCompletedRaw, labsIncompleteRaw]);
 
     const projectsProgress = useMemo(() => {
         const raw = data?.projectsProgress;
@@ -171,10 +172,25 @@ export default function AdminUserDetailsPage() {
             }
             : EMPTY_PROJECTS_PROGRESS.summary;
 
-        const items = Array.isArray(raw.items) ? raw.items : [];
+        const items = normalizeProjectProgressItems(Array.isArray(raw.items) ? raw.items : []);
 
         return { summary, items };
     }, [data]);
+
+    const timelineRows = useMemo(
+        () => normalizeActivityTimeline(Array.isArray(data?.timeline) ? data.timeline : []),
+        [data]
+    );
+
+    const xpGroups = useMemo(() => {
+        const labTitles = buildLabTitleLookup(labsCompletedRaw);
+        const projectTitles = projectTitleLookup(projectsProgress.items);
+        return groupXpBreakdown(data?.xpBreakdown || null, {
+            timeline: Array.isArray(data?.timeline) ? data.timeline : [],
+            labTitles,
+            projectTitles,
+        });
+    }, [data, labsCompletedRaw, projectsProgress.items]);
 
     const identitySummary = useMemo(() => {
         const raw = data || {};
@@ -183,7 +199,6 @@ export default function AdminUserDetailsPage() {
         const social = identity?.social || raw?.social || user?.social || null;
         const continuity = user?.continuity || raw?.continuity || {};
 
-        // Convenience cache only — do not over-trust.
         const tokenIdCached =
             raw?.tokenIdCached ??
             identity?.tokenIdCached ??
@@ -221,13 +236,13 @@ export default function AdminUserDetailsPage() {
                 label: "Progress address",
                 copyValue: progressSourceAddress,
                 emphasize: true,
-                hint: "Labs, projects, and XP in this admin view are loaded for this address.",
+                hint: "Labs, projects, and XP are loaded for this address.",
             },
             ...(showInspectedAddress
                 ? [{
                     label: "Inspected address",
                     copyValue: targetWallet,
-                    hint: "Address from the admin URL path parameter.",
+                    hint: "Address from the admin URL path (differs from progress address).",
                 }]
                 : []),
             {
@@ -250,7 +265,7 @@ export default function AdminUserDetailsPage() {
 
         const registrationRows = [
             { label: "Learner kind", value: learnerKindLabel },
-            { label: "Learner ID", value: isNonEmptyString(learnerId) ? learnerId : "—" },
+            { label: "Learner ID", value: isNonEmptyString(learnerId) ? learnerId : "—", mono: true },
             {
                 label: "Registered at",
                 value: formatSocialRegisteredAt(
@@ -272,17 +287,44 @@ export default function AdminUserDetailsPage() {
             },
         ];
 
-        const metaRows = [
+        const continuityPrimary = [
             { label: "Wallet linked", value: formatBool(identity?.walletLinked) },
             { label: "Custody type", value: isNonEmptyString(identity?.custodyType) ? identity.custodyType : "—" },
-            { label: "Provisioning status", value: isNonEmptyString(identity?.provisioningStatus) ? identity.provisioningStatus : "—" },
-            { label: "Import type", value: isNonEmptyString(continuity?.importType || raw?.importType) ? (continuity?.importType || raw?.importType) : "—" },
-            { label: "Imported from owner", value: formatBool(continuity?.importedFromOwner ?? raw?.importedFromOwner) },
-            { label: "Imported at", value: formatDateLike(continuity?.importedAt ?? raw?.importedAt) },
-            { label: "Migrated from owner", value: formatBool(continuity?.migratedFromOwner ?? raw?.migratedFromOwner) },
-            { label: "Migrated at", value: formatDateLike(continuity?.migratedAt ?? raw?.migratedAt) },
+            {
+                label: "Provisioning status",
+                value: isNonEmptyString(identity?.provisioningStatus) ? identity.provisioningStatus : "—",
+            },
             { label: "Has imported progress", value: formatBool(hasImportedProgress) },
-            { label: "Token ID (cached)", value: tokenIdCached !== null && tokenIdCached !== undefined ? String(tokenIdCached) : "—" },
+        ];
+
+        const continuityAdvanced = [
+            {
+                label: "Import type",
+                value: isNonEmptyString(continuity?.importType || raw?.importType)
+                    ? (continuity?.importType || raw?.importType)
+                    : "—",
+            },
+            {
+                label: "Imported from owner",
+                value: formatBool(continuity?.importedFromOwner ?? raw?.importedFromOwner),
+            },
+            {
+                label: "Imported at",
+                value: formatAdminDateTime(continuity?.importedAt ?? raw?.importedAt),
+            },
+            {
+                label: "Migrated from owner",
+                value: formatBool(continuity?.migratedFromOwner ?? raw?.migratedFromOwner),
+            },
+            {
+                label: "Migrated at",
+                value: formatAdminDateTime(continuity?.migratedAt ?? raw?.migratedAt),
+            },
+            {
+                label: "Token ID (cached)",
+                value: tokenIdCached !== null && tokenIdCached !== undefined ? String(tokenIdCached) : "—",
+                mono: true,
+            },
         ];
 
         const badges = [
@@ -300,25 +342,13 @@ export default function AdminUserDetailsPage() {
         return {
             addressRows,
             registrationRows,
-            metaRows,
+            continuityPrimary,
+            continuityAdvanced,
             badges,
-            progressSourceAddress,
+            displayName: isNonEmptyString(social?.displayName) ? social.displayName : null,
+            learnerKindLabel,
         };
     }, [data, targetWallet]);
-
-    const timeline = useMemo(() => {
-        if (!data?.timeline) return [];
-
-        return data.timeline.map((item) => ({
-            label:
-                item?.title?.en ||
-                item?.id ||
-                item?.type ||
-                "Activity",
-            when: item?.completedAt || "—",
-            xp: item?.xp ?? null,
-        }));
-    }, [data]);
 
     if (loading) {
         return (
@@ -337,38 +367,39 @@ export default function AdminUserDetailsPage() {
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between gap-3">
+        <div className="space-y-5">
+            <div className="flex items-start justify-between gap-3">
                 <div>
                     <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text">
-                        User Analytics
+                        Learner overview
                     </h1>
                     {data?.user && (
                         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                            {identitySummary.displayName ? (
+                                <>
+                                    <span className="font-semibold text-slate-800 dark:text-slate-100">
+                                        {identitySummary.displayName}
+                                    </span>
+                                    <span className="mx-1.5 text-slate-400">·</span>
+                                </>
+                            ) : null}
                             Tier:{" "}
                             <span className="font-semibold">
                                 {data.user.hasProgress === false || data.user.tier == null
                                     ? "No Progress"
                                     : data.user.tier}
                             </span>{" "}
-                            · XP: <span className="font-semibold">{data.user.xp}</span>
+                            · XP: <span className="font-semibold">{data.user.xp ?? 0}</span>
+                            <span className="mx-1.5 text-slate-400">·</span>
+                            {identitySummary.learnerKindLabel}
                         </p>
                     )}
-                    <div className="mt-4 max-w-xl space-y-2">
-                        <LabeledAddressField
-                            label="Progress address"
-                            address={identitySummary.progressSourceAddress}
-                            emphasize
-                            hint="This is the learner address used to load labs, projects, and XP in this admin view."
-                        />
-                        <ProgressSourceHelper />
-                    </div>
                 </div>
                 <AdminBackButton to="/admin/users" label="Back to Users" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Panel title="Identity & registration">
+            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+                <Panel title="Identity & registration" accent="cyan">
                     <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
                             {identitySummary.badges.map((b) => (
@@ -378,12 +409,12 @@ export default function AdminUserDetailsPage() {
                             ))}
                             {!identitySummary.badges.length ? (
                                 <span className="text-sm text-slate-600 dark:text-slate-300">
-                                    No identity markers available for this learner.
+                                    No identity markers available.
                                 </span>
                             ) : null}
                         </div>
-                        <KeyValueGrid rows={identitySummary.registrationRows} />
-                        <div className="space-y-3">
+                        <KeyValueGrid rows={identitySummary.registrationRows} dense />
+                        <div className="space-y-2">
                             {identitySummary.addressRows.map((row) => (
                                 <LabeledAddressField
                                     key={row.label}
@@ -391,120 +422,292 @@ export default function AdminUserDetailsPage() {
                                     address={row.copyValue}
                                     hint={row.hint}
                                     emphasize={row.emphasize}
+                                    compact
                                 />
                             ))}
                         </div>
                     </div>
                 </Panel>
 
-                <Panel title="Continuity">
-                    <KeyValueGrid rows={identitySummary.metaRows} />
-                </Panel>
-
-                <Panel title="Labs Completed List">
-                    <List items={labsCompleted} emptyMessage="No completed labs available." />
-                </Panel>
-
-                <Panel title="Labs Started but Not Completed">
-                    <List items={labsStartedNotCompleted} emptyMessage="No incomplete labs available." />
-                </Panel>
-
-                <Panel title="XP Breakdown">
-                    {xpBreakdownObj ? (
-                        <div className="space-y-4 text-sm">
-                            {xpBreakdownObj.labs?.length > 0 && (
-                                <div>
-                                    <p className="font-semibold mb-2">Labs</p>
-                                    <ul className="space-y-1">
-                                        {xpBreakdownObj.labs.map((lab, idx) => (
-                                            <li key={`lab-${idx}`} className="flex justify-between">
-                                                <span>{lab.labId}</span>
-                                                <span className="font-medium">{lab.xp} XP</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {xpBreakdownObj.lessons?.length > 0 && (
-                                <div>
-                                    <p className="font-semibold mb-2">Lessons</p>
-                                    <ul className="space-y-1">
-                                        {xpBreakdownObj.lessons.map((lesson, idx) => (
-                                            <li key={`lesson-${idx}`} className="flex justify-between">
-                                                <span>{lesson.lessonId || "Lesson"}</span>
-                                                <span className="font-medium">{lesson.xp} XP</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
-
-                            {xpBreakdownObj.projects?.length > 0 && (
-                                <div>
-                                    <p className="font-semibold mb-2">Projects</p>
-                                    <ul className="space-y-1">
-                                        {xpBreakdownObj.projects.map((project, idx) => (
-                                            <li key={`project-${idx}`} className="flex justify-between">
-                                                <span>{project.projectId}</span>
-                                                <span className="font-medium">
-                                                    {project.xp !== null && project.xp !== undefined
-                                                        ? `${project.xp} XP`
-                                                        : isNonEmptyString(project.status)
-                                                            ? project.status
-                                                            : "Completed"}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
+                <Panel title="Continuity" accent="slate">
+                    <KeyValueGrid rows={identitySummary.continuityPrimary} dense />
+                    <details className="mt-3 rounded-xl border border-slate-200/70 bg-slate-50/70 open:pb-1 dark:border-slate-700/60 dark:bg-slate-900/40">
+                        <summary className="cursor-pointer list-none px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 [&::-webkit-details-marker]:hidden">
+                            <span className="inline-flex items-center gap-2">
+                                Advanced details
+                                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
+                                    import / migration / token cache
+                                </span>
+                            </span>
+                        </summary>
+                        <div className="border-t border-slate-200/70 px-3 py-3 dark:border-slate-700/60">
+                            <KeyValueGrid rows={identitySummary.continuityAdvanced} dense />
                         </div>
-                    ) : (
-                        <p className="text-sm text-slate-500 dark:text-slate-400">No XP breakdown available.</p>
-                    )}
+                    </details>
                 </Panel>
 
-                <Panel title="Project Progress" className="md:col-span-2">
+                <Panel title={`Completed labs (${completedLabs.length})`} accent="emerald">
+                    <LabList
+                        rows={completedLabs}
+                        emptyMessage="No completed labs."
+                        dateCaption="Completed"
+                    />
+                </Panel>
+
+                {incompleteLabs.length > 0 ? (
+                    <Panel title={`Incomplete labs (${incompleteLabs.length})`} accent="amber">
+                        <LabList
+                            rows={incompleteLabs}
+                            emptyMessage="No incomplete labs."
+                            dateCaption="Started"
+                            showInferred
+                        />
+                    </Panel>
+                ) : (
+                    <div className="self-start rounded-xl border border-dashed border-amber-300/50 bg-amber-500/[0.04] px-4 py-3 text-sm text-slate-500 dark:border-amber-700/40 dark:bg-amber-500/[0.06] dark:text-slate-400">
+                        No incomplete labs
+                    </div>
+                )}
+
+                <Panel title="XP & achievements" accent="violet" className="lg:col-span-2">
+                    <XpGroupsSection groups={xpGroups} />
+                </Panel>
+
+                <Panel title="Project progress" accent="emerald" className="lg:col-span-2">
                     <ProjectProgressSection progress={projectsProgress} />
                 </Panel>
 
-                <Panel title="Timeline of Activity">
-                    {timeline.length ? (
-                        <div className="space-y-2">
-                            {timeline.map((item, idx) => (
-                                <div key={`${item.label}-${idx}`} className="rounded-lg border border-white/10 bg-white/60 dark:bg-slate-900/40 px-3 py-2">
-                                    <div className="flex justify-between">
-                                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                                            {item.label}
-                                        </p>
-                                        {item.xp !== null && (
-                                            <p className="text-xs font-medium text-emerald-400">
-                                                {item.xp} XP
-                                            </p>
-                                        )}
-                                    </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                                        {item.when}
-                                    </p>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-sm text-slate-500 dark:text-slate-400">No timeline entries available.</p>
-                    )}
+                <Panel title={`Recent activity (${timelineRows.length})`} accent="cyan" className="lg:col-span-2">
+                    <ActivityTimeline rows={timelineRows} />
                 </Panel>
             </div>
         </div>
     );
 }
 
-function Panel({ title, children, className = "" }) {
+const PANEL_ACCENTS = {
+    cyan: {
+        panel: "border-cyan-300/35 dark:border-cyan-500/25",
+        marker: "bg-cyan-500",
+        title: "text-cyan-800 dark:text-cyan-200",
+    },
+    slate: {
+        panel: "border-slate-300/45 dark:border-slate-600/50",
+        marker: "bg-slate-400 dark:bg-slate-500",
+        title: "text-slate-800 dark:text-slate-200",
+    },
+    emerald: {
+        panel: "border-emerald-300/35 dark:border-emerald-500/25",
+        marker: "bg-emerald-500",
+        title: "text-emerald-800 dark:text-emerald-200",
+    },
+    amber: {
+        panel: "border-amber-300/40 dark:border-amber-500/30",
+        marker: "bg-amber-500",
+        title: "text-amber-800 dark:text-amber-200",
+    },
+    violet: {
+        panel: "border-violet-300/35 dark:border-violet-500/25",
+        marker: "bg-violet-500",
+        title: "text-violet-800 dark:text-violet-200",
+    },
+};
+
+function Panel({ title, children, className = "", accent = "slate" }) {
+    const tone = PANEL_ACCENTS[accent] || PANEL_ACCENTS.slate;
     return (
-        <div className={`rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-5 ${className}`}>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-3">{title}</h2>
+        <div
+            className={`rounded-2xl border bg-white/70 p-4 shadow-[0_16px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:bg-[#0b0f17]/80 ${tone.panel} ${className}`}
+        >
+            <h2 className="mb-3 flex items-center gap-2 text-base font-semibold text-slate-900 dark:text-slate-100">
+                <span className={`h-2 w-2 shrink-0 rounded-full ${tone.marker}`} aria-hidden />
+                <span className={tone.title}>{title}</span>
+            </h2>
             {children}
         </div>
+    );
+}
+
+function LabList({ rows, emptyMessage, dateCaption, showInferred = false }) {
+    if (!rows.length) {
+        return <p className="text-sm text-slate-500 dark:text-slate-400">{emptyMessage}</p>;
+    }
+
+    return (
+        <ul className="divide-y divide-slate-200/70 dark:divide-slate-700/60">
+            {rows.map((row) => (
+                <li key={row.key} className="flex items-start justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+                    <div className="min-w-0">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{row.title}</p>
+                        {row.labId && row.title !== row.labId ? (
+                            <p className="mt-0.5 font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                                {row.labId}
+                            </p>
+                        ) : null}
+                    </div>
+                    <div className="shrink-0 text-right">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{dateCaption}</p>
+                        <p className="text-xs font-medium text-slate-700 dark:text-slate-200">{row.dateLabel}</p>
+                        {showInferred && row.inferred ? (
+                            <span className="mt-1 inline-flex rounded-full border border-amber-400/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-200">
+                                inferred
+                            </span>
+                        ) : null}
+                    </div>
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+const XP_GROUP_ACCENTS = {
+    labs: {
+        border: "border-cyan-300/40 dark:border-cyan-500/30",
+        total: "text-cyan-700 dark:text-cyan-300",
+        marker: "bg-cyan-500",
+    },
+    projects: {
+        border: "border-emerald-300/40 dark:border-emerald-500/30",
+        total: "text-emerald-700 dark:text-emerald-300",
+        marker: "bg-emerald-500",
+    },
+    modules: {
+        border: "border-violet-300/40 dark:border-violet-500/30",
+        total: "text-violet-700 dark:text-violet-300",
+        marker: "bg-violet-500",
+    },
+    lessons: {
+        border: "border-slate-200/70 dark:border-slate-700/60",
+        total: "text-slate-600 dark:text-slate-300",
+        marker: "bg-slate-400",
+    },
+};
+
+function XpGroupsSection({ groups }) {
+    if (!groups.length) {
+        return <p className="text-sm text-slate-500 dark:text-slate-400">No XP breakdown available.</p>;
+    }
+
+    return (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {groups.map((group) => {
+                const accent = XP_GROUP_ACCENTS[group.id] || XP_GROUP_ACCENTS.lessons;
+                return (
+                    <div
+                        key={group.id}
+                        className={`rounded-xl border bg-white/60 p-3 dark:bg-slate-900/40 ${accent.border}`}
+                    >
+                        <div className="mb-2 flex items-baseline justify-between gap-2">
+                            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${accent.marker}`} aria-hidden />
+                                {group.title}
+                            </h3>
+                            {group.totalXp != null ? (
+                                <span className={`text-xs font-semibold ${accent.total}`}>
+                                    {group.totalXp} XP
+                                </span>
+                            ) : null}
+                        </div>
+                        <ul className="space-y-1.5">
+                            {group.items.map((item) => (
+                                <li
+                                    key={item.key}
+                                    className="flex items-start justify-between gap-2 text-sm text-slate-700 dark:text-slate-200"
+                                >
+                                    <span className="min-w-0 break-words">{item.label}</span>
+                                    <span className="shrink-0 font-medium text-slate-900 dark:text-slate-100">
+                                        {item.xp != null && item.xp !== undefined
+                                            ? `${item.xp} XP`
+                                            : item.status || "—"}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+function activityEventMeta(type) {
+    const t = String(type || "").toLowerCase();
+    if (t === "lab") {
+        return {
+            label: "Lab completed",
+            tone: "cyan",
+            border: "border-cyan-300/35 dark:border-cyan-500/25",
+            rail: "bg-cyan-500",
+            xp: "text-cyan-700 dark:text-cyan-300",
+        };
+    }
+    if (t === "project") {
+        return {
+            label: "Project",
+            tone: "emerald",
+            border: "border-emerald-300/35 dark:border-emerald-500/25",
+            rail: "bg-emerald-500",
+            xp: "text-emerald-700 dark:text-emerald-300",
+        };
+    }
+    if (t === "assessment") {
+        return {
+            label: "Assessment completed",
+            tone: "violet",
+            border: "border-violet-300/35 dark:border-violet-500/25",
+            rail: "bg-violet-500",
+            xp: "text-violet-700 dark:text-violet-300",
+        };
+    }
+    return {
+        label: "Activity",
+        tone: "slate",
+        border: "border-white/10",
+        rail: "bg-slate-400",
+        xp: "text-slate-600 dark:text-slate-300",
+    };
+}
+
+function ActivityTimeline({ rows }) {
+    if (!rows.length) {
+        return <p className="text-sm text-slate-500 dark:text-slate-400">No recent meaningful activity.</p>;
+    }
+
+    return (
+        <ol className="space-y-2">
+            {rows.map((row) => {
+                const meta = activityEventMeta(row.type);
+                return (
+                    <li
+                        key={row.key}
+                        className={`relative overflow-hidden rounded-xl border bg-white/60 px-3 py-2.5 pl-4 dark:bg-slate-900/40 ${meta.border}`}
+                    >
+                        <span
+                            className={`absolute bottom-2 left-0 top-2 w-0.5 rounded-full ${meta.rail}`}
+                            aria-hidden
+                        />
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div className="min-w-0">
+                                <div className="mb-1">
+                                    <Badge tone={meta.tone}>{row.what}</Badge>
+                                </div>
+                                <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                                    {row.title}
+                                </p>
+                                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                    {row.dateLabel}
+                                </p>
+                            </div>
+                            {row.xp != null && Number(row.xp) > 0 ? (
+                                <span className={`shrink-0 text-xs font-semibold ${meta.xp}`}>
+                                    +{row.xp} XP
+                                </span>
+                            ) : null}
+                        </div>
+                    </li>
+                );
+            })}
+        </ol>
     );
 }
 
@@ -518,33 +721,35 @@ function ProjectProgressSection({ progress }) {
         { label: "Rejected", value: progress.summary.totalRejected },
     ];
 
+    const flags = projectTableColumnFlags(progress.items);
+
     if (!progress.items.length) {
         return (
-            <div className="space-y-4">
+            <div className="space-y-3">
                 <ProjectProgressSummary cards={summaryCards} />
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                    No project progress recorded for this user yet.
+                    No project progress recorded yet.
                 </p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3">
             <ProjectProgressSummary cards={summaryCards} />
             <div className="overflow-x-auto rounded-xl border border-white/10">
                 <table className="min-w-full text-sm">
                     <thead>
-                        <tr className="border-b border-white/10 bg-white/60 dark:bg-slate-900/40 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        <tr className="border-b border-white/10 bg-white/60 text-left text-xs uppercase tracking-wide text-slate-500 dark:bg-slate-900/40 dark:text-slate-400">
                             <th className="px-3 py-2 font-semibold">Project</th>
                             <th className="px-3 py-2 font-semibold">Status</th>
-                            <th className="px-3 py-2 font-semibold">Started</th>
-                            <th className="px-3 py-2 font-semibold">Submitted</th>
-                            <th className="px-3 py-2 font-semibold">Completed</th>
-                            <th className="px-3 py-2 font-semibold">Reviewed</th>
-                            <th className="px-3 py-2 font-semibold">XP</th>
-                            <th className="px-3 py-2 font-semibold">Evidence</th>
-                            <th className="px-3 py-2 font-semibold">Review</th>
+                            {flags.started ? <th className="px-3 py-2 font-semibold">Started</th> : null}
+                            {flags.submitted ? <th className="px-3 py-2 font-semibold">Submitted</th> : null}
+                            {flags.completed ? <th className="px-3 py-2 font-semibold">Completed</th> : null}
+                            {flags.reviewed ? <th className="px-3 py-2 font-semibold">Reviewed</th> : null}
+                            {flags.xp ? <th className="px-3 py-2 font-semibold">XP</th> : null}
+                            {flags.evidence ? <th className="px-3 py-2 font-semibold">Evidence</th> : null}
+                            {flags.review ? <th className="px-3 py-2 font-semibold">Review</th> : null}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-white/10">
@@ -559,54 +764,70 @@ function ProjectProgressSection({ progress }) {
                             return (
                                 <tr
                                     key={`${projectId}-${idx}`}
-                                    className="bg-white/40 dark:bg-slate-900/20 align-top"
+                                    className="bg-white/40 align-top dark:bg-slate-900/20"
                                 >
-                                    <td className="px-3 py-3">
+                                    <td className="px-3 py-2.5">
                                         <p className="font-medium text-slate-900 dark:text-slate-100">{title}</p>
-                                        <p className="mt-1 font-mono text-xs text-slate-500 dark:text-slate-400 break-all">
-                                            {projectId}
-                                        </p>
+                                        {title !== projectId ? (
+                                            <p className="mt-0.5 font-mono text-[11px] text-slate-500 dark:text-slate-400 break-all">
+                                                {projectId}
+                                            </p>
+                                        ) : null}
                                     </td>
-                                    <td className="px-3 py-3">
+                                    <td className="px-3 py-2.5">
                                         <Badge tone={statusMeta.tone}>{statusMeta.label}</Badge>
                                     </td>
-                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                                        {formatDateLike(item?.startedAt)}
-                                    </td>
-                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                                        {formatDateLike(item?.submittedAt)}
-                                    </td>
-                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                                        {formatDateLike(item?.completedAt)}
-                                    </td>
-                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                                        {formatDateLike(item?.reviewedAt)}
-                                    </td>
-                                    <td className="px-3 py-3 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                                        {item?.xpAwarded !== null && item?.xpAwarded !== undefined
-                                            ? `${item.xpAwarded} XP`
-                                            : "—"}
-                                    </td>
-                                    <td className="px-3 py-3 text-slate-700 dark:text-slate-300">
-                                        <p>{isNonEmptyString(item?.evidenceType) ? item.evidenceType : "—"}</p>
-                                        {hasEvidenceRef ? (
-                                            <p className="mt-1 font-mono text-xs text-slate-500 dark:text-slate-400 break-all">
-                                                {item.evidenceRef}
-                                            </p>
-                                        ) : null}
-                                    </td>
-                                    <td className="px-3 py-3 text-slate-700 dark:text-slate-300">
-                                        {hasReviewer ? (
-                                            <p className="font-mono text-xs break-all">{item.reviewerWallet}</p>
-                                        ) : (
-                                            <p>—</p>
-                                        )}
-                                        {hasReviewNote ? (
-                                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                                {item.reviewNote}
-                                            </p>
-                                        ) : null}
-                                    </td>
+                                    {flags.started ? (
+                                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-700 dark:text-slate-300">
+                                            {item?.startedLabel ?? formatAdminDateTime(item?.startedAt)}
+                                        </td>
+                                    ) : null}
+                                    {flags.submitted ? (
+                                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-700 dark:text-slate-300">
+                                            {item?.submittedLabel ?? formatAdminDateTime(item?.submittedAt)}
+                                        </td>
+                                    ) : null}
+                                    {flags.completed ? (
+                                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-700 dark:text-slate-300">
+                                            {item?.completedLabel ?? formatAdminDateTime(item?.completedAt)}
+                                        </td>
+                                    ) : null}
+                                    {flags.reviewed ? (
+                                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-700 dark:text-slate-300">
+                                            {item?.reviewedLabel ?? formatAdminDateTime(item?.reviewedAt)}
+                                        </td>
+                                    ) : null}
+                                    {flags.xp ? (
+                                        <td className="whitespace-nowrap px-3 py-2.5 text-slate-700 dark:text-slate-300">
+                                            {item?.xpAwarded !== null && item?.xpAwarded !== undefined
+                                                ? `${item.xpAwarded} XP`
+                                                : "—"}
+                                        </td>
+                                    ) : null}
+                                    {flags.evidence ? (
+                                        <td className="px-3 py-2.5 text-slate-700 dark:text-slate-300">
+                                            <p>{isNonEmptyString(item?.evidenceType) ? item.evidenceType : "—"}</p>
+                                            {hasEvidenceRef ? (
+                                                <p className="mt-1 font-mono text-[11px] text-slate-500 dark:text-slate-400 break-all">
+                                                    {item.evidenceRef}
+                                                </p>
+                                            ) : null}
+                                        </td>
+                                    ) : null}
+                                    {flags.review ? (
+                                        <td className="px-3 py-2.5 text-slate-700 dark:text-slate-300">
+                                            {hasReviewer ? (
+                                                <p className="font-mono text-[11px] break-all">{item.reviewerWallet}</p>
+                                            ) : (
+                                                <p>—</p>
+                                            )}
+                                            {hasReviewNote ? (
+                                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                                    {item.reviewNote}
+                                                </p>
+                                            ) : null}
+                                        </td>
+                                    ) : null}
                                 </tr>
                             );
                         })}
@@ -619,16 +840,16 @@ function ProjectProgressSection({ progress }) {
 
 function ProjectProgressSummary({ cards }) {
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
             {cards.map((card) => (
                 <div
                     key={card.label}
-                    className="rounded-xl border border-white/10 bg-white/60 dark:bg-slate-900/40 px-3 py-3 text-center"
+                    className="rounded-xl border border-white/10 bg-white/60 px-2.5 py-2 text-center dark:bg-slate-900/40"
                 >
-                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    <p className="text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         {card.label}
                     </p>
-                    <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    <p className="mt-0.5 text-xl font-bold text-slate-900 dark:text-slate-100">
                         {card.value}
                     </p>
                 </div>
@@ -637,64 +858,22 @@ function ProjectProgressSummary({ cards }) {
     );
 }
 
-function List({ items, emptyMessage }) {
-    if (!items.length) {
-        return <p className="text-sm text-slate-500 dark:text-slate-400">{emptyMessage}</p>;
-    }
-
+function KeyValueGrid({ rows, dense = false }) {
     return (
-        <ul className="space-y-2">
-            {items.map((item, idx) => {
-                const label =
-                    item?.title?.en ||
-                    item?.labId ||
-                    item?.projectId ||
-                    String(item);
-
-                const meta =
-                    item?.completedAt ||
-                    item?.startedAt ||
-                    item?.xp;
-
-                return (
-                    <li
-                        key={`${label}-${idx}`}
-                        className="rounded-lg border border-white/10 bg-white/60 dark:bg-slate-900/40 px-3 py-2 text-sm text-slate-800 dark:text-slate-200"
-                    >
-                        <div className="flex justify-between">
-                            <span>{label}</span>
-                            {meta && (
-                                <span className="text-xs text-slate-500 dark:text-slate-400">
-                                    {typeof meta === "number" ? `${meta} XP` : meta}
-                                </span>
-                            )}
-                        </div>
-                    </li>
-                );
-            })}
-        </ul>
-    );
-}
-
-function KeyValueGrid({ rows }) {
-    return (
-        <div className="grid grid-cols-1 gap-3 text-sm">
+        <div className={`grid grid-cols-1 gap-2 text-sm ${dense ? "sm:grid-cols-2" : ""}`}>
             {rows.map((row) => (
                 <div
                     key={row.label}
-                    className="rounded-xl border border-white/10 bg-white/60 dark:bg-slate-900/40 p-3"
+                    className="rounded-lg border border-white/10 bg-white/60 px-2.5 py-2 dark:bg-slate-900/40"
                 >
-                    <div className="flex items-start justify-between gap-3">
-                        <div className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                            {row.label}
-                        </div>
-                        {row.source === "inferred" ? (
-                            <span className="shrink-0 rounded-full border border-amber-400/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-200">
-                                inferred
-                            </span>
-                        ) : null}
+                    <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        {row.label}
                     </div>
-                    <div className="mt-1 font-mono text-xs text-slate-800 dark:text-slate-100 break-all">
+                    <div
+                        className={`mt-0.5 break-all text-slate-800 dark:text-slate-100 ${
+                            row.mono ? "font-mono text-xs" : "text-sm font-medium"
+                        }`}
+                    >
                         {row.value}
                     </div>
                 </div>
@@ -707,12 +886,14 @@ function Badge({ tone = "slate", children }) {
     const tones = {
         slate: "border-slate-300/40 bg-slate-500/10 text-slate-700 dark:text-slate-200",
         indigo: "border-indigo-300/40 bg-indigo-500/10 text-indigo-800 dark:text-indigo-200",
+        cyan: "border-cyan-300/40 bg-cyan-500/10 text-cyan-800 dark:text-cyan-200",
         emerald: "border-emerald-300/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200",
-        amber: "border-amber-300/40 bg-amber-500/10 text-amber-800 dark:text-amber-200",
+        amber: "border-amber-400/40 bg-amber-500/10 text-amber-800 dark:text-amber-200",
+        violet: "border-violet-300/40 bg-violet-500/10 text-violet-800 dark:text-violet-200",
         rose: "border-rose-300/40 bg-rose-500/10 text-rose-800 dark:text-rose-200",
     };
     return (
-        <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${tones[tone] || tones.slate}`}>
+        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${tones[tone] || tones.slate}`}>
             {children}
         </span>
     );
