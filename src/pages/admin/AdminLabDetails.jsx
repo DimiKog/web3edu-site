@@ -158,7 +158,7 @@ export default function AdminLabDetails() {
                             <table className="w-full text-sm">
                                 <thead className="bg-white/80 dark:bg-[#111827]/80">
                                     <tr>
-                                        <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Account</th>
+                                        <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Progress address</th>
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Started</th>
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Completed</th>
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Started At</th>

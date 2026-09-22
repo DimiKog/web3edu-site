@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchAdminOverview, fetchLabsSummary } from "../services/adminApi";
 import AdminKpis from "../components/admin/AdminKpis";
+import ObservabilityOverview from "../components/admin/ObservabilityOverview";
 import PlatformAnalytics from "../components/admin/PlatformAnalytics";
 import LearningInsights from "../components/admin/LearningInsights";
 import ProjectsOverview from "../components/admin/ProjectsOverview";
@@ -132,7 +133,7 @@ export default function AdminDashboard() {
                             Admin Dashboard
                         </h1>
                         <p className="text-base text-slate-600 dark:text-slate-300 mt-2">
-                            Overview & management tools for Web3Edu
+                            Platform acquisition, activity, and learning engagement
                         </p>
                         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                             Last updated: {lastUpdated ? lastUpdated.toLocaleString() : "—"}
@@ -157,18 +158,38 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                <AdminKpis
-                    overview={overview}
-                    platform={platform}
-                    onCardClick={(id) => {
-                        if (id === "totalUsers") navigate("/admin/users?sort=xp&dir=desc");
-                        if (id === "startedAnyLab") navigate("/admin/labs?sort=started");
-                        if (id === "completedAnyLab") navigate("/admin/labs?sort=completion");
-                        if (id === "retention3plus") navigate("/admin/users?sort=completed&dir=desc");
-                    }}
-                />
+                <ObservabilityOverview overview={overview} />
 
-                <ProjectsOverview projectsOverview={overview?.projectsOverview} />
+                <section className="space-y-4">
+                    <div>
+                        <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+                            Learning engagement
+                        </h2>
+                        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                            Lab and project participation across the canonical learner roster
+                        </p>
+                    </div>
+                    <AdminKpis
+                        overview={overview}
+                        platform={platform}
+                        onCardClick={(id) => {
+                            if (id === "totalUsers") navigate("/admin/users?sort=xp&dir=desc");
+                            if (id === "startedAnyLab") navigate("/admin/labs?sort=started");
+                            if (id === "completedAnyLab") navigate("/admin/labs?sort=completion");
+                            if (id === "retention3plus") navigate("/admin/users?sort=completed&dir=desc");
+                        }}
+                    />
+                    <ProjectsOverview projectsOverview={overview?.projectsOverview} />
+                    {labs && labs.length > 0 && (
+                        <LearningInsights labs={labs} />
+                    )}
+                    {labs && labs.length === 0 && (
+                        <div className="rounded-2xl border border-amber-300/40 bg-amber-50/70 dark:bg-amber-900/10 p-5 text-amber-900 dark:text-amber-200">
+                            No labs data available for the current scope. Try refreshing or opening the Labs page.
+                        </div>
+                    )}
+                    <PlatformAnalytics platform={platform} />
+                </section>
 
                 <div className="rounded-2xl border border-rose-300/40 bg-gradient-to-br from-rose-50/80 via-white/70 to-orange-50/50 dark:border-rose-500/25 dark:from-rose-950/25 dark:via-[#0b0f17]/80 dark:to-orange-950/15 backdrop-blur-xl shadow-[0_24px_70px_rgba(15,23,42,0.18)] p-6">
                     <div className="mb-4 flex items-center gap-3">
@@ -197,17 +218,6 @@ export default function AdminDashboard() {
                         />
                     </div>
                 </div>
-
-                {labs && labs.length > 0 && (
-                    <LearningInsights labs={labs} />
-                )}
-                {labs && labs.length === 0 && (
-                    <div className="rounded-2xl border border-amber-300/40 bg-amber-50/70 dark:bg-amber-900/10 p-5 text-amber-900 dark:text-amber-200">
-                        No labs data available for the current scope. Try refreshing or opening the Labs page.
-                    </div>
-                )}
-
-                <PlatformAnalytics platform={platform} />
             </div>
         </div>
     );

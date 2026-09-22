@@ -3,6 +3,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import UserDistributionChart from "../../components/admin/UserDistributionChart";
 import { fetchAdminUsers } from "../../services/adminApi";
 import { getSocialIdentityCustodyType } from "../../utils/socialIdentityPayload.js";
+import {
+    formatLastActivityEpoch,
+    formatLearnerKind,
+    formatSocialRegisteredAt,
+    truncateLearnerId,
+} from "../../utils/adminObservability.js";
 import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
 function toNumber(value, fallback = 0) {
@@ -280,10 +286,32 @@ function normalizeUser(user) {
     ).trim();
     const provisioningStatus = String(identity?.provisioningStatus || "").trim();
 
+    const learnerKindRaw = String(
+        pickAny(src, ["learnerKind", "learner_kind", "canonicalLearnerKind"]) || ""
+    ).trim();
+    const socialRegisteredAt =
+        pickAny(src, [
+            "socialRegisteredAt",
+            "social_registered_at",
+            "identity.social.createdAt",
+            "social.createdAt",
+        ]) ?? null;
+
+    const lastActivityRaw = src?.lastActivityEpoch ?? src?.lastActiveAtEpoch;
+    const lastActivityEpoch =
+        lastActivityRaw == null || lastActivityRaw === ""
+            ? null
+            : Number.isFinite(Number(lastActivityRaw))
+                ? Number(lastActivityRaw)
+                : null;
+
     return {
         wallet: src?.progressAddress || src?.wallet || src?.address || "—",
         progressAddress: src?.progressAddress || src?.wallet || src?.address || null,
         learnerId: src?.learnerId || null,
+        learnerKind: learnerKindRaw || null,
+        learnerKindLabel: formatLearnerKind(learnerKindRaw, { hasSocial: isSocialUser(src) }),
+        socialRegisteredAt,
         hasProgress: src?.hasProgress,
         xp: toNumber(src?.xp ?? src?.totalXp, 0),
         // Class F / no progress: do not default to "Explorer" (KPI inflation).
@@ -295,7 +323,7 @@ function normalizeUser(user) {
         completed,
         dropOffCount,
         isDropOff,
-        lastActivityEpoch: toNumber(src?.lastActivityEpoch ?? src?.lastActiveAtEpoch, 0),
+        lastActivityEpoch,
         tokenId,
         tokenIdCached,
         hasToken,
@@ -395,7 +423,14 @@ export default function AdminUsersPage() {
             const tokenId = u.tokenId != null ? String(u.tokenId).toLowerCase() : "";
             const tokenIdCached = u.tokenIdCached != null ? String(u.tokenIdCached).toLowerCase() : "";
             const socialSub = String(u.socialSub || "").toLowerCase();
-            return wallet.includes(q) || tokenId.includes(q) || tokenIdCached.includes(q) || socialSub.includes(q);
+            const learnerId = String(u.learnerId || "").toLowerCase();
+            return (
+                wallet.includes(q) ||
+                tokenId.includes(q) ||
+                tokenIdCached.includes(q) ||
+                socialSub.includes(q) ||
+                learnerId.includes(q)
+            );
         });
 
         const scopedUsers = filteredUsers
@@ -480,15 +515,7 @@ export default function AdminUsersPage() {
         );
     }
 
-    const formatLastActivity = (epoch) => {
-        if (!epoch) return "—";
-        try {
-            const d = new Date(epoch * 1000);
-            return d.toLocaleString();
-        } catch {
-            return "—";
-        }
-    };
+    const formatLastActivity = (epoch) => formatLastActivityEpoch(epoch);
 
     const isBuilderTier = (tier) => String(tier).toLowerCase().includes("builder");
 
@@ -564,7 +591,7 @@ export default function AdminUsersPage() {
                             <input
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="Account, token id, or social sub…"
+                                placeholder="Progress address, learner id, or token id…"
                                 className="w-full rounded-xl border border-slate-300/70 bg-white/90 px-3 py-2 text-sm text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100"
                             />
                         </div>
@@ -673,13 +700,14 @@ export default function AdminUsersPage() {
                     <table className="min-w-full text-sm">
                         <thead className="bg-white/80 dark:bg-[#111827]/80">
                             <tr>
-                                <th className="p-3 text-left text-slate-700 dark:text-slate-200">Account</th>
+                                <th className="p-3 text-left text-slate-700 dark:text-slate-200">Progress address</th>
+                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Kind</th>
+                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Registered</th>
                                 <th className="p-3 text-center text-slate-700 dark:text-slate-200">
                                     <SortButton onClick={() => toggleSort("xp")} label={`XP${sortIndicator("xp")}`} />
                                 </th>
                                 <th className="p-3 text-center text-slate-700 dark:text-slate-200">Tier</th>
                                 <th className="p-3 text-center text-slate-700 dark:text-slate-200">Linked</th>
-                                <th className="p-3 text-center text-slate-700 dark:text-slate-200">Social</th>
                                 <th className="p-3 text-center text-slate-700 dark:text-slate-200">Imported</th>
                                 <th className="p-3 text-center text-slate-700 dark:text-slate-200">Provisioning</th>
                                 <th className="p-3 text-center text-slate-700 dark:text-slate-200">Started</th>
@@ -699,14 +727,44 @@ export default function AdminUsersPage() {
                         <tbody>
                             {sortedUsers.map((user) => {
                                 const score = engagementScore(user);
+                                const shortId = truncateLearnerId(user.learnerId);
+                                const registeredLabel = formatSocialRegisteredAt(
+                                    user.socialRegisteredAt,
+                                    user.learnerKind || (user.hasSocial ? "social" : "wallet_only")
+                                );
                                 return (
                                     <tr
                                         key={user.progressAddress || user.wallet}
                                         onClick={() => navigate(`/admin/users/${encodeURIComponent(user.progressAddress || user.wallet)}`, { state: { user: user.raw } })}
                                         className={`cursor-pointer border-t border-white/10 hover:bg-white/60 dark:hover:bg-white/5 ${user.isDropOff ? "bg-red-50/50 dark:bg-red-900/15" : ""}`}
                                     >
-                                        <td className="p-3 font-mono text-xs text-slate-900 dark:text-slate-100 underline underline-offset-2 decoration-dotted">
-                                            {user.wallet}
+                                        <td className="p-3 font-mono text-xs text-slate-900 dark:text-slate-100">
+                                            <div className="underline underline-offset-2 decoration-dotted">
+                                                {user.wallet}
+                                            </div>
+                                            {shortId ? (
+                                                <div className="mt-0.5 text-[10px] text-slate-500 dark:text-slate-400">
+                                                    id {shortId}
+                                                </div>
+                                            ) : null}
+                                        </td>
+
+                                        <td className="p-3 text-center">
+                                            <span
+                                                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                                    user.learnerKindLabel === "Social"
+                                                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/25 dark:text-emerald-200"
+                                                        : user.learnerKindLabel === "Wallet-only"
+                                                            ? "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                                                            : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                                                }`}
+                                            >
+                                                {user.learnerKindLabel}
+                                            </span>
+                                        </td>
+
+                                        <td className="p-3 text-center text-xs text-slate-700 dark:text-slate-200">
+                                            {registeredLabel}
                                         </td>
 
                                         <td className={`p-3 text-center font-semibold ${user.xp >= 2000 ? "text-indigo-700 dark:text-indigo-300" : "text-slate-800 dark:text-slate-200"}`}>
@@ -726,12 +784,6 @@ export default function AdminUsersPage() {
                                         <td className="p-3 text-center">
                                             <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.hasLinkedWallets ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/25 dark:text-indigo-200" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>
                                                 {user.hasLinkedWallets ? `${user.linkedWallets.length}` : "0"}
-                                            </span>
-                                        </td>
-
-                                        <td className="p-3 text-center">
-                                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${user.hasSocial ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/25 dark:text-emerald-200" : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}>
-                                                {user.hasSocial ? "Yes" : "No"}
                                             </span>
                                         </td>
 

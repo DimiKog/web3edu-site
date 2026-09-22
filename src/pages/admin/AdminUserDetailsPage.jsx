@@ -4,6 +4,11 @@ import AdminBackButton from "../../components/admin/AdminBackButton";
 import { LabeledAddressField, ProgressSourceHelper } from "../../components/LabeledAddressField.jsx";
 import { fetchAdminUserDetails, fetchAdminUsers } from "../../services/adminApi";
 import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
+import {
+    formatLastActivityEpoch,
+    formatLearnerKind,
+    formatSocialRegisteredAt,
+} from "../../utils/adminObservability.js";
 
 function isNonEmptyString(value) {
     return typeof value === "string" && value.trim().length > 0;
@@ -79,7 +84,7 @@ export default function AdminUserDetailsPage() {
             return;
         }
         if (!targetWallet) {
-            setError("Missing wallet context.");
+            setError("Missing learner progress address.");
             setLoading(false);
             return;
         }
@@ -104,7 +109,9 @@ export default function AdminUserDetailsPage() {
                             ? listJson.users
                             : [];
                     const matched = users.find((u) => {
-                        const w = String(u?.wallet || u?.address || "").toLowerCase();
+                        const w = String(
+                            u?.progressAddress || u?.wallet || u?.address || ""
+                        ).toLowerCase();
                         return w === String(targetWallet).toLowerCase();
                     });
 
@@ -171,22 +178,34 @@ export default function AdminUserDetailsPage() {
 
     const identitySummary = useMemo(() => {
         const raw = data || {};
-        const identity = raw?.identity || raw?.user?.identity || {};
-        const social = raw?.social || raw?.user?.social || null;
+        const user = raw?.user || {};
+        const identity = raw?.identity || user?.identity || {};
+        const social = identity?.social || raw?.social || user?.social || null;
+        const continuity = user?.continuity || raw?.continuity || {};
 
         // Convenience cache only — do not over-trust.
         const tokenIdCached =
             raw?.tokenIdCached ??
-            raw?.identity?.tokenIdCached ??
-            raw?.user?.tokenIdCached ??
+            identity?.tokenIdCached ??
+            user?.tokenIdCached ??
             null;
 
-        const hasSocial = Boolean(social && (typeof social === "object" ? Object.keys(social).length : true));
+        const learnerKindRaw = raw?.learnerKind || user?.learnerKind || null;
+        const hasSocial = Boolean(
+            social && (typeof social === "object" ? Object.keys(social).length : true)
+        );
+        const learnerKindLabel = formatLearnerKind(learnerKindRaw, { hasSocial });
 
-        const hasImportedProgress = Boolean(raw?.hasImportedProgress);
+        const hasImportedProgress = Boolean(
+            continuity?.hasImportedProgress ??
+            raw?.hasImportedProgress ??
+            continuity?.importedFromOwner ??
+            continuity?.migratedFromOwner
+        );
 
         const progressSourceAddress =
             pickAddressValue(
+                raw?.progressAddress,
                 raw?.progressSourceAddress,
                 raw?.progressSource,
                 identity?.progressSourceAddress,
@@ -194,34 +213,62 @@ export default function AdminUserDetailsPage() {
                 targetWallet
             ) ?? targetWallet;
 
-        const showInspectedAccount =
+        const showInspectedAddress =
             progressSourceAddress.toLowerCase() !== String(targetWallet).toLowerCase();
 
         const addressRows = [
             {
-                label: "Progress source",
+                label: "Progress address",
                 copyValue: progressSourceAddress,
                 emphasize: true,
                 hint: "Labs, projects, and XP in this admin view are loaded for this address.",
             },
-            ...(showInspectedAccount
+            ...(showInspectedAddress
                 ? [{
-                    label: "Inspected account",
+                    label: "Inspected address",
                     copyValue: targetWallet,
-                    hint: "Address from the admin URL query parameter.",
+                    hint: "Address from the admin URL path parameter.",
                 }]
                 : []),
             {
-                label: "Web3Edu Identity",
+                label: "Web3Edu Identity (AA)",
                 copyValue: pickAddressValue(identity?.aaAddress),
             },
             {
-                label: "Linked wallet",
+                label: "Linked EOA",
                 copyValue: pickAddressValue(identity?.linkedWalletAddress),
             },
             {
-                label: "Linked account",
+                label: "Owner address",
                 copyValue: pickAddressValue(identity?.ownerAddress),
+            },
+        ];
+
+        const socialRegisteredAt = raw?.socialRegisteredAt ?? social?.createdAt ?? null;
+        const lastActivityEpoch = raw?.lastActivityEpoch ?? user?.lastActivityEpoch ?? null;
+        const learnerId = raw?.learnerId ?? user?.learnerId ?? null;
+
+        const registrationRows = [
+            { label: "Learner kind", value: learnerKindLabel },
+            { label: "Learner ID", value: isNonEmptyString(learnerId) ? learnerId : "—" },
+            {
+                label: "Registered at",
+                value: formatSocialRegisteredAt(
+                    socialRegisteredAt,
+                    learnerKindRaw || (hasSocial ? "social" : "wallet_only")
+                ),
+            },
+            {
+                label: "Last meaningful activity",
+                value: formatLastActivityEpoch(lastActivityEpoch),
+            },
+            {
+                label: "Display name",
+                value: isNonEmptyString(social?.displayName) ? social.displayName : "—",
+            },
+            {
+                label: "Auth provider",
+                value: isNonEmptyString(social?.authProvider) ? social.authProvider : "—",
             },
         ];
 
@@ -229,26 +276,34 @@ export default function AdminUserDetailsPage() {
             { label: "Wallet linked", value: formatBool(identity?.walletLinked) },
             { label: "Custody type", value: isNonEmptyString(identity?.custodyType) ? identity.custodyType : "—" },
             { label: "Provisioning status", value: isNonEmptyString(identity?.provisioningStatus) ? identity.provisioningStatus : "—" },
-            { label: "Social user", value: formatBool(hasSocial) },
-            { label: "Import type", value: isNonEmptyString(raw?.importType) ? raw.importType : "—" },
-            { label: "Imported from owner", value: formatBool(raw?.importedFromOwner) },
-            { label: "Imported at", value: formatDateLike(raw?.importedAt) },
-            { label: "Migrated from owner", value: formatBool(raw?.migratedFromOwner) },
-            { label: "Migrated at", value: formatDateLike(raw?.migratedAt) },
+            { label: "Import type", value: isNonEmptyString(continuity?.importType || raw?.importType) ? (continuity?.importType || raw?.importType) : "—" },
+            { label: "Imported from owner", value: formatBool(continuity?.importedFromOwner ?? raw?.importedFromOwner) },
+            { label: "Imported at", value: formatDateLike(continuity?.importedAt ?? raw?.importedAt) },
+            { label: "Migrated from owner", value: formatBool(continuity?.migratedFromOwner ?? raw?.migratedFromOwner) },
+            { label: "Migrated at", value: formatDateLike(continuity?.migratedAt ?? raw?.migratedAt) },
             { label: "Has imported progress", value: formatBool(hasImportedProgress) },
             { label: "Token ID (cached)", value: tokenIdCached !== null && tokenIdCached !== undefined ? String(tokenIdCached) : "—" },
         ];
 
         const badges = [
             identity?.walletLinked ? { label: "Linked", tone: "indigo" } : null,
-            hasSocial ? { label: "Social", tone: "emerald" } : null,
-            hasImportedProgress || raw?.importType ? { label: "Imported", tone: "amber" } : null,
+            learnerKindLabel === "Social" || hasSocial ? { label: "Social", tone: "emerald" } : null,
+            learnerKindLabel === "Wallet-only" ? { label: "Wallet-only", tone: "slate" } : null,
+            hasImportedProgress || continuity?.importType || raw?.importType
+                ? { label: "Imported", tone: "amber" }
+                : null,
             isNonEmptyString(identity?.provisioningStatus)
                 ? { label: identity.provisioningStatus, tone: "slate" }
                 : null,
         ].filter(Boolean);
 
-        return { addressRows, metaRows, badges, progressSourceAddress };
+        return {
+            addressRows,
+            registrationRows,
+            metaRows,
+            badges,
+            progressSourceAddress,
+        };
     }, [data, targetWallet]);
 
     const timeline = useMemo(() => {
@@ -301,7 +356,7 @@ export default function AdminUserDetailsPage() {
                     )}
                     <div className="mt-4 max-w-xl space-y-2">
                         <LabeledAddressField
-                            label="Progress source"
+                            label="Progress address"
                             address={identitySummary.progressSourceAddress}
                             emphasize
                             hint="This is the learner address used to load labs, projects, and XP in this admin view."
@@ -313,7 +368,7 @@ export default function AdminUserDetailsPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Panel title="Identity & continuity">
+                <Panel title="Identity & registration">
                     <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
                             {identitySummary.badges.map((b) => (
@@ -323,10 +378,11 @@ export default function AdminUserDetailsPage() {
                             ))}
                             {!identitySummary.badges.length ? (
                                 <span className="text-sm text-slate-600 dark:text-slate-300">
-                                    No identity markers available for this user.
+                                    No identity markers available for this learner.
                                 </span>
                             ) : null}
                         </div>
+                        <KeyValueGrid rows={identitySummary.registrationRows} />
                         <div className="space-y-3">
                             {identitySummary.addressRows.map((row) => (
                                 <LabeledAddressField
@@ -338,8 +394,11 @@ export default function AdminUserDetailsPage() {
                                 />
                             ))}
                         </div>
-                        <KeyValueGrid rows={identitySummary.metaRows} />
                     </div>
+                </Panel>
+
+                <Panel title="Continuity">
+                    <KeyValueGrid rows={identitySummary.metaRows} />
                 </Panel>
 
                 <Panel title="Labs Completed List">

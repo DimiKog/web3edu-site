@@ -35,7 +35,7 @@ export default function AdminKpis({ overview, platform, onCardClick }) {
             <KpiCard
                 id="totalUsers"
                 label="Total Learners"
-                value={overview?.totalUsers}
+                value={overview?.canonicalLearners ?? overview?.totalUsers}
                 tone="totalUsers"
                 onClick={onCardClick}
             />
