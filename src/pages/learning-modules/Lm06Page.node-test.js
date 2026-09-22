@@ -167,8 +167,8 @@ test("permissioned transition, QBFT/Besu, and Educational Ledger activity routes
   );
   assert.equal(ledger.href.en, "/learning-modules/lm06/educational-ledger");
   assert.equal(ledger.href.gr, "/learning-modules-gr/lm06/educational-ledger");
-  assert.equal(ledger.presentationOnly, true);
-  assert.equal(ledger.evidenceId, undefined);
+  assert.equal(ledger.presentationOnly, false);
+  assert.equal(ledger.evidenceId, "lm06-consensus-activity");
 });
 
 test("dense chapter uses custom Why/QBFT visuals; no hero flow or old placeholders", () => {

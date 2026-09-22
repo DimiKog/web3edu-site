@@ -381,3 +381,24 @@ test("routeTable registers LM02 assessment EN and GR routes", () => {
   assert.match(routes, /\/learning-modules-gr\/lm02\/assessment/);
   assert.match(routes, /Lm02AssessmentPage/);
 });
+
+test("postLm06ConsensusActivity requires idToken and sends candidateTransactionId only", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function postLm06ConsensusActivity/);
+  const start = src.indexOf("export async function postLm06ConsensusActivity");
+  const fn = src.slice(start);
+  assert.match(fn, /normalizeIdToken\(idToken\)/);
+  assert.match(fn, /missing_bearer_token/);
+  assert.match(fn, /buildLabWriteAuthHeaders\(token\)/);
+  assert.match(fn, /\/learning-modules\/lm06\/consensus-activity/);
+  assert.match(fn, /method:\s*"POST"/);
+  assert.match(fn, /candidateTransactionId:\s*candidateId/);
+  assert.match(fn, /JSON\.stringify\(\{\s*candidateTransactionId:\s*candidateId,\s*\}\)/);
+  assert.equal(fn.includes("progressAddress"), false);
+  assert.equal(fn.includes("wallet"), false);
+  assert.equal(fn.includes("finalized"), false);
+  assert.equal(fn.includes("stateUpdated"), false);
+  assert.equal(fn.includes("votes"), false);
+  assert.equal(fn.includes("quorum"), false);
+  assert.match(fn, /data\?\.ok === true && Boolean\(data\?\.consensusActivity\)/);
+});

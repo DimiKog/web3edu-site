@@ -1293,7 +1293,7 @@ export const LM_PRESENTATION_REGISTRY = {
       {
         id: "lm06-educational-ledger",
         visualType: "observation",
-        requirementHint: "core",
+        requirementHint: "required",
         languages: ["both"],
         title: {
           en: "Educational Ledger — Consensus Activity",
@@ -1308,7 +1308,8 @@ export const LM_PRESENTATION_REGISTRY = {
           en: "/learning-modules/lm06/educational-ledger",
           gr: "/learning-modules-gr/lm06/educational-ledger",
         },
-        presentationOnly: true,
+        evidenceId: "lm06-consensus-activity",
+        presentationOnly: false,
       },
       {
         id: "lm06-assessment",
@@ -1320,8 +1321,8 @@ export const LM_PRESENTATION_REGISTRY = {
           gr: "Αξιολόγηση LM06",
         },
         description: {
-          en: "Check that you can explain consensus, PoW/PoS/QBFT, local validation, and why proposal is not finality. Required for module completion together with Lab 06.",
-          gr: "Έλεγξε ότι μπορείς να εξηγείς συναίνεση, PoW/PoS/QBFT, τοπική επικύρωση και γιατί η πρόταση δεν είναι οριστικότητα. Απαιτείται για ολοκλήρωση του module μαζί με το Lab 06.",
+          en: "Check that you can explain consensus, PoW/PoS/QBFT, local validation, and why proposal is not finality. Required for module completion together with the Educational Ledger Consensus Activity.",
+          gr: "Έλεγξε ότι μπορείς να εξηγείς συναίνεση, PoW/PoS/QBFT, τοπική επικύρωση και γιατί η πρόταση δεν είναι οριστικότητα. Απαιτείται για ολοκλήρωση του module μαζί με τη δραστηριότητα Consensus στο Εκπαιδευτικό Ledger.",
         },
         linkKind: "internal",
         href: {

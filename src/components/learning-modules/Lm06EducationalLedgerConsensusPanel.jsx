@@ -4,8 +4,13 @@ import { Loader2 } from "lucide-react";
 import { getLm06EducationalLedgerCopy } from "../../content/lm06EducationalLedgerLocale.js";
 import { participantLabel } from "../../content/lm05EducationalLedgerLocale.js";
 import { useEducationalIdentityArgs } from "../../hooks/useEducationalIdentityArgs.js";
+import { useResolvedIdentityContext } from "../../hooks/useResolvedIdentityContext.js";
 import { getWeb3eduBackendUrl } from "../../lib/web3eduBackend.js";
-import { fetchLm05EducationalLedger } from "../../utils/labWriteApi.js";
+import {
+  fetchLearningModulesProgression,
+  fetchLm05EducationalLedger,
+  postLm06ConsensusActivity,
+} from "../../utils/labWriteApi.js";
 import { stripSubmitterIdentity } from "../../utils/lm05EducationalLedgerView.js";
 import {
   LM06_DECISION,
@@ -155,6 +160,7 @@ export default function Lm06EducationalLedgerConsensusPanel({ lang = "en" }) {
   const locale = lang === "gr" ? "gr" : "en";
   const copy = getLm06EducationalLedgerCopy(locale);
   const identityArgs = useEducationalIdentityArgs();
+  const { refetch: refetchResolvedIdentity } = useResolvedIdentityContext();
   const apiBase = getWeb3eduBackendUrl();
   const hasIdToken = Boolean(identityArgs.idToken);
 
@@ -164,13 +170,81 @@ export default function Lm06EducationalLedgerConsensusPanel({ lang = "en" }) {
   const [sim, setSim] = useState(() => resetSimulationState());
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [focusSection, setFocusSection] = useState(null);
+  const [evidenceSaving, setEvidenceSaving] = useState(false);
+  const [evidenceError, setEvidenceError] = useState(null);
+  const [evidenceSavedForId, setEvidenceSavedForId] = useState(null);
   const inspectorRef = useRef(null);
   const pendingInspectorScrollRef = useRef(false);
+  const evidenceInFlightRef = useRef(false);
 
   const lm05PoolPath =
     locale === "gr"
       ? "/learning-modules-gr/lm05/educational-ledger"
       : "/learning-modules/lm05/educational-ledger";
+
+  const refreshProgressionFlags = useCallback(async () => {
+    if (!identityArgs.idToken) return;
+    try {
+      await fetchLearningModulesProgression({
+        apiBase,
+        idToken: identityArgs.idToken,
+      });
+    } catch {
+      /* optional */
+    }
+    try {
+      await refetchResolvedIdentity?.();
+    } catch {
+      /* optional */
+    }
+    try {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("web3edu-progress-updated"));
+      }
+    } catch {
+      /* optional */
+    }
+  }, [apiBase, identityArgs.idToken, refetchResolvedIdentity]);
+
+  const persistConsensusEvidence = useCallback(
+    async (candidateTransactionId) => {
+      const candidateId = String(candidateTransactionId || "").trim();
+      if (!identityArgs.idToken || !candidateId) return false;
+      if (evidenceSavedForId === candidateId) return true;
+      if (evidenceInFlightRef.current) return false;
+
+      evidenceInFlightRef.current = true;
+      setEvidenceSaving(true);
+      setEvidenceError(null);
+
+      const result = await postLm06ConsensusActivity({
+        apiBase,
+        idToken: identityArgs.idToken,
+        candidateTransactionId: candidateId,
+      });
+
+      evidenceInFlightRef.current = false;
+      setEvidenceSaving(false);
+
+      if (!result.ok) {
+        setEvidenceError(copy.evidenceError);
+        return false;
+      }
+
+      // First create and alreadyApplied are both successful completion.
+      setEvidenceSavedForId(candidateId);
+      setEvidenceError(null);
+      await refreshProgressionFlags();
+      return true;
+    },
+    [
+      apiBase,
+      copy.evidenceError,
+      evidenceSavedForId,
+      identityArgs.idToken,
+      refreshProgressionFlags,
+    ]
+  );
 
   const loadLedger = useCallback(async () => {
     if (!identityArgs.idToken) {
@@ -255,6 +329,30 @@ export default function Lm06EducationalLedgerConsensusPanel({ lang = "en" }) {
     setInspectorOpen(false);
     setFocusSection(null);
     pendingInspectorScrollRef.current = false;
+    setEvidenceSaving(false);
+    setEvidenceError(null);
+    setEvidenceSavedForId(null);
+    evidenceInFlightRef.current = false;
+  }
+
+  async function handleContinueToFinalization() {
+    const next = advanceToFinalizationAndResult(sim);
+    setSim(next);
+    // Terminal educational state: RESULT with simulated block + state update.
+    if (
+      next.stage === LM06_SIM_STAGES.RESULT &&
+      next.simulatedBlock &&
+      next.beforeAfter &&
+      next.candidate?.id
+    ) {
+      await persistConsensusEvidence(next.candidate.id);
+    }
+  }
+
+  async function handleRetryEvidence() {
+    const candidateId = sim.candidate?.id;
+    if (!candidateId) return;
+    await persistConsensusEvidence(candidateId);
   }
 
   function handleInspectAssigned() {
@@ -477,11 +575,13 @@ export default function Lm06EducationalLedgerConsensusPanel({ lang = "en" }) {
                     {sim.agreement?.reached ? (
                       <button
                         type="button"
-                        onClick={() =>
-                          setSim((s) => advanceToFinalizationAndResult(s))
-                        }
-                        className="inline-flex rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white dark:bg-violet-500 dark:text-slate-950"
+                        onClick={handleContinueToFinalization}
+                        disabled={evidenceSaving}
+                        className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60 dark:bg-violet-500 dark:text-slate-950"
                       >
+                        {evidenceSaving ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : null}
                         {copy.continueToFinalization}
                       </button>
                     ) : null}
@@ -643,6 +743,46 @@ export default function Lm06EducationalLedgerConsensusPanel({ lang = "en" }) {
               {copy.besuBridge}
             </p>
           </div>
+
+          {evidenceSaving ? (
+            <p
+              className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300"
+              data-lm06-evidence-saving="true"
+            >
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {copy.evidenceSaving}
+            </p>
+          ) : null}
+
+          {!evidenceSaving &&
+          evidenceSavedForId &&
+          evidenceSavedForId === sim.candidate?.id ? (
+            <p
+              className="rounded-xl border border-emerald-200/80 bg-emerald-50/90 px-4 py-3 text-sm text-emerald-950 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-50"
+              data-lm06-evidence-saved="true"
+            >
+              {copy.evidenceSaved}
+            </p>
+          ) : null}
+
+          {!evidenceSaving && evidenceError ? (
+            <div
+              className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-500/30 dark:bg-amber-500/10"
+              data-lm06-evidence-error="true"
+            >
+              <p className="text-sm text-amber-950 dark:text-amber-100">
+                {evidenceError}
+              </p>
+              <button
+                type="button"
+                onClick={handleRetryEvidence}
+                className="inline-flex rounded-xl bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 dark:bg-amber-500 dark:text-slate-950"
+                data-lm06-evidence-retry="true"
+              >
+                {copy.evidenceRetry}
+              </button>
+            </div>
+          ) : null}
 
           <button
             type="button"

@@ -11,9 +11,9 @@ export const LM06_ASSESSMENT_COPY = {
     introTitle: "Before you begin",
     readFirst: "Read this first",
     introBody:
-      "This assessment includes nine single-choice questions from LM06. Pass with at least 7 correct answers and Critical Question 8. If you do not pass on your first attempt, review the feedback and try again. Completing LM06 also requires Lab 06 evidence.",
+      "This assessment includes nine single-choice questions from LM06. Pass with at least 7 correct answers and Critical Question 8. If you do not pass on your first attempt, review the feedback and try again. Completing LM06 also requires the Educational Ledger Consensus Activity.",
     responseModeHint:
-      "This assessment verifies conceptual understanding. It does not replace Lab 06, which remains required evidence for LM06 completion.",
+      "This assessment verifies conceptual understanding. It does not replace the Educational Ledger Consensus Activity, which remains required evidence for LM06 completion.",
     metaItems: [
       "9 questions",
       "Single choice",
@@ -60,7 +60,7 @@ export const LM06_ASSESSMENT_COPY = {
     backToDashboard: "Back to Dashboard",
     dashboardPath: "/dashboard",
     continueLearningHint:
-      "Your learning path updates from the server. Use Continue Learning on the Dashboard for your next step. LM06 is complete only when Lab 06 and this assessment are both satisfied.",
+      "Your learning path updates from the server. Use Continue Learning on the Dashboard for your next step. LM06 is complete only when the Educational Ledger Consensus Activity and this assessment are both satisfied.",
     questions: {
       lm06_q1_why_consensus: {
         heading: "Why Consensus?",
@@ -170,9 +170,9 @@ export const LM06_ASSESSMENT_COPY = {
     introTitle: "Πριν ξεκινήσεις",
     readFirst: "Διάβασε πρώτα αυτό",
     introBody:
-      "Η αξιολόγηση περιλαμβάνει εννέα ερωτήσεις μίας επιλογής από το LM06. Περνάς με τουλάχιστον 7 σωστές απαντήσεις και την Κρίσιμη Ερώτηση 8. Αν δεν περάσεις με την πρώτη, διάβασε το feedback και δοκίμασε ξανά. Η ολοκλήρωση του LM06 απαιτεί επίσης το αποδεικτικό Lab 06.",
+      "Η αξιολόγηση περιλαμβάνει εννέα ερωτήσεις μίας επιλογής από το LM06. Περνάς με τουλάχιστον 7 σωστές απαντήσεις και την Κρίσιμη Ερώτηση 8. Αν δεν περάσεις με την πρώτη, διάβασε το feedback και δοκίμασε ξανά. Η ολοκλήρωση του LM06 απαιτεί επίσης τη δραστηριότητα Consensus στο Εκπαιδευτικό Ledger.",
     responseModeHint:
-      "Η αξιολόγηση επαληθεύει εννοιολογική κατανόηση. Δεν αντικαθιστά το Lab 06, που παραμένει απαιτούμενο αποδεικτικό για την ολοκλήρωση του LM06.",
+      "Η αξιολόγηση επαληθεύει εννοιολογική κατανόηση. Δεν αντικαθιστά τη δραστηριότητα Consensus στο Εκπαιδευτικό Ledger, που παραμένει απαιτούμενο αποδεικτικό για την ολοκλήρωση του LM06.",
     metaItems: [
       "9 ερωτήσεις",
       "Μία επιλογή",
@@ -220,7 +220,7 @@ export const LM06_ASSESSMENT_COPY = {
     backToDashboard: "Επιστροφή στο Dashboard",
     dashboardPath: "/dashboard-gr",
     continueLearningHint:
-      "Η μαθησιακή διαδρομή ενημερώνεται από τον διακομιστή. Χρησιμοποίησε το Continue Learning στο Dashboard για το επόμενο βήμα. Το LM06 ολοκληρώνεται μόνο όταν ικανοποιηθούν το Lab 06 και αυτή η αξιολόγηση.",
+      "Η μαθησιακή διαδρομή ενημερώνεται από τον διακομιστή. Χρησιμοποίησε το Continue Learning στο Dashboard για το επόμενο βήμα. Το LM06 ολοκληρώνεται μόνο όταν ικανοποιηθούν η δραστηριότητα Consensus στο Εκπαιδευτικό Ledger και αυτή η αξιολόγηση.",
     questions: {
       lm06_q1_why_consensus: {
         heading: "Γιατί Συναίνεση;",

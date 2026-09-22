@@ -1561,3 +1561,57 @@ export async function postLm05EducationalLedgerTransfer({
     };
   }
 }
+
+/**
+ * POST /learning-modules/lm06/consensus-activity
+ * Body: candidateTransactionId only. Zero XP; does not mutate Educational Ledger.
+ */
+export async function postLm06ConsensusActivity({
+  apiBase,
+  idToken,
+  candidateTransactionId,
+} = {}) {
+  const token = normalizeIdToken(idToken);
+  if (!token) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: "missing_bearer_token" },
+    };
+  }
+
+  const candidateId = String(candidateTransactionId || "").trim();
+  if (!candidateId) {
+    return {
+      ok: false,
+      status: 400,
+      data: { error: "missing_candidate_transaction_id" },
+    };
+  }
+
+  const base = String(apiBase ?? getWeb3eduBackendUrl()).replace(/\/$/, "");
+  try {
+    const res = await fetch(
+      `${base}/learning-modules/lm06/consensus-activity`,
+      {
+        method: "POST",
+        headers: buildLabWriteAuthHeaders(token),
+        body: JSON.stringify({
+          candidateTransactionId: candidateId,
+        }),
+      }
+    );
+    const data = await res.json().catch(() => ({}));
+    return {
+      ok: res.ok && data?.ok === true && Boolean(data?.consensusActivity),
+      status: res.status,
+      data,
+    };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      data: { error: err?.message || "Network error" },
+    };
+  }
+}

@@ -142,6 +142,12 @@ export const LM06_EDUCATIONAL_LEDGER_COPY = {
       "Creating, submitting, proposing, or validating alone does not change the ledger. Only after agreement, finalization, and successful execution can shared state change.",
     besuBridge:
       "Web3Edu’s Besu Edu-Net uses QBFT. This activity models proposal, validation, agreement, finalization, and state transition — not the full QBFT message protocol.",
+    evidenceSaving: "Saving your consensus activity progress…",
+    evidenceSaved:
+      "Consensus activity recorded. If you have already passed the LM06 Assessment, your module progress will update from the server.",
+    evidenceError:
+      "Could not save your consensus activity progress. Your simulation result is kept — retry without restarting.",
+    evidenceRetry: "Retry save",
   },
   gr: {
     title: "Εκπαιδευτικό Ledger — Consensus & συμπερίληψη σε block",
@@ -281,6 +287,12 @@ export const LM06_EDUCATIONAL_LEDGER_COPY = {
       "Η δημιουργία, υποβολή, πρόταση ή επικύρωση από μόνες τους δεν αλλάζουν το ledger. Μόνο μετά από συμφωνία, οριστικοποίηση και επιτυχή εκτέλεση μπορεί να αλλάξει η κοινή κατάσταση.",
     besuBridge:
       "Το Besu Edu-Net του Web3Edu χρησιμοποιεί QBFT. Αυτή η δραστηριότητα μοντελοποιεί πρόταση, επικύρωση, συμφωνία, οριστικοποίηση και μετάβαση κατάστασης — όχι το πλήρες πρωτόκολλο μηνυμάτων QBFT.",
+    evidenceSaving: "Αποθήκευση της προόδου της δραστηριότητας consensus…",
+    evidenceSaved:
+      "Η δραστηριότητα consensus καταγράφηκε. Αν έχεις ήδη περάσει την Αξιολόγηση LM06, η πρόοδος του module θα ενημερωθεί από τον διακομιστή.",
+    evidenceError:
+      "Δεν ήταν δυνατή η αποθήκευση της προόδου. Το αποτέλεσμα της προσομοίωσης διατηρείται — δοκίμασε ξανά χωρίς επανεκκίνηση.",
+    evidenceRetry: "Επανάληψη αποθήκευσης",
   },
 };
 

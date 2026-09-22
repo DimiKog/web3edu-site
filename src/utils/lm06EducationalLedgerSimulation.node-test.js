@@ -449,11 +449,29 @@ test("BEFORE/AFTER helpers and enterValidationStage retained", () => {
   assert.equal(state.stage, LM06_SIM_STAGES.VALIDATION);
 });
 
-test("frontend-only safety: GET only, no write helpers in panel/inspector", () => {
+test("frontend-only safety: no ledger mutation writes; evidence POST only at terminal save", () => {
   assert.match(panelSrc, /fetchLm05EducationalLedger/);
-  assert.doesNotMatch(panelSrc, /method:\s*["']POST["']/);
+  assert.match(panelSrc, /postLm06ConsensusActivity/);
+  assert.match(panelSrc, /handleContinueToFinalization/);
+  assert.match(panelSrc, /persistConsensusEvidence/);
+  assert.match(panelSrc, /advanceToFinalizationAndResult/);
+  assert.match(panelSrc, /LM06_SIM_STAGES\.RESULT/);
+  assert.match(panelSrc, /web3edu-progress-updated/);
+  assert.match(panelSrc, /data-lm06-evidence-retry/);
+  assert.match(panelSrc, /data-lm06-evidence-saving/);
+  // Completion path: continue-to-finalization + retry only.
+  assert.match(panelSrc, /await persistConsensusEvidence\(next\.candidate\.id\)/);
+  assert.match(panelSrc, /await persistConsensusEvidence\(candidateId\)/);
+  // Earlier round controls must not call persist.
+  const inspectHandler = panelSrc.slice(
+    panelSrc.indexOf("function handleInspectAssigned"),
+    panelSrc.indexOf("function handleQuestionFocus")
+  );
+  assert.doesNotMatch(inspectHandler, /persistConsensusEvidence/);
+  assert.doesNotMatch(panelSrc, /postLm05EducationalLedgerTransfer/);
+  assert.doesNotMatch(panelSrc, /awardXp|completeLab/i);
   assert.doesNotMatch(inspectorSrc, /fetch\(/);
   assert.doesNotMatch(snapshotSrc, /fetch\(/);
-  assert.doesNotMatch(panelSrc, /awardXp|completeLab|submitEvidence/i);
-  assert.doesNotMatch(panelSrc, /postLm05EducationalLedgerTransfer/);
+  assert.doesNotMatch(panelSrc, /progressAddress:/);
+  assert.doesNotMatch(panelSrc, /finalized:\s*true|stateUpdated:\s*true|votes:/);
 });

@@ -450,7 +450,7 @@ export const LM_MODULE_PAGE_CHROME = {
         "Complete the next required LM06 lab or activity. Opening this page or tools does not itself record completion.",
       finishAssessmentCta: "Finish the assessment to complete LM06",
       closingNextBody:
-        "Finish Lab 06 and the LM06 Assessment to complete this module.",
+        "Finish the Educational Ledger Consensus Activity and the LM06 Assessment to complete this module.",
       closingNextEvidenceBody:
         "Complete the next required LM06 activity to continue this module.",
       closingPathEyebrow: "Learning path",
@@ -480,7 +480,7 @@ export const LM_MODULE_PAGE_CHROME = {
         "Ολοκλήρωσε το επόμενο απαιτούμενο lab ή δραστηριότητα LM06. Το άνοιγμα αυτής της σελίδας ή εργαλείων δεν καταγράφει από μόνο του ολοκλήρωση.",
       finishAssessmentCta: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM06",
       closingNextBody:
-        "Ολοκλήρωσε το Lab 06 και την Αξιολόγηση LM06 για να τελειώσεις αυτό το module.",
+        "Ολοκλήρωσε τη δραστηριότητα Consensus στο Εκπαιδευτικό Ledger και την Αξιολόγηση LM06 για να τελειώσεις αυτό το module.",
       closingNextEvidenceBody:
         "Ολοκλήρωσε την επόμενη απαιτούμενη δραστηριότητα LM06 για να συνεχίσεις αυτό το module.",
       closingPathEyebrow: "Διαδρομή μάθησης",

@@ -210,12 +210,19 @@ test("pass presentation does not hard-code LM06 complete", () => {
     LM06_ASSESSMENT_COPY.en.keyPrinciple,
     /PENDING → PROPOSED → AGREED → FINALIZED/
   );
-  assert.match(LM06_ASSESSMENT_COPY.en.continueLearningHint, /Lab 06/i);
-  assert.match(LM06_ASSESSMENT_COPY.gr.continueLearningHint, /Lab 06/);
-  assert.doesNotMatch(localeSrc, /module is complete|LM06 is now complete/i);
   assert.match(
     LM06_ASSESSMENT_COPY.en.continueLearningHint,
-    /complete only when Lab 06 and this assessment are both satisfied/i
+    /Educational Ledger Consensus Activity/i
+  );
+  assert.match(
+    LM06_ASSESSMENT_COPY.gr.continueLearningHint,
+    /Consensus στο Εκπαιδευτικό Ledger/
+  );
+  assert.doesNotMatch(localeSrc, /module is complete|LM06 is now complete/i);
+  assert.doesNotMatch(localeSrc, /Lab 06/);
+  assert.match(
+    LM06_ASSESSMENT_COPY.en.continueLearningHint,
+    /complete only when the Educational Ledger Consensus Activity and this assessment are both satisfied/i
   );
 });
 

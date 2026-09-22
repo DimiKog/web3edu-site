@@ -108,6 +108,30 @@ test("LM08 source verification EN/GR ready routes", () => {
     assert.match(gr.label, /Πηγαίου/i);
 });
 
+test("LM06 consensus activity EN/GR ready routes", () => {
+    const en = resolveProgressionActionTarget({
+        nextAction: {
+            type: "learning_module_evidence",
+            evidenceId: "lm06-consensus-activity",
+        },
+        lang: "en",
+    });
+    assert.equal(en.status, "ready");
+    assert.equal(en.route, "/learning-modules/lm06/educational-ledger");
+    assert.match(en.label, /Consensus Activity/i);
+
+    const gr = resolveProgressionActionTarget({
+        nextAction: {
+            type: "learning_module_evidence",
+            evidenceId: "lm06-consensus-activity",
+        },
+        lang: "gr",
+    });
+    assert.equal(gr.status, "ready");
+    assert.equal(gr.route, "/learning-modules-gr/lm06/educational-ledger");
+    assert.match(gr.label, /Consensus/i);
+});
+
 test("LM01 assessment EN/GR ready routes", () => {
     const en = resolveProgressionActionTarget({
         nextAction: {
