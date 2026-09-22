@@ -88,6 +88,25 @@ export const LM05_VISUALS = {
 };
 
 /**
+ * LM06 production visuals (public/ paths).
+ * Custom consensus graphics under public/learning-modules/visuals/lm06/.
+ */
+export const LM06_VISUALS = {
+  hero: "/learning-modules/visuals/lm06/lm06-hero-consensus-block-inclusion.png",
+  /** Learning Path item 01 thumbnail — not the wide page hero. */
+  interactiveChapter:
+    "/learning-modules/visuals/lm06/lm06-interactive-chapter.png",
+  whyConsensus: "/learning-modules/visuals/lm06/lm06-why-consensus.png",
+  qbftKnownValidators:
+    "/learning-modules/visuals/lm06/lm06-qbft-known-validators.png",
+  /** Learning Path assessment row thumbnail. */
+  assessment: "/learning-modules/visuals/lm06/lm06-assessment.png",
+  /** Chapter-close supporting illustration (native card; not a rasterized CTA). */
+  nextRequiredStep:
+    "/learning-modules/visuals/lm06/lm06-next-required-step.png",
+};
+
+/**
  * @typedef {"book"|"reading"|"concept"|"demo"|"simulator"|"observation"|"coding"|"inspection"|"verification"|"assessment"} LmActivityVisualType
  * @typedef {"required"|"recommended"|"optional"|"core"} LmRequirementHint
  */
@@ -1120,12 +1139,199 @@ export const LM_PRESENTATION_REGISTRY = {
     pathKey: "builder",
     moduleNumber: 6,
     totalModules: 11,
-    chapterAvailable: false,
-    chapterRoute: null,
-    title: {
-      en: "Consensus and Distributed Agreement",
-      gr: "Συναίνεση και Κατανεμημένη Συμφωνία",
+    /** Interactive Chapter page exists (not curriculum/evidence completeness). */
+    chapterAvailable: true,
+    chapterRoute: {
+      en: "/learning-modules/lm06",
+      gr: "/learning-modules-gr/lm06",
     },
+    title: {
+      en: "Consensus & Block Inclusion",
+      gr: "Συναίνεση & Συμπερίληψη σε Block",
+    },
+    transition: {
+      from: {
+        en: "Submitted a PENDING educational transaction",
+        gr: "Υπέβαλε PENDING εκπαιδευτική συναλλαγή",
+      },
+      to: {
+        en: "Explains how pending transactions become agreed blockchain state",
+        gr: "Εξηγεί πώς οι pending συναλλαγές γίνονται συμφωνημένη κατάσταση blockchain",
+      },
+    },
+    about: {
+      en: "LM06 continues from LM05 PENDING: learners explore why networks need consensus, compare PoW and PoS conceptually, meet QBFT on Besu Edu-Net with a known validator set, and practice validation in the Educational Ledger consensus activity.",
+      gr: "Το LM06 συνεχίζει από το PENDING του LM05: οι εκπαιδευόμενοι εξερευνούν γιατί τα δίκτυα χρειάζονται συναίνεση, συγκρίνουν εννοιολογικά PoW και PoS, γνωρίζουν το QBFT στο Besu Edu-Net με γνωστό σύνολο validators και εξασκούνται στην επικύρωση στη δραστηριότητα Educational Ledger.",
+    },
+    learnerMeta: {
+      estimatedTime: { en: "2–3 hours", gr: "2–3 ώρες" },
+      level: { en: "Beginner–Intermediate", gr: "Αρχάριο–Μεσαίο" },
+      assessmentXp: 200,
+    },
+    visuals: {
+      hero: LM06_VISUALS.hero,
+      nextStep: LM06_VISUALS.nextRequiredStep,
+      meta: {
+        time: LM01_VISUALS.metaTime,
+        level: LM01_VISUALS.metaLevel,
+        xp: LM01_VISUALS.metaXp,
+      },
+      activityByType: {
+        concept: LM06_VISUALS.interactiveChapter,
+        book: LM01_VISUALS.book,
+        coding: LM01_VISUALS.simulator,
+        observation: LM01_VISUALS.demo,
+        assessment: LM06_VISUALS.assessment,
+      },
+      activityById: {
+        "lm06-interactive-chapter": LM06_VISUALS.interactiveChapter,
+        "lm06-pow-simulator": LM01_VISUALS.simulator,
+        "lm06-pos-simulator": LM01_VISUALS.simulator,
+        "lm06-educational-ledger": LM05_VISUALS.educationalLedger,
+        "lm06-assessment": LM06_VISUALS.assessment,
+      },
+      chapter: {
+        whyConsensus: LM06_VISUALS.whyConsensus,
+        qbftKnownValidators: LM06_VISUALS.qbftKnownValidators,
+      },
+    },
+    learningOutcomes: {
+      en: [
+        "Explain why distributed blockchain networks need consensus",
+        "Distinguish candidate block, validation, agreement, finalization, and state update",
+        "Describe the core idea behind Proof of Work, Proof of Stake, and QBFT",
+        "Compare PoW, PoS, and QBFT at a conceptual level",
+        "Validate a candidate transaction against shared ledger state",
+        "Explain why a proposer or a single validator cannot unilaterally finalize a transaction",
+      ],
+      gr: [
+        "Να εξηγείς γιατί τα κατανεμημένα δίκτυα blockchain χρειάζονται συναίνεση",
+        "Να διακρίνεις υποψήφιο block, επικύρωση, συμφωνία, οριστικοποίηση και ενημέρωση κατάστασης",
+        "Να περιγράφεις την κεντρική ιδέα πίσω από Proof of Work, Proof of Stake και QBFT",
+        "Να συγκρίνεις εννοιολογικά PoW, PoS και QBFT",
+        "Να επικυρώνεις υποψήφια συναλλαγή έναντι κοινής κατάστασης ledger",
+        "Να εξηγείς γιατί ένας proposer ή ένας μόνος validator δεν μπορεί να οριστικοποιήσει συναλλαγή μονομερώς",
+      ],
+    },
+    activities: [
+      {
+        id: "lm06-interactive-chapter",
+        visualType: "concept",
+        requirementHint: "core",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "Interactive Chapter — Consensus & Block Inclusion",
+          gr: "Διαδραστικό Κεφάλαιο — Συναίνεση & Συμπερίληψη σε Block",
+        },
+        description: {
+          en: "Follow PENDING → candidate block → validation → agreement → finalization → state update, and connect PoW, PoS, and QBFT on Besu Edu-Net.",
+          gr: "Ακολούθησε PENDING → υποψήφιο block → επικύρωση → συμφωνία → οριστικοποίηση → ενημέρωση κατάστασης, και σύνδεσε PoW, PoS και QBFT στο Besu Edu-Net.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm06-chapter5-reading",
+        visualType: "book",
+        requirementHint: "core",
+        showRequirementStatus: true,
+        languages: ["both"],
+        title: {
+          en: "Required Reading — Consensus in Distributed Networks (Ch. 5, pp. 103–109)",
+          gr: "Υποχρεωτική Ανάγνωση — Συναίνεση σε Κατανεμημένα Δίκτυα (Κεφ. 5, σελ. 103–109)",
+        },
+        description: {
+          en: "Read Chapter 5 of Αλυσίδες Συστοιχιών (Blockchain) — pages 103–109 — for distributed consensus, the Byzantine Generals Problem, Proof of Work, Proof of Stake, and their comparison. The textbook does not cover QBFT.",
+          gr: "Διάβασε το Κεφάλαιο 5 του συγγράμματος Αλυσίδες Συστοιχιών (Blockchain) — σελίδες 103–109 — για κατανεμημένη συναίνεση, το πρόβλημα των Βυζαντινών Στρατηγών, Proof of Work, Proof of Stake και τη σύγκρισή τους. Το σύγγραμμα δεν καλύπτει το QBFT.",
+        },
+        linkKind: "external",
+        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        presentationOnly: true,
+      },
+      {
+        id: "lm06-pow-simulator",
+        visualType: "coding",
+        requirementHint: "optional",
+        languages: ["both"],
+        title: {
+          en: "PoW Simulator — Mining Visualizer",
+          gr: "Προσομοιωτής PoW — Οπτικοποίηση Mining",
+        },
+        description: {
+          en: "Explore Proof of Work conceptually in the existing Mining Visualizer. Opening the simulator does not record module evidence.",
+          gr: "Εξερεύνησε εννοιολογικά το Proof of Work στον υπάρχοντα Mining Visualizer. Το άνοιγμα του προσομοιωτή δεν καταγράφει αποδεικτικά module.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/tools/mining",
+          gr: "/tools-gr/mining",
+        },
+        presentationOnly: true,
+      },
+      {
+        id: "lm06-pos-simulator",
+        visualType: "coding",
+        requirementHint: "optional",
+        languages: ["both"],
+        title: {
+          en: "PoS Simulator — Stake Visualizer",
+          gr: "Προσομοιωτής PoS — Οπτικοποίηση Stake",
+        },
+        description: {
+          en: "Explore Proof of Stake conceptually in the existing PoS Visualizer. Opening the simulator does not record module evidence.",
+          gr: "Εξερεύνησε εννοιολογικά το Proof of Stake στον υπάρχοντα PoS Visualizer. Το άνοιγμα του προσομοιωτή δεν καταγράφει αποδεικτικά module.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/tools/pos",
+          gr: "/tools-gr/pos",
+        },
+        presentationOnly: true,
+      },
+      {
+        id: "lm06-educational-ledger",
+        visualType: "observation",
+        requirementHint: "core",
+        languages: ["both"],
+        title: {
+          en: "Educational Ledger — Consensus Activity",
+          gr: "Educational Ledger — Δραστηριότητα Consensus",
+        },
+        description: {
+          en: "Take the role of a validator and follow a candidate PENDING transaction through validation, agreement, finalization, and simulated state update.",
+          gr: "Πάρε τον ρόλο validator και ακολούθησε μια υποψήφια PENDING συναλλαγή μέσα από επικύρωση, συμφωνία, οριστικοποίηση και προσομοιωμένη ενημέρωση κατάστασης.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm06/educational-ledger",
+          gr: "/learning-modules-gr/lm06/educational-ledger",
+        },
+        presentationOnly: true,
+      },
+      {
+        id: "lm06-assessment",
+        visualType: "assessment",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "LM06 Assessment",
+          gr: "Αξιολόγηση LM06",
+        },
+        description: {
+          en: "Check that you can explain consensus, PoW/PoS/QBFT, local validation, and why proposal is not finality. Required for module completion together with Lab 06.",
+          gr: "Έλεγξε ότι μπορείς να εξηγείς συναίνεση, PoW/PoS/QBFT, τοπική επικύρωση και γιατί η πρόταση δεν είναι οριστικότητα. Απαιτείται για ολοκλήρωση του module μαζί με το Lab 06.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm06/assessment",
+          gr: "/learning-modules-gr/lm06/assessment",
+        },
+        evidenceId: "lm06-assessment",
+        presentationOnly: false,
+      },
+    ],
   },
   LM07: {
     id: "LM07",

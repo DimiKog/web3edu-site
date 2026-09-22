@@ -184,8 +184,16 @@ test("curriculum registry covers exactly LM01–LM11 with correct path groups", 
   );
 });
 
-test("chapterAvailable is true for LM01, LM02, LM03, LM04, LM05, and LM08 Interactive Chapters", () => {
-  const availableIds = new Set(["LM01", "LM02", "LM03", "LM04", "LM05", "LM08"]);
+test("chapterAvailable is true for LM01–LM06 and LM08 Interactive Chapters", () => {
+  const availableIds = new Set([
+    "LM01",
+    "LM02",
+    "LM03",
+    "LM04",
+    "LM05",
+    "LM06",
+    "LM08",
+  ]);
   for (const id of LM_CURRICULUM_IDS) {
     const available = isLmChapterAvailable(id);
     if (availableIds.has(id)) {
@@ -209,6 +217,8 @@ test("chapterAvailable is true for LM01, LM02, LM03, LM04, LM05, and LM08 Intera
   assert.equal(getLmChapterRoute("LM04", "gr"), "/learning-modules-gr/lm04");
   assert.equal(getLmChapterRoute("LM05", "en"), "/learning-modules/lm05");
   assert.equal(getLmChapterRoute("LM05", "gr"), "/learning-modules-gr/lm05");
+  assert.equal(getLmChapterRoute("LM06", "en"), "/learning-modules/lm06");
+  assert.equal(getLmChapterRoute("LM06", "gr"), "/learning-modules-gr/lm06");
   assert.equal(getLmChapterRoute("LM08", "en"), "/learning-modules/lm08");
   assert.equal(getLmChapterRoute("LM08", "gr"), "/learning-modules-gr/lm08");
 });

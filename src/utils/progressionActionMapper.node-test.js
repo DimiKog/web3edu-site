@@ -206,7 +206,7 @@ test("LM03 assessment EN/GR ready routes", () => {
     assert.equal(gr.route, "/learning-modules-gr/lm03/assessment");
 });
 
-test("lm04 and lm05 assessments are ready; later assessments remain coming soon", () => {
+test("lm04–lm06 assessments are ready; lm07 remains coming soon", () => {
     const lm04 = resolveProgressionActionTarget({
         nextAction: {
             type: "assessment",
@@ -237,9 +237,19 @@ test("lm04 and lm05 assessments are ready; later assessments remain coming soon"
         },
         lang: "en",
     });
-    assert.equal(lm06.status, "coming_soon");
-    assert.equal(lm06.route, null);
-    assert.match(lm06.cta, /Assessment coming soon/i);
+    assert.equal(lm06.status, "ready");
+    assert.equal(lm06.route, "/learning-modules/lm06/assessment");
+
+    const lm07 = resolveProgressionActionTarget({
+        nextAction: {
+            type: "assessment",
+            moduleId: "LM07",
+            assessmentId: "lm07-assessment",
+        },
+        lang: "en",
+    });
+    assert.equal(lm07.status, "coming_soon");
+    assert.equal(lm07.route, null);
 });
 
 test("future evidence unavailable", () => {

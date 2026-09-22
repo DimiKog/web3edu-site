@@ -44,6 +44,9 @@ test("routeTable registers LM05 EN/GR chapter, assessment, and educational-ledge
   assert.match(routesSrc, /path: "\/learning-modules\/lm05\/educational-ledger"/);
   assert.match(routesSrc, /path: "\/learning-modules-gr\/lm05\/educational-ledger"/);
   assert.match(routesSrc, /Lm05EducationalLedgerPage/);
+  assert.match(routesSrc, /path: "\/learning-modules\/lm06\/educational-ledger"/);
+  assert.match(routesSrc, /path: "\/learning-modules-gr\/lm06\/educational-ledger"/);
+  assert.match(routesSrc, /Lm06EducationalLedgerPage/);
   assert.equal(isLmChapterAvailable("LM05"), true);
   assert.equal(getLmChapterRoute("LM05", "en"), "/learning-modules/lm05");
   assert.equal(getLmChapterRoute("LM05", "gr"), "/learning-modules-gr/lm05");

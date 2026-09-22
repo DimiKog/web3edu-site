@@ -38,6 +38,7 @@ const ASSESSMENT_ROUTES = {
         "lm03-assessment": "/learning-modules/lm03/assessment",
         "lm04-assessment": "/learning-modules/lm04/assessment",
         "lm05-assessment": "/learning-modules/lm05/assessment",
+        "lm06-assessment": "/learning-modules/lm06/assessment",
         "lm08-assessment": "/learning-modules/lm08/assessment",
     },
     gr: {
@@ -46,6 +47,7 @@ const ASSESSMENT_ROUTES = {
         "lm03-assessment": "/learning-modules-gr/lm03/assessment",
         "lm04-assessment": "/learning-modules-gr/lm04/assessment",
         "lm05-assessment": "/learning-modules-gr/lm05/assessment",
+        "lm06-assessment": "/learning-modules-gr/lm06/assessment",
         "lm08-assessment": "/learning-modules-gr/lm08/assessment",
     },
 };

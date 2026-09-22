@@ -50,6 +50,7 @@ export const LM_PAGE_COPY = {
     activityNotAvailable: "Activity not yet available",
     comingSoon: "Coming soon",
     assessmentRequiredComingSoon: "Required · Coming soon",
+    closingComingSoonHint: "Complete the earlier steps to unlock.",
     continueActivity: "Continue",
     nextRequired: "Next required step",
     nextRequiredBody:
@@ -143,6 +144,7 @@ export const LM_PAGE_COPY = {
     activityNotAvailable: "Η δραστηριότητα δεν είναι ακόμη διαθέσιμη",
     comingSoon: "Σύντομα",
     assessmentRequiredComingSoon: "Υποχρεωτικό · Σύντομα",
+    closingComingSoonHint: "Ολοκλήρωσε τα προηγούμενα βήματα για να ξεκλειδώσει.",
     continueActivity: "Συνέχεια",
     nextRequired: "Επόμενο απαιτούμενο βήμα",
     nextRequiredBody:
@@ -431,6 +433,68 @@ export const LM_MODULE_PAGE_CHROME = {
       moduleTypeLabel: "Θεμελιώδες",
       activityMixValue:
         "Κεφάλαιο, ανάγνωση συγγράμματος, Labs 04–05, Εκπαιδευτικό Ledger, αξιολόγηση",
+      typeLabels: {
+        observation: "ΔΡΑΣΤΗΡΙΟΤΗΤΑ",
+      },
+    },
+  },
+  LM06: {
+    en: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Read the interactive chapter and the required textbook section (Chapter 5, pp. 103–109), explore the PoW and PoS simulators, then complete the Educational Ledger consensus activity. Take the LM06 Assessment when ready. Opening this page, textbook links, or simulators does not itself record completion.",
+      sidebarProgress: "Your progress in LM06",
+      assessmentTitle: "LM06 Assessment",
+      nextRequiredBody:
+        "Complete the next required LM06 lab or activity. Opening this page or tools does not itself record completion.",
+      finishAssessmentCta: "Finish the assessment to complete LM06",
+      closingNextBody:
+        "Finish Lab 06 and the LM06 Assessment to complete this module.",
+      closingNextEvidenceBody:
+        "Complete the next required LM06 activity to continue this module.",
+      closingPathEyebrow: "Learning path",
+      closingPathTitle: "Continue your LM06 learning path",
+      closingPathBody:
+        "Complete the available learning activities and return as the remaining required activities become available.",
+      moduleCompleteBody:
+        "LM06 is complete according to your verifiable learning progress. You can still revisit labs and the chapter anytime.",
+      signInRequired: "Sign in with your Web3Edu identity to load your LM06 progress.",
+      loading: "Loading LM06…",
+      moduleTypeLabel: "Foundational",
+      activityMixValue:
+        "Chapter, required textbook reading, PoW/PoS simulators, Educational Ledger activity, assessment",
+      typeLabels: {
+        observation: "ACTIVITY",
+      },
+    },
+    gr: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Διάβασε το διαδραστικό κεφάλαιο και την υποχρεωτική ενότητα του συγγράμματος (Κεφάλαιο 5, σελ. 103–109), εξερεύνησε τους προσομοιωτές PoW και PoS, και ολοκλήρωσε τη δραστηριότητα Educational Ledger. Δώσε την Αξιολόγηση LM06 όταν είσαι έτοιμος/η. Το άνοιγμα αυτής της σελίδας, των συνδέσμων συγγράμματος ή των προσομοιωτών δεν καταγράφει από μόνο του ολοκλήρωση.",
+      sidebarProgress: "Η πρόοδός σου στο LM06",
+      sidebarAbout: "Σχετικά με το LM06",
+      assessmentTitle: "Αξιολόγηση LM06",
+      nextRequiredBody:
+        "Ολοκλήρωσε το επόμενο απαιτούμενο lab ή δραστηριότητα LM06. Το άνοιγμα αυτής της σελίδας ή εργαλείων δεν καταγράφει από μόνο του ολοκλήρωση.",
+      finishAssessmentCta: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM06",
+      closingNextBody:
+        "Ολοκλήρωσε το Lab 06 και την Αξιολόγηση LM06 για να τελειώσεις αυτό το module.",
+      closingNextEvidenceBody:
+        "Ολοκλήρωσε την επόμενη απαιτούμενη δραστηριότητα LM06 για να συνεχίσεις αυτό το module.",
+      closingPathEyebrow: "Διαδρομή μάθησης",
+      closingPathTitle: "Συνέχισε τη διαδρομή μάθησης LM06",
+      closingPathBody:
+        "Ολοκλήρωσε τις διαθέσιμες δραστηριότητες μάθησης και επέστρεψε όταν γίνουν διαθέσιμες οι υπόλοιπες απαιτούμενες.",
+      moduleCompleteBody:
+        "Το LM06 ολοκληρώθηκε σύμφωνα με την επαληθεύσιμη πρόοδό σου. Μπορείς να ξαναδείς labs και κεφάλαιο οποιαδήποτε στιγμή.",
+      signInRequired:
+        "Συνδέσου με την ταυτότητα Web3Edu για να φορτωθεί η πρόοδός σου στο LM06.",
+      loading: "Φόρτωση LM06…",
+      moduleTypeLabel: "Θεμελιώδες",
+      activityMixValue:
+        "Κεφάλαιο, υποχρεωτική ανάγνωση συγγράμματος, προσομοιωτές PoW/PoS, δραστηριότητα Educational Ledger, αξιολόγηση",
       typeLabels: {
         observation: "ΔΡΑΣΤΗΡΙΟΤΗΤΑ",
       },

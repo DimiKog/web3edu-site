@@ -100,11 +100,18 @@ const Lm05AssessmentPage = lazy(
 const Lm05EducationalLedgerPage = lazy(
   () => import("../pages/learning-modules/Lm05EducationalLedgerPage.jsx")
 );
+const Lm06AssessmentPage = lazy(
+  () => import("../pages/learning-modules/Lm06AssessmentPage.jsx")
+);
+const Lm06EducationalLedgerPage = lazy(
+  () => import("../pages/learning-modules/Lm06EducationalLedgerPage.jsx")
+);
 const Lm01Page = lazy(() => import("../pages/learning-modules/Lm01Page.jsx"));
 const Lm02Page = lazy(() => import("../pages/learning-modules/Lm02Page.jsx"));
 const Lm03Page = lazy(() => import("../pages/learning-modules/Lm03Page.jsx"));
 const Lm04Page = lazy(() => import("../pages/learning-modules/Lm04Page.jsx"));
 const Lm05Page = lazy(() => import("../pages/learning-modules/Lm05Page.jsx"));
+const Lm06Page = lazy(() => import("../pages/learning-modules/Lm06Page.jsx"));
 const Lm08Page = lazy(() => import("../pages/learning-modules/Lm08Page.jsx"));
 const LearnPage = lazy(() => import("../pages/learning-modules/LearnPage.jsx"));
 const SystemLabS0 = lazy(() => import("../pages/labs/SystemLabS0.jsx"));
@@ -334,6 +341,27 @@ export const routeTable = {
       {
         path: "/learning-modules-gr/lm05/educational-ledger",
         component: Lm05EducationalLedgerPage,
+        props: { lang: "gr" },
+      },
+      { path: "/learning-modules/lm06", component: Lm06Page },
+      {
+        path: "/learning-modules-gr/lm06",
+        component: Lm06Page,
+        props: { lang: "gr" },
+      },
+      { path: "/learning-modules/lm06/assessment", component: Lm06AssessmentPage },
+      {
+        path: "/learning-modules-gr/lm06/assessment",
+        component: Lm06AssessmentPage,
+        props: { lang: "gr" },
+      },
+      {
+        path: "/learning-modules/lm06/educational-ledger",
+        component: Lm06EducationalLedgerPage,
+      },
+      {
+        path: "/learning-modules-gr/lm06/educational-ledger",
+        component: Lm06EducationalLedgerPage,
         props: { lang: "gr" },
       },
       { path: "/learning-modules/lm08", component: Lm08Page },
