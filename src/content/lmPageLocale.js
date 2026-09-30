@@ -500,6 +500,68 @@ export const LM_MODULE_PAGE_CHROME = {
       },
     },
   },
+  LM07: {
+    en: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Read the interactive chapter and the required textbook section (Chapter 6 §6.1, pp. 115–116), complete the Smart Contract Execution Trace, then take the LM07 Assessment when ready. Opening this page or textbook links does not itself record completion.",
+      sidebarProgress: "Your progress in LM07",
+      assessmentTitle: "LM07 Assessment",
+      nextRequiredBody:
+        "Complete the next required LM07 activity. Opening this page or tools does not itself record completion.",
+      finishAssessmentCta: "Finish the assessment to complete LM07",
+      closingNextBody:
+        "Finish the Smart Contract Execution Trace and the LM07 Assessment to complete this module.",
+      closingNextEvidenceBody:
+        "Complete the next required LM07 activity to continue this module.",
+      closingPathEyebrow: "Learning path",
+      closingPathTitle: "Continue your LM07 learning path",
+      closingPathBody:
+        "Complete the available learning activities and return as the remaining required activities become available.",
+      moduleCompleteBody:
+        "LM07 is complete according to your verifiable learning progress. You can still revisit labs and the chapter anytime.",
+      signInRequired: "Sign in with your Web3Edu identity to load your LM07 progress.",
+      loading: "Loading LM07…",
+      moduleTypeLabel: "Foundational",
+      activityMixValue:
+        "Chapter, required textbook reading, execution-trace activity, assessment",
+      typeLabels: {
+        observation: "ACTIVITY",
+      },
+    },
+    gr: {
+      breadcrumbExplorer: "Builder Path",
+      pathBadge: "Builder Path",
+      learningPathIntro:
+        "Διάβασε το διαδραστικό κεφάλαιο και την υποχρεωτική ενότητα του συγγράμματος (Κεφάλαιο 6 §6.1, σελ. 115–116), ολοκλήρωσε το Smart Contract Execution Trace και δώσε την Αξιολόγηση LM07 όταν είσαι έτοιμος/η. Το άνοιγμα αυτής της σελίδας ή των συνδέσμων συγγράμματος δεν καταγράφει από μόνο του ολοκλήρωση.",
+      sidebarProgress: "Η πρόοδός σου στο LM07",
+      sidebarAbout: "Σχετικά με το LM07",
+      assessmentTitle: "Αξιολόγηση LM07",
+      nextRequiredBody:
+        "Ολοκλήρωσε την επόμενη απαιτούμενη δραστηριότητα LM07. Το άνοιγμα αυτής της σελίδας ή εργαλείων δεν καταγράφει από μόνο του ολοκλήρωση.",
+      finishAssessmentCta: "Ολοκλήρωσε την αξιολόγηση για να τελειώσεις το LM07",
+      closingNextBody:
+        "Ολοκλήρωσε το Smart Contract Execution Trace και την Αξιολόγηση LM07 για να τελειώσεις αυτό το module.",
+      closingNextEvidenceBody:
+        "Ολοκλήρωσε την επόμενη απαιτούμενη δραστηριότητα LM07 για να συνεχίσεις αυτό το module.",
+      closingPathEyebrow: "Διαδρομή μάθησης",
+      closingPathTitle: "Συνέχισε τη διαδρομή μάθησης LM07",
+      closingPathBody:
+        "Ολοκλήρωσε τις διαθέσιμες δραστηριότητες μάθησης και επέστρεψε όταν γίνουν διαθέσιμες οι υπόλοιπες απαιτούμενες.",
+      moduleCompleteBody:
+        "Το LM07 ολοκληρώθηκε σύμφωνα με την επαληθεύσιμη πρόοδό σου. Μπορείς να ξαναδείς labs και κεφάλαιο οποιαδήποτε στιγμή.",
+      signInRequired:
+        "Συνδέσου με την ταυτότητα Web3Edu για να φορτωθεί η πρόοδός σου στο LM07.",
+      loading: "Φόρτωση LM07…",
+      moduleTypeLabel: "Θεμελιώδες",
+      activityMixValue:
+        "Κεφάλαιο, υποχρεωτική ανάγνωση συγγράμματος, δραστηριότητα execution-trace, αξιολόγηση",
+      typeLabels: {
+        observation: "ΔΡΑΣΤΗΡΙΟΤΗΤΑ",
+      },
+    },
+  },
 };
 
 /**

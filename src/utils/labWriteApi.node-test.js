@@ -402,3 +402,26 @@ test("postLm06ConsensusActivity requires idToken and sends candidateTransactionI
   assert.equal(fn.includes("quorum"), false);
   assert.match(fn, /data\?\.ok === true && Boolean\(data\?\.consensusActivity\)/);
 });
+
+test("LM07 assessment and execution-trace API helpers are exported", () => {
+  const src = read(labWritePath);
+  assert.match(src, /export async function fetchLm07AssessmentChallenge/);
+  assert.match(src, /export async function postLm07AssessmentAnswers/);
+  assert.match(src, /export async function fetchLm07ExecutionTrace/);
+  assert.match(src, /export async function postLm07ExecutionTrace/);
+  assert.match(src, /\/learning-modules\/lm07\/assessment/);
+  assert.match(src, /\/learning-modules\/lm07\/execution-trace/);
+
+  const postAssessment = src.slice(src.indexOf("export async function postLm07AssessmentAnswers"));
+  assert.match(postAssessment, /JSON\.stringify\(body\)/);
+  assert.match(postAssessment, /body\.lang/);
+  assert.doesNotMatch(
+    postAssessment.slice(0, 900),
+    /JSON\.stringify\(\{[^}]*score/
+  );
+
+  const postTrace = src.slice(src.indexOf("export async function postLm07ExecutionTrace"));
+  assert.match(postTrace, /JSON\.stringify\(\{\s*scenarios\s*\}\)/);
+  assert.equal(postTrace.includes("progressAddress"), false);
+  assert.equal(postTrace.includes("wallet"), false);
+});

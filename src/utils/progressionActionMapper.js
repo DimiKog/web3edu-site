@@ -13,6 +13,7 @@ const EVIDENCE_ROUTES = {
         coding02: "/labs/coding-02/interaction",
         "lm05-pel-transaction": "/learning-modules/lm05/educational-ledger",
         "lm06-consensus-activity": "/learning-modules/lm06/educational-ledger",
+        "lm07-execution-trace": "/learning-modules/lm07/execution-trace",
         "lm08-contract-inspection": "/learning-modules/lm08/contract-inspection",
         "lm08-source-verification": "/learning-modules/lm08/source-verification",
     },
@@ -27,6 +28,7 @@ const EVIDENCE_ROUTES = {
         coding02: "/labs-gr/coding-02/interaction",
         "lm05-pel-transaction": "/learning-modules-gr/lm05/educational-ledger",
         "lm06-consensus-activity": "/learning-modules-gr/lm06/educational-ledger",
+        "lm07-execution-trace": "/learning-modules-gr/lm07/execution-trace",
         "lm08-contract-inspection": "/learning-modules-gr/lm08/contract-inspection",
         "lm08-source-verification": "/learning-modules-gr/lm08/source-verification",
     },
@@ -41,6 +43,7 @@ const ASSESSMENT_ROUTES = {
         "lm04-assessment": "/learning-modules/lm04/assessment",
         "lm05-assessment": "/learning-modules/lm05/assessment",
         "lm06-assessment": "/learning-modules/lm06/assessment",
+        "lm07-assessment": "/learning-modules/lm07/assessment",
         "lm08-assessment": "/learning-modules/lm08/assessment",
     },
     gr: {
@@ -50,6 +53,7 @@ const ASSESSMENT_ROUTES = {
         "lm04-assessment": "/learning-modules-gr/lm04/assessment",
         "lm05-assessment": "/learning-modules-gr/lm05/assessment",
         "lm06-assessment": "/learning-modules-gr/lm06/assessment",
+        "lm07-assessment": "/learning-modules-gr/lm07/assessment",
         "lm08-assessment": "/learning-modules-gr/lm08/assessment",
     },
 };

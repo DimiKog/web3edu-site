@@ -230,7 +230,7 @@ test("LM03 assessment EN/GR ready routes", () => {
     assert.equal(gr.route, "/learning-modules-gr/lm03/assessment");
 });
 
-test("lm04–lm06 assessments are ready; lm07 remains coming soon", () => {
+test("lm04–lm07 assessments are ready; lm07 execution-trace is ready", () => {
     const lm04 = resolveProgressionActionTarget({
         nextAction: {
             type: "assessment",
@@ -272,8 +272,33 @@ test("lm04–lm06 assessments are ready; lm07 remains coming soon", () => {
         },
         lang: "en",
     });
-    assert.equal(lm07.status, "coming_soon");
-    assert.equal(lm07.route, null);
+    assert.equal(lm07.status, "ready");
+    assert.equal(lm07.route, "/learning-modules/lm07/assessment");
+
+    const lm07Trace = resolveProgressionActionTarget({
+        nextAction: {
+            type: "learning_module_evidence",
+            moduleId: "LM07",
+            evidenceId: "lm07-execution-trace",
+        },
+        lang: "en",
+    });
+    assert.equal(lm07Trace.status, "ready");
+    assert.equal(lm07Trace.route, "/learning-modules/lm07/execution-trace");
+
+    const lm07TraceGr = resolveProgressionActionTarget({
+        nextAction: {
+            type: "learning_module_evidence",
+            moduleId: "LM07",
+            evidenceId: "lm07-execution-trace",
+        },
+        lang: "gr",
+    });
+    assert.equal(lm07TraceGr.status, "ready");
+    assert.equal(
+        lm07TraceGr.route,
+        "/learning-modules-gr/lm07/execution-trace"
+    );
 });
 
 test("future evidence unavailable", () => {

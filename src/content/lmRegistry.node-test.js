@@ -184,7 +184,7 @@ test("curriculum registry covers exactly LM01–LM11 with correct path groups", 
   );
 });
 
-test("chapterAvailable is true for LM01–LM06 and LM08 Interactive Chapters", () => {
+test("chapterAvailable is true for LM01–LM08 Interactive Chapters", () => {
   const availableIds = new Set([
     "LM01",
     "LM02",
@@ -192,6 +192,7 @@ test("chapterAvailable is true for LM01–LM06 and LM08 Interactive Chapters", (
     "LM04",
     "LM05",
     "LM06",
+    "LM07",
     "LM08",
   ]);
   for (const id of LM_CURRICULUM_IDS) {
@@ -219,6 +220,8 @@ test("chapterAvailable is true for LM01–LM06 and LM08 Interactive Chapters", (
   assert.equal(getLmChapterRoute("LM05", "gr"), "/learning-modules-gr/lm05");
   assert.equal(getLmChapterRoute("LM06", "en"), "/learning-modules/lm06");
   assert.equal(getLmChapterRoute("LM06", "gr"), "/learning-modules-gr/lm06");
+  assert.equal(getLmChapterRoute("LM07", "en"), "/learning-modules/lm07");
+  assert.equal(getLmChapterRoute("LM07", "gr"), "/learning-modules-gr/lm07");
   assert.equal(getLmChapterRoute("LM08", "en"), "/learning-modules/lm08");
   assert.equal(getLmChapterRoute("LM08", "gr"), "/learning-modules-gr/lm08");
 });
@@ -518,6 +521,57 @@ test("LM02 chapter is bilingual with locked transition and assessment XP display
   );
   assert.equal(mod.learningOutcomes.en.length, 6);
   assert.equal(mod.learningOutcomes.gr.length, 6);
+});
+
+test("LM07 chapter is available with execution-trace evidence and assessment", () => {
+  const mod = LM_PRESENTATION_REGISTRY.LM07;
+  assert.equal(mod.chapterAvailable, true);
+  assert.equal(mod.pathKey, "builder");
+  assert.equal(mod.moduleNumber, 7);
+  assert.equal(mod.learnerMeta.assessmentXp, 250);
+  assert.equal(mod.learningOutcomes.en.length, 6);
+  assert.equal(mod.learningOutcomes.gr.length, 6);
+  assert.match(mod.transition.from.en, /finalized/i);
+  assert.match(mod.transition.to.en, /deterministic state transitions/i);
+  assert.ok(mod.transition.from.gr);
+  assert.ok(mod.transition.to.gr);
+  assert.match(mod.visuals.hero, /lm07-hero\.png$/);
+  assert.match(mod.visuals.chapter.codeState, /lm07-code-state\.png$/);
+  assert.match(mod.visuals.chapter.executionFlow, /lm07-execution-flow\.png$/);
+  assert.match(mod.visuals.chapter.readWrite, /lm07-read-write\.png$/);
+
+  const visible = getLmVisibleActivities("LM07", "en");
+  assert.deepEqual(
+    visible.map((a) => a.id),
+    [
+      "lm07-interactive-chapter",
+      "lm07-chapter6-reading",
+      "lm07-execution-trace",
+      "lm07-assessment",
+    ]
+  );
+
+  const reading = mod.activities.find((a) => a.id === "lm07-chapter6-reading");
+  assert.equal(reading.presentationOnly, true);
+  assert.equal(reading.href, LM01_KALLIPOS_TEXTBOOK_URL);
+  assert.match(reading.description.en, /115–116/);
+
+  const trace = mod.activities.find((a) => a.id === "lm07-execution-trace");
+  assert.equal(trace.presentationOnly, false);
+  assert.equal(trace.evidenceId, "lm07-execution-trace");
+  assert.deepEqual(trace.href, {
+    en: "/learning-modules/lm07/execution-trace",
+    gr: "/learning-modules-gr/lm07/execution-trace",
+  });
+
+  const assessment = mod.activities.find((a) => a.id === "lm07-assessment");
+  assert.equal(assessment.linkKind, "internal");
+  assert.equal(assessment.evidenceId, "lm07-assessment");
+  assert.equal(assessment.presentationOnly, false);
+  assert.deepEqual(assessment.href, {
+    en: "/learning-modules/lm07/assessment",
+    gr: "/learning-modules-gr/lm07/assessment",
+  });
 });
 
 test("registry titles stay equivalent to Continue Learning moduleTitles (drift guard)", () => {

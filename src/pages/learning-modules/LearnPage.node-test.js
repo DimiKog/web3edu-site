@@ -66,7 +66,10 @@ test("Learn page curriculum cards never navigate unavailable chapters", () => {
   const unavailable = getLmCurriculumModules().filter(
     (m) => !isLmChapterAvailable(m.id)
   );
-  assert.ok(unavailable.length >= 7);
+  assert.deepEqual(
+    unavailable.map((m) => m.id),
+    ["LM09", "LM10", "LM11"]
+  );
   for (const mod of unavailable) {
     assert.equal(getLmChapterRoute(mod.id, "en"), null);
     assert.equal(getLmChapterRoute(mod.id, "gr"), null);

@@ -106,12 +106,19 @@ const Lm06AssessmentPage = lazy(
 const Lm06EducationalLedgerPage = lazy(
   () => import("../pages/learning-modules/Lm06EducationalLedgerPage.jsx")
 );
+const Lm07AssessmentPage = lazy(
+  () => import("../pages/learning-modules/Lm07AssessmentPage.jsx")
+);
+const Lm07ExecutionTracePage = lazy(
+  () => import("../pages/learning-modules/Lm07ExecutionTracePage.jsx")
+);
 const Lm01Page = lazy(() => import("../pages/learning-modules/Lm01Page.jsx"));
 const Lm02Page = lazy(() => import("../pages/learning-modules/Lm02Page.jsx"));
 const Lm03Page = lazy(() => import("../pages/learning-modules/Lm03Page.jsx"));
 const Lm04Page = lazy(() => import("../pages/learning-modules/Lm04Page.jsx"));
 const Lm05Page = lazy(() => import("../pages/learning-modules/Lm05Page.jsx"));
 const Lm06Page = lazy(() => import("../pages/learning-modules/Lm06Page.jsx"));
+const Lm07Page = lazy(() => import("../pages/learning-modules/Lm07Page.jsx"));
 const Lm08Page = lazy(() => import("../pages/learning-modules/Lm08Page.jsx"));
 const LearnPage = lazy(() => import("../pages/learning-modules/LearnPage.jsx"));
 const SystemLabS0 = lazy(() => import("../pages/labs/SystemLabS0.jsx"));
@@ -362,6 +369,27 @@ export const routeTable = {
       {
         path: "/learning-modules-gr/lm06/educational-ledger",
         component: Lm06EducationalLedgerPage,
+        props: { lang: "gr" },
+      },
+      { path: "/learning-modules/lm07", component: Lm07Page },
+      {
+        path: "/learning-modules-gr/lm07",
+        component: Lm07Page,
+        props: { lang: "gr" },
+      },
+      { path: "/learning-modules/lm07/assessment", component: Lm07AssessmentPage },
+      {
+        path: "/learning-modules-gr/lm07/assessment",
+        component: Lm07AssessmentPage,
+        props: { lang: "gr" },
+      },
+      {
+        path: "/learning-modules/lm07/execution-trace",
+        component: Lm07ExecutionTracePage,
+      },
+      {
+        path: "/learning-modules-gr/lm07/execution-trace",
+        component: Lm07ExecutionTracePage,
         props: { lang: "gr" },
       },
       { path: "/learning-modules/lm08", component: Lm08Page },

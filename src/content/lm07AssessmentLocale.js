@@ -1,0 +1,373 @@
+/**
+ * LM07 Assessment copy (EN + GR).
+ * Presentation only — no correct answers or pass-rule authority.
+ */
+
+export const LM07_ASSESSMENT_COPY = {
+  en: {
+    title: "LM07 Assessment — Understanding Smart Contracts",
+    subtitle:
+      "Check your understanding of smart contracts as code plus state, EVM execution, determinism, read vs write, gas, persistence, and on-chain vs off-chain choices.",
+    introTitle: "Before you begin",
+    readFirst: "Read this first",
+    introBody:
+      "This assessment includes nine single-choice questions from LM07. Pass with at least 7 correct answers and Critical Question 9 (FoodChain). If you do not pass on your first attempt, review the feedback and try again. Completing LM07 also requires the Smart Contract Execution Trace activity.",
+    responseModeHint:
+      "This assessment verifies conceptual understanding. It does not replace the Smart Contract Execution Trace, which remains required evidence for LM07 completion.",
+    metaItems: [
+      "9 questions",
+      "Single choice",
+      "Pass: 7/9 correct + Critical Question 9",
+      "Retries allowed",
+    ],
+    metaScopeHint:
+      "Checks code+state, EVM execution, determinism, read vs write, gas, state transitions, persistence, and on-chain vs off-chain reasoning from LM07.",
+    metaSummaryLabel: "Assessment summary",
+    multiSelectHint: "Select all that apply. More than one answer may be correct.",
+    singleChoiceType: "Single choice",
+    multiSelectType: "Select all that apply",
+    criticalLabel: "Critical",
+    classificationNote: "",
+    loading: "Loading assessment…",
+    signInRequired: "Sign in with your Web3Edu identity to take the LM07 assessment.",
+    questionsTitle: "Assessment questions",
+    submitAnswers: "Submit assessment",
+    submitting: "Submitting…",
+    retry: "Try again",
+    failedTitle: "Assessment not passed yet",
+    failedLead: "Review the feedback below, then try again.",
+    failedCriticalLead:
+      "Your score meets the numeric threshold, but Critical Question 9 needs another look — FoodChain should keep compact shared/verifiable evidence on-chain where appropriate, not everything and not nothing.",
+    failedScore: (score, total) => `${score}/${total}`,
+    feedbackTitle: "Review these questions",
+    passedTitle: "LM07 Assessment Complete",
+    alreadyPassedTitle: "LM07 Assessment already recorded",
+    passedScore: (score, total) => `${score}/${total}`,
+    xpAwarded: (xp) => `+${xp} XP`,
+    xpAlready: "XP already awarded",
+    youCanNow: "You can now:",
+    passCapabilities: [
+      "Explain a smart contract as deployed code plus persistent state at a blockchain address.",
+      "Trace transaction → contract → EVM execution → state transition at a conceptual level.",
+      "Reason about read vs write, gas, determinism, and what belongs on-chain versus off-chain.",
+    ],
+    keyPrinciple:
+      "TRANSACTION ≠ STATE CHANGE. A valid state transition follows successful deterministic contract execution — submission alone is not enough.",
+    revisitOne: "One point to revisit",
+    revisitMany: "Points to revisit",
+    reviewTakeaways: "Review key takeaways",
+    postPassTitle: "Key Takeaways",
+    backToDashboard: "Back to Dashboard",
+    dashboardPath: "/dashboard",
+    continueLearningHint:
+      "Your learning path updates from the server. Use Continue Learning on the Dashboard for your next step. LM07 is complete only when the Smart Contract Execution Trace and this assessment are both satisfied.",
+    questions: {
+      lm07_q1_code_plus_state: {
+        heading: "Code + State",
+        prompt:
+          "Which description best matches a smart contract on a blockchain?",
+        options: {
+          A: "A PDF agreement stored in an off-chain document folder.",
+          B: "Deployed code plus persistent state at a blockchain address.",
+          C: "A private key that signs every network message.",
+          D: "A single database row that only one server can read.",
+        },
+      },
+      lm07_q2_evm_execution: {
+        heading: "EVM Execution",
+        prompt:
+          "A transaction targets a smart contract. What best describes what validating nodes do?",
+        options: {
+          A: "They invent a result without running the contract logic.",
+          B: "They skip execution if any one node already accepted the transaction.",
+          C: "They execute the contract logic with the EVM so nodes can derive the resulting state.",
+          D: "They replace the contract code with a new private backend script.",
+        },
+      },
+      lm07_q3_determinism: {
+        heading: "Determinism",
+        prompt:
+          "What does deterministic smart-contract execution mean for validating nodes?",
+        options: {
+          A: "The same prior state and the same valid inputs yield the same execution result on every validating node.",
+          B: "Each node may invent a different result as long as fees are paid.",
+          C: "Only the proposer’s result matters; other nodes ignore execution.",
+          D: "Execution is optional when the transaction is already in a block.",
+        },
+      },
+      lm07_q4_read_vs_write: {
+        heading: "Read vs Write",
+        prompt:
+          "How do a normal read/call and a write/transaction path differ conceptually?",
+        options: {
+          A: "Both always submit a state-changing transaction and always update state.",
+          B: "A read/call inspects state without a state-changing transaction; a write path requests networked execution that may update state if it succeeds.",
+          C: "A read always costs more gas than a write.",
+          D: "A write never consumes gas and never touches the network.",
+        },
+      },
+      lm07_q5_gas: {
+        heading: "Gas",
+        prompt: "What is the main conceptual role of gas in contract execution?",
+        options: {
+          A: "It replaces the need for consensus among validators.",
+          B: "It guarantees that every submitted transaction updates shared state.",
+          C: "It meters and bounds computational resources used during contract execution.",
+          D: "It permanently deletes contract code after each call.",
+        },
+      },
+      lm07_q6_state_transition: {
+        heading: "State Transition",
+        prompt:
+          "When does a valid smart-contract state transition occur?",
+        options: {
+          A: "After successful deterministic execution of a valid transaction — not from submission alone.",
+          B: "As soon as a user types a value into a web form.",
+          C: "Whenever any transaction is submitted, even if execution fails.",
+          D: "Only when a human administrator manually edits the ledger file.",
+        },
+      },
+      lm07_q7_persistence_immutability: {
+        heading: "Persistence & Immutability",
+        prompt:
+          "Which statement about successful on-chain contract state changes is most accurate at this level?",
+        options: {
+          A: "Successful changes are temporary drafts that disappear after each session.",
+          B: "Deployed contract logic can be casually rewritten like a private backend file whenever needed.",
+          C: "Validators delete history after every successful execution.",
+          D: "Successful state changes become part of blockchain history, and deployed logic is not casually edited like ordinary backend code.",
+        },
+      },
+      lm07_q8_onchain_offchain: {
+        heading: "On-Chain vs Off-Chain",
+        prompt:
+          "What should guide whether information belongs on-chain or off-chain?",
+        options: {
+          A: "Everything application-related must always be stored on-chain.",
+          B: "Permanence, privacy, cost, and verifiability — blockchain is not a place for everything.",
+          C: "Nothing useful should ever be recorded on-chain.",
+          D: "Only the visual theme of the website decides storage location.",
+        },
+      },
+      lm07_q9_foodchain_critical: {
+        heading: "FoodChain On-Chain vs Off-Chain",
+        prompt:
+          "FoodChain tracks olive-oil batches across producers and distributors. Which architectural choice is most appropriate?",
+        options: {
+          A: "Store every private document, photo, and password directly on-chain.",
+          B: "Keep all evidence only in private emails so the shared ledger records nothing.",
+          C: "Keep compact shared/verifiable evidence or ownership state on-chain where appropriate, while large, private, or raw application data generally stays off-chain.",
+          D: "Disable smart contracts entirely and rely on paper forms only.",
+        },
+      },
+    },
+  },
+  gr: {
+    title: "Αξιολόγηση LM07 — Κατανόηση Έξυπνων Συμβολαίων",
+    subtitle:
+      "Έλεγξε την κατανόησή σου για έξυπνα συμβόλαια ως κώδικα και κατάσταση, εκτέλεση EVM, ντετερμινισμό, ανάγνωση vs εγγραφή, gas, επιμονή και επιλογές on-chain vs off-chain.",
+    introTitle: "Πριν ξεκινήσεις",
+    readFirst: "Διάβασε πρώτα αυτό",
+    introBody:
+      "Η αξιολόγηση περιλαμβάνει εννέα ερωτήσεις μίας επιλογής από το LM07. Περνάς με τουλάχιστον 7 σωστές απαντήσεις και την Κρίσιμη Ερώτηση 9 (FoodChain). Αν δεν περάσεις με την πρώτη, διάβασε το feedback και δοκίμασε ξανά. Η ολοκλήρωση του LM07 απαιτεί επίσης τη δραστηριότητα Smart Contract Execution Trace.",
+    responseModeHint:
+      "Η αξιολόγηση επαληθεύει εννοιολογική κατανόηση. Δεν αντικαθιστά το Smart Contract Execution Trace, που παραμένει απαιτούμενο αποδεικτικό για την ολοκλήρωση του LM07.",
+    metaItems: [
+      "9 ερωτήσεις",
+      "Μία επιλογή",
+      "Επιτυχία: 7/9 σωστές + Κρίσιμη Ερώτηση 9",
+      "Επιτρέπονται επαναλήψεις",
+    ],
+    metaScopeHint:
+      "Ελέγχει κώδικα+κατάσταση, εκτέλεση EVM, ντετερμινισμό, ανάγνωση vs εγγραφή, gas, μεταβάσεις κατάστασης, επιμονή και on-chain vs off-chain συλλογισμό από το LM07.",
+    metaSummaryLabel: "Σύνοψη αξιολόγησης",
+    multiSelectHint: "Επίλεξε όσα ισχύουν. Μπορεί να είναι σωστές περισσότερες από μία απαντήσεις.",
+    singleChoiceType: "Μία επιλογή",
+    multiSelectType: "Επίλεξε όσα ισχύουν",
+    criticalLabel: "Κρίσιμη",
+    classificationNote: "",
+    loading: "Φόρτωση αξιολόγησης…",
+    signInRequired:
+      "Συνδέσου με την ταυτότητα Web3Edu για να δώσεις την αξιολόγηση LM07.",
+    questionsTitle: "Ερωτήσεις αξιολόγησης",
+    submitAnswers: "Υποβολή αξιολόγησης",
+    submitting: "Υποβολή…",
+    retry: "Δοκίμασε ξανά",
+    failedTitle: "Η αξιολόγηση δεν ολοκληρώθηκε ακόμη",
+    failedLead: "Διάβασε το feedback παρακάτω και δοκίμασε ξανά.",
+    failedCriticalLead:
+      "Το σκορ φτάνει το αριθμητικό όριο, αλλά η Κρίσιμη Ερώτηση 9 χρειάζεται άλλη ματιά — το FoodChain πρέπει να κρατά on-chain συμπαγή κοινά/επαληθεύσιμα στοιχεία όπου χρειάζεται, ούτε τα πάντα ούτε τίποτα.",
+    failedScore: (score, total) => `${score}/${total}`,
+    feedbackTitle: "Ξαναδές αυτές τις ερωτήσεις",
+    passedTitle: "Η Αξιολόγηση LM07 ολοκληρώθηκε",
+    alreadyPassedTitle: "Η Αξιολόγηση LM07 έχει ήδη καταγραφεί",
+    passedScore: (score, total) => `${score}/${total}`,
+    xpAwarded: (xp) => `+${xp} XP`,
+    xpAlready: "Τα XP έχουν ήδη απονεμηθεί",
+    youCanNow: "Μπορείς πλέον:",
+    passCapabilities: [
+      "Να εξηγείς ένα έξυπνο συμβόλαιο ως αναπτυγμένο κώδικα μαζί με επίμονη κατάσταση σε διεύθυνση blockchain.",
+      "Να ιχνηλατείς εννοιολογικά συναλλαγή → συμβόλαιο → εκτέλεση EVM → μετάβαση κατάστασης.",
+      "Να συλλογίζεσαι για ανάγνωση vs εγγραφή, gas, ντετερμινισμό και τι ανήκει on-chain έναντι off-chain.",
+    ],
+    keyPrinciple:
+      "ΣΥΝΑΛΛΑΓΗ ≠ ΑΛΛΑΓΗ ΚΑΤΑΣΤΑΣΗΣ. Μια έγκυρη μετάβαση κατάστασης ακολουθεί επιτυχή ντετερμινιστική εκτέλεση συμβολαίου — η υποβολή μόνη της δεν αρκεί.",
+    revisitOne: "Ένα σημείο για επανάληψη",
+    revisitMany: "Σημεία για επανάληψη",
+    reviewTakeaways: "Δες τα βασικά συμπεράσματα",
+    postPassTitle: "Βασικά συμπεράσματα",
+    backToDashboard: "Επιστροφή στο Dashboard",
+    dashboardPath: "/dashboard-gr",
+    continueLearningHint:
+      "Η μαθησιακή διαδρομή ενημερώνεται από τον διακομιστή. Χρησιμοποίησε το Continue Learning στο Dashboard για το επόμενο βήμα. Το LM07 ολοκληρώνεται μόνο όταν ικανοποιηθούν το Smart Contract Execution Trace και αυτή η αξιολόγηση.",
+    questions: {
+      lm07_q1_code_plus_state: {
+        heading: "Κώδικας + Κατάσταση",
+        prompt:
+          "Ποια περιγραφή αντιστοιχεί καλύτερα σε ένα έξυπνο συμβόλαιο σε blockchain;",
+        options: {
+          A: "Μια συμφωνία PDF αποθηκευμένη σε off-chain φάκελο εγγράφων.",
+          B: "Αναπτυγμένος κώδικας μαζί με επίμονη κατάσταση σε διεύθυνση blockchain.",
+          C: "Ένα ιδιωτικό κλειδί που υπογράφει κάθε μήνυμα δικτύου.",
+          D: "Μια γραμμή βάσης δεδομένων που μπορεί να διαβάσει μόνο ένας διακομιστής.",
+        },
+      },
+      lm07_q2_evm_execution: {
+        heading: "Εκτέλεση EVM",
+        prompt:
+          "Μια συναλλαγή στοχεύει ένα έξυπνο συμβόλαιο. Τι περιγράφει καλύτερα τι κάνουν οι validating κόμβοι;",
+        options: {
+          A: "Επινοούν αποτέλεσμα χωρίς να τρέξουν τη λογική του συμβολαίου.",
+          B: "Παραλείπουν την εκτέλεση αν κάποιος κόμβος έχει ήδη αποδεχτεί τη συναλλαγή.",
+          C: "Εκτελούν τη λογική του συμβολαίου με το EVM ώστε οι κόμβοι να παράγουν την προκύπτουσα κατάσταση.",
+          D: "Αντικαθιστούν τον κώδικα συμβολαίου με νέο ιδιωτικό backend script.",
+        },
+      },
+      lm07_q3_determinism: {
+        heading: "Ντετερμινισμός",
+        prompt:
+          "Τι σημαίνει ντετερμινιστική εκτέλεση έξυπνου συμβολαίου για τους validating κόμβους;",
+        options: {
+          A: "Η ίδια προηγούμενη κατάσταση και τα ίδια έγκυρα δεδομένα εισόδου δίνουν το ίδιο αποτέλεσμα εκτέλεσης σε κάθε validating κόμβο.",
+          B: "Κάθε κόμβος μπορεί να επινοήσει διαφορετικό αποτέλεσμα αρκεί να πληρωθούν τέλη.",
+          C: "Μόνο το αποτέλεσμα του proposer μετράει· οι άλλοι κόμβοι αγνοούν την εκτέλεση.",
+          D: "Η εκτέλεση είναι προαιρετική όταν η συναλλαγή είναι ήδη σε block.",
+        },
+      },
+      lm07_q4_read_vs_write: {
+        heading: "Ανάγνωση vs Εγγραφή",
+        prompt:
+          "Πώς διαφέρουν εννοιολογικά μια κανονική ανάγνωση/call και μια διαδρομή εγγραφής/συναλλαγής;",
+        options: {
+          A: "Και οι δύο πάντα υποβάλλουν state-changing συναλλαγή και πάντα ενημερώνουν κατάσταση.",
+          B: "Η ανάγνωση/call επιθεωρεί κατάσταση χωρίς state-changing συναλλαγή· η διαδρομή εγγραφής ζητά δικτυακή εκτέλεση που μπορεί να ενημερώσει κατάσταση αν επιτύχει.",
+          C: "Η ανάγνωση πάντα κοστίζει περισσότερο gas από την εγγραφή.",
+          D: "Η εγγραφή ποτέ δεν καταναλώνει gas και ποτέ δεν αγγίζει το δίκτυο.",
+        },
+      },
+      lm07_q5_gas: {
+        heading: "Gas",
+        prompt: "Ποιος είναι ο κύριος εννοιολογικός ρόλος του gas στην εκτέλεση συμβολαίου;",
+        options: {
+          A: "Αντικαθιστά την ανάγκη συναίνεσης μεταξύ validators.",
+          B: "Εγγυάται ότι κάθε υποβληθείσα συναλλαγή ενημερώνει την κοινή κατάσταση.",
+          C: "Μετρά και περιορίζει τους υπολογιστικούς πόρους κατά την εκτέλεση συμβολαίου.",
+          D: "Διαγράφει μόνιμα τον κώδικα συμβολαίου μετά από κάθε κλήση.",
+        },
+      },
+      lm07_q6_state_transition: {
+        heading: "Μετάβαση Κατάστασης",
+        prompt:
+          "Πότε συμβαίνει μια έγκυρη μετάβαση κατάστασης έξυπνου συμβολαίου;",
+        options: {
+          A: "Μετά από επιτυχή ντετερμινιστική εκτέλεση έγκυρης συναλλαγής — όχι από την υποβολή μόνη της.",
+          B: "Μόλις ο χρήστης πληκτρολογήσει μια τιμή σε φόρμα ιστού.",
+          C: "Όποτε υποβάλλεται οποιαδήποτε συναλλαγή, ακόμη κι αν η εκτέλεση αποτύχει.",
+          D: "Μόνο όταν ένας ανθρώπινος διαχειριστής επεξεργαστεί χειροκίνητα το αρχείο ledger.",
+        },
+      },
+      lm07_q7_persistence_immutability: {
+        heading: "Επιμονή & Αμεταβλητότητα",
+        prompt:
+          "Ποια πρόταση για επιτυχείς on-chain αλλαγές κατάστασης συμβολαίου είναι η πιο ακριβής σε αυτό το επίπεδο;",
+        options: {
+          A: "Οι επιτυχείς αλλαγές είναι προσωρινά drafts που εξαφανίζονται μετά από κάθε συνεδρία.",
+          B: "Η λογική αναπτυγμένου συμβολαίου μπορεί εύκολα να ξαναγραφτεί όπως ιδιωτικό backend αρχείο όποτε χρειάζεται.",
+          C: "Οι validators διαγράφουν το ιστορικό μετά από κάθε επιτυχή εκτέλεση.",
+          D: "Οι επιτυχείς αλλαγές κατάστασης γίνονται μέρος του ιστορικού blockchain, και η αναπτυγμένη λογική δεν επεξεργάζεται εύκολα όπως συνηθισμένος backend κώδικας.",
+        },
+      },
+      lm07_q8_onchain_offchain: {
+        heading: "On-Chain vs Off-Chain",
+        prompt:
+          "Τι πρέπει να καθοδηγεί αν η πληροφορία ανήκει on-chain ή off-chain;",
+        options: {
+          A: "Ό,τι σχετίζεται με την εφαρμογή πρέπει πάντα να αποθηκεύεται on-chain.",
+          B: "Μονιμότητα, ιδιωτικότητα, κόστος και επαληθευσιμότητα — το blockchain δεν είναι μέρος για τα πάντα.",
+          C: "Τίποτα χρήσιμο δεν πρέπει ποτέ να καταγράφεται on-chain.",
+          D: "Μόνο το οπτικό θέμα της ιστοσελίδας αποφασίζει τη θέση αποθήκευσης.",
+        },
+      },
+      lm07_q9_foodchain_critical: {
+        heading: "FoodChain On-Chain vs Off-Chain",
+        prompt:
+          "Το FoodChain παρακολουθεί παρτίδες ελαιολάδου μεταξύ producers και distributors. Ποια αρχιτεκτονική επιλογή είναι η πιο κατάλληλη;",
+        options: {
+          A: "Αποθήκευσε κάθε ιδιωτικό έγγραφο, φωτογραφία και κωδικό απευθείας on-chain.",
+          B: "Κράτα όλα τα στοιχεία μόνο σε ιδιωτικά emails ώστε το κοινό ledger να μην καταγράφει τίποτα.",
+          C: "Κράτα on-chain συμπαγή κοινά/επαληθεύσιμα στοιχεία ή κατάσταση ιδιοκτησίας όπου χρειάζεται, ενώ μεγάλα, ιδιωτικά ή ακατέργαστα δεδομένα εφαρμογής μένουν γενικά off-chain.",
+          D: "Απενεργοποίησε τα έξυπνα συμβόλαια εντελώς και βασίσου μόνο σε έντυπες φόρμες.",
+        },
+      },
+    },
+  },
+};
+
+/** Fallback post-pass rationales when GET/POST omit them (presentation only). */
+export const LM07_POST_PASS_RATIONALES = {
+  en: {
+    lm07_q1_code_plus_state:
+      "Smart contracts combine executable logic with persistent state at a blockchain address.",
+    lm07_q2_evm_execution:
+      "Contract-targeting transactions are executed by the EVM so nodes can derive the resulting state.",
+    lm07_q3_determinism:
+      "Deterministic execution lets independent validators agree on the same resulting state.",
+    lm07_q4_read_vs_write:
+      "Reads inspect state without a state-changing transaction; writes request networked execution that may update state.",
+    lm07_q5_gas:
+      "Gas prices and bounds computational work during contract execution.",
+    lm07_q6_state_transition:
+      "State updates follow successful deterministic execution — submission alone is not a state change.",
+    lm07_q7_persistence_immutability:
+      "On-chain state persists in history, and deployed logic is not casually rewritten like ordinary backend code.",
+    lm07_q8_onchain_offchain:
+      "Choose on-chain storage where shared verifiability matters; keep private or bulky data off-chain.",
+    lm07_q9_foodchain_critical:
+      "In FoodChain, put compact verifiable evidence or shared ownership state on-chain when needed, and keep large or private payloads off-chain.",
+  },
+  gr: {
+    lm07_q1_code_plus_state:
+      "Τα έξυπνα συμβόλαια συνδυάζουν εκτελέσιμη λογική με επίμονη κατάσταση σε διεύθυνση blockchain.",
+    lm07_q2_evm_execution:
+      "Οι συναλλαγές προς συμβόλαια εκτελούνται από το EVM ώστε οι κόμβοι να παράγουν την προκύπτουσα κατάσταση.",
+    lm07_q3_determinism:
+      "Η ντετερμινιστική εκτέλεση επιτρέπει σε ανεξάρτητους validators να συμφωνούν στην ίδια προκύπτουσα κατάσταση.",
+    lm07_q4_read_vs_write:
+      "Οι αναγνώσεις επιθεωρούν κατάσταση χωρίς state-changing συναλλαγή· οι εγγραφές ζητούν δικτυακή εκτέλεση που μπορεί να ενημερώσει κατάσταση.",
+    lm07_q5_gas:
+      "Το gas τιμολογεί και περιορίζει την υπολογιστική εργασία κατά την εκτέλεση συμβολαίου.",
+    lm07_q6_state_transition:
+      "Οι ενημερώσεις κατάστασης ακολουθούν επιτυχή ντετερμινιστική εκτέλεση — η υποβολή μόνη της δεν είναι αλλαγή κατάστασης.",
+    lm07_q7_persistence_immutability:
+      "Η on-chain κατάσταση παραμένει στο ιστορικό, και η αναπτυγμένη λογική δεν ξαναγράφεται εύκολα όπως συνηθισμένος backend κώδικας.",
+    lm07_q8_onchain_offchain:
+      "Επίλεξε on-chain αποθήκευση όπου μετράει η κοινή επαληθευσιμότητα· κράτα ιδιωτικά ή ογκώδη δεδομένα off-chain.",
+    lm07_q9_foodchain_critical:
+      "Στο FoodChain, βάλε on-chain συμπαγή επαληθεύσιμα στοιχεία ή κοινή κατάσταση ιδιοκτησίας όταν χρειάζεται, και κράτα μεγάλα ή ιδιωτικά payloads off-chain.",
+  },
+};
+
+/** @param {"en"|"gr"} lang */
+export function getLm07AssessmentCopy(lang = "en") {
+  return LM07_ASSESSMENT_COPY[lang === "gr" ? "gr" : "en"] || LM07_ASSESSMENT_COPY.en;
+}

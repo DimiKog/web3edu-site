@@ -107,6 +107,18 @@ export const LM06_VISUALS = {
 };
 
 /**
+ * LM07 production visuals (public/ paths).
+ * Custom smart-contract graphics under public/learning-modules/visuals/lm07/.
+ * Only the four shipped PNGs are referenced — no invented assets.
+ */
+export const LM07_VISUALS = {
+  hero: "/learning-modules/visuals/lm07/lm07-hero.png",
+  codeState: "/learning-modules/visuals/lm07/lm07-code-state.png",
+  executionFlow: "/learning-modules/visuals/lm07/lm07-execution-flow.png",
+  readWrite: "/learning-modules/visuals/lm07/lm07-read-write.png",
+};
+
+/**
  * @typedef {"book"|"reading"|"concept"|"demo"|"simulator"|"observation"|"coding"|"inspection"|"verification"|"assessment"} LmActivityVisualType
  * @typedef {"required"|"recommended"|"optional"|"core"} LmRequirementHint
  */
@@ -1339,12 +1351,163 @@ export const LM_PRESENTATION_REGISTRY = {
     pathKey: "builder",
     moduleNumber: 7,
     totalModules: 11,
-    chapterAvailable: false,
-    chapterRoute: null,
+    /** Interactive Chapter page exists (not curriculum/evidence completeness). */
+    chapterAvailable: true,
+    chapterRoute: {
+      en: "/learning-modules/lm07",
+      gr: "/learning-modules-gr/lm07",
+    },
     title: {
       en: "Understanding Smart Contracts",
       gr: "Κατανόηση Έξυπνων Συμβολαίων",
     },
+    transition: {
+      from: {
+        en: "A transaction has been agreed, finalized, and can update shared state.",
+        gr: "Μια συναλλαγή έχει συμφωνηθεί, οριστικοποιηθεί και μπορεί να ενημερώσει την κοινή κατάσταση.",
+      },
+      to: {
+        en: "Explains how smart-contract execution produces deterministic state transitions.",
+        gr: "Εξηγεί πώς η εκτέλεση έξυπνου συμβολαίου παράγει ντετερμινιστικές μεταβάσεις κατάστασης.",
+      },
+    },
+    about: {
+      en: "LM07 continues from LM06 finalized shared state: learners explain smart contracts as code plus state, trace EVM execution and deterministic state transitions, distinguish read vs write, and reason about what belongs on-chain versus off-chain.",
+      gr: "Το LM07 συνεχίζει από την οριστικοποιημένη κοινή κατάσταση του LM06: οι εκπαιδευόμενοι εξηγούν τα έξυπνα συμβόλαια ως κώδικα και κατάσταση, ιχνηλατούν εκτέλεση EVM και ντετερμινιστικές μεταβάσεις κατάστασης, διακρίνουν ανάγνωση vs εγγραφή και συλλογίζονται τι ανήκει on-chain έναντι off-chain.",
+    },
+    learnerMeta: {
+      estimatedTime: { en: "2–3 hours", gr: "2–3 ώρες" },
+      level: { en: "Beginner–Intermediate", gr: "Αρχάριο–Μεσαίο" },
+      assessmentXp: 250,
+    },
+    visuals: {
+      hero: LM07_VISUALS.hero,
+      /**
+       * Match LM04/LM05: chapter-close next-step uses the shared assessment art
+       * so it matches the Assessment Learning Path row (not execution-flow chapter art).
+       */
+      nextStep: LM01_VISUALS.assessment,
+      meta: {
+        time: LM01_VISUALS.metaTime,
+        level: LM01_VISUALS.metaLevel,
+        xp: LM01_VISUALS.metaXp,
+      },
+      activityByType: {
+        concept: LM07_VISUALS.codeState,
+        book: LM01_VISUALS.book,
+        observation: LM07_VISUALS.executionFlow,
+        assessment: LM01_VISUALS.assessment,
+      },
+      activityById: {
+        "lm07-interactive-chapter": LM07_VISUALS.codeState,
+        "lm07-chapter6-reading": LM01_VISUALS.book,
+        "lm07-execution-trace": LM07_VISUALS.executionFlow,
+        "lm07-assessment": LM01_VISUALS.assessment,
+      },
+      chapter: {
+        codeState: LM07_VISUALS.codeState,
+        executionFlow: LM07_VISUALS.executionFlow,
+        readWrite: LM07_VISUALS.readWrite,
+      },
+    },
+    learningOutcomes: {
+      en: [
+        "Explain a smart contract as code + persistent state deployed at a blockchain address.",
+        "Distinguish a read/call from a state-changing transaction.",
+        "Trace: transaction → smart contract → EVM execution → state transition.",
+        "Explain why smart-contract execution must be deterministic across validating nodes.",
+        "Explain the role of gas in contract execution.",
+        "Reason about what should and should not be placed on-chain, considering cost, privacy, permanence, and trust/verifiability.",
+      ],
+      gr: [
+        "Να εξηγείς ένα έξυπνο συμβόλαιο ως κώδικα + επίμονη κατάσταση αναπτυγμένα σε διεύθυνση blockchain.",
+        "Να διακρίνεις μια ανάγνωση/call από μια συναλλαγή που μεταβάλλει κατάσταση.",
+        "Να ιχνηλατείς: συναλλαγή → έξυπνο συμβόλαιο → εκτέλεση EVM → μετάβαση κατάστασης.",
+        "Να εξηγείς γιατί η εκτέλεση έξυπνου συμβολαίου πρέπει να είναι ντετερμινιστική στους validating κόμβους.",
+        "Να εξηγείς τον ρόλο του gas στην εκτέλεση συμβολαίου.",
+        "Να συλλογίζεσαι τι πρέπει και τι δεν πρέπει να τοποθετείται on-chain, λαμβάνοντας υπόψη κόστος, ιδιωτικότητα, μονιμότητα και εμπιστοσύνη/επαληθευσιμότητα.",
+      ],
+    },
+    activities: [
+      {
+        id: "lm07-interactive-chapter",
+        visualType: "concept",
+        requirementHint: "core",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "Interactive Chapter — Understanding Smart Contracts",
+          gr: "Διαδραστικό Κεφάλαιο — Κατανόηση Έξυπνων Συμβολαίων",
+        },
+        description: {
+          en: "Follow code + state, EVM execution, read vs write, execution constraints, and on-chain vs off-chain reasoning.",
+          gr: "Ακολούθησε κώδικα + κατάσταση, εκτέλεση EVM, ανάγνωση vs εγγραφή, περιορισμούς εκτέλεσης και συλλογισμό on-chain vs off-chain.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm07-chapter6-reading",
+        visualType: "book",
+        requirementHint: "core",
+        showRequirementStatus: true,
+        languages: ["both"],
+        title: {
+          en: "Required Reading — Smart Contracts (Ch. 6 §6.1, pp. 115–116)",
+          gr: "Υποχρεωτική Ανάγνωση — Έξυπνες Συμβάσεις (Κεφ. 6 §6.1, σελ. 115–116)",
+        },
+        description: {
+          en: "Read Chapter 6 §6.1 of Αλυσίδες Συστοιχιών (Blockchain) — pages 115–116 — for smart-contract description, history, Ethereum accounts, languages, and gas.",
+          gr: "Διάβασε το Κεφάλαιο 6 §6.1 του συγγράμματος Αλυσίδες Συστοιχιών (Blockchain) — σελίδες 115–116 — για περιγραφή έξυπνων συμβολαίων, ιστορία, λογαριασμούς Ethereum, γλώσσες και gas.",
+        },
+        linkKind: "external",
+        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        presentationOnly: true,
+      },
+      {
+        id: "lm07-execution-trace",
+        visualType: "observation",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "Smart Contract Execution Trace",
+          gr: "Smart Contract Execution Trace",
+        },
+        description: {
+          en: "Trace deterministic contract state transitions for score and transfer scenarios, including an insufficient-balance rejection. Required evidence for LM07.",
+          gr: "Ιχνηλάτησε ντετερμινιστικές μεταβάσεις κατάστασης συμβολαίου για σενάρια score και transfer, συμπεριλαμβανομένης απόρριψης λόγω ανεπαρκούς υπολοίπου. Απαιτούμενο αποδεικτικό για το LM07.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm07/execution-trace",
+          gr: "/learning-modules-gr/lm07/execution-trace",
+        },
+        evidenceId: "lm07-execution-trace",
+        presentationOnly: false,
+      },
+      {
+        id: "lm07-assessment",
+        visualType: "assessment",
+        requirementHint: "required",
+        languages: ["both"],
+        title: {
+          en: "LM07 Assessment",
+          gr: "Αξιολόγηση LM07",
+        },
+        description: {
+          en: "Check that you can explain code+state, EVM execution, determinism, read vs write, gas, and on-chain vs off-chain choices — including the critical FoodChain question. Required for module completion together with the Execution Trace.",
+          gr: "Έλεγξε ότι μπορείς να εξηγείς κώδικα+κατάσταση, εκτέλεση EVM, ντετερμινισμό, ανάγνωση vs εγγραφή, gas και επιλογές on-chain vs off-chain — συμπεριλαμβανομένης της κρίσιμης ερώτησης FoodChain. Απαιτείται μαζί με το Execution Trace για ολοκλήρωση του module.",
+        },
+        linkKind: "internal",
+        href: {
+          en: "/learning-modules/lm07/assessment",
+          gr: "/learning-modules-gr/lm07/assessment",
+        },
+        evidenceId: "lm07-assessment",
+        presentationOnly: false,
+      },
+    ],
   },
 
   LM08: {
