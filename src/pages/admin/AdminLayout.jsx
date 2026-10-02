@@ -4,10 +4,26 @@ import { fetchAdminOverview, getAdminApiBase } from "../../services/adminApi";
 import PageShell from "../../components/PageShell.jsx";
 import { useAdminEligibility } from "../../hooks/useAdminEligibility.js";
 
+const ADMIN_NAV_ITEMS = [
+    { to: "/admin", label: "Dashboard", end: true },
+    { to: "/admin/labs", label: "Labs", end: false },
+    { to: "/admin/users", label: "Users", end: false },
+    { to: "/admin/feedback", label: "Feedback", end: false },
+];
+
 function shortAddress(address) {
     const a = String(address || "");
     if (a.length <= 12) return a || "—";
     return `${a.slice(0, 6)}…${a.slice(-4)}`;
+}
+
+function currentAdminSection(pathname) {
+    const path = String(pathname || "");
+    if (path.startsWith("/admin/labs")) return "Labs";
+    if (path.startsWith("/admin/users")) return "Users";
+    if (path.startsWith("/admin/feedback")) return "Feedback";
+    if (path === "/admin" || path === "/admin/") return "Dashboard";
+    return "Admin";
 }
 
 export default function AdminLayout() {
@@ -17,11 +33,16 @@ export default function AdminLayout() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastVerifiedAt, setLastVerifiedAt] = useState(null);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const [langPref, setLangPref] = useState(() => {
         if (typeof window === "undefined") return "en";
         const stored = localStorage.getItem("lang");
         return stored === "gr" ? "gr" : "en";
     });
+
+    useEffect(() => {
+        setMobileNavOpen(false);
+    }, [location.pathname]);
 
     useEffect(() => {
         let isMounted = true;
@@ -70,33 +91,72 @@ export default function AdminLayout() {
     const settingsPath = langPref === "gr" ? "/settings-gr" : "/settings";
     const identityPath = langPref === "gr" ? "/sbt-view-gr" : "/sbt-view";
     const isWideAdminPage = String(location?.pathname || "").startsWith("/admin/feedback");
+    const mobileSection = currentAdminSection(location?.pathname);
 
     return (
         <PageShell>
             <div className={isWideAdminPage ? "min-h-screen px-3 md:px-4 py-8 md:py-12" : "min-h-screen px-4 md:px-6 py-8 md:py-12"}>
-                <div className={isWideAdminPage ? "mx-auto flex w-full max-w-[95rem] gap-5" : "mx-auto flex w-full max-w-7xl gap-6"}>
-                    <aside className="w-64 shrink-0 rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl p-4 h-fit sticky top-24">
+                <div
+                    className={
+                        isWideAdminPage
+                            ? "mx-auto flex w-full max-w-[95rem] flex-col gap-4 md:flex-row md:gap-5"
+                            : "mx-auto flex w-full max-w-7xl flex-col gap-4 md:flex-row md:gap-6"
+                    }
+                >
+                    <div className="md:hidden">
+                        <div className="rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl px-4 py-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="min-w-0">
+                                    <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                                        Admin
+                                    </p>
+                                    <p className="mt-0.5 truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                        {mobileSection}
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    className="shrink-0 rounded-xl border border-white/10 bg-white/80 px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm hover:bg-white dark:bg-slate-900/70 dark:text-slate-100 dark:hover:bg-slate-900"
+                                    aria-expanded={mobileNavOpen}
+                                    aria-controls="admin-mobile-nav"
+                                    aria-label={mobileNavOpen ? "Close admin navigation" : "Open admin navigation"}
+                                    onClick={() => setMobileNavOpen((open) => !open)}
+                                >
+                                    {mobileNavOpen ? "Close" : "Menu"}
+                                </button>
+                            </div>
+                            {mobileNavOpen ? (
+                                <nav id="admin-mobile-nav" className="mt-3 space-y-2" aria-label="Admin">
+                                    {ADMIN_NAV_ITEMS.map((item) => (
+                                        <SidebarLink
+                                            key={item.to}
+                                            to={item.to}
+                                            end={item.end}
+                                            onNavigate={() => setMobileNavOpen(false)}
+                                        >
+                                            {item.label}
+                                        </SidebarLink>
+                                    ))}
+                                </nav>
+                            ) : null}
+                        </div>
+                    </div>
+
+                    <aside className="hidden w-64 shrink-0 rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl p-4 h-fit sticky top-24 md:block">
                         <p className="text-xs uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400 mb-4">
                             Admin
                         </p>
 
-                        <nav className="space-y-2">
-                            <SidebarLink to="/admin" end>
-                                Dashboard
-                            </SidebarLink>
-                            <SidebarLink to="/admin/labs">
-                                Labs
-                            </SidebarLink>
-                            <SidebarLink to="/admin/users">
-                                Users
-                            </SidebarLink>
-                            <SidebarLink to="/admin/feedback">
-                                Feedback
-                            </SidebarLink>
+                        <nav className="space-y-2" aria-label="Admin">
+                            {ADMIN_NAV_ITEMS.map((item) => (
+                                <SidebarLink key={item.to} to={item.to} end={item.end}>
+                                    {item.label}
+                                </SidebarLink>
+                            ))}
                         </nav>
                     </aside>
 
-                    <main className="min-w-0 flex-1">
+                    <main className="min-w-0 w-full flex-1">
                         <div className="mb-4 rounded-2xl border border-white/10 bg-white/70 dark:bg-[#0b0f17]/80 backdrop-blur-xl px-5 py-4">
                             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                                 <div>
@@ -188,11 +248,14 @@ export default function AdminLayout() {
     );
 }
 
-function SidebarLink({ to, end = false, children }) {
+function SidebarLink({ to, end = false, onNavigate, children }) {
     return (
         <NavLink
             to={to}
             end={end}
+            onClick={() => {
+                if (typeof onNavigate === "function") onNavigate();
+            }}
             className={({ isActive }) =>
                 [
                     "block w-full rounded-xl px-3 py-2 text-sm font-medium border transition",
