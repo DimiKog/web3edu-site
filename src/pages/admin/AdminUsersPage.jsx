@@ -519,23 +519,23 @@ export default function AdminUsersPage() {
                     </div>
                 </div>
 
-                <div className="mt-4 overflow-x-auto rounded-xl border border-white/10 bg-white/60 md:overflow-visible dark:bg-[#0b0f17]/70">
-                    <table className="w-full table-fixed text-sm">
+                <div className="mt-4 overflow-x-auto rounded-xl border border-white/10 bg-white/60 dark:bg-[#0b0f17]/70">
+                    <table className="w-full text-sm md:table-fixed">
                         <colgroup>
-                            <col className="w-[18%]" />
-                            <col className="w-[10%]" />
-                            <col className="w-[14%]" />
-                            <col className="w-[14%]" />
-                            <col className="w-[8%]" />
-                            <col className="w-[8%]" />
-                            <col className="w-[9%]" />
-                            <col className="w-[19%]" />
+                            <col className="w-[36%] md:w-[18%]" />
+                            <col className="w-[18%] md:w-[10%]" />
+                            <col className="hidden md:table-column md:w-[14%]" />
+                            <col className="w-[26%] md:w-[14%]" />
+                            <col className="w-[20%] md:w-[8%]" />
+                            <col className="hidden md:table-column md:w-[8%]" />
+                            <col className="hidden md:table-column md:w-[9%]" />
+                            <col className="hidden md:table-column md:w-[19%]" />
                         </colgroup>
                         <thead className="bg-white/80 dark:bg-[#111827]/80">
                             <tr className="text-left text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                 <th className="px-2 py-2 font-semibold">Progress address</th>
                                 <th className="px-2 py-2 text-center font-semibold">Kind</th>
-                                <th className="px-2 py-2 text-center font-semibold">
+                                <th className="hidden px-2 py-2 text-center font-semibold md:table-cell">
                                     <SortButton
                                         onClick={() => toggleSort("registered")}
                                         label={`Registered${sortIndicator("registered")}`}
@@ -553,9 +553,9 @@ export default function AdminUsersPage() {
                                         label={`XP${sortIndicator("xp")}`}
                                     />
                                 </th>
-                                <th className="px-2 py-2 text-center font-semibold">Linked</th>
-                                <th className="px-2 py-2 text-center font-semibold">Imported</th>
-                                <th className="px-2 py-2 text-center font-semibold">Provisioning</th>
+                                <th className="hidden px-2 py-2 text-center font-semibold md:table-cell">Linked</th>
+                                <th className="hidden px-2 py-2 text-center font-semibold md:table-cell">Imported</th>
+                                <th className="hidden px-2 py-2 text-center font-semibold md:table-cell">Provisioning</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -598,7 +598,7 @@ export default function AdminUsersPage() {
                                         <td className="px-2 py-2 text-center">
                                             <StatusBadge tone={kindTone}>{user.learnerKindLabel}</StatusBadge>
                                         </td>
-                                        <td className="truncate px-2 py-2 text-center text-xs text-slate-700 dark:text-slate-200">
+                                        <td className="hidden truncate px-2 py-2 text-center text-xs text-slate-700 dark:text-slate-200 md:table-cell">
                                             {registeredLabel}
                                         </td>
                                         <td className="truncate px-2 py-2 text-center text-xs text-slate-700 dark:text-slate-200">
@@ -607,17 +607,17 @@ export default function AdminUsersPage() {
                                         <td className="px-2 py-2 text-center font-semibold text-slate-800 dark:text-slate-100">
                                             {user.xp}
                                         </td>
-                                        <td className="px-2 py-2 text-center">
+                                        <td className="hidden px-2 py-2 text-center md:table-cell">
                                             <StatusBadge tone={user.hasLinkedWallets ? "cyan" : "slate"}>
                                                 {user.hasLinkedWallets ? "Yes" : "No"}
                                             </StatusBadge>
                                         </td>
-                                        <td className="px-2 py-2 text-center">
+                                        <td className="hidden px-2 py-2 text-center md:table-cell">
                                             <StatusBadge tone={user.hasImportedProgress ? "amber" : "slate"}>
                                                 {user.hasImportedProgress ? "Yes" : "No"}
                                             </StatusBadge>
                                         </td>
-                                        <td className="px-2 py-2 text-center">
+                                        <td className="hidden px-2 py-2 text-center md:table-cell">
                                             <StatusBadge tone="slate">
                                                 {user.provisioningStatus || "—"}
                                             </StatusBadge>

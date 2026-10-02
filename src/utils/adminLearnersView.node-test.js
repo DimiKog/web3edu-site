@@ -142,8 +142,12 @@ test("learners page drops legacy analytics presentation", () => {
     assert.match(usersPageSrc, /inactive30d/);
     assert.match(usersPageSrc, /lastActivity/);
     assert.match(usersPageSrc, /hasLinkedWallets \? "Yes" : "No"/);
-    assert.match(usersPageSrc, /table-fixed/);
+    assert.match(usersPageSrc, /md:table-fixed/);
+    assert.match(usersPageSrc, /overflow-x-auto/);
     assert.match(usersPageSrc, /truncateAddress\(user\.wallet\)/);
+    assert.match(usersPageSrc, /hidden[^"]*md:table-cell[\s\S]*Linked/);
+    assert.match(usersPageSrc, /hidden[^"]*md:table-cell[\s\S]*Imported/);
+    assert.match(usersPageSrc, /hidden[^"]*md:table-cell[\s\S]*Provisioning/);
 
     // Column order: Last activity before XP
     const lastActivityTh = usersPageSrc.indexOf('label={`Last activity${sortIndicator("lastActivity")}`}');
