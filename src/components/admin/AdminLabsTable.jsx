@@ -59,11 +59,11 @@ export default function AdminLabsTable({ labs }) {
                     <thead className="bg-white/80 dark:bg-[#111827]/80">
                         <tr>
                             <th className="p-3 text-left text-slate-700 dark:text-slate-200">Lab</th>
-                            <th className="p-3 text-left text-slate-700 dark:text-slate-200">Category</th>
+                            <th className="hidden p-3 text-left text-slate-700 dark:text-slate-200 md:table-cell">Category</th>
                             <th className="p-3 text-center text-slate-700 dark:text-slate-200">Started</th>
                             <th className="p-3 text-center text-slate-700 dark:text-slate-200">Completed</th>
-                            <th className="p-3 text-center text-slate-700 dark:text-slate-200">Avg Time</th>
-                            <th className="p-3 text-center text-slate-700 dark:text-slate-200">Median Time</th>
+                            <th className="hidden p-3 text-center text-slate-700 dark:text-slate-200 md:table-cell">Avg Time</th>
+                            <th className="hidden p-3 text-center text-slate-700 dark:text-slate-200 md:table-cell">Median Time</th>
                             <th className="p-3 text-center text-slate-700 dark:text-slate-200">Drop‑off</th>
                             <th className="p-3 text-center text-slate-700 dark:text-slate-200">Completion</th>
                         </tr>
@@ -89,7 +89,7 @@ export default function AdminLabsTable({ labs }) {
                                         {lab.title?.en || lab.labId}
                                     </td>
 
-                                    <td className="p-3 text-sm text-slate-600 dark:text-slate-400">
+                                    <td className="hidden p-3 text-sm text-slate-600 dark:text-slate-400 md:table-cell">
                                         {lab.category}
                                     </td>
 
@@ -101,17 +101,17 @@ export default function AdminLabsTable({ labs }) {
                                         {completed}
                                     </td>
 
-                                    <td className="p-3 text-center text-slate-700 dark:text-slate-200">
+                                    <td className="hidden p-3 text-center text-slate-700 dark:text-slate-200 md:table-cell">
                                         {formatMinutes(lab.avgCompletionTimeMinutes)}
                                     </td>
 
-                                    <td className="p-3 text-center text-slate-700 dark:text-slate-200">
+                                    <td className="hidden p-3 text-center text-slate-700 dark:text-slate-200 md:table-cell">
                                         {formatMinutes(lab.medianCompletionTimeMinutes)}
                                     </td>
 
-                                    <td className="p-3 min-w-[220px]">
+                                    <td className="p-3 min-w-0 md:min-w-[220px]">
                                         <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300">
-                                            <div className="flex justify-between">
+                                            <div className="hidden justify-between sm:flex">
                                                 <span>Started: {started}</span>
                                                 <span>Completed: {completed}</span>
                                             </div>

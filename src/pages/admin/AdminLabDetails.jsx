@@ -90,15 +90,15 @@ export default function AdminLabDetails() {
 
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between gap-3">
-                <div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
                     <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-[#FF67D2] via-[#8A57FF] to-[#4ACBFF] text-transparent bg-clip-text">
                         Lab Details
                     </h1>
-                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                    <p className="mt-1 break-all text-sm text-slate-600 dark:text-slate-300">
                         Lab ID: <span className="font-semibold font-mono">{labId}</span>
                         {data?.enriched ? (
-                            <span className="ml-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-200">
+                            <span className="ml-2 inline-flex rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-200">
                                 enriched
                             </span>
                         ) : null}
@@ -161,8 +161,8 @@ export default function AdminLabDetails() {
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Progress address</th>
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Started</th>
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Completed</th>
-                                        <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Started At</th>
-                                        <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">Completed At</th>
+                                        <th className="hidden p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold md:table-cell">Started At</th>
+                                        <th className="hidden p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold md:table-cell">Completed At</th>
                                         <th className="p-3 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 font-semibold">XP</th>
                                     </tr>
                                 </thead>
@@ -220,8 +220,8 @@ export default function AdminLabDetails() {
                                                             ? <span className="text-rose-600 dark:text-rose-400">✖</span>
                                                             : <span className="text-slate-400 dark:text-slate-500">—</span>}
                                                 </td>
-                                                <td className="p-3 text-slate-600 dark:text-slate-400">{entry.startedAt || "-"}</td>
-                                                <td className="p-3 text-slate-600 dark:text-slate-400">{entry.completedAt || "-"}</td>
+                                                <td className="hidden p-3 text-slate-600 dark:text-slate-400 md:table-cell">{entry.startedAt || "-"}</td>
+                                                <td className="hidden p-3 text-slate-600 dark:text-slate-400 md:table-cell">{entry.completedAt || "-"}</td>
                                                 <td className="p-3 font-medium text-slate-900 dark:text-slate-100">{entry.xp}</td>
                                             </tr>
                                         );

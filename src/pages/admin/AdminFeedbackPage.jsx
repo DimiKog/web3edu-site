@@ -567,14 +567,14 @@ export default function AdminFeedbackPage() {
                     </summary>
 
                     <div className="mt-4 overflow-x-auto rounded-xl border border-white/10 bg-white/60 dark:bg-[#111827]/60">
-                        <table className="min-w-[980px] w-full text-sm">
+                        <table className="w-full text-sm md:min-w-[980px]">
                             <thead className="text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                 <tr className="border-b border-white/10">
                                     <th className="px-4 py-3">Lab</th>
                                     <th className="px-3 py-3">Count</th>
-                                    <th className="px-3 py-3">Avg difficulty</th>
+                                    <th className="hidden px-3 py-3 md:table-cell">Avg difficulty</th>
                                     <th className="px-3 py-3">Strong</th>
-                                    <th className="px-3 py-3">Soft</th>
+                                    <th className="hidden px-3 py-3 md:table-cell">Soft</th>
                                     <th className="px-3 py-3">Meaningful issues</th>
                                 </tr>
                             </thead>
@@ -597,13 +597,13 @@ export default function AdminFeedbackPage() {
                                         <td className="px-3 py-3 font-mono text-slate-800 dark:text-slate-100">
                                             {row.count}
                                         </td>
-                                        <td className="px-3 py-3 font-mono text-slate-800 dark:text-slate-100">
+                                        <td className="hidden px-3 py-3 font-mono text-slate-800 dark:text-slate-100 md:table-cell">
                                             {row.avgDifficulty === null ? "—" : row.avgDifficulty.toFixed(2)}
                                         </td>
                                         <td className="px-3 py-3 font-mono text-rose-700 dark:text-rose-200">
                                             {row.strong}
                                         </td>
-                                        <td className="px-3 py-3 font-mono text-amber-800 dark:text-amber-200">
+                                        <td className="hidden px-3 py-3 font-mono text-amber-800 dark:text-amber-200 md:table-cell">
                                             {row.soft}
                                         </td>
                                         <td className="px-3 py-3 font-mono text-amber-800 dark:text-amber-200">
@@ -715,19 +715,19 @@ export default function AdminFeedbackPage() {
                     </label>
 
                     <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/60 dark:bg-[#111827]/60">
-                        <table className="min-w-[1200px] w-full table-fixed text-sm">
+                        <table className="w-full text-sm md:min-w-[1200px] md:table-fixed">
                             <thead className="text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                                 <tr className="border-b border-white/10">
-                                    <th className="px-4 py-3 w-[240px]">Lab</th>
-                                    <th className="px-3 py-3 w-[120px]">Type</th>
-                                    <th className="px-3 py-3 w-[120px]">Account</th>
-                                    <th className="px-3 py-3 w-[120px]">Submitted</th>
-                                    <th className="px-3 py-3 w-[90px]">Duration</th>
-                                    <th className="px-3 py-3 w-[95px]">Difficulty</th>
-                                    <th className="px-3 py-3 w-[95px]">Clarity</th>
-                                    <th className="px-3 py-3 w-[110px]">Recommend</th>
-                                    <th className="px-4 py-3 w-[420px]">Issues</th>
-                                    <th className="px-4 py-3 w-[140px] text-right">Review</th>
+                                    <th className="px-4 py-3 md:w-[240px]">Lab</th>
+                                    <th className="hidden px-3 py-3 md:table-cell md:w-[120px]">Type</th>
+                                    <th className="px-3 py-3 md:w-[120px]">Account</th>
+                                    <th className="px-3 py-3 md:w-[120px]">Submitted</th>
+                                    <th className="hidden px-3 py-3 md:table-cell md:w-[90px]">Duration</th>
+                                    <th className="hidden px-3 py-3 md:table-cell md:w-[95px]">Difficulty</th>
+                                    <th className="hidden px-3 py-3 md:table-cell md:w-[95px]">Clarity</th>
+                                    <th className="hidden px-3 py-3 md:table-cell md:w-[110px]">Recommend</th>
+                                    <th className="px-4 py-3 md:w-[420px]">Issues</th>
+                                    <th className="px-4 py-3 text-right md:w-[140px]">Review</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/10">
@@ -817,7 +817,7 @@ function FragmentRow({
                         </div>
                     ) : null}
                 </td>
-                <td className="px-3 py-3 text-slate-700 dark:text-slate-200 truncate" title={labType || "—"}>
+                <td className="hidden px-3 py-3 text-slate-700 dark:text-slate-200 truncate md:table-cell" title={labType || "—"}>
                     {labType || "—"}
                 </td>
                 <td className="px-3 py-3">
@@ -833,10 +833,10 @@ function FragmentRow({
                 <td className="px-3 py-3 text-slate-700 dark:text-slate-200" title={formatDateTime(submittedAt)}>
                     {formatDateCompact(submittedAt)}
                 </td>
-                <td className="px-3 py-3 text-slate-700 dark:text-slate-200">{String(duration ?? "—")}</td>
-                <td className="px-3 py-3 text-slate-700 dark:text-slate-200">{difficulty}</td>
-                <td className="px-3 py-3 text-slate-700 dark:text-slate-200">{clarity}</td>
-                <td className="px-3 py-3 text-slate-700 dark:text-slate-200">{recommend}</td>
+                <td className="hidden px-3 py-3 text-slate-700 dark:text-slate-200 md:table-cell">{String(duration ?? "—")}</td>
+                <td className="hidden px-3 py-3 text-slate-700 dark:text-slate-200 md:table-cell">{difficulty}</td>
+                <td className="hidden px-3 py-3 text-slate-700 dark:text-slate-200 md:table-cell">{clarity}</td>
+                <td className="hidden px-3 py-3 text-slate-700 dark:text-slate-200 md:table-cell">{recommend}</td>
                 <td className="px-4 py-3">
                     {issuesMeaningful ? (
                         <div className="space-y-1" title={issuesText}>
