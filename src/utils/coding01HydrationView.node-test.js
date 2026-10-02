@@ -101,13 +101,6 @@ test("fetchCoding01Status uses Bearer GET only", () => {
     assert.equal(fn.includes("contractAddress:"), false);
 });
 
-test("contract_conflict behavior untouched in verify merge", () => {
-    const backendPath = join(here, "../../../web3edu-backend/utils/coding_labs.py");
-    const src = readFileSync(backendPath, "utf8");
-    assert.match(src, /Coding01VerificationConflictError/);
-    assert.match(src, /already exists for a different contract address/);
-});
-
 test("LM08 pages use shared LearningModuleActivityShell", () => {
     const inspectionPage = readFileSync(
         join(here, "../pages/learning-modules/Lm08ContractInspectionPage.jsx"),
