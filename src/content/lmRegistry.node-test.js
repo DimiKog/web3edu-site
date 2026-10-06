@@ -13,6 +13,7 @@ import {
   LM_PRESENTATION_REGISTRY,
   LM_CURRICULUM_IDS,
   LM01_KALLIPOS_TEXTBOOK_URL,
+  LM01_VISUAL_LESSON_PDF_URL,
   LM01_VISUALS,
   LM02_VISUALS,
   LM04_VISUALS,
@@ -27,20 +28,68 @@ import {
   getLmRegistryModuleTitle,
   getLmVisibleActivities,
   isLmChapterAvailable,
+  resolveLmActivityHref,
 } from "./lmRegistry.js";
 import { CONTINUE_LEARNING_LOCALE } from "./continueLearningLocale.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const publicRoot = join(__dirname, "../../public");
 
-test("LM01 registry keeps reserved slides/PEL out of visible path", () => {
+test("LM01 Visual Lesson is first visible activity; PEL stays reserved", () => {
   const reserved = LM_PRESENTATION_REGISTRY.LM01.activities.filter((a) => a.reserved);
-  assert.ok(reserved.some((a) => a.id === "lm01-slides"));
-  assert.ok(reserved.some((a) => a.id === "lm01-pel-observe"));
   assert.equal(
-    getLmVisibleActivities("LM01", "en").some((a) => a.reserved),
+    reserved.some((a) => a.id === "lm01-slides"),
     false
   );
+  assert.ok(reserved.some((a) => a.id === "lm01-pel-observe"));
+
+  for (const lang of ["en", "gr"]) {
+    const visible = getLmVisibleActivities("LM01", lang);
+    assert.equal(
+      visible.some((a) => a.reserved),
+      false,
+      lang
+    );
+    assert.deepEqual(
+      visible.map((a) => a.id),
+      [
+        "lm01-slides",
+        lang === "gr" ? "lm01-textbook-kallipos" : "lm01-textbook-kallipos-en-ref",
+        "lm01-anders-demo",
+        "lm01-blockchain-simulator",
+        "lm01-assessment",
+      ],
+      lang
+    );
+
+    const slides = visible[0];
+    assert.equal(slides.id, "lm01-slides");
+    assert.equal(slides.visualType, "visualLesson");
+    assert.equal(slides.requirementHint, "core");
+    assert.equal(slides.showRequirementStatus, true);
+    assert.equal(slides.presentationOnly, true);
+    assert.equal(slides.evidenceId, undefined);
+    assert.equal(slides.reserved, undefined);
+    assert.equal(slides.linkKind, "external");
+    assert.equal(slides.href, LM01_VISUAL_LESSON_PDF_URL);
+    assert.equal(resolveLmActivityHref(slides, lang), LM01_VISUAL_LESSON_PDF_URL);
+    assert.equal(slides.title.en, "Visual Lesson");
+    assert.equal(slides.title.gr, "Οπτικό μάθημα");
+  }
+
+  assert.equal(
+    LM01_VISUAL_LESSON_PDF_URL,
+    "/learning-modules/visuals/lm01/LM01-What-is-Blockchain-EN-v1.0.pdf"
+  );
+  assert.equal(
+    existsSync(join(publicRoot, LM01_VISUAL_LESSON_PDF_URL.slice(1))),
+    true
+  );
+
+  const grSlides = getLmVisibleActivities("LM01", "gr").find(
+    (a) => a.id === "lm01-slides"
+  );
+  assert.match(grSlides.description.gr, /Αγγλικ/i);
 });
 
 test("LM01 learnerMeta is bilingual presentation and does not invent extra XP", () => {
@@ -78,11 +127,16 @@ test("LM01 approved visuals are registered and present on disk", () => {
   assert.equal(visuals.meta.level, LM01_VISUALS.metaLevel);
   assert.equal(visuals.meta.xp, LM01_VISUALS.metaXp);
   assert.equal(visuals.activityByType.book, LM01_VISUALS.book);
+  assert.equal(visuals.activityByType.visualLesson, LM01_VISUALS.visualLesson);
   assert.equal(visuals.activityByType.demo, LM01_VISUALS.demo);
   assert.equal(visuals.activityByType.simulator, LM01_VISUALS.simulator);
   assert.equal(visuals.activityByType.assessment, LM01_VISUALS.assessment);
   assert.equal(getLmActivityVisualSrc("LM01", "book"), LM01_VISUALS.book);
-  assert.equal(getLmActivityVisualSrc("LM01", "reading"), null);
+  assert.equal(
+    getLmActivityVisualSrc("LM01", "visualLesson", "lm01-slides"),
+    LM01_VISUALS.visualLesson
+  );
+  assert.notEqual(LM01_VISUALS.visualLesson, LM01_VISUALS.book);
   assert.equal(getLmModuleVisuals("LM99"), null);
 
   for (const src of Object.values(LM01_VISUALS)) {

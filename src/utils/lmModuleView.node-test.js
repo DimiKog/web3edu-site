@@ -12,6 +12,7 @@ import test from "node:test";
 import {
   LM01_ANDERS_DEMO_URL,
   LM01_KALLIPOS_TEXTBOOK_URL,
+  LM01_VISUAL_LESSON_PDF_URL,
   LM01_VISUALS,
   getLmVisibleActivities,
   resolveLmActivityHref,
@@ -204,40 +205,98 @@ function buildSyntheticView(overrides = {}) {
   return view;
 }
 
-test("EN learning path shows Kallipos §1.1 as recommended supporting reading", () => {
+test("LM01 visible path is Visual Lesson → Deeper Reading → Demo → Simulator → Assessment", () => {
+  for (const lang of ["en", "gr"]) {
+    const visible = getLmVisibleActivities("LM01", lang);
+    const ids = visible.map((a) => a.id);
+    assert.deepEqual(
+      ids,
+      [
+        "lm01-slides",
+        lang === "gr" ? "lm01-textbook-kallipos" : "lm01-textbook-kallipos-en-ref",
+        "lm01-anders-demo",
+        "lm01-blockchain-simulator",
+        "lm01-assessment",
+      ],
+      lang
+    );
+    assert.ok(!ids.includes("lm01-pel-observe"));
+  }
+});
+
+test("LM01 Visual Lesson is core presentation-only with PDF href (not evidence)", () => {
+  const progression = freshProgression();
+  const moduleEntry = progression.modules.LM01;
+  for (const lang of ["en", "gr"]) {
+    const activity = getLmVisibleActivities("LM01", lang).find(
+      (a) => a.id === "lm01-slides"
+    );
+    assert.ok(activity, lang);
+    assert.equal(activity.reserved, undefined);
+    assert.equal(activity.requirementHint, "core");
+    assert.equal(activity.presentationOnly, true);
+    assert.equal(activity.evidenceId, undefined);
+    assert.equal(resolveLmActivityHref(activity, lang), LM01_VISUAL_LESSON_PDF_URL);
+
+    const row = getLmActivityRowPresentation(activity, moduleEntry, lang, {
+      canonical: true,
+      moduleId: "LM01",
+    });
+    assert.equal(row.title, lang === "gr" ? "Οπτικό μάθημα" : "Visual Lesson");
+    assert.equal(
+      row.typeLabel,
+      lang === "gr" ? "ΟΠΤΙΚΟ ΜΑΘΗΜΑ" : "VISUAL LESSON"
+    );
+    assert.equal(row.statusKind, "core");
+    assert.equal(row.statusLabel, lang === "gr" ? "Βασικό υλικό" : "Core");
+    assert.equal(row.linkKind, "external");
+    assert.equal(row.href, LM01_VISUAL_LESSON_PDF_URL);
+    assert.equal(row.visualSrc, LM01_VISUALS.visualLesson);
+    assert.notEqual(row.visualSrc, LM01_VISUALS.book);
+    assert.equal(row.presentationOnly, true);
+    assert.equal(row.evidenceId, null);
+    if (lang === "gr") {
+      assert.match(row.description, /Αγγλικ/i);
+    }
+  }
+});
+
+test("EN learning path shows Kallipos §1.1 as recommended deeper reading", () => {
   const en = getLmVisibleActivities("LM01", "en");
   const ids = en.map((a) => a.id);
   assert.ok(ids.includes("lm01-textbook-kallipos-en-ref"));
   assert.ok(!ids.includes("lm01-textbook-kallipos"));
-  assert.ok(!ids.includes("lm01-slides"));
+  assert.ok(ids.includes("lm01-slides"));
   assert.ok(!ids.includes("lm01-pel-observe"));
   assert.ok(ids.includes("lm01-anders-demo"));
   assert.ok(ids.includes("lm01-blockchain-simulator"));
   assert.ok(ids.includes("lm01-assessment"));
 
   const book = en.find((a) => a.id === "lm01-textbook-kallipos-en-ref");
-  assert.equal(book.title.en, "Blockchain fundamentals");
+  assert.equal(book.title.en, "Deeper Reading");
   assert.equal(book.requirementHint, "recommended");
   assert.equal(book.showRequirementStatus, true);
   assert.equal(book.presentationOnly, true);
   assert.equal(book.evidenceId, undefined);
+  assert.match(book.description.en, /deeper reading/i);
   assert.match(book.description.en, /§1\.1/);
   assert.match(book.description.en, /13–15|13-15/);
   assert.doesNotMatch(book.description.en, /§1\.3|History|whole Chapter 1|entire Chapter/i);
   assert.equal(resolveLmActivityHref(book, "en"), LM01_KALLIPOS_TEXTBOOK_URL);
 });
 
-test("GR learning path shows Kallipos §1.1 as recommended supporting reading", () => {
+test("GR learning path shows Kallipos §1.1 as recommended deeper reading", () => {
   const gr = getLmVisibleActivities("LM01", "gr");
   const ids = gr.map((a) => a.id);
   assert.ok(ids.includes("lm01-textbook-kallipos"));
   assert.ok(!ids.includes("lm01-textbook-kallipos-en-ref"));
   const book = gr.find((a) => a.id === "lm01-textbook-kallipos");
-  assert.equal(book.title.gr, "Βασικές αρχές του blockchain");
+  assert.equal(book.title.gr, "Εμβάθυνση");
   assert.equal(book.requirementHint, "recommended");
   assert.equal(book.showRequirementStatus, true);
   assert.equal(book.presentationOnly, true);
   assert.equal(book.evidenceId, undefined);
+  assert.match(book.description.gr, /εμβάθυνση/i);
   assert.match(book.description.gr, /§1\.1/);
   assert.match(book.description.gr, /13–15|13-15/);
   assert.doesNotMatch(book.description.gr, /§1\.3|Ιστορία|ολόκληρο το Κεφάλαιο 1/i);
@@ -515,10 +574,12 @@ test("Lm01Page keeps cohesive path, hero facts band, and chapter-ending CTA", ()
 test("visible LM01 activity rows use approved PNG thumbnails", () => {
   const view = getLmPageViewState(null, "en");
   const byType = Object.fromEntries(view.activities.map((row) => [row.visualType, row.visualSrc]));
+  assert.equal(byType.visualLesson, LM01_VISUALS.visualLesson);
   assert.equal(byType.book, LM01_VISUALS.book);
   assert.equal(byType.demo, LM01_VISUALS.demo);
   assert.equal(byType.simulator, LM01_VISUALS.simulator);
   assert.equal(byType.assessment, LM01_VISUALS.assessment);
+  assert.notEqual(byType.visualLesson, LM01_VISUALS.book);
   assert.equal(view.presentation.visuals.hero, LM01_VISUALS.hero);
   assert.equal(view.presentation.visuals.completion, LM01_VISUALS.completion);
   assert.equal(view.presentation.visuals.nextStep, LM01_VISUALS.nextStep);

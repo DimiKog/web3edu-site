@@ -18,7 +18,7 @@ export const LM_PAGE_COPY = {
     whatYoullLearn: "What you'll learn",
     learningPath: "Your Learning Path",
     learningPathIntro:
-      "Learn organizes the journey. Activities and resources help you practice — only the required assessment counts as LM01 completion evidence.",
+      "Start with the Visual Lesson, then deepen with recommended reading and practice activities. Only the required assessment counts as LM01 completion evidence.",
     sidebarProgress: "Your progress in LM01",
     sidebarEvidence: "Required evidence",
     sidebarAbout: "About this module",
@@ -75,6 +75,7 @@ export const LM_PAGE_COPY = {
     typeLabels: {
       book: "BOOK",
       reading: "READING",
+      visualLesson: "VISUAL LESSON",
       concept: "CONCEPT",
       demo: "DEMO",
       simulator: "SIMULATOR",
@@ -99,7 +100,8 @@ export const LM_PAGE_COPY = {
     typeFoundational: "Foundational",
     moduleTypeLabel: "Foundational",
     activityMixLabel: "Activity mix",
-    activityMixValue: "Textbook, demo, simulator, assessment",
+    activityMixValue:
+      "Visual lesson, deeper reading, demo, simulator, assessment",
     currentModuleLabel: "Current module",
   },
   gr: {
@@ -112,7 +114,7 @@ export const LM_PAGE_COPY = {
     whatYoullLearn: "Τι θα μάθεις",
     learningPath: "Η διαδρομή μάθησής σου",
     learningPathIntro:
-      "Το Learn οργανώνει τη διαδρομή. Οι δραστηριότητες και οι πόροι βοηθούν στην εξάσκηση — μόνο η απαιτούμενη αξιολόγηση μετρά ως αποδεικτικό ολοκλήρωσης του LM01.",
+      "Ξεκίνα από το Οπτικό μάθημα, μετά εμβάθυνε με την προτεινόμενη ανάγνωση και τις δραστηριότητες εξάσκησης. Μόνο η απαιτούμενη αξιολόγηση μετρά ως αποδεικτικό ολοκλήρωσης του LM01.",
     sidebarProgress: "Η πρόοδός σου στο LM01",
     sidebarEvidence: "Απαιτούμενο αποδεικτικό",
     sidebarAbout: "Σχετικά με το module",
@@ -170,6 +172,7 @@ export const LM_PAGE_COPY = {
     typeLabels: {
       book: "BOOK",
       reading: "READING",
+      visualLesson: "ΟΠΤΙΚΟ ΜΑΘΗΜΑ",
       concept: "CONCEPT",
       demo: "DEMO",
       simulator: "SIMULATOR",
@@ -194,7 +197,8 @@ export const LM_PAGE_COPY = {
     typeFoundational: "Θεμελιώδες",
     moduleTypeLabel: "Θεμελιώδες",
     activityMixLabel: "Μείγμα δραστηριοτήτων",
-    activityMixValue: "Σύγγραμμα, demo, προσομοιωτής, αξιολόγηση",
+    activityMixValue:
+      "Οπτικό μάθημα, εμβάθυνση, demo, προσομοιωτής, αξιολόγηση",
     currentModuleLabel: "Τρέχον module",
   },
 };

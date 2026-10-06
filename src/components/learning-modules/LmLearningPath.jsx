@@ -7,6 +7,7 @@ import { getLmPageCopy } from "../../content/lmPageLocale.js";
 const TYPE_STYLES = {
   book: "bg-violet-100 text-violet-800 dark:bg-violet-500/20 dark:text-violet-200",
   reading: "bg-indigo-100 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-200",
+  visualLesson: "bg-indigo-100 text-indigo-900 dark:bg-indigo-400/25 dark:text-indigo-100",
   concept: "bg-slate-200 text-slate-800 dark:bg-slate-500/25 dark:text-slate-100",
   demo: "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-200",
   simulator: "bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-200",

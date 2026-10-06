@@ -9,11 +9,16 @@
 export const LM01_ANDERS_DEMO_URL = "https://andersbrownworth.com/blockchain/";
 export const LM01_KALLIPOS_TEXTBOOK_URL =
   "https://repository.kallipos.gr/handle/11419/9130";
+/** Primary LM01 Visual Lesson PDF (EN v1.0). Presentation only — not completion evidence. */
+export const LM01_VISUAL_LESSON_PDF_URL =
+  "/learning-modules/visuals/lm01/LM01-What-is-Blockchain-EN-v1.0.pdf";
 
 /** Approved LM01 production visuals (public/ paths). */
 export const LM01_VISUALS = {
   hero: "/learning-modules/visuals/lm01/lm01-hero.png",
   book: "/learning-modules/visuals/lm01/lm01-book.png",
+  /** Learning Path thumbnail derived from Visual Lesson cover (self-contained public asset). */
+  visualLesson: "/learning-modules/visuals/lm01/lm01-visual-lesson.png",
   demo: "/learning-modules/visuals/lm01/lm01-demo.png",
   simulator: "/learning-modules/visuals/lm01/lm01-simulator.png",
   assessment: "/learning-modules/visuals/lm01/lm01-assessment.png",
@@ -119,7 +124,7 @@ export const LM07_VISUALS = {
 };
 
 /**
- * @typedef {"book"|"reading"|"concept"|"demo"|"simulator"|"observation"|"coding"|"inspection"|"verification"|"assessment"} LmActivityVisualType
+ * @typedef {"book"|"reading"|"visualLesson"|"concept"|"demo"|"simulator"|"observation"|"coding"|"inspection"|"verification"|"assessment"} LmActivityVisualType
  * @typedef {"required"|"recommended"|"optional"|"core"} LmRequirementHint
  */
 
@@ -178,6 +183,7 @@ export const LM_PRESENTATION_REGISTRY = {
       },
       activityByType: {
         book: LM01_VISUALS.book,
+        visualLesson: LM01_VISUALS.visualLesson,
         demo: LM01_VISUALS.demo,
         simulator: LM01_VISUALS.simulator,
         assessment: LM01_VISUALS.assessment,
@@ -198,7 +204,8 @@ export const LM_PRESENTATION_REGISTRY = {
       ],
     },
     /**
-     * Presentation activities only. Slots reserved for future slides / PEL.
+     * Presentation activities only. PEL remains reserved.
+     * Visible LM01 order: Visual Lesson → Deeper Reading → Demo → Simulator → Assessment.
      * @type {Array<{
      *   id: string,
      *   visualType: LmActivityVisualType,
@@ -215,18 +222,36 @@ export const LM_PRESENTATION_REGISTRY = {
      */
     activities: [
       {
+        id: "lm01-slides",
+        visualType: "visualLesson",
+        requirementHint: "core",
+        showRequirementStatus: true,
+        languages: ["both"],
+        title: {
+          en: "Visual Lesson",
+          gr: "Οπτικό μάθημα",
+        },
+        description: {
+          en: "Start here: the primary illustrated Visual Lesson introducing blockchain as a linked record structure.",
+          gr: "Ξεκίνα από εδώ: το βασικό οπτικό μάθημα που εισάγει το blockchain ως δομή συνδεδεμένων εγγραφών. Προς το παρόν διαθέσιμο στα Αγγλικά (EN).",
+        },
+        linkKind: "external",
+        href: LM01_VISUAL_LESSON_PDF_URL,
+        presentationOnly: true,
+      },
+      {
         id: "lm01-textbook-kallipos",
         visualType: "book",
         requirementHint: "recommended",
         showRequirementStatus: true,
         languages: ["gr"],
         title: {
-          en: "Blockchain fundamentals",
-          gr: "Βασικές αρχές του blockchain",
+          en: "Deeper Reading",
+          gr: "Εμβάθυνση",
         },
         description: {
-          en: "Read Kallipos Chapter 1, §1.1 (pp. 13–15) for a concise introduction to blockchain and its fundamental characteristics.",
-          gr: "Διάβασε από το Κεφάλαιο 1 του Κάλλιπου την §1.1 (σελ. 13–15) για μια σύντομη εισαγωγή στο blockchain και τα βασικά χαρακτηριστικά του.",
+          en: "Recommended deeper reading: Kallipos Chapter 1, §1.1 (pp. 13–15) for more detail on blockchain fundamentals.",
+          gr: "Προτεινόμενη εμβάθυνση: από το Κεφάλαιο 1 του Κάλλιπου την §1.1 (σελ. 13–15) για περισσότερες λεπτομέρειες στις βασικές αρχές του blockchain.",
         },
         linkKind: "external",
         href: LM01_KALLIPOS_TEXTBOOK_URL,
@@ -239,34 +264,16 @@ export const LM_PRESENTATION_REGISTRY = {
         showRequirementStatus: true,
         languages: ["en"],
         title: {
-          en: "Blockchain fundamentals",
-          gr: "Βασικές αρχές του blockchain",
+          en: "Deeper Reading",
+          gr: "Εμβάθυνση",
         },
         description: {
-          en: "Read Kallipos Chapter 1, §1.1 (pp. 13–15) for a concise introduction to blockchain and its fundamental characteristics.",
-          gr: "Διάβασε από το Κεφάλαιο 1 του Κάλλιπου την §1.1 (σελ. 13–15) για μια σύντομη εισαγωγή στο blockchain και τα βασικά χαρακτηριστικά του.",
+          en: "Recommended deeper reading: Kallipos Chapter 1, §1.1 (pp. 13–15) for more detail on blockchain fundamentals.",
+          gr: "Προτεινόμενη εμβάθυνση: από το Κεφάλαιο 1 του Κάλλιπου την §1.1 (σελ. 13–15) για περισσότερες λεπτομέρειες στις βασικές αρχές του blockchain.",
         },
         linkKind: "external",
         href: LM01_KALLIPOS_TEXTBOOK_URL,
         presentationOnly: true,
-      },
-      {
-        id: "lm01-slides",
-        visualType: "reading",
-        requirementHint: "recommended",
-        languages: ["both"],
-        title: {
-          en: "LM01 slides",
-          gr: "Διαφάνειες LM01",
-        },
-        description: {
-          en: "Learner slides (to be linked when the refreshed PDF is ready).",
-          gr: "Διαφάνειες μαθήματος (θα συνδεθούν όταν είναι έτοιμο το ανανεωμένο PDF).",
-        },
-        linkKind: "none",
-        href: null,
-        presentationOnly: true,
-        reserved: true,
       },
       {
         id: "lm01-anders-demo",
