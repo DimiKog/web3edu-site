@@ -12,6 +12,9 @@ export const LM01_KALLIPOS_TEXTBOOK_URL =
 /** Primary LM01 Visual Lesson PDF (EN v1.0). Presentation only — not completion evidence. */
 export const LM01_VISUAL_LESSON_PDF_URL =
   "/learning-modules/visuals/lm01/LM01-What-is-Blockchain-EN-v1.0.pdf";
+/** LM01 English deeper-reading PDF (v1.0). Presentation only — not completion evidence. */
+export const LM01_EXTENDED_READING_PDF_URL =
+  "/learning-modules/readings/lm01/LM01-Blockchain-Fundamentals-EN-v1.0.pdf";
 
 /** Approved LM01 production visuals (public/ paths). */
 export const LM01_VISUALS = {
@@ -250,15 +253,15 @@ export const LM_PRESENTATION_REGISTRY = {
           gr: "Μελέτη",
         },
         description: {
-          en: "Recommended deeper reading: Kallipos Chapter 1, §1.1 (pp. 13–15) for more detail on blockchain fundamentals.",
-          gr: "Προτεινόμενη μελέτη: Κεφάλαιο 1 του Κάλλιπου, §1.1 (σελ. 13–15), για περισσότερες λεπτομέρειες σχετικά με τις βασικές αρχές του blockchain.",
+          en: "Recommended deeper reading: Kallipos Chapter 1, §1.1 (pp. 15–17) for more detail on blockchain fundamentals.",
+          gr: "Προτεινόμενη μελέτη: Κεφάλαιο 1 του Κάλλιπου, §1.1 (σελ. 15–17), για περισσότερες λεπτομέρειες σχετικά με τις βασικές αρχές του blockchain.",
         },
         linkKind: "external",
         href: LM01_KALLIPOS_TEXTBOOK_URL,
         presentationOnly: true,
       },
       {
-        id: "lm01-textbook-kallipos-en-ref",
+        id: "lm01-extended-reading-en",
         visualType: "book",
         requirementHint: "recommended",
         showRequirementStatus: true,
@@ -268,11 +271,11 @@ export const LM_PRESENTATION_REGISTRY = {
           gr: "Μελέτη",
         },
         description: {
-          en: "Recommended deeper reading: Kallipos Chapter 1, §1.1 (pp. 13–15) for more detail on blockchain fundamentals.",
-          gr: "Προτεινόμενη μελέτη: Κεφάλαιο 1 του Κάλλιπου, §1.1 (σελ. 13–15), για περισσότερες λεπτομέρειες σχετικά με τις βασικές αρχές του blockchain.",
+          en: "Recommended deeper reading: Blockchain Fundamentals — Extended Reading, adapted from Chapter 1, §1.1 of the Kallipos textbook, for more detail on blockchain fundamentals.",
+          gr: "Προτεινόμενη μελέτη: Blockchain Fundamentals — Extended Reading, προσαρμοσμένο από το Κεφάλαιο 1, §1.1 του συγγράμματος Κάλλιπος, για περισσότερες λεπτομέρειες σχετικά με τις βασικές αρχές του blockchain.",
         },
         linkKind: "external",
-        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        href: LM01_EXTENDED_READING_PDF_URL,
         presentationOnly: true,
       },
       {

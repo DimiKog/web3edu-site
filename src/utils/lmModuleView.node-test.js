@@ -12,6 +12,7 @@ import test from "node:test";
 import {
   LM01_ANDERS_DEMO_URL,
   LM01_KALLIPOS_TEXTBOOK_URL,
+  LM01_EXTENDED_READING_PDF_URL,
   LM01_VISUAL_LESSON_PDF_URL,
   LM01_VISUALS,
   getLmVisibleActivities,
@@ -213,7 +214,7 @@ test("LM01 visible path is Visual Lesson → Deeper Reading → Demo → Simulat
       ids,
       [
         "lm01-slides",
-        lang === "gr" ? "lm01-textbook-kallipos" : "lm01-textbook-kallipos-en-ref",
+        lang === "gr" ? "lm01-textbook-kallipos" : "lm01-extended-reading-en",
         "lm01-anders-demo",
         "lm01-blockchain-simulator",
         "lm01-assessment",
@@ -267,34 +268,42 @@ test("LM01 Visual Lesson is core presentation-only with PDF href (not evidence)"
   }
 });
 
-test("EN learning path shows Kallipos §1.1 as recommended deeper reading", () => {
+test("EN learning path shows Web3Edu extended reading as recommended deeper reading", () => {
   const en = getLmVisibleActivities("LM01", "en");
   const ids = en.map((a) => a.id);
-  assert.ok(ids.includes("lm01-textbook-kallipos-en-ref"));
+  assert.ok(ids.includes("lm01-extended-reading-en"));
   assert.ok(!ids.includes("lm01-textbook-kallipos"));
+  assert.ok(!ids.includes("lm01-textbook-kallipos-en-ref"));
   assert.ok(ids.includes("lm01-slides"));
   assert.ok(!ids.includes("lm01-pel-observe"));
   assert.ok(ids.includes("lm01-anders-demo"));
   assert.ok(ids.includes("lm01-blockchain-simulator"));
   assert.ok(ids.includes("lm01-assessment"));
 
-  const book = en.find((a) => a.id === "lm01-textbook-kallipos-en-ref");
+  const book = en.find((a) => a.id === "lm01-extended-reading-en");
   assert.equal(book.title.en, "Deeper Reading");
   assert.equal(book.requirementHint, "recommended");
   assert.equal(book.showRequirementStatus, true);
   assert.equal(book.presentationOnly, true);
   assert.equal(book.evidenceId, undefined);
   assert.match(book.description.en, /deeper reading/i);
+  assert.match(book.description.en, /Blockchain Fundamentals — Extended Reading/);
   assert.match(book.description.en, /§1\.1/);
-  assert.match(book.description.en, /13–15|13-15/);
+  assert.doesNotMatch(book.description.en, /13–15|13-15/);
   assert.doesNotMatch(book.description.en, /§1\.3|History|whole Chapter 1|entire Chapter/i);
-  assert.equal(resolveLmActivityHref(book, "en"), LM01_KALLIPOS_TEXTBOOK_URL);
+  assert.equal(resolveLmActivityHref(book, "en"), LM01_EXTENDED_READING_PDF_URL);
+  assert.notEqual(resolveLmActivityHref(book, "en"), LM01_KALLIPOS_TEXTBOOK_URL);
+  assert.equal(
+    LM01_EXTENDED_READING_PDF_URL,
+    "/learning-modules/readings/lm01/LM01-Blockchain-Fundamentals-EN-v1.0.pdf"
+  );
 });
 
 test("GR learning path shows Kallipos §1.1 as recommended deeper reading", () => {
   const gr = getLmVisibleActivities("LM01", "gr");
   const ids = gr.map((a) => a.id);
   assert.ok(ids.includes("lm01-textbook-kallipos"));
+  assert.ok(!ids.includes("lm01-extended-reading-en"));
   assert.ok(!ids.includes("lm01-textbook-kallipos-en-ref"));
   const book = gr.find((a) => a.id === "lm01-textbook-kallipos");
   assert.equal(book.title.gr, "Μελέτη");
@@ -304,12 +313,13 @@ test("GR learning path shows Kallipos §1.1 as recommended deeper reading", () =
   assert.equal(book.evidenceId, undefined);
   assert.match(book.description.gr, /μελέτη/i);
   assert.match(book.description.gr, /§1\.1/);
-  assert.match(book.description.gr, /13–15|13-15/);
+  assert.match(book.description.gr, /15–17|15-17/);
+  assert.doesNotMatch(book.description.gr, /13–15|13-15/);
   assert.doesNotMatch(book.description.gr, /§1\.3|Ιστορία|ολόκληρο το Κεφάλαιο 1/i);
   assert.equal(resolveLmActivityHref(book, "gr"), LM01_KALLIPOS_TEXTBOOK_URL);
 });
 
-test("LM01 Kallipos book row surfaces Recommended status without evidence wiring", () => {
+test("LM01 deeper-reading book row surfaces Recommended status without evidence wiring", () => {
   const progression = freshProgression();
   const moduleEntry = progression.modules.LM01;
   for (const lang of ["en", "gr"]) {
@@ -332,8 +342,19 @@ test("LM01 Kallipos book row surfaces Recommended status without evidence wiring
     assert.equal(row.ctaLabel, lang === "gr" ? "Άνοιγμα πόρου" : "Open resource");
     assert.equal(row.presentationOnly, true);
     assert.equal(row.linkKind, "external");
-    assert.equal(row.href, LM01_KALLIPOS_TEXTBOOK_URL);
+    assert.equal(row.evidenceId, null);
     assert.match(row.description, /§1\.1/);
+    if (lang === "en") {
+      assert.equal(activity.id, "lm01-extended-reading-en");
+      assert.equal(row.href, LM01_EXTENDED_READING_PDF_URL);
+      assert.notEqual(row.href, LM01_KALLIPOS_TEXTBOOK_URL);
+      assert.match(row.description, /Blockchain Fundamentals — Extended Reading/);
+      assert.doesNotMatch(row.description, /13–15|13-15/);
+    } else {
+      assert.equal(activity.id, "lm01-textbook-kallipos");
+      assert.equal(row.href, LM01_KALLIPOS_TEXTBOOK_URL);
+      assert.match(row.description, /15–17|15-17/);
+    }
   }
 });
 

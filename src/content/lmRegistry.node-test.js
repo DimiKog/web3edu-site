@@ -13,6 +13,7 @@ import {
   LM_PRESENTATION_REGISTRY,
   LM_CURRICULUM_IDS,
   LM01_KALLIPOS_TEXTBOOK_URL,
+  LM01_EXTENDED_READING_PDF_URL,
   LM01_VISUAL_LESSON_PDF_URL,
   LM01_VISUALS,
   LM02_VISUALS,
@@ -54,7 +55,7 @@ test("LM01 Visual Lesson is first visible activity; PEL stays reserved", () => {
       visible.map((a) => a.id),
       [
         "lm01-slides",
-        lang === "gr" ? "lm01-textbook-kallipos" : "lm01-textbook-kallipos-en-ref",
+        lang === "gr" ? "lm01-textbook-kallipos" : "lm01-extended-reading-en",
         "lm01-anders-demo",
         "lm01-blockchain-simulator",
         "lm01-assessment",
@@ -85,6 +86,31 @@ test("LM01 Visual Lesson is first visible activity; PEL stays reserved", () => {
     existsSync(join(publicRoot, LM01_VISUAL_LESSON_PDF_URL.slice(1))),
     true
   );
+
+  const enReading = getLmVisibleActivities("LM01", "en").find(
+    (a) => a.id === "lm01-extended-reading-en"
+  );
+  assert.ok(enReading);
+  assert.equal(enReading.presentationOnly, true);
+  assert.equal(enReading.evidenceId, undefined);
+  assert.equal(enReading.requirementHint, "recommended");
+  assert.equal(resolveLmActivityHref(enReading, "en"), LM01_EXTENDED_READING_PDF_URL);
+  assert.notEqual(resolveLmActivityHref(enReading, "en"), LM01_KALLIPOS_TEXTBOOK_URL);
+  assert.equal(
+    LM01_EXTENDED_READING_PDF_URL,
+    "/learning-modules/readings/lm01/LM01-Blockchain-Fundamentals-EN-v1.0.pdf"
+  );
+  assert.equal(
+    existsSync(join(publicRoot, LM01_EXTENDED_READING_PDF_URL.slice(1))),
+    true
+  );
+
+  const grReading = getLmVisibleActivities("LM01", "gr").find(
+    (a) => a.id === "lm01-textbook-kallipos"
+  );
+  assert.ok(grReading);
+  assert.equal(resolveLmActivityHref(grReading, "gr"), LM01_KALLIPOS_TEXTBOOK_URL);
+  assert.match(grReading.description.gr, /15–17|15-17/);
 
   const grSlides = getLmVisibleActivities("LM01", "gr").find(
     (a) => a.id === "lm01-slides"
