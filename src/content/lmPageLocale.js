@@ -39,6 +39,7 @@ export const LM_PAGE_COPY = {
     resourceOptional: "Optional",
     simulatorInteractive: "Interactive activity",
     openExternal: "Open resource",
+    openVisualLesson: "Open resource",
     openDemo: "Open demo",
     openSimulator: "Open simulator",
     closeSimulator: "Hide simulator",
@@ -114,7 +115,7 @@ export const LM_PAGE_COPY = {
     whatYoullLearn: "Τι θα μάθεις",
     learningPath: "Η διαδρομή μάθησής σου",
     learningPathIntro:
-      "Ξεκίνα από το Οπτικό μάθημα, μετά εμβάθυνε με την προτεινόμενη ανάγνωση και τις δραστηριότητες εξάσκησης. Μόνο η απαιτούμενη αξιολόγηση μετρά ως αποδεικτικό ολοκλήρωσης του LM01.",
+      "Ξεκίνα από την Παρουσίαση, μετά εμβάθυνε με την προτεινόμενη ανάγνωση και τις δραστηριότητες εξάσκησης. Μόνο η απαιτούμενη αξιολόγηση μετρά ως αποδεικτικό ολοκλήρωσης του LM01.",
     sidebarProgress: "Η πρόοδός σου στο LM01",
     sidebarEvidence: "Απαιτούμενο αποδεικτικό",
     sidebarAbout: "Σχετικά με το module",
@@ -135,6 +136,7 @@ export const LM_PAGE_COPY = {
     resourceOptional: "Προαιρετικό",
     simulatorInteractive: "Διαδραστική δραστηριότητα",
     openExternal: "Άνοιγμα πόρου",
+    openVisualLesson: "Άνοιγμα παρουσίασης",
     openDemo: "Άνοιγμα demo",
     openSimulator: "Άνοιγμα προσομοιωτή",
     closeSimulator: "Απόκρυψη προσομοιωτή",
@@ -172,7 +174,7 @@ export const LM_PAGE_COPY = {
     typeLabels: {
       book: "BOOK",
       reading: "READING",
-      visualLesson: "ΟΠΤΙΚΟ ΜΑΘΗΜΑ",
+      visualLesson: "ΠΑΡΟΥΣΙΑΣΗ",
       concept: "CONCEPT",
       demo: "DEMO",
       simulator: "SIMULATOR",
@@ -198,13 +200,21 @@ export const LM_PAGE_COPY = {
     moduleTypeLabel: "Θεμελιώδες",
     activityMixLabel: "Μείγμα δραστηριοτήτων",
     activityMixValue:
-      "Οπτικό μάθημα, εμβάθυνση, demo, προσομοιωτής, αξιολόγηση",
+      "Παρουσίαση, μελέτη, demo, προσομοιωτής, αξιολόγηση",
     currentModuleLabel: "Τρέχον module",
   },
 };
 
 /** Module-specific chrome overrides. Presentation only. */
 export const LM_MODULE_PAGE_CHROME = {
+  /** LM01 GR type-label override only — EN keeps shared BOOK. */
+  LM01: {
+    gr: {
+      typeLabels: {
+        book: "ΜΕΛΕΤΗ",
+      },
+    },
+  },
   LM08: {
     en: {
       breadcrumbExplorer: "Builder Path",
@@ -575,10 +585,9 @@ export const LM_MODULE_PAGE_CHROME = {
 export function getLmPageCopy(lang = "en", moduleId = "LM01") {
   const locale = lang === "gr" ? "gr" : "en";
   const base = LM_PAGE_COPY[locale] || LM_PAGE_COPY.en;
-  const override =
-    moduleId && moduleId !== "LM01"
-      ? LM_MODULE_PAGE_CHROME[moduleId]?.[locale]
-      : null;
+  const override = moduleId
+    ? LM_MODULE_PAGE_CHROME[moduleId]?.[locale]
+    : null;
   if (!override) {
     return {
       ...base,

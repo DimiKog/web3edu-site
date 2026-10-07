@@ -313,7 +313,12 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
   } else if (isDisclosure) {
     ctaLabel = copy.expandConcept;
   } else if (activity.linkKind === "external") {
-    ctaLabel = activity.visualType === "demo" ? copy.openDemo : copy.openExternal;
+    ctaLabel =
+      activity.visualType === "demo"
+        ? copy.openDemo
+        : activity.visualType === "visualLesson"
+          ? copy.openVisualLesson
+          : copy.openExternal;
   } else if (activity.linkKind === "internal" && href) {
     ctaLabel = copy.continueActivity;
   }

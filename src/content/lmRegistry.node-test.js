@@ -74,7 +74,7 @@ test("LM01 Visual Lesson is first visible activity; PEL stays reserved", () => {
     assert.equal(slides.href, LM01_VISUAL_LESSON_PDF_URL);
     assert.equal(resolveLmActivityHref(slides, lang), LM01_VISUAL_LESSON_PDF_URL);
     assert.equal(slides.title.en, "Visual Lesson");
-    assert.equal(slides.title.gr, "Οπτικό μάθημα");
+    assert.equal(slides.title.gr, "Παρουσίαση");
   }
 
   assert.equal(
@@ -90,6 +90,8 @@ test("LM01 Visual Lesson is first visible activity; PEL stays reserved", () => {
     (a) => a.id === "lm01-slides"
   );
   assert.match(grSlides.description.gr, /Αγγλικ/i);
+  assert.match(grSlides.description.gr, /παρουσίαση/i);
+  assert.doesNotMatch(grSlides.description.gr, /οπτικό μάθημα/i);
 });
 
 test("LM01 learnerMeta is bilingual presentation and does not invent extra XP", () => {

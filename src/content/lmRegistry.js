@@ -229,11 +229,11 @@ export const LM_PRESENTATION_REGISTRY = {
         languages: ["both"],
         title: {
           en: "Visual Lesson",
-          gr: "Οπτικό μάθημα",
+          gr: "Παρουσίαση",
         },
         description: {
           en: "Start here: the primary illustrated Visual Lesson introducing blockchain as a linked record structure.",
-          gr: "Ξεκίνα από εδώ: το βασικό οπτικό μάθημα που εισάγει το blockchain ως δομή συνδεδεμένων εγγραφών. Προς το παρόν διαθέσιμο στα Αγγλικά (EN).",
+          gr: "Ξεκίνα από εδώ: η βασική εικονογραφημένη παρουσίαση που εισάγει το blockchain ως μια δομή συνδεδεμένων εγγραφών. Προς το παρόν διατίθεται στα Αγγλικά (EN).",
         },
         linkKind: "external",
         href: LM01_VISUAL_LESSON_PDF_URL,
@@ -247,11 +247,11 @@ export const LM_PRESENTATION_REGISTRY = {
         languages: ["gr"],
         title: {
           en: "Deeper Reading",
-          gr: "Εμβάθυνση",
+          gr: "Μελέτη",
         },
         description: {
           en: "Recommended deeper reading: Kallipos Chapter 1, §1.1 (pp. 13–15) for more detail on blockchain fundamentals.",
-          gr: "Προτεινόμενη εμβάθυνση: από το Κεφάλαιο 1 του Κάλλιπου την §1.1 (σελ. 13–15) για περισσότερες λεπτομέρειες στις βασικές αρχές του blockchain.",
+          gr: "Προτεινόμενη μελέτη: Κεφάλαιο 1 του Κάλλιπου, §1.1 (σελ. 13–15), για περισσότερες λεπτομέρειες σχετικά με τις βασικές αρχές του blockchain.",
         },
         linkKind: "external",
         href: LM01_KALLIPOS_TEXTBOOK_URL,
@@ -265,11 +265,11 @@ export const LM_PRESENTATION_REGISTRY = {
         languages: ["en"],
         title: {
           en: "Deeper Reading",
-          gr: "Εμβάθυνση",
+          gr: "Μελέτη",
         },
         description: {
           en: "Recommended deeper reading: Kallipos Chapter 1, §1.1 (pp. 13–15) for more detail on blockchain fundamentals.",
-          gr: "Προτεινόμενη εμβάθυνση: από το Κεφάλαιο 1 του Κάλλιπου την §1.1 (σελ. 13–15) για περισσότερες λεπτομέρειες στις βασικές αρχές του blockchain.",
+          gr: "Προτεινόμενη μελέτη: Κεφάλαιο 1 του Κάλλιπου, §1.1 (σελ. 13–15), για περισσότερες λεπτομέρειες σχετικά με τις βασικές αρχές του blockchain.",
         },
         linkKind: "external",
         href: LM01_KALLIPOS_TEXTBOOK_URL,

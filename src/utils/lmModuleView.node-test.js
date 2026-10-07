@@ -27,7 +27,7 @@ import {
   getLmProgressStages,
   getLmRequiredEvidenceListPresentation,
 } from "./lmModuleView.js";
-import { LM_PAGE_COPY } from "../content/lmPageLocale.js";
+import { getLmPageCopy, LM_PAGE_COPY } from "../content/lmPageLocale.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -242,10 +242,10 @@ test("LM01 Visual Lesson is core presentation-only with PDF href (not evidence)"
       canonical: true,
       moduleId: "LM01",
     });
-    assert.equal(row.title, lang === "gr" ? "Οπτικό μάθημα" : "Visual Lesson");
+    assert.equal(row.title, lang === "gr" ? "Παρουσίαση" : "Visual Lesson");
     assert.equal(
       row.typeLabel,
-      lang === "gr" ? "ΟΠΤΙΚΟ ΜΑΘΗΜΑ" : "VISUAL LESSON"
+      lang === "gr" ? "ΠΑΡΟΥΣΙΑΣΗ" : "VISUAL LESSON"
     );
     assert.equal(row.statusKind, "core");
     assert.equal(row.statusLabel, lang === "gr" ? "Βασικό υλικό" : "Core");
@@ -255,8 +255,14 @@ test("LM01 Visual Lesson is core presentation-only with PDF href (not evidence)"
     assert.notEqual(row.visualSrc, LM01_VISUALS.book);
     assert.equal(row.presentationOnly, true);
     assert.equal(row.evidenceId, null);
+    assert.equal(
+      row.ctaLabel,
+      lang === "gr" ? "Άνοιγμα παρουσίασης" : "Open resource"
+    );
     if (lang === "gr") {
       assert.match(row.description, /Αγγλικ/i);
+      assert.match(row.description, /παρουσίαση/i);
+      assert.doesNotMatch(row.description, /οπτικό μάθημα/i);
     }
   }
 });
@@ -291,12 +297,12 @@ test("GR learning path shows Kallipos §1.1 as recommended deeper reading", () =
   assert.ok(ids.includes("lm01-textbook-kallipos"));
   assert.ok(!ids.includes("lm01-textbook-kallipos-en-ref"));
   const book = gr.find((a) => a.id === "lm01-textbook-kallipos");
-  assert.equal(book.title.gr, "Εμβάθυνση");
+  assert.equal(book.title.gr, "Μελέτη");
   assert.equal(book.requirementHint, "recommended");
   assert.equal(book.showRequirementStatus, true);
   assert.equal(book.presentationOnly, true);
   assert.equal(book.evidenceId, undefined);
-  assert.match(book.description.gr, /εμβάθυνση/i);
+  assert.match(book.description.gr, /μελέτη/i);
   assert.match(book.description.gr, /§1\.1/);
   assert.match(book.description.gr, /13–15|13-15/);
   assert.doesNotMatch(book.description.gr, /§1\.3|Ιστορία|ολόκληρο το Κεφάλαιο 1/i);
@@ -313,6 +319,7 @@ test("LM01 Kallipos book row surfaces Recommended status without evidence wiring
     assert.ok(activity, lang);
     const row = getLmActivityRowPresentation(activity, moduleEntry, lang, {
       canonical: true,
+      moduleId: "LM01",
     });
     assert.equal(row.requirementHint, "recommended");
     assert.equal(row.statusKind, "recommended");
@@ -320,11 +327,22 @@ test("LM01 Kallipos book row surfaces Recommended status without evidence wiring
       row.statusLabel,
       lang === "gr" ? "Προτεινόμενο" : "Recommended"
     );
+    assert.equal(row.title, lang === "gr" ? "Μελέτη" : "Deeper Reading");
+    assert.equal(row.typeLabel, lang === "gr" ? "ΜΕΛΕΤΗ" : "BOOK");
+    assert.equal(row.ctaLabel, lang === "gr" ? "Άνοιγμα πόρου" : "Open resource");
     assert.equal(row.presentationOnly, true);
     assert.equal(row.linkKind, "external");
     assert.equal(row.href, LM01_KALLIPOS_TEXTBOOK_URL);
     assert.match(row.description, /§1\.1/);
   }
+});
+
+test("LM01 GR book type label ΜΕΛΕΤΗ does not change other modules", () => {
+  assert.equal(getLmPageCopy("gr", "LM01").typeLabels.book, "ΜΕΛΕΤΗ");
+  assert.equal(getLmPageCopy("en", "LM01").typeLabels.book, "BOOK");
+  assert.equal(getLmPageCopy("gr", "LM02").typeLabels.book, "BOOK");
+  assert.equal(getLmPageCopy("gr", "LM04").typeLabels.book, "BOOK");
+  assert.equal(LM_PAGE_COPY.gr.typeLabels.book, "BOOK");
 });
 
 test("Anders demo URL is the approved external interactive demo", () => {
