@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import web3EduLogoLightWebp from "../assets/web3edu_logo_light.webp";
-import web3EduLogoDarkWebp from "../assets/web3edu_logo_dark.webp";
+
+const LOGO_PRIMARY_LIGHT = "/assets/brand/web3edu-logo-primary-light-v2.0.png";
+const LOGO_PRIMARY_DARK = "/assets/brand/web3edu-logo-primary-dark-v2.0.png";
 
 const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
     const [isDark, setIsDark] = useState(
@@ -56,17 +57,14 @@ const Hero = ({ content, ctaHref, ctaLabel: ctaOverride }) => {
                 <div className="flex flex-col items-center lg:items-center text-center lg:text-center gap-4">
                     <div className="p-8 bg-white/5 rounded-3xl shadow-xl backdrop-blur-none lg:backdrop-blur-xl border border-white/10 hover:shadow-[0_0_28px_rgba(74,203,255,0.28)] transition duration-300 [perspective:1000px] relative min-w-[160px] min-h-[160px]">
                         <div className="transition-transform duration-500 sm:hover:[transform:rotateX(6deg)_rotateY(-6deg)_scale(1.05)]">
-                            <picture>
-                                <source srcSet={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp} type="image/webp" />
-                                <img
-                                    src={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp}
-                                    alt="Web3Edu"
-                                    loading="eager"
-                                    fetchPriority="high"
-                                    className="h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 min-w-[160px] min-h-[160px] rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(74,203,255,0.55)]
-                                        transition-opacity duration-500"
-                                />
-                            </picture>
+                            <img
+                                src={isDark ? LOGO_PRIMARY_DARK : LOGO_PRIMARY_LIGHT}
+                                alt="Web3Edu"
+                                loading="eager"
+                                fetchPriority="high"
+                                className="h-40 w-40 sm:h-48 sm:w-48 lg:h-56 lg:w-56 xl:h-64 xl:w-64 min-w-[160px] min-h-[160px] rounded-2xl object-contain drop-shadow-[0_0_30px_rgba(74,203,255,0.55)]
+                                    transition-opacity duration-500"
+                            />
                         </div>
                         <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#FF67D2]/22 via-[#8A57FF]/26 to-[#4ACBFF]/22 blur-2xl opacity-40 pointer-events-none"></div>
                     </div>

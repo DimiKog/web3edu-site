@@ -4,8 +4,9 @@ import { useIdentity } from "../context/useIdentity.js";
 import { buildWeb3SbtResolveUrl } from "../lib/web3eduBackend.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
 import PageShell from "../components/PageShell.jsx";
-import web3eduLogoDark from "../assets/web3edu_logo_dark.webp";
-import web3eduLogoLight from "../assets/web3edu_logo_light.webp";
+
+const LOGO_PRIMARY_LIGHT = "/assets/brand/web3edu-logo-primary-light-v2.0.png";
+const LOGO_PRIMARY_DARK = "/assets/brand/web3edu-logo-primary-dark-v2.0.png";
 
 const WelcomeIdentityGR = () => {
     const navigate = useNavigate();
@@ -183,7 +184,7 @@ const WelcomeIdentityGR = () => {
                     </div>
 
                     {/* Image */}
-                    <img src={isDark ? web3eduLogoDark : web3eduLogoLight}
+                    <img src={isDark ? LOGO_PRIMARY_DARK : LOGO_PRIMARY_LIGHT}
                         alt="Web3Edu Identity Badge"
                         className="w-32 h-32 sm:w-40 sm:h-40 mb-8 rounded-full drop-shadow-xl mx-auto transition-all duration-300" loading="eager" fetchPriority="high" />
 

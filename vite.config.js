@@ -6,17 +6,10 @@ import { visualizer } from "rollup-plugin-visualizer";
 const shouldAnalyze = process.env.ANALYZE === "true";
 
 /**
- * Inject a production preload for the public Hero LIGHT logo.
- * Resolves the hashed asset from the build bundle (same file Hero.jsx imports).
- * Dev uses the source path Vite already serves.
+ * Inject a preload for the public Hero LIGHT logo (static asset under public/).
  */
 function preloadHeroLightLogo() {
-  const DEV_HREF = "/src/assets/web3edu_logo_light.webp";
-  const isLightLogoAsset = (fileName) =>
-    typeof fileName === "string" &&
-    fileName.includes("web3edu_logo_light") &&
-    fileName.endsWith(".webp");
-
+  const HREF = "/assets/brand/web3edu-logo-primary-light-v2.0.png";
   const preloadTag = (href) =>
     `<link rel="preload" as="image" href="${href}" fetchpriority="high" />`;
 
@@ -24,21 +17,11 @@ function preloadHeroLightLogo() {
     name: "preload-hero-light-logo",
     transformIndexHtml: {
       order: "post",
-      handler(html, ctx) {
-        if (html.includes("web3edu_logo_light") && html.includes('rel="preload"')) {
+      handler(html) {
+        if (html.includes(HREF) && html.includes('rel="preload"')) {
           return html;
         }
-
-        let href = DEV_HREF;
-        if (ctx.bundle) {
-          const asset = Object.values(ctx.bundle).find(
-            (item) => item?.type === "asset" && isLightLogoAsset(item.fileName)
-          );
-          if (!asset?.fileName) return html;
-          href = `/${asset.fileName}`.replace(/\/{2,}/g, "/");
-        }
-
-        return html.replace(/\n?\s*<\/head>/i, `\n    ${preloadTag(href)}\n  </head>`);
+        return html.replace(/\n?\s*<\/head>/i, `\n    ${preloadTag(HREF)}\n  </head>`);
       },
     },
   };

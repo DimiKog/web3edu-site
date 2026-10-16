@@ -5,11 +5,12 @@
 import React from "react";
 import Footer from "./Footer.jsx";
 import FooterGr from "./FooterGR.jsx";
-import web3EduLogoLight from "../assets/web3edu_logo_light.webp";
-import web3EduLogoDark from "../assets/web3edu_logo_dark.webp";
 import { useAuth } from "react-oidc-context";
 import { signOutKeycloakAccount } from "../auth/keycloakSignOut.js";
 import { saveReturnUrl } from "../auth/oidcConfig.js";
+
+const LOGO_COMPACT_LIGHT = "/assets/brand/web3edu-logo-compact-light-v2.0.png";
+const LOGO_COMPACT_DARK = "/assets/brand/web3edu-logo-compact-dark-v2.0.png";
 
 const navAuthSecondaryClass =
   "px-3 py-1.5 rounded-full border border-[#8A57FF]/35 bg-[#EDE8FF]/95 text-[#5B2DC8] shadow-sm backdrop-blur " +
@@ -197,16 +198,13 @@ export default function PublicPageShell({
         >
           <div className="flex items-center gap-3">
             <a href={isGR ? "/#/gr" : "/#/"} aria-label={isGR ? "Αρχική" : "Home"}>
-              <picture>
-                <source srcSet={isDark ? web3EduLogoDark : web3EduLogoLight} type="image/webp" />
-                <img
-                  src={isDark ? web3EduLogoDark : web3EduLogoLight}
-                  alt="Web3Edu"
-                  className="h-10 w-auto drop-shadow-[0_0_12px_rgba(120,60,255,0.45)] transition-opacity duration-500"
-                  loading="eager"
-                  fetchPriority="low"
-                />
-              </picture>
+              <img
+                src={isDark ? LOGO_COMPACT_DARK : LOGO_COMPACT_LIGHT}
+                alt="Web3Edu"
+                className="h-12 w-auto object-contain drop-shadow-[0_0_12px_rgba(120,60,255,0.45)] transition-opacity duration-500"
+                loading="eager"
+                fetchPriority="low"
+              />
             </a>
           </div>
 

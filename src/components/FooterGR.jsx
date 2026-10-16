@@ -1,7 +1,8 @@
-import web3EduLogoLightWebp from "../assets/web3edu_logo_light.webp";
-import web3EduLogoDarkWebp from "../assets/web3edu_logo_dark.webp";
 import { FaGithub, FaDiscord, FaLinkedin } from "react-icons/fa";
 import { useState, useEffect } from "react";
+
+const LOGO_COMPACT_LIGHT = "/assets/brand/web3edu-logo-compact-light-v2.0.png";
+const LOGO_COMPACT_DARK = "/assets/brand/web3edu-logo-compact-dark-v2.0.png";
 
 const FooterGr = ({ content }) => {
     const safe = content ?? {};
@@ -83,12 +84,12 @@ const FooterGr = ({ content }) => {
 
             <div className="relative flex flex-col md:flex-row items-center justify-between gap-10">
                 <div className="flex flex-col items-center text-center gap-3">
-                    <picture>
-                        <source srcSet={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp} type="image/webp" />
-                        <img src={isDark ? web3EduLogoDarkWebp : web3EduLogoLightWebp}
-                            className="h-12 w-auto drop-shadow-[0_0_15px_rgba(138,87,255,0.35)] hover:scale-105 transition-transform duration-500"
-                            alt="Web3Edu Logo" loading="lazy" />
-                    </picture>
+                    <img
+                        src={isDark ? LOGO_COMPACT_DARK : LOGO_COMPACT_LIGHT}
+                        className="h-14 w-auto object-contain drop-shadow-[0_0_15px_rgba(138,87,255,0.35)] hover:scale-105 transition-transform duration-500"
+                        alt="Web3Edu Logo"
+                        loading="lazy"
+                    />
                     <div className="text-center">
                         <div className="font-semibold tracking-wide text-sm text-slate-700 dark:text-white">
                             Web3Edu
