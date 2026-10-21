@@ -13,7 +13,8 @@ import {
   LM01_ANDERS_DEMO_URL,
   LM01_KALLIPOS_TEXTBOOK_URL,
   LM01_EXTENDED_READING_PDF_URL,
-  LM01_VISUAL_LESSON_PDF_URL,
+  LM01_PRESENTATION_PDF_URL_EN,
+  LM01_PRESENTATION_PDF_URL_GR,
   LM01_VISUALS,
   getLmVisibleActivities,
   resolveLmActivityHref,
@@ -229,6 +230,8 @@ test("LM01 Visual Lesson is core presentation-only with PDF href (not evidence)"
   const progression = freshProgression();
   const moduleEntry = progression.modules.LM01;
   for (const lang of ["en", "gr"]) {
+    const expectedHref =
+      lang === "gr" ? LM01_PRESENTATION_PDF_URL_GR : LM01_PRESENTATION_PDF_URL_EN;
     const activity = getLmVisibleActivities("LM01", lang).find(
       (a) => a.id === "lm01-slides"
     );
@@ -237,7 +240,7 @@ test("LM01 Visual Lesson is core presentation-only with PDF href (not evidence)"
     assert.equal(activity.requirementHint, "core");
     assert.equal(activity.presentationOnly, true);
     assert.equal(activity.evidenceId, undefined);
-    assert.equal(resolveLmActivityHref(activity, lang), LM01_VISUAL_LESSON_PDF_URL);
+    assert.equal(resolveLmActivityHref(activity, lang), expectedHref);
 
     const row = getLmActivityRowPresentation(activity, moduleEntry, lang, {
       canonical: true,
@@ -251,7 +254,7 @@ test("LM01 Visual Lesson is core presentation-only with PDF href (not evidence)"
     assert.equal(row.statusKind, "core");
     assert.equal(row.statusLabel, lang === "gr" ? "Βασικό υλικό" : "Core");
     assert.equal(row.linkKind, "external");
-    assert.equal(row.href, LM01_VISUAL_LESSON_PDF_URL);
+    assert.equal(row.href, expectedHref);
     assert.equal(row.visualSrc, LM01_VISUALS.visualLesson);
     assert.notEqual(row.visualSrc, LM01_VISUALS.book);
     assert.equal(row.presentationOnly, true);
@@ -261,9 +264,10 @@ test("LM01 Visual Lesson is core presentation-only with PDF href (not evidence)"
       lang === "gr" ? "Άνοιγμα παρουσίασης" : "Open resource"
     );
     if (lang === "gr") {
-      assert.match(row.description, /Αγγλικ/i);
       assert.match(row.description, /παρουσίαση/i);
       assert.doesNotMatch(row.description, /οπτικό μάθημα/i);
+      assert.doesNotMatch(row.description, /Αγγλικ/i);
+      assert.doesNotMatch(row.description, /Προς το παρόν/i);
     }
   }
 });

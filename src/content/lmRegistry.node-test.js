@@ -14,7 +14,8 @@ import {
   LM_CURRICULUM_IDS,
   LM01_KALLIPOS_TEXTBOOK_URL,
   LM01_EXTENDED_READING_PDF_URL,
-  LM01_VISUAL_LESSON_PDF_URL,
+  LM01_PRESENTATION_PDF_URL_EN,
+  LM01_PRESENTATION_PDF_URL_GR,
   LM01_VISUALS,
   LM02_VISUALS,
   LM04_VISUALS,
@@ -72,18 +73,32 @@ test("LM01 Visual Lesson is first visible activity; PEL stays reserved", () => {
     assert.equal(slides.evidenceId, undefined);
     assert.equal(slides.reserved, undefined);
     assert.equal(slides.linkKind, "external");
-    assert.equal(slides.href, LM01_VISUAL_LESSON_PDF_URL);
-    assert.equal(resolveLmActivityHref(slides, lang), LM01_VISUAL_LESSON_PDF_URL);
+    assert.deepEqual(slides.href, {
+      en: LM01_PRESENTATION_PDF_URL_EN,
+      gr: LM01_PRESENTATION_PDF_URL_GR,
+    });
+    assert.equal(
+      resolveLmActivityHref(slides, lang),
+      lang === "gr" ? LM01_PRESENTATION_PDF_URL_GR : LM01_PRESENTATION_PDF_URL_EN
+    );
     assert.equal(slides.title.en, "Visual Lesson");
     assert.equal(slides.title.gr, "Παρουσίαση");
   }
 
   assert.equal(
-    LM01_VISUAL_LESSON_PDF_URL,
-    "/learning-modules/visuals/lm01/LM01-What-is-Blockchain-EN-v1.0.pdf"
+    LM01_PRESENTATION_PDF_URL_EN,
+    "/learning-modules/presentations/lm01/Web3Edu-EN-Learning-Module1.pdf"
   );
   assert.equal(
-    existsSync(join(publicRoot, LM01_VISUAL_LESSON_PDF_URL.slice(1))),
+    LM01_PRESENTATION_PDF_URL_GR,
+    "/learning-modules/presentations/lm01/Web3Edu-GR-Learning-Module1.pdf"
+  );
+  assert.equal(
+    existsSync(join(publicRoot, LM01_PRESENTATION_PDF_URL_EN.slice(1))),
+    true
+  );
+  assert.equal(
+    existsSync(join(publicRoot, LM01_PRESENTATION_PDF_URL_GR.slice(1))),
     true
   );
 
@@ -115,9 +130,10 @@ test("LM01 Visual Lesson is first visible activity; PEL stays reserved", () => {
   const grSlides = getLmVisibleActivities("LM01", "gr").find(
     (a) => a.id === "lm01-slides"
   );
-  assert.match(grSlides.description.gr, /Αγγλικ/i);
   assert.match(grSlides.description.gr, /παρουσίαση/i);
   assert.doesNotMatch(grSlides.description.gr, /οπτικό μάθημα/i);
+  assert.doesNotMatch(grSlides.description.gr, /Αγγλικ/i);
+  assert.doesNotMatch(grSlides.description.gr, /Προς το παρόν/i);
 });
 
 test("LM01 learnerMeta is bilingual presentation and does not invent extra XP", () => {

@@ -9,9 +9,12 @@
 export const LM01_ANDERS_DEMO_URL = "https://andersbrownworth.com/blockchain/";
 export const LM01_KALLIPOS_TEXTBOOK_URL =
   "https://repository.kallipos.gr/handle/11419/9130";
-/** Primary LM01 Visual Lesson PDF (EN v1.0). Presentation only — not completion evidence. */
-export const LM01_VISUAL_LESSON_PDF_URL =
-  "/learning-modules/visuals/lm01/LM01-What-is-Blockchain-EN-v1.0.pdf";
+/** LM01 presentation PDF (EN). Presentation only — not completion evidence. */
+export const LM01_PRESENTATION_PDF_URL_EN =
+  "/learning-modules/presentations/lm01/Web3Edu-EN-Learning-Module1.pdf";
+/** LM01 presentation PDF (GR). Presentation only — not completion evidence. */
+export const LM01_PRESENTATION_PDF_URL_GR =
+  "/learning-modules/presentations/lm01/Web3Edu-GR-Learning-Module1.pdf";
 /** LM01 English deeper-reading PDF (v1.0). Presentation only — not completion evidence. */
 export const LM01_EXTENDED_READING_PDF_URL =
   "/learning-modules/readings/lm01/LM01-Blockchain-Fundamentals-EN-v1.0.pdf";
@@ -236,10 +239,13 @@ export const LM_PRESENTATION_REGISTRY = {
         },
         description: {
           en: "Start here: the primary illustrated Visual Lesson introducing blockchain as a linked record structure.",
-          gr: "Ξεκίνα από εδώ: η βασική εικονογραφημένη παρουσίαση που εισάγει το blockchain ως μια δομή συνδεδεμένων εγγραφών. Προς το παρόν διατίθεται στα Αγγλικά (EN).",
+          gr: "Ξεκίνα από εδώ: η βασική εικονογραφημένη παρουσίαση που εισάγει το blockchain ως μια δομή συνδεδεμένων εγγραφών.",
         },
         linkKind: "external",
-        href: LM01_VISUAL_LESSON_PDF_URL,
+        href: {
+          en: LM01_PRESENTATION_PDF_URL_EN,
+          gr: LM01_PRESENTATION_PDF_URL_GR,
+        },
         presentationOnly: true,
       },
       {
