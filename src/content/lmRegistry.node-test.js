@@ -594,7 +594,18 @@ test("LM02 chapter is bilingual with locked transition and assessment XP display
   assert.equal(mod.learningOutcomes.gr.length, 6);
   assert.ok(mod.activities.some((a) => a.id === "lm02-understand-trust-model"));
   assert.ok(mod.activities.some((a) => a.id === "lm02-compare-architecture-choices"));
-  assert.ok(mod.activities.some((a) => a.id === "lm02-slides" && a.reserved));
+  const slides = mod.activities.find((a) => a.id === "lm02-slides");
+  assert.ok(slides);
+  assert.equal(slides.reserved, undefined);
+  assert.equal(slides.visualType, "visualLesson");
+  assert.equal(slides.requirementHint, "core");
+  assert.equal(slides.presentationOnly, true);
+  assert.equal(slides.linkKind, "external");
+  assert.deepEqual(slides.href, {
+    en: "/learning-modules/presentations/lm02/Web3Edu-EN-Learning-Module2.pdf",
+    gr: "/learning-modules/presentations/lm02/Web3Edu-GR-Learning-Module2.pdf",
+  });
+  assert.equal(mod.activities[0].id, "lm02-slides");
   const assessment = mod.activities.find((a) => a.id === "lm02-assessment");
   assert.equal(assessment?.evidenceId, "lm02-assessment");
   assert.equal(assessment?.linkKind, "internal");
@@ -603,19 +614,35 @@ test("LM02 chapter is bilingual with locked transition and assessment XP display
     gr: "/learning-modules-gr/lm02/assessment",
   });
   assert.equal(assessment?.reserved, undefined);
-  assert.equal(
-    getLmVisibleActivities("LM02", "en").some((a) => a.id === "lm02-slides"),
-    false
-  );
-  assert.ok(
-    getLmVisibleActivities("LM02", "en").some((a) => a.id === "lm02-assessment")
-  );
+  const visibleEn = getLmVisibleActivities("LM02", "en");
+  const visibleGr = getLmVisibleActivities("LM02", "gr");
+  assert.equal(visibleEn[0].id, "lm02-slides");
+  assert.equal(visibleGr[0].id, "lm02-slides");
+  assert.ok(visibleEn.some((a) => a.id === "lm02-assessment"));
   assert.equal(mod.visuals.hero, LM02_VISUALS.hero);
   assert.equal(mod.visuals.activityByType.concept, LM02_VISUALS.concept);
+  assert.equal(mod.visuals.activityByType.visualLesson, LM02_VISUALS.concept);
+  const enReading = mod.activities.find(
+    (a) => a.id === "lm02-chapter1-reading-en-ref"
+  );
+  const grReading = mod.activities.find((a) => a.id === "lm02-chapter1-reading");
+  assert.equal(enReading?.requirementHint, "recommended");
+  assert.equal(enReading?.presentationOnly, true);
   assert.equal(
-    mod.activities.find((a) => a.id === "lm02-chapter1-reading-en-ref")
-      ?.requirementHint,
-    "recommended"
+    enReading?.href,
+    "/learning-modules/readings/lm02/LM02-When-Does-Blockchain-Make-Sense-EN-v1.1.pdf"
+  );
+  assert.equal(
+    grReading?.href,
+    "/learning-modules/readings/lm02/LM02-Pote-Exei-Noima-to-Blockchain-GR-v1.0.pdf"
+  );
+  assert.equal(
+    visibleEn.filter((a) => a.visualType === "book").length,
+    1
+  );
+  assert.equal(
+    visibleGr.filter((a) => a.visualType === "book").length,
+    1
   );
   assert.equal(mod.learningOutcomes.en.length, 6);
   assert.equal(mod.learningOutcomes.gr.length, 6);

@@ -88,24 +88,42 @@ test("LM02 keeps all six locked learning outcomes", () => {
   assert.equal(mod.learningOutcomes.gr.length, 6);
 });
 
-test("LM02 Learning Path has four visible steps with two expandable CONCEPT cores", async () => {
+test("LM02 Learning Path has five visible steps: Visual Lesson → concepts → reading → assessment", async () => {
   const { getLmPageViewState } = await import("../../utils/lmModuleView.js");
   for (const lang of ["en", "gr"]) {
     const visible = getLmVisibleActivities("LM02", lang);
-    assert.equal(visible.length, 4);
-    assert.equal(visible[0].id, "lm02-understand-trust-model");
-    assert.equal(visible[1].id, "lm02-compare-architecture-choices");
-    assert.equal(visible[0].expandable, true);
-    assert.equal(visible[1].expandable, true);
-    assert.equal(visible[0].visualType, "concept");
-    assert.equal(visible[1].visualType, "concept");
+    assert.equal(visible.length, 5);
+    assert.equal(visible[0].id, "lm02-slides");
+    assert.equal(visible[0].visualType, "visualLesson");
     assert.equal(visible[0].requirementHint, "core");
+    assert.equal(visible[0].presentationOnly, true);
+    assert.equal(visible[0].linkKind, "external");
+    assert.equal(
+      visible[0].href?.[lang] || visible[0].href,
+      lang === "gr"
+        ? "/learning-modules/presentations/lm02/Web3Edu-GR-Learning-Module2.pdf"
+        : "/learning-modules/presentations/lm02/Web3Edu-EN-Learning-Module2.pdf"
+    );
+    assert.equal(visible[1].id, "lm02-understand-trust-model");
+    assert.equal(visible[2].id, "lm02-compare-architecture-choices");
+    assert.equal(visible[1].expandable, true);
+    assert.equal(visible[2].expandable, true);
+    assert.equal(visible[1].visualType, "concept");
+    assert.equal(visible[2].visualType, "concept");
     assert.equal(visible[1].requirementHint, "core");
-    assert.equal(visible[2].visualType, "book");
-    assert.equal(visible[2].requirementHint, "recommended");
-    assert.equal(visible[3].id, "lm02-assessment");
+    assert.equal(visible[2].requirementHint, "core");
+    assert.equal(visible[3].visualType, "book");
+    assert.equal(visible[3].requirementHint, "recommended");
+    assert.equal(visible[4].id, "lm02-assessment");
 
     const view = getLmPageViewState(null, lang, "LM02");
+    assert.equal(view.activities[0].id, "lm02-slides");
+    assert.equal(
+      view.activities[0].ctaLabel,
+      lang === "gr" ? "Άνοιγμα παρουσίασης" : "Open resource"
+    );
+    assert.equal(view.activities[0].presentationOnly, true);
+    assert.equal(view.activities[0].evidenceId, null);
     const step01 = view.activities.find((a) => a.id === "lm02-understand-trust-model");
     const step02 = view.activities.find((a) => a.id === "lm02-compare-architecture-choices");
     assert.equal(step01.disclosure, true);
@@ -140,29 +158,34 @@ test("LM02 approved visuals are registered and present on disk", () => {
   assert.match(LM02_VISUALS.concept, /\/lm02\/lm02-concept\.png$/);
 });
 
-test("LM02 Kallipos Step 03 shows Recommended status with locked reading scope", async () => {
+test("LM02 Deeper Reading Step shows Recommended status with locale PDF hrefs", async () => {
   const { getLmPageViewState } = await import("../../utils/lmModuleView.js");
   for (const lang of ["en", "gr"]) {
     const view = getLmPageViewState(null, lang, "LM02");
-    const kallipos = view.activities.find((a) => a.visualType === "book");
-    assert.ok(kallipos, lang);
-    assert.equal(kallipos.requirementHint, "recommended");
-    assert.equal(kallipos.statusKind, "recommended");
+    const reading = view.activities.find((a) => a.visualType === "book");
+    assert.ok(reading, lang);
+    assert.equal(reading.requirementHint, "recommended");
+    assert.equal(reading.statusKind, "recommended");
     assert.equal(
-      kallipos.statusLabel,
+      reading.statusLabel,
       lang === "gr" ? "Προτεινόμενο" : "Recommended"
     );
     assert.equal(
-      kallipos.ctaLabel,
+      reading.ctaLabel,
       lang === "gr" ? "Άνοιγμα πόρου" : "Open resource"
     );
-    assert.ok(kallipos.href);
-    assert.equal(kallipos.linkKind, "external");
-    assert.equal(kallipos.presentationOnly, true);
-    assert.match(kallipos.description, /§1\.2/);
-    assert.match(kallipos.description, /15–19|15-19/);
-    assert.match(kallipos.description, /§1\.5/);
-    assert.match(kallipos.description, /28–31|28-31/);
+    assert.ok(reading.href);
+    assert.equal(reading.linkKind, "external");
+    assert.equal(reading.presentationOnly, true);
+    assert.equal(reading.evidenceId, null);
+    assert.match(reading.description, /Web3Edu LM02|εκτενής ανάγνωση Web3Edu LM02/);
+    assert.doesNotMatch(reading.description, /Kallipos|Κάλλιπ/);
+    assert.equal(
+      reading.href,
+      lang === "gr"
+        ? "/learning-modules/readings/lm02/LM02-Pote-Exei-Noima-to-Blockchain-GR-v1.0.pdf"
+        : "/learning-modules/readings/lm02/LM02-When-Does-Blockchain-Make-Sense-EN-v1.1.pdf"
+    );
   }
   const enBook = LM_PRESENTATION_REGISTRY.LM02.activities.find(
     (a) => a.id === "lm02-chapter1-reading-en-ref"
@@ -177,6 +200,16 @@ test("LM02 Kallipos Step 03 shows Recommended status with locked reading scope",
   );
   assert.doesNotMatch(enBook.description.en, /whole Chapter 1|entire Chapter/i);
   assert.doesNotMatch(grBook.description.gr, /ολόκληρο το Κεφάλαιο 1/i);
+  assert.equal(
+    getLmVisibleActivities("LM02", "en").filter((a) => a.visualType === "book")
+      .length,
+    1
+  );
+  assert.equal(
+    getLmVisibleActivities("LM02", "gr").filter((a) => a.visualType === "book")
+      .length,
+    1
+  );
 });
 
 test("LM02 Learning Path has no FoodTrace standalone activity and assessment has href", () => {
@@ -242,7 +275,7 @@ test("LM02 reasoning journey does not invent assessment question text", () => {
   assert.doesNotMatch(pageSrc, /Select all that apply/i);
 });
 
-test("LM02 page chrome overrides exist and registry keeps slides unlinked", () => {
+test("LM02 page chrome overrides exist and Visual Lesson is linked presentation-only", () => {
   const en = getLmPageCopy("en", "LM02");
   const gr = getLmPageCopy("gr", "LM02");
   assert.match(en.loading, /LM02/);
@@ -254,6 +287,11 @@ test("LM02 page chrome overrides exist and registry keeps slides unlinked", () =
   const slides = LM_PRESENTATION_REGISTRY.LM02.activities.find(
     (a) => a.id === "lm02-slides"
   );
-  assert.equal(slides?.href, null);
-  assert.equal(slides?.reserved, true);
+  assert.equal(slides?.reserved, undefined);
+  assert.equal(slides?.presentationOnly, true);
+  assert.equal(slides?.evidenceId, undefined);
+  assert.deepEqual(slides?.href, {
+    en: "/learning-modules/presentations/lm02/Web3Edu-EN-Learning-Module2.pdf",
+    gr: "/learning-modules/presentations/lm02/Web3Edu-GR-Learning-Module2.pdf",
+  });
 });

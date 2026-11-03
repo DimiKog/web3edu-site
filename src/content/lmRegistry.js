@@ -18,6 +18,18 @@ export const LM01_PRESENTATION_PDF_URL_GR =
 /** LM01 English deeper-reading PDF (v1.0). Presentation only — not completion evidence. */
 export const LM01_EXTENDED_READING_PDF_URL =
   "/learning-modules/readings/lm01/LM01-Blockchain-Fundamentals-EN-v1.0.pdf";
+/** LM02 presentation PDF (EN). Presentation only — not completion evidence. */
+export const LM02_PRESENTATION_PDF_URL_EN =
+  "/learning-modules/presentations/lm02/Web3Edu-EN-Learning-Module2.pdf";
+/** LM02 presentation PDF (GR). Presentation only — not completion evidence. */
+export const LM02_PRESENTATION_PDF_URL_GR =
+  "/learning-modules/presentations/lm02/Web3Edu-GR-Learning-Module2.pdf";
+/** LM02 English deeper-reading PDF (v1.1). Presentation only — not completion evidence. */
+export const LM02_EXTENDED_READING_PDF_URL_EN =
+  "/learning-modules/readings/lm02/LM02-When-Does-Blockchain-Make-Sense-EN-v1.1.pdf";
+/** LM02 Greek deeper-reading PDF (v1.0). Presentation only — not completion evidence. */
+export const LM02_EXTENDED_READING_PDF_URL_GR =
+  "/learning-modules/readings/lm02/LM02-Pote-Exei-Noima-to-Blockchain-GR-v1.0.pdf";
 
 /** Approved LM01 production visuals (public/ paths). */
 export const LM01_VISUALS = {
@@ -403,6 +415,7 @@ export const LM_PRESENTATION_REGISTRY = {
         xp: LM01_VISUALS.metaXp,
       },
       activityByType: {
+        visualLesson: LM02_VISUALS.concept,
         concept: LM02_VISUALS.concept,
         book: LM01_VISUALS.book,
         reading: LM01_VISUALS.book,
@@ -427,7 +440,32 @@ export const LM_PRESENTATION_REGISTRY = {
         "Να κρίνεις αν το blockchain δικαιολογείται και να υπερασπίζεσαι συνοπτικά την απόφαση.",
       ],
     },
+    /**
+     * Visible LM02 order: Visual Lesson → Interactive Concepts → Deeper Reading → Assessment.
+     * Slides and readings are presentation-only (not completion evidence).
+     */
     activities: [
+      {
+        id: "lm02-slides",
+        visualType: "visualLesson",
+        requirementHint: "core",
+        showRequirementStatus: true,
+        languages: ["both"],
+        title: {
+          en: "Visual Lesson",
+          gr: "Παρουσίαση",
+        },
+        description: {
+          en: "Start here: the primary illustrated Visual Lesson on whether blockchain is justified — trust, shared control, verification needs, and trade-offs.",
+          gr: "Ξεκίνα από εδώ: η βασική εικονογραφημένη παρουσίαση για το αν το blockchain δικαιολογείται — εμπιστοσύνη, διαμοιρασμένος έλεγχος, ανάγκες επαλήθευσης και συμβιβασμοί.",
+        },
+        linkKind: "external",
+        href: {
+          en: LM02_PRESENTATION_PDF_URL_EN,
+          gr: LM02_PRESENTATION_PDF_URL_GR,
+        },
+        presentationOnly: true,
+      },
       {
         id: "lm02-understand-trust-model",
         visualType: "concept",
@@ -465,24 +503,6 @@ export const LM_PRESENTATION_REGISTRY = {
         presentationOnly: true,
       },
       {
-        id: "lm02-slides",
-        visualType: "reading",
-        requirementHint: "recommended",
-        languages: ["both"],
-        title: {
-          en: "LM02 slides",
-          gr: "Διαφάνειες LM02",
-        },
-        description: {
-          en: "Core teaching slides EN/GR — link reserved until the revised decks are ready.",
-          gr: "Βασικές διαφάνειες EN/GR — ο σύνδεσμος θα προστεθεί όταν είναι έτοιμα τα αναθεωρημένα αρχεία.",
-        },
-        linkKind: "none",
-        href: null,
-        presentationOnly: true,
-        reserved: true,
-      },
-      {
         id: "lm02-chapter1-reading",
         visualType: "book",
         requirementHint: "recommended",
@@ -493,11 +513,11 @@ export const LM_PRESENTATION_REGISTRY = {
           gr: "Οφέλη, περιορισμοί και πότε δικαιολογείται το blockchain",
         },
         description: {
-          en: "Read Kallipos Chapter 1, §1.2 (pp. 15–19) and §1.5 (pp. 28–31) to deepen your understanding of blockchain benefits, limitations, trade-offs, and the criteria used to decide whether a blockchain-based solution is justified.",
-          gr: "Διάβασε από το Κεφάλαιο 1 του Κάλλιπου την §1.2 (σελ. 15–19) και την §1.5 (σελ. 28–31), ώστε να εμβαθύνεις στα οφέλη, τους περιορισμούς και τους συμβιβασμούς του blockchain, καθώς και στα κριτήρια με τα οποία κρίνουμε αν μια λύση βασισμένη σε blockchain δικαιολογείται.",
+          en: "Recommended deeper reading: When Does Blockchain Make Sense? (Greek) — Web3Edu LM02 extended reading on benefits, limitations, trade-offs, and when a blockchain-based solution is justified.",
+          gr: "Προτεινόμενη μελέτη: Πότε έχει νόημα το Blockchain; — εκτενές ανάγνωση Web3Edu LM02 για οφέλη, περιορισμούς, συμβιβασμούς και κριτήρια με τα οποία κρίνουμε αν μια λύση βασισμένη σε blockchain δικαιολογείται.",
         },
         linkKind: "external",
-        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        href: LM02_EXTENDED_READING_PDF_URL_GR,
         presentationOnly: true,
       },
       {
@@ -511,11 +531,11 @@ export const LM_PRESENTATION_REGISTRY = {
           gr: "Οφέλη, περιορισμοί και πότε δικαιολογείται το blockchain",
         },
         description: {
-          en: "Read Kallipos Chapter 1, §1.2 (pp. 15–19) and §1.5 (pp. 28–31) to deepen your understanding of blockchain benefits, limitations, trade-offs, and the criteria used to decide whether a blockchain-based solution is justified.",
-          gr: "Διάβασε από το Κεφάλαιο 1 του Κάλλιπου την §1.2 (σελ. 15–19) και την §1.5 (σελ. 28–31), ώστε να εμβαθύνεις στα οφέλη, τους περιορισμούς και τους συμβιβασμούς του blockchain, καθώς και στα κριτήρια με τα οποία κρίνουμε αν μια λύση βασισμένη σε blockchain δικαιολογείται.",
+          en: "Recommended deeper reading: When Does Blockchain Make Sense? — Web3Edu LM02 extended reading on benefits, limitations, trade-offs, and when a blockchain-based solution is justified.",
+          gr: "Προτεινόμενη μελέτη: When Does Blockchain Make Sense? — εκτενής ανάγνωση Web3Edu LM02 για οφέλη, περιορισμούς, συμβιβασμούς και κριτήρια με τα οποία κρίνουμε αν μια λύση βασισμένη σε blockchain δικαιολογείται.",
         },
         linkKind: "external",
-        href: LM01_KALLIPOS_TEXTBOOK_URL,
+        href: LM02_EXTENDED_READING_PDF_URL_EN,
         presentationOnly: true,
       },
       {
