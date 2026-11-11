@@ -11,6 +11,7 @@ import DashboardIdentityStrip from "../components/dashboard-v2/DashboardIdentity
 import DashboardRecordCard from "../components/dashboard-v2/DashboardRecordCard.jsx";
 import DashboardProofCard from "../components/dashboard-v2/DashboardProofCard.jsx";
 import IdentityBackupBanner from "../components/IdentityBackupBanner.jsx";
+import WalletAuthProgressBanner from "../components/WalletAuthProgressBanner.jsx";
 import SocialLoginRecoveryPrompt from "../components/SocialLoginRecoveryPrompt.jsx";
 import SocialWalletHistoryPrompt from "../components/SocialWalletHistoryPrompt.jsx";
 import SocialWalletProgressImportSection from "../components/SocialWalletProgressImportSection.jsx";
@@ -240,6 +241,7 @@ export default function Dashboard() {
         isWalletEntryLinkedAlias,
         walletEntryResolvePending,
         walletEntryLinkedWalletAddress,
+        walletAuthProgress,
     } = useResolvedIdentityContext();
 
     const socialAaAddress = getSocialIdentityAaAddress(socialIdentity);
@@ -1300,6 +1302,16 @@ export default function Dashboard() {
                         ) : null}
 
                         {topStatusKey === "recovery" ? <SocialLoginRecoveryPrompt variant="en" /> : null}
+                    </div>
+                ) : null}
+
+                {walletAuthProgress?.uiState && walletAuthProgress.uiState !== "hidden" ? (
+                    <div className="relative z-10 w-full max-w-6xl mx-auto mt-2 mb-2 px-2 md:px-0">
+                        <WalletAuthProgressBanner
+                            uiState={walletAuthProgress.uiState}
+                            onVerify={walletAuthProgress.verifyWalletForProgress}
+                            isGR={false}
+                        />
                     </div>
                 ) : null}
 

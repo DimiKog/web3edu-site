@@ -136,9 +136,15 @@ test("useResolvedIdentity sends Bearer on self /web3sbt/resolve when idToken pro
   assert.match(src, /headers\.Authorization = `Bearer \$\{idToken\.trim\(\)\}`/);
 });
 
-test("ResolvedIdentityProvider passes idToken only when OIDC authenticated", () => {
+test("ResolvedIdentityProvider selects Keycloak Bearer before wallet session (WA-01c2)", () => {
   const src = read(join(__dirname, "../context/ResolvedIdentityProvider.jsx"));
-  assert.match(src, /isOidcAuthenticated \? idToken : null/);
+  assert.match(src, /selectResolveBearer/);
+  assert.match(src, /isOidcAuthenticated/);
+  assert.match(src, /idToken/);
+  assert.match(src, /resolveBearer\.token/);
+  assert.match(src, /authStateKey:\s*resolveBearer\.authStateKey/);
+  // Must not send wallet Bearer while OIDC is the selection source.
+  assert.match(src, /useWalletAuthSession/);
 });
 
 test("Labs and ProjectLabTemplate use fetchProjectsPoeStatus with idToken", () => {

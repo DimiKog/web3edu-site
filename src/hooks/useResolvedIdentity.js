@@ -11,6 +11,7 @@ import {
   getXpTotalFromBackend,
   isUserStateUnavailableError,
 } from "../utils/progression.js";
+import { isWalletSessionAuthFailureError } from "../utils/resolveBearerSelection.js";
 
 function resolveTokenId(payload) {
   const candidates = [
@@ -121,15 +122,31 @@ async function fetchLegacyResolve({ identityAddress, resolveOwner, idToken, sign
 /**
  * @param {string|null|undefined} identityAddress — canonical smart account ONLY (no owner fallback)
  * @param {string|null|undefined} resolveOwner — optional EOA for `?owner=` on /web3sbt/resolve (backend may require it for founder / full passport)
- * @param {string|null|undefined} idToken — optional Keycloak id_token for authenticated self-resolve PoE reconciliation
+ * @param {string|null|undefined} idToken — optional Bearer (Keycloak id_token or wallet w3wa1_ session)
+ * @param {{ authStateKey?: string|null, onPrivateAuthFailure?: Function|null }} [options]
+ *   authStateKey — changes when auth mode changes (keycloak / wallet:sessionId / anon) so
+ *   private metadata is cleared even when the resolve address is unchanged (WA-01c2).
  */
-export function useResolvedIdentity(identityAddress, resolveOwner = null, idToken = null) {
+export function useResolvedIdentity(
+  identityAddress,
+  resolveOwner = null,
+  idToken = null,
+  options = null
+) {
+  const authStateKey =
+    options && typeof options === "object" ? options.authStateKey ?? null : null;
+  const onPrivateAuthFailure =
+    options && typeof options === "object" ? options.onPrivateAuthFailure ?? null : null;
+
   const [metadata, setMetadata] = useState(null);
   const [profile, setProfile] = useState(null);
   const [resolveData, setResolveData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [refetchBump, setRefetchBump] = useState(0);
+
+  const onPrivateAuthFailureRef = useRef(onPrivateAuthFailure);
+  onPrivateAuthFailureRef.current = onPrivateAuthFailure;
 
   const canonId = useMemo(
     () => normalizeEvmAddress(identityAddress),
@@ -155,9 +172,16 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null, idToke
     return canonId;
   }, [canonId, canonResolveOwner]);
 
+  /** Identity + auth mode — auth transitions with same address must drop private cache. */
+  const resolveDataKey = useMemo(() => {
+    if (!resolveKey) return null;
+    const auth = authStateKey || (bearerToken ? "auth" : "anon");
+    return `${resolveKey}#${auth}`;
+  }, [resolveKey, authStateKey, bearerToken]);
+
   /** Monotonic id: only the latest resolve generation may commit React state. */
   const resolveGenerationRef = useRef(0);
-  /** Last identity key that successfully committed metadata (avoid flash on same-key refetch). */
+  /** Last identity+auth key that successfully committed metadata. */
   const prevResolveKeyForDataRef = useRef(null);
 
   const refetch = useCallback(() => {
@@ -181,7 +205,7 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null, idToke
   }, [refetch]);
 
   useEffect(() => {
-    if (!resolveKey || !canonId) {
+    if (!resolveKey || !canonId || !resolveDataKey) {
       resolveGenerationRef.current += 1;
       prevResolveKeyForDataRef.current = null;
       setMetadata(null);
@@ -199,8 +223,9 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null, idToke
     const run = async () => {
       setLoading(true);
       setError(null);
-      // Same-identity refetch: keep prior metadata visible. Identity change: clear.
-      if (prevResolveKeyForDataRef.current !== resolveKey) {
+      // Same identity+auth refetch: keep prior metadata. Auth or identity change: clear
+      // immediately so private fields cannot linger into an anonymous projection.
+      if (prevResolveKeyForDataRef.current !== resolveDataKey) {
         setMetadata(null);
         setProfile(null);
         setResolveData(null);
@@ -451,7 +476,7 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null, idToke
         setMetadata(nextMetadata);
         setProfile(nextProfile);
         setResolveData(dashboardData);
-        prevResolveKeyForDataRef.current = resolveKey;
+        prevResolveKeyForDataRef.current = resolveDataKey;
       } catch (err) {
         if (!isCurrent()) return;
         if (isUserStateUnavailableError(err)) {
@@ -460,6 +485,22 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null, idToke
         }
         // Aborted requests are expected when a newer resolve supersedes this one.
         if (err?.name === "AbortError") return;
+        if (isWalletSessionAuthFailureError(err)) {
+          // Drop any cached private projection before anonymous refetch.
+          setMetadata(null);
+          setProfile(null);
+          setResolveData(null);
+          prevResolveKeyForDataRef.current = null;
+          const code =
+            err?.payload?.reasonCode || err?.reasonCode || err?.code || "SESSION_EXPIRED";
+          try {
+            onPrivateAuthFailureRef.current?.(code, err);
+          } catch {
+            // ignore callback errors
+          }
+          setError(code);
+          return;
+        }
         setError(err?.message || "Failed to resolve identity");
       } finally {
         if (isCurrent()) setLoading(false);
@@ -476,7 +517,7 @@ export function useResolvedIdentity(identityAddress, resolveOwner = null, idToke
         resolveGenerationRef.current += 1;
       }
     };
-  }, [resolveKey, canonId, canonResolveOwner, bearerToken, refetchBump]);
+  }, [resolveKey, resolveDataKey, canonId, canonResolveOwner, bearerToken, refetchBump]);
 
   return { metadata, profile, resolveData, loading, error, refetch };
 }

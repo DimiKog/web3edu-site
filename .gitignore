@@ -12,6 +12,9 @@ dist
 dist-ssr
 .env
 *.local
+.env.e2e.local
+# Keep tracked template:
+!.env.e2e.local.example
 
 # Editor directories and files
 .vscode/*
