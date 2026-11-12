@@ -123,6 +123,20 @@ export function interpretWalletEntryCanonicalResult(payload, { connectedEoa = nu
   }
 
   if (RESOLVED_STATUSES.has(status) && mode === "wallet_only") {
+    // Fail closed: wallet-only requires an authoritative progressAddress.
+    // Policy B: when a connected EOA is present, progress must match it.
+    if (!progress || (eoa && progress !== eoa)) {
+      return {
+        status: WALLET_ENTRY_UNRESOLVED,
+        canonicalProgressAddress: null,
+        matchedBy,
+        mode,
+        linkedWalletAddress: null,
+        aaAddress,
+        ownerAddress,
+        connectedEoa: eoa,
+      };
+    }
     return {
       status: WALLET_ENTRY_WALLET_ONLY,
       canonicalProgressAddress: progress,
@@ -148,9 +162,19 @@ export function interpretWalletEntryCanonicalResult(payload, { connectedEoa = nu
 }
 
 /**
- * Choose the canonical viewer identity address.
- * OIDC social AA always wins. Linked-wallet alias wins over device AA.
- * Device AA never overrides an authoritative backend linked-wallet result.
+ * Choose the canonical viewer identity address for Dashboard / resolve.
+ *
+ * Priority (IC-03B):
+ * 1. OIDC social AA
+ * 2. Authoritative wallet-entry backend result (linked alias OR wallet-only
+ *    progressAddress). Device AA must NOT override these.
+ * 3. Neutral-after-logout
+ * 4. Device AA only when no connected-EOA wallet-entry path applies
+ *    (execution/recovery surface — not an EOA/AA learner merge)
+ *
+ * Educational progression uses backend identity.progressAddress.
+ * AA execution identity remains in IdentityContext; this selector does not
+ * invent EOA↔AA mappings from browser storage or AA ownership alone.
  *
  * @param {object} args
  */
@@ -217,6 +241,30 @@ export function selectCanonicalViewerIdentity({
       };
     }
 
+    // IC-03B: wallet-only learners use backend progressAddress only.
+    // No connected-EOA fallback. Policy B requires progress === connected EOA.
+    // A restored/local device AA is execution-only and must not replace this.
+    if (walletEntryStatus === WALLET_ENTRY_WALLET_ONLY) {
+      const progress = normalizeEvmAddress(walletEntryProgressAddress);
+      if (!progress || progress !== eoa) {
+        return {
+          ...emptyViewer({ source: VIEWER_SOURCE_UNRESOLVED }),
+          signerAddress: eoa,
+        };
+      }
+      return {
+        identityAddress: progress,
+        source: VIEWER_SOURCE_CONNECTED_EOA,
+        pending: false,
+        isLinkedWalletAlias: false,
+        resolveOwner: null,
+        matchedBy: walletEntryMatchedBy,
+        mode: walletEntryMode ?? "wallet_only",
+        linkedWalletAddress: null,
+        signerAddress: eoa,
+      };
+    }
+
     if (walletEntryStatus === WALLET_ENTRY_UNAVAILABLE) {
       return {
         ...emptyViewer({ source: VIEWER_SOURCE_UNAVAILABLE }),
@@ -239,6 +287,8 @@ export function selectCanonicalViewerIdentity({
     };
   }
 
+  // Device AA only when wallet-entry did not establish a canonical EOA path
+  // (e.g. no connected wallet, or wallet-entry inactive).
   if (deviceAaReady && device) {
     return {
       identityAddress: device,
@@ -247,20 +297,6 @@ export function selectCanonicalViewerIdentity({
       isLinkedWalletAlias: false,
       resolveOwner: null,
       matchedBy: null,
-      mode: "wallet_only",
-      linkedWalletAddress: null,
-      signerAddress: eoa,
-    };
-  }
-
-  if (eoa && walletEntryStatus === WALLET_ENTRY_WALLET_ONLY) {
-    return {
-      identityAddress: eoa,
-      source: VIEWER_SOURCE_CONNECTED_EOA,
-      pending: false,
-      isLinkedWalletAlias: false,
-      resolveOwner: null,
-      matchedBy: walletEntryMatchedBy,
       mode: "wallet_only",
       linkedWalletAddress: null,
       signerAddress: eoa,
