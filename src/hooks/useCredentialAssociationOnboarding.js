@@ -81,6 +81,7 @@ export function useCredentialAssociationOnboarding(options = {}) {
   chainIdRef.current = chainId;
   const isConnectedRef = useRef(isConnected);
   isConnectedRef.current = isConnected;
+  const associatingRef = useRef(false);
 
   const walletAddress = useMemo(
     () => (isConnected ? normalizeEvmAddress(address) : null),
@@ -258,6 +259,9 @@ export function useCredentialAssociationOnboarding(options = {}) {
     if (!frontendEnabled || !eligibility.eligible || !walletAddress) {
       return { ok: false, reasonCode: eligibility.reasonCode };
     }
+    if (associatingRef.current || flowPhase === "signing") {
+      return { ok: false, reasonCode: "ASSOCIATION_IN_PROGRESS" };
+    }
     if (!discovery?.aaCredential) {
       setFlowReasonCode(CREDENTIAL_ASSOCIATION_REASON.MISSING_AA_SBT);
       return { ok: false, reasonCode: CREDENTIAL_ASSOCIATION_REASON.MISSING_AA_SBT };
@@ -274,6 +278,7 @@ export function useCredentialAssociationOnboarding(options = {}) {
     const startWallet = walletAddress;
     const startChain = chainId ?? CREDENTIAL_ASSOCIATION_CHAIN_ID;
     const assocGen = ++discoveryGen.current;
+    associatingRef.current = true;
     setFlowPhase("signing");
     setFlowReasonCode(null);
 
@@ -291,7 +296,12 @@ export function useCredentialAssociationOnboarding(options = {}) {
         signTypedDataAsync,
       });
 
-      await refreshAndConfirmIssued({ eoaAddress: startWallet });
+      await refreshAndConfirmIssued({
+        eoaAddress: startWallet,
+        expectedAaAddress: discovery.aaCredential.aaAddress,
+        expectedTokenId: discovery.aaCredential.tokenId,
+        expectedSbtContract: getConfiguredAaSbtContract(),
+      });
 
       // Refresh discovery only if wallet/chain/eligibility still match.
       try {
@@ -332,12 +342,14 @@ export function useCredentialAssociationOnboarding(options = {}) {
         err?.reasonCode ||
         err?.payload?.reasonCode ||
         err?.payload?.error ||
-        "ASSOCIATION_FAILED";
+        CREDENTIAL_ASSOCIATION_REASON.ASSOCIATION_FAILED;
       if (assocGen === discoveryGen.current) {
         setFlowPhase("idle");
         setFlowReasonCode(String(code));
       }
       throw err;
+    } finally {
+      associatingRef.current = false;
     }
   }, [
     frontendEnabled,
@@ -345,6 +357,7 @@ export function useCredentialAssociationOnboarding(options = {}) {
     walletAddress,
     discovery,
     chainId,
+    flowPhase,
     signTypedDataAsync,
     onAssociated,
     readLiveWallet,

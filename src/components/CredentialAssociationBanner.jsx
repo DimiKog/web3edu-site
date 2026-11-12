@@ -32,12 +32,14 @@ export default function CredentialAssociationBanner({
   const showAction =
     uiState === CREDENTIAL_ASSOCIATION_UI.PROMPT ||
     uiState === CREDENTIAL_ASSOCIATION_UI.REJECTED ||
-    uiState === CREDENTIAL_ASSOCIATION_UI.EXPIRED;
+    uiState === CREDENTIAL_ASSOCIATION_UI.EXPIRED ||
+    uiState === CREDENTIAL_ASSOCIATION_UI.FAILED;
 
   const actionLabel =
     uiState === CREDENTIAL_ASSOCIATION_UI.EXPIRED
       ? copy.reverifyAction
-      : uiState === CREDENTIAL_ASSOCIATION_UI.REJECTED
+      : uiState === CREDENTIAL_ASSOCIATION_UI.REJECTED ||
+          uiState === CREDENTIAL_ASSOCIATION_UI.FAILED
         ? copy.retryAction
         : copy.verifyAction;
 
@@ -67,6 +69,9 @@ export default function CredentialAssociationBanner({
   } else if (uiState === CREDENTIAL_ASSOCIATION_UI.RPC_UNAVAILABLE) {
     title = copy.rpcTitle;
     body = copy.rpcBody;
+  } else if (uiState === CREDENTIAL_ASSOCIATION_UI.FAILED) {
+    title = copy.failedTitle;
+    body = copy.failedBody;
   } else if (uiState === CREDENTIAL_ASSOCIATION_UI.UNAVAILABLE) {
     title = copy.unavailableTitle;
     body = copy.unavailableBody;

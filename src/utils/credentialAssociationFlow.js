@@ -71,7 +71,10 @@ export const CREDENTIAL_ASSOCIATION_REASON = Object.freeze({
   USER_REJECTED: "USER_REJECTED",
   CHALLENGE_EXPIRED: "CHALLENGE_EXPIRED",
   RPC_UNAVAILABLE: "RPC_UNAVAILABLE",
+  ASSOCIATION_FAILED: "ASSOCIATION_FAILED",
   NOT_ISSUED_AFTER_CONFIRM: "CREDENTIAL_NOT_ISSUED_AFTER_CONFIRM",
+  POST_CONFIRM_CREDENTIAL_MISMATCH: "POST_CONFIRM_CREDENTIAL_MISMATCH",
+  POST_CONFIRM_LOOKUP_UNAVAILABLE: "POST_CONFIRM_LOOKUP_UNAVAILABLE",
   LEARNER_NOT_ELIGIBLE: "LEARNER_NOT_ELIGIBLE",
 });
 
@@ -86,6 +89,7 @@ export const CREDENTIAL_ASSOCIATION_UI = Object.freeze({
   WRONG_WALLET: "wrong_wallet",
   WRONG_NETWORK: "wrong_network",
   RPC_UNAVAILABLE: "rpc_unavailable",
+  FAILED: "failed",
   UNAVAILABLE: "unavailable",
 });
 
@@ -155,7 +159,11 @@ export function extractAaHeldCredential(aaPayload) {
 }
 
 /**
- * Read credential + association blocks from GET /web3edu/identity/resolve payload.
+ * Read credential blocks from GET /web3edu/identity/resolve payload.
+ *
+ * IC-PR-05: public resolve no longer emits ``credentialAssociation``. Missing
+ * association metadata is expected; association state comes from minimal lookup.
+ * Legacy association keys are ignored if present.
  */
 export function readCanonicalCredentialBlocks(payload) {
   const identity = payload?.identity && typeof payload.identity === "object"
@@ -165,28 +173,19 @@ export function readCanonicalCredentialBlocks(payload) {
     payload?.credential && typeof payload.credential === "object"
       ? payload.credential
       : null;
-  const association =
-    payload?.credentialAssociation &&
-    typeof payload.credentialAssociation === "object"
-      ? payload.credentialAssociation
-      : payload?.association && typeof payload.association === "object"
-        ? payload.association
-        : null;
   return {
     identity,
     credential,
-    association,
+    association: null,
     mode: typeof identity?.mode === "string" ? identity.mode : null,
     status: typeof identity?.status === "string" ? identity.status : null,
     progressAddress: normalizeEvmAddress(identity?.progressAddress),
     isWalletOnly: identity?.mode === "wallet_only",
     credentialStatus:
       typeof credential?.status === "string" ? credential.status : null,
-    currentlyVerified: association?.currentlyVerified === true,
-    associationVerification:
-      typeof association?.verificationStatus === "string"
-        ? association.verificationStatus
-        : null,
+    // Public resolve no longer carries association verification flags.
+    currentlyVerified: false,
+    associationVerification: null,
   };
 }
 
@@ -316,6 +315,8 @@ export function assessCredentialAssociationUiState({
   }
   if (
     flowReasonCode === CREDENTIAL_ASSOCIATION_REASON.RPC_UNAVAILABLE ||
+    flowReasonCode ===
+      CREDENTIAL_ASSOCIATION_REASON.POST_CONFIRM_LOOKUP_UNAVAILABLE ||
     flowReasonCode === "AA_OWNERSHIP_LOOKUP_FAILED" ||
     flowReasonCode === "SBT_OWNERSHIP_LOOKUP_FAILED" ||
     flowReasonCode === "ASSOCIATION_VERIFICATION_UNAVAILABLE"
@@ -323,6 +324,19 @@ export function assessCredentialAssociationUiState({
     return {
       uiState: CREDENTIAL_ASSOCIATION_UI.RPC_UNAVAILABLE,
       reasonCode: flowReasonCode,
+    };
+  }
+  if (
+    flowReasonCode === CREDENTIAL_ASSOCIATION_REASON.ASSOCIATION_FAILED ||
+    flowReasonCode ===
+      CREDENTIAL_ASSOCIATION_REASON.POST_CONFIRM_CREDENTIAL_MISMATCH ||
+    flowReasonCode === CREDENTIAL_ASSOCIATION_REASON.NOT_ISSUED_AFTER_CONFIRM ||
+    isGenericAssociationServerFailure(flowReasonCode)
+  ) {
+    return {
+      uiState: CREDENTIAL_ASSOCIATION_UI.FAILED,
+      reasonCode:
+        flowReasonCode || CREDENTIAL_ASSOCIATION_REASON.ASSOCIATION_FAILED,
     };
   }
 
@@ -546,18 +560,44 @@ function isUserRejectionError(err) {
   return false;
 }
 
+function isTypedRpcUnavailableCode(code) {
+  return (
+    code === "AA_OWNERSHIP_LOOKUP_FAILED" ||
+    code === "SBT_OWNERSHIP_LOOKUP_FAILED" ||
+    code === "ASSOCIATION_VERIFICATION_UNAVAILABLE" ||
+    code === CREDENTIAL_ASSOCIATION_REASON.RPC_UNAVAILABLE
+  );
+}
+
+/** Generic / unexpected association failures (not typed RPC unavailable). */
+export function isGenericAssociationServerFailure(code) {
+  const s = String(code || "");
+  if (!s) return false;
+  if (isTypedRpcUnavailableCode(s)) return false;
+  if (s === CREDENTIAL_ASSOCIATION_REASON.ASSOCIATION_FAILED) return true;
+  if (/^Request failed \(HTTP 5\d\d\)$/i.test(s)) return true;
+  if (/^HTTP[_\s-]?5\d\d$/i.test(s)) return true;
+  return false;
+}
+
 function mapConfirmError(err) {
   const code = err?.reasonCode || err?.payload?.reasonCode || err?.payload?.error || err?.message;
   const s = String(code || "");
   if (s === "CHALLENGE_EXPIRED" || s.includes("EXPIRED")) {
     return assocError(CREDENTIAL_ASSOCIATION_REASON.CHALLENGE_EXPIRED, s);
   }
-  if (
-    s === "AA_OWNERSHIP_LOOKUP_FAILED" ||
-    s === "SBT_OWNERSHIP_LOOKUP_FAILED" ||
-    s === "ASSOCIATION_VERIFICATION_UNAVAILABLE"
-  ) {
+  if (isTypedRpcUnavailableCode(s)) {
     return assocError(CREDENTIAL_ASSOCIATION_REASON.RPC_UNAVAILABLE, s);
+  }
+  // Generic HTTP 5xx (empty/HTML error bodies) — not RPC_UNAVAILABLE.
+  if (typeof err?.status === "number" && err.status >= 500) {
+    return assocError(
+      CREDENTIAL_ASSOCIATION_REASON.ASSOCIATION_FAILED,
+      s || `HTTP_${err.status}`
+    );
+  }
+  if (isGenericAssociationServerFailure(s)) {
+    return assocError(CREDENTIAL_ASSOCIATION_REASON.ASSOCIATION_FAILED, s);
   }
   if (s === "CREDENTIAL_ASSOCIATION_API_DISABLED" || err?.status === 404) {
     return assocError(CREDENTIAL_ASSOCIATION_REASON.API_DISABLED, s);
@@ -828,26 +868,94 @@ export async function discoverCredentialAssociationContext({
 }
 
 /**
- * After confirm: re-fetch canonical resolve and require ISSUED via verified association.
+ * After confirm: re-verify without relying on public resolve credentialAssociation.
+ *
+ * Requires ALL of:
+ * 1. canonical credential.status === ISSUED
+ * 2. credential holder/SBT/token match the just-confirmed AA-held context
+ * 3. minimal public lookup currentlyVerified === true
+ *
+ * ISSUED alone is insufficient. Lookup unavailability is retryable (no re-sign).
  */
 export async function refreshAndConfirmIssued({
   eoaAddress,
+  expectedAaAddress,
+  expectedTokenId,
+  expectedSbtContract,
   signal,
   api,
 } = {}) {
   const eoa = normalizeEvmAddress(eoaAddress);
+  const expectedAa = normalizeEvmAddress(expectedAaAddress);
+  const expectedTid = coerceTokenId(expectedTokenId);
+  const expectedSbt =
+    normalizeEvmAddress(expectedSbtContract) || getConfiguredAaSbtContract();
+
+  if (!eoa || !expectedAa || expectedTid == null || !expectedSbt) {
+    throw assocError(
+      CREDENTIAL_ASSOCIATION_REASON.NOT_ISSUED_AFTER_CONFIRM,
+      "expected AA-held credential context required after confirm"
+    );
+  }
+
   const fetchResolve = api?.fetchCanonicalResolve || fetchCanonicalIdentityResolve;
+  const fetchLookup = api?.lookup || lookupCredentialAssociation;
+
   const payload = await fetchResolve(eoa, { signal });
   const blocks = readCanonicalCredentialBlocks(payload);
-  const issued =
-    blocks.credentialStatus === "ISSUED" &&
-    (blocks.currentlyVerified === true ||
-      blocks.associationVerification === "VERIFIED");
-  if (!issued) {
+
+  if (blocks.credentialStatus !== "ISSUED") {
     throw assocError(
       CREDENTIAL_ASSOCIATION_REASON.NOT_ISSUED_AFTER_CONFIRM,
       "credential not ISSUED after association"
     );
   }
-  return { payload, blocks, issued: true };
+
+  const credential = blocks.credential;
+  const holder = normalizeEvmAddress(credential?.holderAddress);
+  const sbt = normalizeEvmAddress(credential?.sbtContract);
+  const tid = coerceTokenId(credential?.tokenId);
+  if (holder !== expectedAa || sbt !== expectedSbt || tid !== expectedTid) {
+    throw assocError(
+      CREDENTIAL_ASSOCIATION_REASON.POST_CONFIRM_CREDENTIAL_MISMATCH,
+      "canonical credential does not match associated AA-held SBT"
+    );
+  }
+
+  let lookup;
+  try {
+    lookup = await fetchLookup({
+      progressAddress: blocks.progressAddress || eoa,
+      eoaAddress: eoa,
+      aaAddress: expectedAa,
+      signal,
+    });
+  } catch (err) {
+    const code = err?.reasonCode || err?.payload?.reasonCode || err?.payload?.error;
+    if (
+      code === "AA_OWNERSHIP_LOOKUP_FAILED" ||
+      code === "SBT_OWNERSHIP_LOOKUP_FAILED" ||
+      code === "ASSOCIATION_VERIFICATION_UNAVAILABLE" ||
+      code === CREDENTIAL_ASSOCIATION_REASON.RPC_UNAVAILABLE ||
+      err?.status === 503
+    ) {
+      throw assocError(
+        CREDENTIAL_ASSOCIATION_REASON.POST_CONFIRM_LOOKUP_UNAVAILABLE,
+        "association lookup unavailable after confirm; retry verification"
+      );
+    }
+    throw assocError(
+      CREDENTIAL_ASSOCIATION_REASON.NOT_ISSUED_AFTER_CONFIRM,
+      String(code || "lookup failed after confirm")
+    );
+  }
+
+  if (lookup?.currentlyVerified !== true) {
+    throw assocError(
+      CREDENTIAL_ASSOCIATION_REASON.NOT_ISSUED_AFTER_CONFIRM,
+      "association not currentlyVerified after confirm"
+    );
+  }
+
+  return { payload, blocks, lookup, issued: true };
 }

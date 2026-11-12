@@ -32,6 +32,9 @@ const EN = {
   rpcTitle: "Verification temporarily unavailable",
   rpcBody:
     "On-chain checks are unavailable right now. Public progress stays available; try again shortly.",
+  failedTitle: "Could not link credential",
+  failedBody:
+    "Something went wrong while verifying your credential. Please try again.",
   unavailableTitle: "Credential linking unavailable",
   unavailableBody:
     "Credential association is turned off on this environment.",
@@ -66,6 +69,9 @@ const GR = {
   rpcTitle: "Η επαλήθευση δεν είναι διαθέσιμη προσωρινά",
   rpcBody:
     "Οι on-chain έλεγχοι δεν είναι διαθέσιμοι αυτή τη στιγμή. Η δημόσια πρόοδος παραμένει διαθέσιμη· δοκίμασε ξανά σύντομα.",
+  failedTitle: "Αδυναμία σύνδεσης διαπιστευτηρίου",
+  failedBody:
+    "Κάτι πήγε στραβά κατά την επαλήθευση. Δοκίμασε ξανά.",
   unavailableTitle: "Η σύνδεση διαπιστευτηρίου δεν είναι διαθέσιμη",
   unavailableBody:
     "Η σύνδεση διαπιστευτηρίου είναι απενεργοποιημένη σε αυτό το περιβάλλον.",

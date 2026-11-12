@@ -58,6 +58,7 @@ function walletOnlyResolve({
   currentlyVerified = false,
   aaAddress = null,
   tokenId = null,
+  sbtContract = null,
 } = {}) {
   return {
     identity: {
@@ -73,18 +74,11 @@ function walletOnlyResolve({
     credential: {
       status: credentialStatus,
       holderAddress: currentlyVerified ? aaAddress : null,
+      sbtContract: currentlyVerified ? sbtContract : null,
       tokenId,
+      credentialType: currentlyVerified ? "aa" : null,
     },
-    credentialAssociation: currentlyVerified
-      ? {
-          verificationStatus: "VERIFIED",
-          currentlyVerified: true,
-          aaAddress,
-          tokenId,
-          grantsPrivateProgressionAccess: false,
-          altersProgressAddress: false,
-        }
-      : null,
+    // IC-PR-05: public resolve omits credentialAssociation.
   };
 }
 
@@ -135,9 +129,11 @@ test("2. Wallet-first EOA with AA-held SBT + verified association", () => {
   });
   const blocks = readCanonicalCredentialBlocks(payload);
   assert.equal(blocks.credentialStatus, "ISSUED");
-  assert.equal(blocks.currentlyVerified, true);
+  // Association verification comes from minimal lookup, not resolve.
+  assert.equal(blocks.currentlyVerified, false);
+  assert.equal(blocks.association, null);
   assert.equal(blocks.progressAddress, normalizeEvmAddress(EOA));
-  assert.equal(blocks.association.grantsPrivateProgressionAccess, false);
+  assert.equal(blocks.credential.holderAddress, AA_CRED);
 
   const viewer = selectCanonicalViewerIdentity({
     isOidcAuthenticated: false,
@@ -162,6 +158,7 @@ test("2. Wallet-first EOA with AA-held SBT + verified association", () => {
       ok: true,
       currentlyVerified: true,
       reasonCode: "ASSOCIATION_ACTIVE_VERIFIED",
+      grantsPrivateProgressionAccess: false,
     },
   });
   assert.equal(ui.uiState, CREDENTIAL_ASSOCIATION_UI.VERIFIED);
@@ -280,16 +277,22 @@ test("6. OIDC learner remains unchanged", () => {
 
 test("7. No private progression access without existing authorization", () => {
   // Verified association does not grant private progression.
+  const lookup = {
+    ok: true,
+    currentlyVerified: true,
+    verificationStatus: "VERIFIED",
+    reasonCode: "ASSOCIATION_ACTIVE_VERIFIED",
+    grantsPrivateProgressionAccess: false,
+  };
+  assert.equal(lookup.grantsPrivateProgressionAccess, false);
   const payload = walletOnlyResolve({
     currentlyVerified: true,
     credentialStatus: "ISSUED",
     aaAddress: AA_CRED,
     tokenId: 1,
   });
-  assert.equal(
-    payload.credentialAssociation.grantsPrivateProgressionAccess,
-    false
-  );
+  assert.equal(payload.credential.status, "ISSUED");
+  assert.equal("credentialAssociation" in payload, false);
 
   // Without WA-01 wallet Bearer / Keycloak, resolve bearer stays none.
   const bearer = selectResolveBearer({

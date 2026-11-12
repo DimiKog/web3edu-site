@@ -21,6 +21,7 @@ import {
   extractAaHeldCredential,
   getCredentialAssociationEligibility,
   isCredentialAssociationFrontendEnabled,
+  isGenericAssociationServerFailure,
   readCanonicalCredentialBlocks,
   refreshAndConfirmIssued,
   runCredentialAssociationFlow,
@@ -39,6 +40,7 @@ import {
   WALLET_LINK_PURPOSE,
 } from "./walletAuthFlow.js";
 import { getCredentialAssociationCopy } from "../content/credentialAssociationCopy.js";
+import { normalizeEvmAddress } from "./evmAddress.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -134,8 +136,15 @@ function sampleChallenge(overrides = {}) {
 
 function walletOnlyCanonical({
   credentialStatus = "MISMATCH",
+  holderAddress = null,
+  sbtContract = null,
+  tokenId = null,
+  // legacy alias used by older fixtures — maps to AA-held ISSUED credential fields
   currentlyVerified = false,
 } = {}) {
+  const issuedViaAssoc =
+    currentlyVerified === true ||
+    (credentialStatus === "ISSUED" && holderAddress);
   return {
     identity: {
       status: "resolved_legacy",
@@ -146,17 +155,12 @@ function walletOnlyCanonical({
     },
     credential: {
       status: credentialStatus,
-      holderAddress: currentlyVerified ? AA : null,
+      holderAddress: holderAddress ?? (issuedViaAssoc ? AA : null),
+      sbtContract: sbtContract ?? (issuedViaAssoc ? SBT : null),
+      tokenId: tokenId ?? (issuedViaAssoc ? TOKEN_ID : null),
+      credentialType: issuedViaAssoc ? "aa" : null,
     },
-    credentialAssociation: currentlyVerified
-      ? {
-          verificationStatus: "VERIFIED",
-          currentlyVerified: true,
-          aaAddress: AA,
-          tokenId: TOKEN_ID,
-          grantsPrivateProgressionAccess: false,
-        }
-      : null,
+    // IC-PR-05: public resolve no longer emits credentialAssociation.
   };
 }
 
@@ -345,6 +349,39 @@ test("UI: rejected signature / expired / wrong wallet / wrong network / RPC", ()
   );
 });
 
+test("UI: generic HTTP 5xx → failed (not rpc_unavailable)", () => {
+  const base = {
+    frontendEnabled: true,
+    eligibility: { eligible: true },
+    canonical: readCanonicalCredentialBlocks(walletOnlyCanonical()),
+    aaCredential: { aaAddress: AA, tokenId: TOKEN_ID },
+  };
+  assert.equal(
+    assessCredentialAssociationUiState({
+      ...base,
+      flowReasonCode: CREDENTIAL_ASSOCIATION_REASON.ASSOCIATION_FAILED,
+    }).uiState,
+    CREDENTIAL_ASSOCIATION_UI.FAILED
+  );
+  assert.equal(
+    assessCredentialAssociationUiState({
+      ...base,
+      flowReasonCode: "Request failed (HTTP 500)",
+    }).uiState,
+    CREDENTIAL_ASSOCIATION_UI.FAILED
+  );
+  // Typed RPC codes must stay on RPC_UNAVAILABLE, not FAILED.
+  assert.equal(
+    assessCredentialAssociationUiState({
+      ...base,
+      flowReasonCode: "AA_OWNERSHIP_LOOKUP_FAILED",
+    }).uiState,
+    CREDENTIAL_ASSOCIATION_UI.RPC_UNAVAILABLE
+  );
+  assert.equal(isGenericAssociationServerFailure("AA_OWNERSHIP_LOOKUP_FAILED"), false);
+  assert.equal(isGenericAssociationServerFailure("Request failed (HTTP 500)"), true);
+});
+
 test("UI: social exclusion stays hidden", () => {
   const ui = assessCredentialAssociationUiState({
     frontendEnabled: true,
@@ -525,6 +562,69 @@ test("flow: expired challenge on confirm", async () => {
   );
 });
 
+test("flow: generic HTTP 500 on challenge → ASSOCIATION_FAILED (not RPC)", async () => {
+  await assert.rejects(
+    () =>
+      runCredentialAssociationFlow({
+        eoaAddress: EOA,
+        aaAddress: AA,
+        tokenId: TOKEN_ID,
+        sbtContract: SBT,
+        expectedOrigin: ORIGIN,
+        chainId: CREDENTIAL_ASSOCIATION_CHAIN_ID,
+        getConnectedWallet: () => EOA,
+        getConnectedChainId: () => CREDENTIAL_ASSOCIATION_CHAIN_ID,
+        signTypedDataAsync: async () => "0xsig",
+        api: {
+          createChallenge: async () => {
+            const err = new Error("Request failed (HTTP 500)");
+            err.status = 500;
+            err.payload = {};
+            err.reasonCode = null;
+            throw err;
+          },
+          confirm: async () => {
+            throw new Error("should not confirm");
+          },
+        },
+      }),
+    (err) =>
+      err.reasonCode === CREDENTIAL_ASSOCIATION_REASON.ASSOCIATION_FAILED &&
+      err.reasonCode !== CREDENTIAL_ASSOCIATION_REASON.RPC_UNAVAILABLE
+  );
+});
+
+test("flow: typed AA_OWNERSHIP_LOOKUP_FAILED still maps to RPC_UNAVAILABLE", async () => {
+  await assert.rejects(
+    () =>
+      runCredentialAssociationFlow({
+        eoaAddress: EOA,
+        aaAddress: AA,
+        tokenId: TOKEN_ID,
+        sbtContract: SBT,
+        expectedOrigin: ORIGIN,
+        chainId: CREDENTIAL_ASSOCIATION_CHAIN_ID,
+        getConnectedWallet: () => EOA,
+        getConnectedChainId: () => CREDENTIAL_ASSOCIATION_CHAIN_ID,
+        signTypedDataAsync: async () => "0xsig",
+        api: {
+          createChallenge: async () => sampleChallenge(),
+          confirm: async () => {
+            const err = new Error("AA_OWNERSHIP_LOOKUP_FAILED");
+            err.status = 503;
+            err.reasonCode = "AA_OWNERSHIP_LOOKUP_FAILED";
+            err.payload = {
+              error: "AA_OWNERSHIP_LOOKUP_FAILED",
+              reasonCode: "AA_OWNERSHIP_LOOKUP_FAILED",
+            };
+            throw err;
+          },
+        },
+      }),
+    (err) => err.reasonCode === CREDENTIAL_ASSOCIATION_REASON.RPC_UNAVAILABLE
+  );
+});
+
 test("flow: wrong wallet during signing", async () => {
   await assert.rejects(
     () =>
@@ -647,31 +747,177 @@ test("discovery: eligible learner finds AA credential without associating", asyn
   assert.equal(ctx.minted, false);
 });
 
-test("refresh confirms ISSUED only with verified association", async () => {
+test("refresh confirms ISSUED + expected credential + verified minimal lookup", async () => {
   const issued = await refreshAndConfirmIssued({
     eoaAddress: EOA,
+    expectedAaAddress: AA,
+    expectedTokenId: TOKEN_ID,
+    expectedSbtContract: SBT,
     api: {
       fetchCanonicalResolve: async () =>
         walletOnlyCanonical({
           credentialStatus: "ISSUED",
-          currentlyVerified: true,
+          holderAddress: AA,
+          sbtContract: SBT,
+          tokenId: TOKEN_ID,
         }),
+      lookup: async () => ({
+        ok: true,
+        currentlyVerified: true,
+        verificationStatus: "VERIFIED",
+        reasonCode: "ASSOCIATION_ACTIVE_VERIFIED",
+        grantsPrivateProgressionAccess: false,
+      }),
     },
   });
   assert.equal(issued.issued, true);
+  assert.equal(issued.lookup.currentlyVerified, true);
+});
 
+test("refresh: ISSUED alone is insufficient without verified lookup", async () => {
   await assert.rejects(
     () =>
       refreshAndConfirmIssued({
         eoaAddress: EOA,
+        expectedAaAddress: AA,
+        expectedTokenId: TOKEN_ID,
+        expectedSbtContract: SBT,
         api: {
           fetchCanonicalResolve: async () =>
-            walletOnlyCanonical({ credentialStatus: "MISMATCH" }),
+            walletOnlyCanonical({
+              credentialStatus: "ISSUED",
+              holderAddress: AA,
+              sbtContract: SBT,
+              tokenId: TOKEN_ID,
+            }),
+          lookup: async () => ({
+            ok: false,
+            currentlyVerified: false,
+            verificationStatus: "NOT_FOUND",
+            reasonCode: "ASSOCIATION_NOT_FOUND",
+          }),
         },
       }),
     (err) =>
       err.reasonCode === CREDENTIAL_ASSOCIATION_REASON.NOT_ISSUED_AFTER_CONFIRM
   );
+});
+
+test("refresh: credential mismatch fails even when lookup verified", async () => {
+  const OTHER_AA = "0x2222222222222222222222222222222222222222";
+  await assert.rejects(
+    () =>
+      refreshAndConfirmIssued({
+        eoaAddress: EOA,
+        expectedAaAddress: AA,
+        expectedTokenId: TOKEN_ID,
+        expectedSbtContract: SBT,
+        api: {
+          fetchCanonicalResolve: async () =>
+            walletOnlyCanonical({
+              credentialStatus: "ISSUED",
+              holderAddress: OTHER_AA,
+              sbtContract: SBT,
+              tokenId: TOKEN_ID,
+            }),
+          lookup: async () => ({
+            ok: true,
+            currentlyVerified: true,
+            verificationStatus: "VERIFIED",
+            reasonCode: "ASSOCIATION_ACTIVE_VERIFIED",
+          }),
+        },
+      }),
+    (err) =>
+      err.reasonCode ===
+      CREDENTIAL_ASSOCIATION_REASON.POST_CONFIRM_CREDENTIAL_MISMATCH
+  );
+});
+
+test("refresh: lookup unavailable is retryable (no false success)", async () => {
+  await assert.rejects(
+    () =>
+      refreshAndConfirmIssued({
+        eoaAddress: EOA,
+        expectedAaAddress: AA,
+        expectedTokenId: TOKEN_ID,
+        expectedSbtContract: SBT,
+        api: {
+          fetchCanonicalResolve: async () =>
+            walletOnlyCanonical({
+              credentialStatus: "ISSUED",
+              holderAddress: AA,
+              sbtContract: SBT,
+              tokenId: TOKEN_ID,
+            }),
+          lookup: async () => {
+            const err = new Error("ASSOCIATION_VERIFICATION_UNAVAILABLE");
+            err.status = 503;
+            err.reasonCode = "ASSOCIATION_VERIFICATION_UNAVAILABLE";
+            throw err;
+          },
+        },
+      }),
+    (err) =>
+      err.reasonCode ===
+      CREDENTIAL_ASSOCIATION_REASON.POST_CONFIRM_LOOKUP_UNAVAILABLE
+  );
+});
+
+test("refresh: MISMATCH after confirm fails", async () => {
+  await assert.rejects(
+    () =>
+      refreshAndConfirmIssued({
+        eoaAddress: EOA,
+        expectedAaAddress: AA,
+        expectedTokenId: TOKEN_ID,
+        expectedSbtContract: SBT,
+        api: {
+          fetchCanonicalResolve: async () =>
+            walletOnlyCanonical({ credentialStatus: "MISMATCH" }),
+          lookup: async () => ({
+            ok: true,
+            currentlyVerified: true,
+          }),
+        },
+      }),
+    (err) =>
+      err.reasonCode === CREDENTIAL_ASSOCIATION_REASON.NOT_ISSUED_AFTER_CONFIRM
+  );
+});
+
+test("UI: EOA-held ISSUED without verified lookup is not association VERIFIED", () => {
+  const canonical = readCanonicalCredentialBlocks(
+    walletOnlyCanonical({
+      credentialStatus: "ISSUED",
+      holderAddress: EOA,
+      sbtContract: SBT,
+      tokenId: TOKEN_ID,
+    })
+  );
+  assert.equal(canonical.currentlyVerified, false);
+  const ui = assessCredentialAssociationUiState({
+    frontendEnabled: true,
+    eligibility: { eligible: true },
+    canonical,
+    aaCredential: { aaAddress: AA, tokenId: TOKEN_ID },
+    associationLookup: {
+      ok: false,
+      currentlyVerified: false,
+      reasonCode: "ASSOCIATION_NOT_FOUND",
+    },
+  });
+  assert.equal(ui.uiState, CREDENTIAL_ASSOCIATION_UI.PROMPT);
+});
+
+test("readCanonicalCredentialBlocks tolerates missing credentialAssociation", () => {
+  const blocks = readCanonicalCredentialBlocks(
+    walletOnlyCanonical({ credentialStatus: "ISSUED", currentlyVerified: true })
+  );
+  assert.equal(blocks.credentialStatus, "ISSUED");
+  assert.equal(blocks.currentlyVerified, false);
+  assert.equal(blocks.association, null);
+  assert.equal(blocks.progressAddress, normalizeEvmAddress(EOA));
 });
 
 test("copy: CTA and no mint / no new identity wording", () => {
@@ -680,8 +926,27 @@ test("copy: CTA and no mint / no new identity wording", () => {
   assert.match(en.promptBody, /existing/i);
   assert.match(en.promptBody, /does not create a new identity/i);
   assert.match(en.promptBody, /mint/i);
+  assert.ok(en.failedTitle);
+  assert.ok(en.failedBody);
   const gr = getCredentialAssociationCopy(true);
   assert.ok(gr.verifyAction.length > 0);
+  assert.ok(gr.failedTitle);
+});
+
+test("banner: failed UI shows retry CTA and busy guards duplicate submit", () => {
+  const banner = readFileSync(
+    join(root, "components/CredentialAssociationBanner.jsx"),
+    "utf8"
+  );
+  assert.match(banner, /CREDENTIAL_ASSOCIATION_UI\.FAILED/);
+  assert.match(banner, /failedTitle/);
+  assert.match(banner, /if \(typeof onAssociate !== "function" \|\| busy\) return/);
+  const hook = readFileSync(
+    join(root, "hooks/useCredentialAssociationOnboarding.js"),
+    "utf8"
+  );
+  assert.match(hook, /associatingRef/);
+  assert.match(hook, /ASSOCIATION_IN_PROGRESS/);
 });
 
 test("no new mint / no implicit association in source modules", () => {
