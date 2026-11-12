@@ -20,6 +20,8 @@ import {
     shortAddress,
 } from "../components/identity-ui.jsx";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
+import { useCredentialAssociationOnboarding } from "../hooks/useCredentialAssociationOnboarding.js";
+import CredentialAssociationBanner from "../components/CredentialAssociationBanner.jsx";
 import { useIdentity } from "../context/useIdentity.js";
 import { warnIfIdentityNotInitialized } from "../utils/identityReadiness.js";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
@@ -242,7 +244,21 @@ export default function Dashboard() {
         walletEntryResolvePending,
         walletEntryLinkedWalletAddress,
         walletAuthProgress,
+        viewerSource,
+        walletEntryStatus,
+        walletEntryMode,
+        walletOnlyModeEstablished,
     } = useResolvedIdentityContext();
+
+    const credentialAssociation = useCredentialAssociationOnboarding({
+        isOidcAuthenticated,
+        viewerSource,
+        isWalletEntryLinkedAlias,
+        walletEntryStatus,
+        walletEntryMode,
+        walletOnlyModeEstablished,
+        onAssociated: refetchResolvedIdentity,
+    });
 
     const socialAaAddress = getSocialIdentityAaAddress(socialIdentity);
     const identityAddress = useMemo(() => {
@@ -1320,6 +1336,17 @@ export default function Dashboard() {
                         <WalletAuthProgressBanner
                             uiState={walletAuthProgress.uiState}
                             onVerify={walletAuthProgress.verifyWalletForProgress}
+                            isGR
+                        />
+                    </div>
+                ) : null}
+
+                {credentialAssociation?.uiState &&
+                credentialAssociation.uiState !== "hidden" ? (
+                    <div className="relative z-10 w-full max-w-6xl mx-auto mt-2 mb-2 px-2 md:px-0">
+                        <CredentialAssociationBanner
+                            uiState={credentialAssociation.uiState}
+                            onAssociate={credentialAssociation.associate}
                             isGR
                         />
                     </div>
