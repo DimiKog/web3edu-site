@@ -56,6 +56,7 @@ function mockLinkApi({
   confirm,
   status,
   challengeError,
+  statusThrow = false,
 } = {}) {
   const calls = [];
   globalThis.fetch = async (url, init) => {
@@ -112,6 +113,7 @@ function mockLinkApi({
       };
     }
     if (u.endsWith("/web3edu/identity/link/status")) {
+      if (statusThrow) throw new Error("status unavailable");
       return {
         ok: true,
         json: async () =>
@@ -182,6 +184,8 @@ test("runEip712WalletLinkFlow Case B path does not call legacy link-wallet or im
       progressSource: "linked_wallet",
       progressAddress: wallet.toLowerCase(),
       credentialHolderAddress: "0x390af8c46ef984a1a0625d5d92a9fe3ec32bb2a2",
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
     },
   });
 
@@ -198,6 +202,8 @@ test("runEip712WalletLinkFlow Case B path does not call legacy link-wallet or im
 
   assert.equal(result.caseLabel, "B");
   assert.equal(result.progressSource, "linked_wallet");
+  assert.equal(result.walletHasProgress, true);
+  assert.equal(result.walletProgressEvaluated, true);
   assert.doesNotMatch(
     JSON.stringify(result),
     /administrator|CASE_B_NOT_ALLOWLISTED/i
@@ -222,15 +228,23 @@ test("runEip712WalletLinkFlow Case B path does not call legacy link-wallet or im
   assert.equal(previewBody.challengeId, "c1");
 });
 
-test("Case A confirm keeps web3edu_account progress source", async () => {
+test("7. after EIP-712 link, status is refreshed for authoritative wallet progress", async () => {
   const wallet = "0x1111111111111111111111111111111111111111";
+  // Preview may claim progress; status is authoritative (empty wallet).
   mockLinkApi({
     wallet,
-    preview: { allowed: true, case: "A", reasonCode: "CASE_A_SAFE" },
+    preview: {
+      allowed: true,
+      case: "A",
+      reasonCode: "CASE_A_SAFE",
+      walletHasProgress: true,
+    },
     status: {
       ok: true,
       progressSource: "web3edu_account",
       progressAddress: "0x390af8c46ef984a1a0625d5d92a9fe3ec32bb2a2",
+      walletHasProgress: false,
+      walletProgressEvaluated: true,
     },
   });
   const result = await runEip712WalletLinkFlow({
@@ -240,6 +254,49 @@ test("Case A confirm keeps web3edu_account progress source", async () => {
   });
   assert.equal(result.caseLabel, "A");
   assert.equal(result.progressSource, "web3edu_account");
+  assert.equal(result.walletHasProgress, false);
+  assert.equal(result.walletProgressEvaluated, true);
+  assert.notEqual(result.walletHasProgress, result.preview?.walletHasProgress);
+});
+
+test("Case A confirm keeps web3edu_account progress source", async () => {
+  const wallet = "0x1111111111111111111111111111111111111111";
+  mockLinkApi({
+    wallet,
+    preview: { allowed: true, case: "A", reasonCode: "CASE_A_SAFE" },
+    status: {
+      ok: true,
+      progressSource: "web3edu_account",
+      progressAddress: "0x390af8c46ef984a1a0625d5d92a9fe3ec32bb2a2",
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
+    },
+  });
+  const result = await runEip712WalletLinkFlow({
+    idToken: "tok",
+    walletAddress: wallet,
+    signTypedDataAsync: async () => "0xsig",
+  });
+  assert.equal(result.caseLabel, "A");
+  assert.equal(result.progressSource, "web3edu_account");
+  assert.equal(result.walletHasProgress, true);
+  assert.equal(result.walletProgressEvaluated, true);
+});
+
+test("status failure after confirm fails closed on wallet progress signal", async () => {
+  const wallet = "0x5555555555555555555555555555555555555555";
+  mockLinkApi({
+    wallet,
+    preview: { allowed: true, case: "A", reasonCode: "CASE_A_SAFE", walletHasProgress: true },
+    statusThrow: true,
+  });
+  const result = await runEip712WalletLinkFlow({
+    idToken: "tok",
+    walletAddress: wallet,
+    signTypedDataAsync: async () => "0xsig",
+  });
+  assert.equal(result.walletHasProgress, null);
+  assert.equal(result.walletProgressEvaluated, false);
 });
 
 test("Case B prefers backend progressSource from confirm if status omits it", async () => {

@@ -1,5 +1,5 @@
 /**
- * H3F final identity UX helpers.
+ * H3F final identity UX helpers + authoritative wallet progress gate.
  * Run: node --test src/utils/dashboardIdentityUi.node-test.js
  */
 
@@ -10,23 +10,33 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import {
+  readAuthoritativeWalletProgress,
   resolveLinkWalletSuccessMessage,
   resolveLinkedWalletRevokeHint,
   resolveNavIdentityMenuHint,
   shouldOfferSocialProgressImport,
   shouldShowSocialWalletLinkageDevSnapshot,
 } from "./dashboardIdentityUi.js";
+import { classifySocialProgressImportError } from "./socialProgressImportErrors.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
 
+const authBase = {
+  isSocialWalletLinkedAuthorized: true,
+  hasIdToken: true,
+  hasConnectedWallet: true,
+  progressImportSnoozed: false,
+  socialContinuityAlreadyReflected: false,
+};
+
 test("import hidden for linked_wallet (Case B)", () => {
   assert.equal(
     shouldOfferSocialProgressImport({
-      isSocialWalletLinkedAuthorized: true,
-      hasIdToken: true,
-      hasConnectedWallet: true,
+      ...authBase,
       progressSource: "linked_wallet",
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
     }),
     false
   );
@@ -35,11 +45,11 @@ test("import hidden for linked_wallet (Case B)", () => {
 test("import hidden after H3E / account continuity (web3edu_account + progress)", () => {
   assert.equal(
     shouldOfferSocialProgressImport({
-      isSocialWalletLinkedAuthorized: true,
-      hasIdToken: true,
-      hasConnectedWallet: true,
+      ...authBase,
       progressSource: "web3edu_account",
       socialContinuityAlreadyReflected: true,
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
     }),
     false
   );
@@ -48,25 +58,170 @@ test("import hidden after H3E / account continuity (web3edu_account + progress)"
 test("import hidden while progressSource unknown (null)", () => {
   assert.equal(
     shouldOfferSocialProgressImport({
-      isSocialWalletLinkedAuthorized: true,
-      hasIdToken: true,
-      hasConnectedWallet: true,
+      ...authBase,
       progressSource: null,
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
     }),
     false
   );
 });
 
-test("legacy Case A import may still offer when account empty", () => {
+test("1. new social + empty wallet → no banner", () => {
   assert.equal(
     shouldOfferSocialProgressImport({
-      isSocialWalletLinkedAuthorized: true,
-      hasIdToken: true,
-      hasConnectedWallet: true,
+      ...authBase,
       progressSource: "web3edu_account",
-      socialContinuityAlreadyReflected: false,
+      walletHasProgress: false,
+      walletProgressEvaluated: true,
+    }),
+    false
+  );
+});
+
+test("2. social + wallet with meaningful progression → banner", () => {
+  assert.equal(
+    shouldOfferSocialProgressImport({
+      ...authBase,
+      progressSource: "web3edu_account",
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
     }),
     true
+  );
+});
+
+test("3. wallet with 0 XP but completed activities → banner (backend true)", () => {
+  // Frontend trusts authoritative boolean; backend already treats labs as progress.
+  assert.equal(
+    shouldOfferSocialProgressImport({
+      ...authBase,
+      progressSource: "web3edu_account",
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
+    }),
+    true
+  );
+});
+
+test("4. unknown/unavailable progress state → no banner (fail closed)", () => {
+  assert.equal(
+    shouldOfferSocialProgressImport({
+      ...authBase,
+      progressSource: "web3edu_account",
+      walletHasProgress: null,
+      walletProgressEvaluated: false,
+    }),
+    false
+  );
+  assert.equal(
+    shouldOfferSocialProgressImport({
+      ...authBase,
+      progressSource: "web3edu_account",
+      walletHasProgress: true,
+      walletProgressEvaluated: false,
+    }),
+    false
+  );
+});
+
+test("5. Case B → no banner even when wallet has progress", () => {
+  assert.equal(
+    shouldOfferSocialProgressImport({
+      ...authBase,
+      progressSource: "linked_wallet",
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
+    }),
+    false
+  );
+});
+
+test("10. legacy-only state does not falsely claim progression", () => {
+  const legacy = readAuthoritativeWalletProgress({
+    walletHasProgress: null,
+    walletProgressEvaluated: false,
+  });
+  assert.equal(legacy.walletHasProgress, null);
+  assert.equal(legacy.walletProgressEvaluated, false);
+  assert.equal(
+    shouldOfferSocialProgressImport({
+      ...authBase,
+      progressSource: "web3edu_account",
+      ...legacy,
+    }),
+    false
+  );
+});
+
+test("readAuthoritativeWalletProgress normalizes evaluated true/false/null", () => {
+  assert.deepEqual(
+    readAuthoritativeWalletProgress({
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
+    }),
+    { walletHasProgress: true, walletProgressEvaluated: true }
+  );
+  assert.deepEqual(
+    readAuthoritativeWalletProgress({
+      walletHasProgress: false,
+      walletProgressEvaluated: true,
+    }),
+    { walletHasProgress: false, walletProgressEvaluated: true }
+  );
+  assert.deepEqual(
+    readAuthoritativeWalletProgress({
+      walletHasProgress: true,
+      walletProgressEvaluated: false,
+    }),
+    { walletHasProgress: null, walletProgressEvaluated: false }
+  );
+  assert.deepEqual(readAuthoritativeWalletProgress(null), {
+    walletHasProgress: null,
+    walletProgressEvaluated: false,
+  });
+});
+
+test("8. source_missing / source_empty classified consistently", () => {
+  assert.equal(
+    classifySocialProgressImportError({ payload: { error: "source_missing" } }),
+    "source_missing"
+  );
+  assert.equal(
+    classifySocialProgressImportError({ payload: { error: "source_empty" } }),
+    "source_missing"
+  );
+  assert.equal(
+    classifySocialProgressImportError({ message: "SOURCE_EMPTY" }),
+    "source_missing"
+  );
+  const importSrc = readFileSync(
+    join(root, "components/SocialWalletProgressImportSection.jsx"),
+    "utf8"
+  );
+  assert.match(importSrc, /classifySocialProgressImportError/);
+});
+
+test("import still respects snooze and auth gates", () => {
+  assert.equal(
+    shouldOfferSocialProgressImport({
+      ...authBase,
+      progressSource: "web3edu_account",
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
+      progressImportSnoozed: true,
+    }),
+    false
+  );
+  assert.equal(
+    shouldOfferSocialProgressImport({
+      ...authBase,
+      isSocialWalletLinkedAuthorized: false,
+      progressSource: "web3edu_account",
+      walletHasProgress: true,
+      walletProgressEvaluated: true,
+    }),
+    false
   );
 });
 
@@ -106,12 +261,29 @@ test("link success message uses progressSource not Case B label", () => {
   assert.match(caseBGR, /Συνδεδεμένο πορτοφόλι/);
 });
 
-test("Dashboards use shouldOfferSocialProgressImport and not linkWalletCase", () => {
+test("9. EN/GR Dashboards wire authoritative wallet progress identically", () => {
   for (const file of ["pages/Dashboard.jsx", "pages/DashboardGR.jsx"]) {
     const src = readFileSync(join(root, file), "utf8");
     assert.match(src, /shouldOfferSocialProgressImport/);
+    assert.match(src, /readAuthoritativeWalletProgress/);
+    assert.match(src, /walletHasProgress/);
+    assert.match(src, /walletProgressEvaluated/);
+    assert.match(src, /getIdentityLinkStatus/);
     assert.doesNotMatch(src, /linkWalletCase/);
     assert.match(src, /resolveLinkWalletSuccessMessage/);
+    // After link: consume flow result (status-backed), not transient preview alone.
+    assert.match(src, /readAuthoritativeWalletProgress\(result\)/);
+    assert.match(src, /walletProgressEvaluated/);
+  }
+});
+
+test("6. Dashboard refresh hydrates wallet progress from status", () => {
+  for (const file of ["pages/Dashboard.jsx", "pages/DashboardGR.jsx"]) {
+    const src = readFileSync(join(root, file), "utf8");
+    assert.match(src, /getIdentityLinkStatus\(oidcIdToken\)/);
+    assert.match(src, /readAuthoritativeWalletProgress\(status\)/);
+    assert.match(src, /setWalletHasProgress\(signal\.walletHasProgress\)/);
+    assert.match(src, /setWalletProgressEvaluated\(signal\.walletProgressEvaluated\)/);
   }
 });
 

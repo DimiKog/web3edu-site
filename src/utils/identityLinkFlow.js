@@ -9,6 +9,7 @@ import {
   getIdentityLinkStatus,
   previewIdentityLink,
 } from "../api/identityLink.js";
+import { readAuthoritativeWalletProgress } from "./dashboardIdentityUi.js";
 import { signEip712TypedData } from "./signEip712TypedData.js";
 
 const RETRYABLE = new Set([
@@ -120,6 +121,7 @@ export async function runEip712WalletLinkFlow({
 
   if (challenge?.alreadyActive || challenge?.reasonCode === "ALREADY_ACTIVE") {
     const status = await getIdentityLinkStatus(idToken, { signal }).catch(() => null);
+    const walletProgress = readAuthoritativeWalletProgress(status);
     return {
       outcome: "already_active",
       caseLabel: null,
@@ -127,6 +129,7 @@ export async function runEip712WalletLinkFlow({
       preview: null,
       status,
       progressSource: status?.progressSource || null,
+      ...walletProgress,
     };
   }
 
@@ -184,11 +187,13 @@ export async function runEip712WalletLinkFlow({
     signal,
   });
 
+  // Authoritative progress signal comes from post-confirm status — not preview.
   const status = await getIdentityLinkStatus(idToken, { signal }).catch(() => null);
   const progressSource =
     status?.progressSource ||
     confirm?.progressSource ||
     (confirm?.progressOrigin === "linked_wallet" ? "linked_wallet" : null);
+  const walletProgress = readAuthoritativeWalletProgress(status);
 
   return {
     outcome: "linked",
@@ -197,5 +202,6 @@ export async function runEip712WalletLinkFlow({
     preview,
     status,
     progressSource,
+    ...walletProgress,
   };
 }

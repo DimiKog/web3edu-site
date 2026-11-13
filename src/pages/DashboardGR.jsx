@@ -52,6 +52,7 @@ import {
 import {
     resolveLinkWalletBannerCopy,
     resolveLinkWalletSuccessMessage,
+    readAuthoritativeWalletProgress,
     shouldOfferSocialProgressImport,
     shouldShowSocialWalletLinkageDevSnapshot,
 } from "../utils/dashboardIdentityUi.js";
@@ -416,6 +417,9 @@ export default function Dashboard() {
     const [linkWalletPhase, setLinkWalletPhase] = useState("idle"); // idle | loading | success | error
     const [linkWalletError, setLinkWalletError] = useState(null);
     const [linkProgressSource, setLinkProgressSource] = useState(null);
+    // Authoritative ACTIVE-primary wallet progress from GET link/status (fail closed until evaluated).
+    const [walletHasProgress, setWalletHasProgress] = useState(null);
+    const [walletProgressEvaluated, setWalletProgressEvaluated] = useState(false);
     const { signTypedDataAsync } = useSignTypedData();
 
     const { connectWalletSessionAware, isPending: walletOnboardingConnectPending } =
@@ -424,9 +428,13 @@ export default function Dashboard() {
     const prevXpRef = useRef(null);
     const prevTierRef = useRef(null);
 
-    // Hydrate progressSource from H3C status so Case B never resurfaces Import Progress after refresh.
+    // Hydrate progressSource + wallet progress from H3C status (refresh/reload restore).
     useEffect(() => {
-        if (!oidcIdToken) return;
+        if (!oidcIdToken) {
+            setWalletHasProgress(null);
+            setWalletProgressEvaluated(false);
+            return;
+        }
         let cancelled = false;
         (async () => {
             try {
@@ -435,8 +443,15 @@ export default function Dashboard() {
                 if (status?.progressSource) {
                     setLinkProgressSource(String(status.progressSource));
                 }
+                const signal = readAuthoritativeWalletProgress(status);
+                setWalletHasProgress(signal.walletHasProgress);
+                setWalletProgressEvaluated(signal.walletProgressEvaluated);
             } catch {
-                /* status optional until link API is available */
+                /* status optional until link API is available — fail closed */
+                if (!cancelled) {
+                    setWalletHasProgress(null);
+                    setWalletProgressEvaluated(false);
+                }
             }
         })();
         return () => {
@@ -931,6 +946,8 @@ export default function Dashboard() {
         progressImportSnoozed,
         socialContinuityAlreadyReflected,
         progressSource: linkProgressSource,
+        walletHasProgress,
+        walletProgressEvaluated,
     });
 
     const linkWalletBannerCopy = useMemo(
@@ -972,6 +989,10 @@ export default function Dashboard() {
 
             setOptimisticSocialLinkedWalletNorm(connectedWalletNorm);
             setLinkProgressSource(result.progressSource || null);
+            // Prefer post-link status fields from the flow (not transient preview).
+            const signal = readAuthoritativeWalletProgress(result);
+            setWalletHasProgress(signal.walletHasProgress);
+            setWalletProgressEvaluated(signal.walletProgressEvaluated);
 
             try {
                 await resolveNow?.();
