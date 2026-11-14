@@ -35,12 +35,13 @@ test("routeTable registers /learn and /learn-gr with LearnPage lang prop", () =>
 
 test("Learn page uses canonical progression helpers (fetch + metadata fallback)", () => {
   assert.match(pageSrc, /fetchLearningModulesProgression/);
-  assert.match(pageSrc, /getContinueLearningViewState/);
+  assert.match(pageSrc, /resolveLearnContinueBarPresentation/);
   assert.match(pageSrc, /pickLearnContinueProgression/);
   assert.match(pageSrc, /shouldShowLearnContinueSection/);
   assert.match(pageSrc, /useResolvedIdentityContext/);
   assert.match(pageSrc, /metadata\?\.progression/);
   assert.match(pageSrc, /LearnContinueBar/);
+  assert.match(pageSrc, /availableModulesCompleteTitle/);
   assert.doesNotMatch(pageSrc, /ContinueLearningCard/);
   assert.doesNotMatch(pageSrc, /getRoleFromXpTotal/);
   assert.doesNotMatch(pageSrc, /getProgressFromXpTotal/);
@@ -84,17 +85,64 @@ test("Learn landing locale exposes EN/GR hero, value points, planned state, foot
   const gr = getLearnLandingCopy("gr");
   assert.ok(en.heroTitle);
   assert.ok(gr.heroTitle);
+  assert.match(en.heroTitle, /Web3 Learning Journey/i);
+  assert.ok(gr.heroTitle.includes("Web3") || gr.heroTitle.includes("Διαδρομή"));
   assert.equal(en.valuePoints.length, 3);
   assert.equal(gr.valuePoints.length, 3);
+  assert.equal(en.valuePoints[0].title, "Learn");
+  assert.equal(en.valuePoints[1].title, "Practice");
+  assert.equal(en.valuePoints[2].title, "Prove");
+  assert.equal(gr.valuePoints[0].title, "Μάθε");
+  assert.equal(gr.valuePoints[1].title, "Εξασκήσου");
+  assert.equal(gr.valuePoints[2].title, "Απόδειξε");
   assert.equal(en.paths.explorer.subtitle, "Foundations");
   assert.equal(gr.paths.explorer.subtitle, "Θεμέλια");
+  assert.ok(en.paths.explorer.description);
+  assert.ok(gr.paths.builder.description);
   assert.equal(en.available, "Available");
   assert.equal(en.completed, "Completed");
   assert.equal(gr.available, "Διαθέσιμο");
   assert.equal(gr.completed, "Ολοκληρωμένο");
   assert.equal(en.planned, "Planned");
   assert.equal(gr.chapterPlanned, "Διαδραστικό κεφάλαιο");
-  assert.match(pageSrc, /xl:grid-cols-5/);
+  assert.ok(en.modulesHeading);
+  assert.ok(gr.modulesHeading);
+  // Desktop curriculum: max three columns (Builder wraps as 3+2).
+  assert.match(pageSrc, /lg:grid-cols-3/);
+  assert.doesNotMatch(pageSrc, /xl:grid-cols-5/);
+  assert.match(pageSrc, /learning-journey-hero\.png/);
+  assert.doesNotMatch(pageSrc, /learning-stages-illustration/);
+  // Phase 3: hero CTA scrolls to curriculum; no Explorer/Builder/Architect strip in hero.
+  assert.doesNotMatch(pageSrc, /PathJourneyOverview/);
+  assert.match(pageSrc, /scrollToCurriculum/);
+  assert.match(pageSrc, /prefers-reduced-motion/);
+  assert.equal(en.exploreModulesCta, "Explore Learning Modules");
+  assert.equal(
+    gr.exploreModulesCta,
+    "Εξερεύνησε τις Μαθησιακές Ενότητες"
+  );
+  assert.match(pageSrc, /MethodologyStrip|learn-practice-prove-heading/);
+  assert.match(pageSrc, /getModuleAbout|mod\.about|moduleSummaries/);
+  // EN/GR card summary parity for LM01–LM11.
+  const enKeys = Object.keys(en.moduleSummaries || {});
+  const grKeys = Object.keys(gr.moduleSummaries || {});
+  assert.deepEqual(enKeys, grKeys);
+  for (const id of [
+    "LM01",
+    "LM02",
+    "LM03",
+    "LM04",
+    "LM05",
+    "LM06",
+    "LM07",
+    "LM08",
+    "LM09",
+    "LM10",
+    "LM11",
+  ]) {
+    assert.ok(en.moduleSummaries[id]);
+    assert.ok(gr.moduleSummaries[id]);
+  }
 });
 
 test("Module cards read canonical modules[].complete — not XP or activity guesses", () => {
@@ -106,4 +154,27 @@ test("Module cards read canonical modules[].complete — not XP or activity gues
   // Planned/unavailable path must not invent completion labels.
   assert.match(pageSrc, /copy\.planned/);
   assert.match(pageSrc, /chapterPlanned/);
+});
+
+test("EN/GR available-modules completion copy for Continue Learning State B", () => {
+  const en = getLearnLandingCopy("en");
+  const gr = getLearnLandingCopy("gr");
+  assert.equal(
+    en.availableModulesCompleteTitle,
+    "All available Learning Modules completed!"
+  );
+  assert.equal(
+    en.availableModulesCompleteBody,
+    "You've completed the current learning journey. New modules are coming soon."
+  );
+  assert.equal(
+    gr.availableModulesCompleteTitle,
+    "Ολοκλήρωσες όλες τις διαθέσιμες Μαθησιακές Ενότητες!"
+  );
+  assert.equal(
+    gr.availableModulesCompleteBody,
+    "Η μαθησιακή σου διαδρομή συνεχίζεται σύντομα με νέες ενότητες."
+  );
+  assert.match(pageSrc, /available_complete/);
+  assert.match(pageSrc, /availableModulesCompleteBody/);
 });

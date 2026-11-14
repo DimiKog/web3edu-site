@@ -4,7 +4,12 @@
  * payload and whether the Continue section should appear.
  */
 
-import { isValidCanonicalProgression } from "./continueLearningView.js";
+import { getLmCurriculumModules } from "../content/lmRegistry.js";
+import {
+  getContinueLearningViewState,
+  isValidCanonicalProgression,
+} from "./continueLearningView.js";
+import { getCanonicalModuleEntry } from "./lmModuleView.js";
 
 /**
  * Prefer dedicated progression fetch; fall back to identity-resolve metadata
@@ -25,6 +30,61 @@ export function pickLearnContinueProgression(
     return { progression: metadataProgression, source: "metadata" };
   }
   return { progression: null, source: null };
+}
+
+/**
+ * Module ids with an Interactive Chapter today (registry `chapterAvailable`).
+ * Planned modules (LM09–LM11) are excluded — never Continue Learning targets.
+ * @returns {string[]}
+ */
+export function getAvailableLearningModuleIds() {
+  return getLmCurriculumModules()
+    .filter((mod) => mod.chapterAvailable === true)
+    .map((mod) => mod.id);
+}
+
+/**
+ * True when every registry-available module has canonical `modules[id].complete`.
+ * Ignores Planned chapters, XP, badges, and nextAction / currentModule pointers.
+ *
+ * @param {unknown} progression
+ */
+export function areAllAvailableLearningModulesComplete(progression) {
+  if (!isValidCanonicalProgression(progression)) return false;
+  const availableIds = getAvailableLearningModuleIds();
+  if (availableIds.length === 0) return false;
+  return availableIds.every(
+    (id) => getCanonicalModuleEntry(progression, id)?.complete === true
+  );
+}
+
+/**
+ * Learn Continue bar presentation (Learn landing only).
+ * Prefer "all available modules complete" over shared active/unavailable
+ * targeting of Planned modules (e.g. LM09 evidence).
+ *
+ * @param {Record<string, unknown>|null|undefined} progression
+ * @param {"en"|"gr"} [lang]
+ * @returns {{
+ *   mode: "invalid"|"available_complete"|"path_complete"|"active",
+ *   view?: ReturnType<typeof getContinueLearningViewState>,
+ * }}
+ */
+export function resolveLearnContinueBarPresentation(progression, lang = "en") {
+  if (!isValidCanonicalProgression(progression)) {
+    return { mode: "invalid" };
+  }
+  if (areAllAvailableLearningModulesComplete(progression)) {
+    return { mode: "available_complete" };
+  }
+  const view = getContinueLearningViewState(progression, lang);
+  if (view.mode === "complete") {
+    return { mode: "path_complete", view };
+  }
+  if (view.mode === "invalid") {
+    return { mode: "invalid" };
+  }
+  return { mode: "active", view };
 }
 
 /**
