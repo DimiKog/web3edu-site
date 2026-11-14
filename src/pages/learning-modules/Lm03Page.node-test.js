@@ -176,6 +176,8 @@ test("LM03 concept panels teach dimension separation and FoodTrace application",
 test("LM03 shared visuals exist and assessment is live", () => {
   const visuals = getLmModuleVisuals("LM03");
   assert.equal(visuals.hero, LM03_VISUALS.hero);
+  assert.equal(visuals.card, LM03_VISUALS.card);
+  assert.notEqual(visuals.card, visuals.hero);
   assert.equal(
     visuals.activityById["lm03-separate-dimensions"],
     LM03_VISUALS.architecturalDimensions
@@ -208,6 +210,7 @@ test("LM03 shared visuals exist and assessment is live", () => {
   assert.equal(getLmActivityVisualSrc("LM03", "book"), LM01_VISUALS.book);
   assert.equal(getLmActivityVisualSrc("LM03", "assessment"), LM01_VISUALS.assessment);
   assert.equal(existsSync(join(publicRoot, LM03_VISUALS.hero.slice(1))), true);
+  assert.equal(existsSync(join(publicRoot, LM03_VISUALS.card.slice(1))), true);
   assert.equal(
     existsSync(join(publicRoot, LM03_VISUALS.architecturalDimensions.slice(1))),
     true
