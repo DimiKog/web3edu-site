@@ -22,6 +22,7 @@ import {
   getLmVisibleActivities,
   isLmChapterAvailable,
   LM01_KALLIPOS_TEXTBOOK_URL,
+  LM06_VISUALS,
   LM_PRESENTATION_REGISTRY,
 } from "../../content/lmRegistry.js";
 import { ASSESSMENT_ROUTES } from "../../utils/progressionActionMapper.js";
@@ -237,6 +238,9 @@ test("LM06 assessment is live internal link with EN/GR routes", () => {
 test("LM06 Learning Path thumbs and next-step banner use dedicated assets", () => {
   const visuals = LM_PRESENTATION_REGISTRY.LM06.visuals;
   assert.match(visuals.hero, /lm06-hero-consensus-block-inclusion\.png$/);
+  assert.equal(visuals.card, LM06_VISUALS.card);
+  assert.match(visuals.card, /lm06-card\.png$/);
+  assert.notEqual(visuals.card, visuals.hero);
   assert.match(
     visuals.activityById["lm06-interactive-chapter"],
     /lm06-interactive-chapter\.png$/

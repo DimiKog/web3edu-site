@@ -4,7 +4,7 @@
  */
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -13,13 +13,16 @@ import { getLm07ChapterCopy, LM07_EXECUTION_TRACE_HREF } from "../../content/lm0
 import { getLmPageCopy } from "../../content/lmPageLocale.js";
 import {
   getLmChapterRoute,
+  getLmModuleVisuals,
   isLmChapterAvailable,
   LM01_KALLIPOS_TEXTBOOK_URL,
+  LM07_VISUALS,
   LM_PRESENTATION_REGISTRY,
 } from "../../content/lmRegistry.js";
 import { ASSESSMENT_ROUTES, EVIDENCE_ROUTES } from "../../utils/progressionActionMapper.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const publicRoot = join(__dirname, "../../../public");
 const pageSrc = readFileSync(join(__dirname, "Lm07Page.jsx"), "utf8");
 const panelSrc = readFileSync(
   join(__dirname, "../../components/learning-modules/Lm07ConceptPanel.jsx"),
@@ -97,4 +100,15 @@ test("LM07 page chrome locale parity", () => {
   assert.match(gr.assessmentTitle, /LM07/);
   assert.match(en.finishAssessmentCta, /Finish the assessment/i);
   assert.match(gr.finishAssessmentCta, /Ολοκλήρωσε την αξιολόγηση/);
+});
+
+test("LM07 card art is Learn-only; chapter hero remains lm07-hero.png", () => {
+  const visuals = getLmModuleVisuals("LM07");
+  assert.equal(visuals.hero, LM07_VISUALS.hero);
+  assert.equal(visuals.card, LM07_VISUALS.card);
+  assert.notEqual(visuals.card, visuals.hero);
+  assert.match(pageSrc, /presentation\?\.visuals\?\.hero|visuals\.hero/);
+  assert.doesNotMatch(pageSrc, /visuals\.card/);
+  assert.equal(existsSync(join(publicRoot, LM07_VISUALS.hero.slice(1))), true);
+  assert.equal(existsSync(join(publicRoot, LM07_VISUALS.card.slice(1))), true);
 });

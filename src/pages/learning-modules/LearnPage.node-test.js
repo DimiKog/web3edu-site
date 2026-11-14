@@ -4,7 +4,7 @@
  */
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -12,11 +12,22 @@ import test from "node:test";
 import {
   getLmChapterRoute,
   getLmCurriculumModules,
+  getLmLearnCardVisualSrc,
+  getLmModuleVisuals,
   isLmChapterAvailable,
+  LM01_VISUALS,
+  LM02_VISUALS,
+  LM03_VISUALS,
+  LM04_VISUALS,
+  LM05_VISUALS,
+  LM06_VISUALS,
+  LM07_VISUALS,
+  LM08_VISUALS,
 } from "../../content/lmRegistry.js";
 import { getLearnLandingCopy } from "../../content/learnLandingLocale.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const publicRoot = join(__dirname, "../../../public");
 const pageSrc = readFileSync(join(__dirname, "LearnPage.jsx"), "utf8");
 const routesSrc = readFileSync(
   join(__dirname, "../../routes/routeTable.jsx"),
@@ -177,4 +188,94 @@ test("EN/GR available-modules completion copy for Continue Learning State B", ()
   );
   assert.match(pageSrc, /available_complete/);
   assert.match(pageSrc, /availableModulesCompleteBody/);
+});
+
+test("LM03 Learn card prefers lm03-card.png; hero unchanged for chapter pages", () => {
+  assert.equal(
+    LM03_VISUALS.card,
+    "/learning-modules/visuals/lm03/lm03-card.png"
+  );
+  assert.equal(
+    LM03_VISUALS.hero,
+    "/learning-modules/visuals/lm03/lm03-hero.png"
+  );
+  assert.equal(getLmModuleVisuals("LM03")?.card, LM03_VISUALS.card);
+  assert.equal(getLmModuleVisuals("LM03")?.hero, LM03_VISUALS.hero);
+  assert.equal(getLmLearnCardVisualSrc("LM03"), LM03_VISUALS.card);
+  assert.notEqual(getLmLearnCardVisualSrc("LM03"), LM03_VISUALS.hero);
+  assert.equal(
+    existsSync(join(publicRoot, LM03_VISUALS.card.slice(1))),
+    true
+  );
+  assert.equal(
+    existsSync(join(publicRoot, LM03_VISUALS.hero.slice(1))),
+    true
+  );
+  // Learn ModuleCard uses card helper — not raw hero.
+  assert.match(pageSrc, /getLmLearnCardVisualSrc/);
+  assert.doesNotMatch(pageSrc, /getLmModuleVisuals\(mod\.id\)\?\.hero/);
+});
+
+test("LM06 Learn card prefers lm06-card.png; hero unchanged for chapter pages", () => {
+  assert.equal(
+    LM06_VISUALS.card,
+    "/learning-modules/visuals/lm06/lm06-card.png"
+  );
+  assert.equal(
+    LM06_VISUALS.hero,
+    "/learning-modules/visuals/lm06/lm06-hero-consensus-block-inclusion.png"
+  );
+  assert.equal(getLmModuleVisuals("LM06")?.card, LM06_VISUALS.card);
+  assert.equal(getLmModuleVisuals("LM06")?.hero, LM06_VISUALS.hero);
+  assert.equal(getLmLearnCardVisualSrc("LM06"), LM06_VISUALS.card);
+  assert.notEqual(getLmLearnCardVisualSrc("LM06"), LM06_VISUALS.hero);
+  assert.equal(
+    existsSync(join(publicRoot, LM06_VISUALS.card.slice(1))),
+    true
+  );
+  assert.equal(
+    existsSync(join(publicRoot, LM06_VISUALS.hero.slice(1))),
+    true
+  );
+});
+
+test("LM07 Learn card prefers lm07-card.png; hero unchanged for chapter pages", () => {
+  assert.equal(
+    LM07_VISUALS.card,
+    "/learning-modules/visuals/lm07/lm07-card.png"
+  );
+  assert.equal(
+    LM07_VISUALS.hero,
+    "/learning-modules/visuals/lm07/lm07-hero.png"
+  );
+  assert.equal(getLmModuleVisuals("LM07")?.card, LM07_VISUALS.card);
+  assert.equal(getLmModuleVisuals("LM07")?.hero, LM07_VISUALS.hero);
+  assert.equal(getLmLearnCardVisualSrc("LM07"), LM07_VISUALS.card);
+  assert.notEqual(getLmLearnCardVisualSrc("LM07"), LM07_VISUALS.hero);
+  assert.equal(
+    existsSync(join(publicRoot, LM07_VISUALS.card.slice(1))),
+    true
+  );
+  assert.equal(
+    existsSync(join(publicRoot, LM07_VISUALS.hero.slice(1))),
+    true
+  );
+});
+
+test("modules without card art fall back to existing hero on Learn cards", () => {
+  assert.equal(getLmModuleVisuals("LM01")?.card, undefined);
+  assert.equal(getLmModuleVisuals("LM07")?.card, LM07_VISUALS.card);
+  assert.equal(getLmLearnCardVisualSrc("LM01"), LM01_VISUALS.hero);
+  assert.equal(getLmLearnCardVisualSrc("LM02"), LM02_VISUALS.hero);
+  assert.equal(getLmLearnCardVisualSrc("LM04"), LM04_VISUALS.hero);
+  assert.equal(getLmLearnCardVisualSrc("LM05"), LM05_VISUALS.hero);
+  assert.equal(getLmLearnCardVisualSrc("LM08"), LM08_VISUALS.hero);
+  assert.notEqual(getLmLearnCardVisualSrc("LM07"), LM07_VISUALS.hero);
+});
+
+test("Learn card visuals do not touch canonical progression or completion helpers", () => {
+  assert.match(pageSrc, /getCanonicalModuleEntry\(progression, mod\.id\)\?\.complete/);
+  assert.match(pageSrc, /resolveLearnContinueBarPresentation/);
+  assert.doesNotMatch(pageSrc, /getRoleFromXpTotal|getProgressFromXpTotal/);
+  assert.doesNotMatch(pageSrc, /from ["'].*progression\.js["']/);
 });

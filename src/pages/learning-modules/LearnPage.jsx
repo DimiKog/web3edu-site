@@ -10,8 +10,8 @@ import { formatProgressionTierLabel } from "../../content/continueLearningLocale
 import { getLearnLandingCopy } from "../../content/learnLandingLocale.js";
 import {
   getLmChapterRoute,
+  getLmLearnCardVisualSrc,
   getLmModulesForPath,
-  getLmModuleVisuals,
   getLmRegistryModuleTitle,
   LM_LEARN_PATH_KEYS,
 } from "../../content/lmRegistry.js";
@@ -289,7 +289,8 @@ function ModuleCard({ mod, lang, copy, progression }) {
   const title = getLmRegistryModuleTitle(mod.id, locale) || mod.id;
   const available = mod.chapterAvailable === true;
   const route = available ? getLmChapterRoute(mod.id, locale) : null;
-  const heroSrc = available ? getLmModuleVisuals(mod.id)?.hero : null;
+  // Prefer optional Learn-card art; fall back to module hero. Chapter pages keep hero.
+  const cardSrc = available ? getLmLearnCardVisualSrc(mod.id) : null;
   const label = copy.moduleLabel(mod.moduleNumber);
   const about = getModuleAbout(mod, locale, copy);
   // Canonical LM_COMPLETE only — never XP, activities, or local guesses.
@@ -353,9 +354,9 @@ function ModuleCard({ mod, lang, copy, progression }) {
     <>
       <div className="relative">
         <div className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/90 ring-1 ring-slate-200/70 dark:from-slate-800/80 dark:to-slate-900/60 dark:ring-white/10">
-          {heroSrc ? (
+          {cardSrc ? (
             <LmApprovedVisual
-              src={heroSrc}
+              src={cardSrc}
               alt=""
               className="h-full w-full p-2.5 sm:p-3"
             />

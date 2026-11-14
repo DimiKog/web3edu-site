@@ -68,6 +68,8 @@ export const LM02_VISUALS = {
 /** Approved LM03 production visuals (public/ paths). Do not regenerate or substitute. */
 export const LM03_VISUALS = {
   hero: "/learning-modules/visuals/lm03/lm03-hero.png",
+  /** Learn landing ModuleCard only — internal chapter pages keep `hero`. */
+  card: "/learning-modules/visuals/lm03/lm03-card.png",
   architecturalDimensions:
     "/learning-modules/visuals/lm03/lm03-architectural-dimensions.png",
   requirementsToCharacteristics:
@@ -116,6 +118,8 @@ export const LM05_VISUALS = {
  */
 export const LM06_VISUALS = {
   hero: "/learning-modules/visuals/lm06/lm06-hero-consensus-block-inclusion.png",
+  /** Learn landing ModuleCard only — internal chapter pages keep `hero`. */
+  card: "/learning-modules/visuals/lm06/lm06-card.png",
   /** Learning Path item 01 thumbnail — not the wide page hero. */
   interactiveChapter:
     "/learning-modules/visuals/lm06/lm06-interactive-chapter.png",
@@ -136,6 +140,8 @@ export const LM06_VISUALS = {
  */
 export const LM07_VISUALS = {
   hero: "/learning-modules/visuals/lm07/lm07-hero.png",
+  /** Learn landing ModuleCard only — internal chapter pages keep `hero`. */
+  card: "/learning-modules/visuals/lm07/lm07-card.png",
   codeState: "/learning-modules/visuals/lm07/lm07-code-state.png",
   executionFlow: "/learning-modules/visuals/lm07/lm07-execution-flow.png",
   readWrite: "/learning-modules/visuals/lm07/lm07-read-write.png",
@@ -596,6 +602,7 @@ export const LM_PRESENTATION_REGISTRY = {
     },
     visuals: {
       hero: LM03_VISUALS.hero,
+      card: LM03_VISUALS.card,
       completion: LM01_VISUALS.completion,
       nextStep: LM01_VISUALS.nextStep,
       meta: {
@@ -1218,6 +1225,7 @@ export const LM_PRESENTATION_REGISTRY = {
     },
     visuals: {
       hero: LM06_VISUALS.hero,
+      card: LM06_VISUALS.card,
       nextStep: LM06_VISUALS.nextRequiredStep,
       meta: {
         time: LM01_VISUALS.metaTime,
@@ -1418,6 +1426,7 @@ export const LM_PRESENTATION_REGISTRY = {
     },
     visuals: {
       hero: LM07_VISUALS.hero,
+      card: LM07_VISUALS.card,
       /**
        * Match LM04/LM05: chapter-close next-step uses the shared assessment art
        * so it matches the Assessment Learning Path row (not execution-flow chapter art).
@@ -1878,10 +1887,11 @@ export function getLmRegistryModuleTitle(moduleId, lang = "en") {
 }
 
 /**
- * Approved artwork for a module (hero, completion, activity type map).
+ * Approved artwork for a module (hero, optional Learn card, completion, activity type map).
  * @param {string} moduleId
  * @returns {{
  *   hero?: string,
+ *   card?: string,
  *   completion?: string,
  *   nextStep?: string,
  *   meta?: { time?: string, level?: string, xp?: string },
@@ -1892,6 +1902,20 @@ export function getLmRegistryModuleTitle(moduleId, lang = "en") {
 export function getLmModuleVisuals(moduleId) {
   const visuals = getLmPresentationModule(moduleId)?.visuals;
   return visuals && typeof visuals === "object" ? visuals : null;
+}
+
+/**
+ * Learn landing ModuleCard image — prefers optional `card`, falls back to `hero`.
+ * Internal Learning Module chapter pages must keep using `visuals.hero`.
+ * @param {string} moduleId
+ * @returns {string|null}
+ */
+export function getLmLearnCardVisualSrc(moduleId) {
+  const visuals = getLmModuleVisuals(moduleId);
+  if (!visuals) return null;
+  if (typeof visuals.card === "string" && visuals.card) return visuals.card;
+  if (typeof visuals.hero === "string" && visuals.hero) return visuals.hero;
+  return null;
 }
 
 /**
