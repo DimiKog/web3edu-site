@@ -84,17 +84,31 @@ test("Learn landing locale exposes EN/GR hero, value points, planned state, foot
   const gr = getLearnLandingCopy("gr");
   assert.ok(en.heroTitle);
   assert.ok(gr.heroTitle);
+  assert.match(en.heroTitle, /Web3 Learning Journey/i);
+  assert.ok(gr.heroTitle.includes("Web3") || gr.heroTitle.includes("Διαδρομή"));
   assert.equal(en.valuePoints.length, 3);
   assert.equal(gr.valuePoints.length, 3);
+  assert.equal(en.valuePoints[0].title, "Learn");
+  assert.equal(en.valuePoints[1].title, "Practice");
+  assert.equal(en.valuePoints[2].title, "Prove");
+  assert.equal(gr.valuePoints[0].title, "Μάθε");
+  assert.equal(gr.valuePoints[1].title, "Εξασκήσου");
+  assert.equal(gr.valuePoints[2].title, "Απόδειξε");
   assert.equal(en.paths.explorer.subtitle, "Foundations");
   assert.equal(gr.paths.explorer.subtitle, "Θεμέλια");
+  assert.ok(en.paths.explorer.description);
+  assert.ok(gr.paths.builder.description);
   assert.equal(en.available, "Available");
   assert.equal(en.completed, "Completed");
   assert.equal(gr.available, "Διαθέσιμο");
   assert.equal(gr.completed, "Ολοκληρωμένο");
   assert.equal(en.planned, "Planned");
   assert.equal(gr.chapterPlanned, "Διαδραστικό κεφάλαιο");
+  assert.ok(en.modulesHeading);
+  assert.ok(gr.modulesHeading);
   assert.match(pageSrc, /xl:grid-cols-5/);
+  assert.match(pageSrc, /PathJourneyOverview/);
+  assert.match(pageSrc, /getModuleAbout|mod\.about/);
 });
 
 test("Module cards read canonical modules[].complete — not XP or activity guesses", () => {

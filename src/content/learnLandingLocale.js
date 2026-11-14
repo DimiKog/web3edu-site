@@ -7,25 +7,29 @@
 export const LEARN_LANDING_COPY = {
   en: {
     eyebrow: "Learn",
-    heroTitle: "Learn Blockchain by Understanding, Building, and Designing",
+    heroTitle: "Your Web3 Learning Journey",
     heroBody:
-      "A structured journey from blockchain foundations to smart-contract architecture. Follow the modules in sequence, use hands-on Labs and Projects where they support the learning goals, and build verifiable progress as you advance.",
+      "Move from blockchain foundations to smart-contract design through structured Learning Modules. Explore concepts, practice with Labs and Projects, and build understanding step by step.",
+    modulesHeading: "Learning Modules",
+    modulesIntro:
+      "Follow the curriculum in sequence across three educational stages — from foundations to design.",
+    journeyLabel: "Learning path",
     valuePoints: [
       {
-        title: "11 Learning Modules",
-        body: "From foundations to advanced topics",
+        title: "Learn",
+        body: "Structured Learning Modules.",
       },
       {
-        title: "Hands-on Learning",
-        body: "With Labs and real examples",
+        title: "Practice",
+        body: "Hands-on Labs and Projects.",
       },
       {
-        title: "Verifiable Progress",
-        body: "Track and prove your achievements",
+        title: "Prove",
+        body: "Verifiable learning achievements and identity.",
       },
     ],
-    continueTitle: "Continue your journey",
-    continueSubtitle: "Pick up where you left off and keep making progress.",
+    continueTitle: "Continue Learning",
+    continueSubtitle: "Pick up where you left off.",
     continueCta: "Continue Learning →",
     continueLoading: "Loading your learning path…",
     progressionUnavailable:
@@ -34,20 +38,26 @@ export const LEARN_LANDING_COPY = {
     /** Presentation line from canonical path tier + current module id. */
     continuePathModule: (pathLabel, moduleId) =>
       moduleId
-        ? `${String(pathLabel).toUpperCase()} PATH · ${moduleId}`
-        : `${String(pathLabel).toUpperCase()} PATH`,
+        ? `${String(pathLabel)} · ${moduleId}`
+        : String(pathLabel),
     paths: {
       explorer: {
-        title: "Explorer Path",
+        title: "Explorer",
         subtitle: "Foundations",
+        description:
+          "Build core blockchain literacy — what it is, when it is justified, and how platforms differ.",
       },
       builder: {
-        title: "Builder Path",
+        title: "Builder",
         subtitle: "Build & Understand",
+        description:
+          "Connect keys, transactions, consensus, and smart contracts through guided practice.",
       },
       architect: {
-        title: "Architect Path",
+        title: "Architect",
         subtitle: "Design & Create",
+        description:
+          "Design and create with tokens and contract systems — modules in this stage are planned.",
       },
     },
     available: "Available",
@@ -56,31 +66,35 @@ export const LEARN_LANDING_COPY = {
     chapterPlanned: "Interactive chapter",
     openModule: "Open module →",
     moduleLabel: (n) => `LM${String(n).padStart(2, "0")}`,
-    footerTitle: "How Learn relates to Labs and Projects",
+    footerTitle: "Learn · Practice · Prove",
     footerBody:
-      "Learning Modules organize the curriculum. Labs and Projects provide reusable hands-on experiences that modules can use as learning activities and evidence.",
+      "Learning Modules organize the curriculum. Labs and Projects provide hands-on practice. Verifiable achievements and identity help you prove what you have learned — not every module issues an on-chain credential.",
   },
   gr: {
     eyebrow: "Μάθηση",
-    heroTitle: "Μάθε Blockchain μέσα από Κατανόηση, Κατασκευή και Σχεδιασμό",
+    heroTitle: "Η Μαθησιακή σου Διαδρομή στο Web3",
     heroBody:
-      "Μια δομημένη μαθησιακή διαδρομή από τις θεμελιώδεις έννοιες του blockchain έως την αρχιτεκτονική έξυπνων συμβολαίων. Ακολούθησε τα modules με τη σειρά, αξιοποίησε Labs και Projects όπου υποστηρίζουν τους μαθησιακούς στόχους και δημιούργησε επαληθεύσιμη πρόοδο καθώς εξελίσσεσαι.",
+      "Πέρασε από τα θεμέλια του blockchain στον σχεδιασμό έξυπνων συμβολαίων μέσα από δομημένα Learning Modules. Εξερεύνησε έννοιες, εξασκήσου με Labs και Projects και χτίσε κατανόηση βήμα προς βήμα.",
+    modulesHeading: "Learning Modules",
+    modulesIntro:
+      "Ακολούθησε το πρόγραμμα με τη σειρά σε τρία εκπαιδευτικά στάδια — από τα θεμέλια έως τον σχεδιασμό.",
+    journeyLabel: "Διαδρομή μάθησης",
     valuePoints: [
       {
-        title: "11 Learning Modules",
-        body: "Από τις θεμελιώδεις έννοιες έως προχωρημένα θέματα",
+        title: "Μάθε",
+        body: "Δομημένα Learning Modules.",
       },
       {
-        title: "Πρακτική Μάθηση",
-        body: "Με Labs και πραγματικά παραδείγματα",
+        title: "Εξασκήσου",
+        body: "Hands-on Labs και Projects.",
       },
       {
-        title: "Επαληθεύσιμη Πρόοδος",
-        body: "Παρακολούθησε και τεκμηρίωσε την πρόοδό σου",
+        title: "Απόδειξε",
+        body: "Επαληθεύσιμα μαθησιακά επιτεύγματα και ταυτότητα.",
       },
     ],
-    continueTitle: "Συνέχισε τη διαδρομή σου",
-    continueSubtitle: "Συνέχισε από εκεί που σταμάτησες και προχώρα.",
+    continueTitle: "Συνέχεια μάθησης",
+    continueSubtitle: "Συνέχισε από εκεί που σταμάτησες.",
     continueCta: "Συνέχεια μάθησης →",
     continueLoading: "Φόρτωση της μαθησιακής σου διαδρομής…",
     progressionUnavailable:
@@ -88,20 +102,26 @@ export const LEARN_LANDING_COPY = {
     continuePathComplete: "Η διαδρομή μάθησης ολοκληρώθηκε",
     continuePathModule: (pathLabel, moduleId) =>
       moduleId
-        ? `ΔΙΑΔΡΟΜΗ ${String(pathLabel).toUpperCase()} · ${moduleId}`
-        : `ΔΙΑΔΡΟΜΗ ${String(pathLabel).toUpperCase()}`,
+        ? `${String(pathLabel)} · ${moduleId}`
+        : String(pathLabel),
     paths: {
       explorer: {
-        title: "Διαδρομή Εξερευνητή",
+        title: "Εξερευνητής",
         subtitle: "Θεμέλια",
+        description:
+          "Χτίσε βασικό blockchain literacy — τι είναι, πότε δικαιολογείται και πώς διαφέρουν οι πλατφόρμες.",
       },
       builder: {
-        title: "Διαδρομή Δημιουργού",
+        title: "Δημιουργός",
         subtitle: "Κατασκευή & Κατανόηση",
+        description:
+          "Σύνδεσε κλειδιά, συναλλαγές, συναίνεση και έξυπνα συμβόλαια μέσα από καθοδηγούμενη πρακτική.",
       },
       architect: {
-        title: "Διαδρομή Αρχιτέκτονα",
+        title: "Αρχιτέκτονας",
         subtitle: "Σχεδιασμός & Δημιουργία",
+        description:
+          "Σχεδίασε και δημιούργησε με tokens και συστήματα συμβολαίων — τα modules αυτού του σταδίου είναι σχεδιασμένα.",
       },
     },
     available: "Διαθέσιμο",
@@ -110,9 +130,9 @@ export const LEARN_LANDING_COPY = {
     chapterPlanned: "Διαδραστικό κεφάλαιο",
     openModule: "Άνοιγμα module →",
     moduleLabel: (n) => `LM${String(n).padStart(2, "0")}`,
-    footerTitle: "Πώς το Learn σχετίζεται με Labs και Projects",
+    footerTitle: "Μάθε · Εξασκήσου · Απόδειξε",
     footerBody:
-      "Τα Learning Modules οργανώνουν το πρόγραμμα μάθησης. Τα Labs και τα Projects παρέχουν επαναχρησιμοποιήσιμες πρακτικές δραστηριότητες που μπορούν να αξιοποιούνται από τα modules ως μαθησιακές δραστηριότητες και αποδεικτικά μάθησης.",
+      "Τα Learning Modules οργανώνουν το πρόγραμμα μάθησης. Τα Labs και τα Projects παρέχουν πρακτική εξάσκηση. Τα επαληθεύσιμα επιτεύγματα και η ταυτότητα βοηθούν να αποδείξεις τι έχεις μάθει — δεν εκδίδει κάθε module διαπιστευτήριο on-chain.",
   },
 };
 
