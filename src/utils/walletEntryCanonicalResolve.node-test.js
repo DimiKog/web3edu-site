@@ -137,7 +137,7 @@ test("5. device AA separate progress is not selected as canonical learner", () =
   assert.notEqual(v.identityAddress, normalizeEvmAddress(PROD_DEVICE_AA));
 });
 
-test("6–7. genuine wallet-only EOA with no SBT stays wallet-only", () => {
+test("6–7. IC-03B: wallet-only EOA progressAddress wins over device AA", () => {
   const interpreted = interpretWalletEntryCanonicalResult(
     walletOnlyPayload({ credentialStatus: "NOT_ISSUED" }),
     { connectedEoa: WALLET_ONLY_EOA }
@@ -153,9 +153,13 @@ test("6–7. genuine wallet-only EOA with no SBT stays wallet-only", () => {
     walletEntryActive: true,
     walletEntryStatus: WALLET_ENTRY_WALLET_ONLY,
     walletEntryProgressAddress: WALLET_ONLY_EOA,
+    walletEntryMatchedBy: "wallet_only_address",
+    walletEntryMode: "wallet_only",
   });
-  assert.equal(v.source, VIEWER_SOURCE_DEVICE_AA);
-  assert.equal(v.identityAddress, normalizeEvmAddress(DEVICE_AA));
+  assert.equal(v.source, VIEWER_SOURCE_CONNECTED_EOA);
+  assert.equal(v.identityAddress, normalizeEvmAddress(WALLET_ONLY_EOA));
+  assert.notEqual(v.identityAddress, normalizeEvmAddress(DEVICE_AA));
+  assert.equal(v.mode, "wallet_only");
   assert.equal(v.isLinkedWalletAlias, false);
   assert.equal(v.signerAddress, normalizeEvmAddress(WALLET_ONLY_EOA));
 });

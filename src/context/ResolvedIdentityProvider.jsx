@@ -16,7 +16,6 @@ import { isWalletMintedIdentityRecord } from "../utils/identityReadiness.js";
 import { readConnectedEoaAddress } from "../utils/aaIdentity.js";
 import { isNeutralAfterLogout, VIEWER_MODE_EVENT } from "../utils/viewerMode.js";
 import {
-  VIEWER_SOURCE_CONNECTED_EOA,
   WALLET_ENTRY_IDLE,
   WALLET_ENTRY_WALLET_ONLY,
   selectCanonicalViewerIdentity,
@@ -127,8 +126,11 @@ export function ResolvedIdentityProvider({ children }) {
   const walletEntryResolvePending = Boolean(viewer.pending);
   const isWalletEntryLinkedAlias = Boolean(viewer.isLinkedWalletAlias);
 
+  // IC-03B: wallet-only is established from backend wallet-entry resolution for
+  // the connected EOA — not from whether the viewer happened to pick device AA.
   const walletOnlyModeEstablished = Boolean(
-    viewer.source === VIEWER_SOURCE_CONNECTED_EOA &&
+    !isOidcAuthenticated &&
+      connectedEoa &&
       (walletEntry.mode === "wallet_only" ||
         walletEntry.status === WALLET_ENTRY_WALLET_ONLY)
   );
@@ -333,8 +335,13 @@ export function ResolvedIdentityProvider({ children }) {
       viewerSource: viewer.source,
       isWalletEntryLinkedAlias,
       walletEntryResolvePending,
+      walletEntryStatus: walletEntry.status,
+      walletEntryMode: walletEntry.mode,
+      /** Backend wallet-only for connected EOA (IC-03A/B); independent of device AA. */
+      walletOnlyModeEstablished,
       walletEntryMatchedBy: viewer.matchedBy,
       walletEntryLinkedWalletAddress: viewer.linkedWalletAddress,
+      /** Connected EOA used for canonical resolve (signer), not device AA. */
       signerAddress: viewer.signerAddress ?? connectedEoa,
       /** WA-01c2 wallet-only private-read auth surface (Dashboard banner). */
       walletAuthProgress: {
@@ -367,6 +374,9 @@ export function ResolvedIdentityProvider({ children }) {
       viewer.signerAddress,
       isWalletEntryLinkedAlias,
       walletEntryResolvePending,
+      walletEntry.status,
+      walletEntry.mode,
+      walletOnlyModeEstablished,
       connectedEoa,
       walletAuthUiState,
       walletOnlyAuthEligible,

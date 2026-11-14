@@ -20,6 +20,8 @@ import {
     shortAddress,
 } from "../components/identity-ui.jsx";
 import { useResolvedIdentityContext } from "../hooks/useResolvedIdentityContext.js";
+import { useCredentialAssociationOnboarding } from "../hooks/useCredentialAssociationOnboarding.js";
+import CredentialAssociationBanner from "../components/CredentialAssociationBanner.jsx";
 import { useIdentity } from "../context/useIdentity.js";
 import { warnIfIdentityNotInitialized } from "../utils/identityReadiness.js";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
@@ -50,6 +52,7 @@ import {
 import {
     resolveLinkWalletBannerCopy,
     resolveLinkWalletSuccessMessage,
+    readAuthoritativeWalletProgress,
     shouldOfferSocialProgressImport,
     shouldShowSocialWalletLinkageDevSnapshot,
 } from "../utils/dashboardIdentityUi.js";
@@ -242,7 +245,21 @@ export default function Dashboard() {
         walletEntryResolvePending,
         walletEntryLinkedWalletAddress,
         walletAuthProgress,
+        viewerSource,
+        walletEntryStatus,
+        walletEntryMode,
+        walletOnlyModeEstablished,
     } = useResolvedIdentityContext();
+
+    const credentialAssociation = useCredentialAssociationOnboarding({
+        isOidcAuthenticated,
+        viewerSource,
+        isWalletEntryLinkedAlias,
+        walletEntryStatus,
+        walletEntryMode,
+        walletOnlyModeEstablished,
+        onAssociated: refetchResolvedIdentity,
+    });
 
     const socialAaAddress = getSocialIdentityAaAddress(socialIdentity);
     const identityAddress = useMemo(() => {
@@ -400,6 +417,9 @@ export default function Dashboard() {
     const [linkWalletPhase, setLinkWalletPhase] = useState("idle"); // idle | loading | success | error
     const [linkWalletError, setLinkWalletError] = useState(null);
     const [linkProgressSource, setLinkProgressSource] = useState(null);
+    // Authoritative ACTIVE-primary wallet progress from GET link/status (fail closed until evaluated).
+    const [walletHasProgress, setWalletHasProgress] = useState(null);
+    const [walletProgressEvaluated, setWalletProgressEvaluated] = useState(false);
     const { signTypedDataAsync } = useSignTypedData();
 
     const { connectWalletSessionAware, isPending: walletOnboardingConnectPending } =
@@ -408,9 +428,13 @@ export default function Dashboard() {
     const prevXpRef = useRef(null);
     const prevTierRef = useRef(null);
 
-    // Hydrate progressSource from H3C status so Case B never resurfaces Import Progress after refresh.
+    // Hydrate progressSource + wallet progress from H3C status (refresh/reload restore).
     useEffect(() => {
-        if (!oidcIdToken) return;
+        if (!oidcIdToken) {
+            setWalletHasProgress(null);
+            setWalletProgressEvaluated(false);
+            return;
+        }
         let cancelled = false;
         (async () => {
             try {
@@ -419,8 +443,15 @@ export default function Dashboard() {
                 if (status?.progressSource) {
                     setLinkProgressSource(String(status.progressSource));
                 }
+                const signal = readAuthoritativeWalletProgress(status);
+                setWalletHasProgress(signal.walletHasProgress);
+                setWalletProgressEvaluated(signal.walletProgressEvaluated);
             } catch {
-                /* status optional until link API is available */
+                /* status optional until link API is available — fail closed */
+                if (!cancelled) {
+                    setWalletHasProgress(null);
+                    setWalletProgressEvaluated(false);
+                }
             }
         })();
         return () => {
@@ -915,6 +946,8 @@ export default function Dashboard() {
         progressImportSnoozed,
         socialContinuityAlreadyReflected,
         progressSource: linkProgressSource,
+        walletHasProgress,
+        walletProgressEvaluated,
     });
 
     const linkWalletBannerCopy = useMemo(
@@ -956,6 +989,10 @@ export default function Dashboard() {
 
             setOptimisticSocialLinkedWalletNorm(connectedWalletNorm);
             setLinkProgressSource(result.progressSource || null);
+            // Prefer post-link status fields from the flow (not transient preview).
+            const signal = readAuthoritativeWalletProgress(result);
+            setWalletHasProgress(signal.walletHasProgress);
+            setWalletProgressEvaluated(signal.walletProgressEvaluated);
 
             try {
                 await resolveNow?.();
@@ -1320,6 +1357,17 @@ export default function Dashboard() {
                         <WalletAuthProgressBanner
                             uiState={walletAuthProgress.uiState}
                             onVerify={walletAuthProgress.verifyWalletForProgress}
+                            isGR
+                        />
+                    </div>
+                ) : null}
+
+                {credentialAssociation?.uiState &&
+                credentialAssociation.uiState !== "hidden" ? (
+                    <div className="relative z-10 w-full max-w-6xl mx-auto mt-2 mb-2 px-2 md:px-0">
+                        <CredentialAssociationBanner
+                            uiState={credentialAssociation.uiState}
+                            onAssociate={credentialAssociation.associate}
                             isGR
                         />
                     </div>

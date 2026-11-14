@@ -1,16 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { importSocialProgress } from "../api/socialIdentity.js";
 import { normalizeEvmAddress } from "../utils/evmAddress.js";
-
-function classifyImportError(err) {
-  const p = err?.payload && typeof err.payload === "object" ? err.payload : {};
-  const raw = String(p.error ?? p.code ?? p.reason ?? err?.message ?? "").toLowerCase();
-  if (raw.includes("already_imported")) return "already_imported";
-  if (raw.includes("target_has_progress")) return "target_has_progress";
-  if (raw.includes("source_not_authorized")) return "source_not_authorized";
-  if (raw.includes("source_missing")) return "source_missing";
-  return "generic";
-}
+import { classifySocialProgressImportError } from "../utils/socialProgressImportErrors.js";
 
 /**
  * Progress import offer for social AA + guest connected wallet (inside amber guest-wallet card).
@@ -60,7 +51,7 @@ export default function SocialWalletProgressImportSection({
         finishAndHide();
       }, 4500);
     } catch (err) {
-      const kind = classifyImportError(err);
+      const kind = classifySocialProgressImportError(err);
       if (kind === "already_imported") {
         await onRefetch?.();
         try {

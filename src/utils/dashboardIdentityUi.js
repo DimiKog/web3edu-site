@@ -3,8 +3,27 @@
  */
 
 /**
- * Legacy import-progress is only for Case A (web3edu_account origin, wallet-side progress).
- * Case B (linked_wallet) and post-H3E account progress must not offer import.
+ * Normalize additive GET /web3edu/identity/link/status progress fields.
+ * Fail closed when evaluation is missing/unavailable (legacy unbound → null/false).
+ *
+ * @param {object|null|undefined} status
+ * @returns {{ walletHasProgress: boolean|null, walletProgressEvaluated: boolean }}
+ */
+export function readAuthoritativeWalletProgress(status) {
+  const evaluated = status?.walletProgressEvaluated === true;
+  let walletHasProgress = null;
+  if (status?.walletHasProgress === true) walletHasProgress = true;
+  else if (status?.walletHasProgress === false) walletHasProgress = false;
+  return {
+    walletHasProgress: evaluated ? walletHasProgress : null,
+    walletProgressEvaluated: evaluated,
+  };
+}
+
+/**
+ * Import Progress only when Case A + authoritative wallet progress is confirmed.
+ * Case B (linked_wallet), unevaluated/legacy, empty wallets, and post-H3E continuity
+ * must not offer import. Fail closed when walletProgressEvaluated !== true.
  *
  * @param {{
  *   isSocialWalletLinkedAuthorized?: boolean,
@@ -13,6 +32,8 @@
  *   progressImportSnoozed?: boolean,
  *   socialContinuityAlreadyReflected?: boolean,
  *   progressSource?: string|null,
+ *   walletHasProgress?: boolean|null,
+ *   walletProgressEvaluated?: boolean,
  * }} args
  */
 export function shouldOfferSocialProgressImport({
@@ -22,16 +43,17 @@ export function shouldOfferSocialProgressImport({
   progressImportSnoozed = false,
   socialContinuityAlreadyReflected = false,
   progressSource = null,
+  walletHasProgress = null,
+  walletProgressEvaluated = false,
 } = {}) {
   if (!isSocialWalletLinkedAuthorized || !hasIdToken || !hasConnectedWallet) {
     return false;
   }
   if (progressImportSnoozed) return false;
-  if (progressSource === "linked_wallet") return false;
-  if (progressSource === null) return false;
-  if (progressSource === "web3edu_account" && socialContinuityAlreadyReflected) {
-    return false;
-  }
+  if (progressSource !== "web3edu_account") return false;
+  if (walletProgressEvaluated !== true) return false;
+  if (walletHasProgress !== true) return false;
+  if (socialContinuityAlreadyReflected) return false;
   return true;
 }
 
