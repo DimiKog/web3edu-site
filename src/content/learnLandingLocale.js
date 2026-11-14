@@ -9,7 +9,8 @@ export const LEARN_LANDING_COPY = {
     eyebrow: "Learn",
     heroTitle: "Your Web3 Learning Journey",
     heroBody:
-      "Move from blockchain foundations to smart-contract design through structured Learning Modules. Explore concepts, practice with Labs and Projects, and build understanding step by step.",
+      "Move from blockchain foundations to smart-contract design through structured Learning Modules — explore concepts, practice with Labs and Projects, and build understanding step by step.",
+    exploreModulesCta: "Explore Learning Modules",
     modulesHeading: "Learning Modules",
     modulesIntro:
       "Follow the curriculum in sequence across three educational stages — from foundations to design.",
@@ -35,6 +36,9 @@ export const LEARN_LANDING_COPY = {
     progressionUnavailable:
       "Learning path details are temporarily unavailable. You can still browse the curriculum below.",
     continuePathComplete: "Learning path complete",
+    availableModulesCompleteTitle: "All available Learning Modules completed!",
+    availableModulesCompleteBody:
+      "You've completed the current learning journey. New modules are coming soon.",
     /** Presentation line from canonical path tier + current module id. */
     continuePathModule: (pathLabel, moduleId) =>
       moduleId
@@ -64,17 +68,42 @@ export const LEARN_LANDING_COPY = {
     completed: "Completed",
     planned: "Planned",
     chapterPlanned: "Interactive chapter",
-    openModule: "Open module →",
+    openModule: "Open module",
     moduleLabel: (n) => `LM${String(n).padStart(2, "0")}`,
+    /** Concise Learn-card blurbs — presentation only; registry `about` stays authoritative for chapters. */
+    moduleSummaries: {
+      LM01:
+        "Understand how blockchain works, what it can guarantee, and where its limitations begin.",
+      LM02:
+        "Evaluate when blockchain is justified and when conventional systems are a better choice.",
+      LM03:
+        "Compare blockchain platforms and evaluate their suitability for different requirements.",
+      LM04:
+        "Understand how keys, wallets, and digital signatures establish control over blockchain addresses.",
+      LM05:
+        "Trace how transactions are executed and change the shared state of a blockchain.",
+      LM06:
+        "Compare consensus mechanisms and understand how transactions are validated and included in blocks.",
+      LM07:
+        "Explain how smart contracts execute code, manage state, and interact with blockchain transactions.",
+      LM08:
+        "Deploy and interact with smart contracts on Besu Edu-Net, and verify their source code.",
+      LM09: "Design and build smart-contract systems — planned module.",
+      LM10: "Tokens and tokenization concepts — planned module.",
+      LM11: "Build and use an ERC-20 token — planned module.",
+    },
+    heroImageAlt:
+      "Illustration of a three-stage Web3 learning journey from foundations to building and verification.",
     footerTitle: "Learn · Practice · Prove",
     footerBody:
-      "Learning Modules organize the curriculum. Labs and Projects provide hands-on practice. Verifiable achievements and identity help you prove what you have learned — not every module issues an on-chain credential.",
+      "Modules structure learning. Labs and Projects provide practice. Verifiable achievements help you prove progress.",
   },
   gr: {
     eyebrow: "Μάθηση",
     heroTitle: "Η Μαθησιακή σου Διαδρομή στο Web3",
     heroBody:
-      "Πέρασε από τα θεμέλια του blockchain στον σχεδιασμό έξυπνων συμβολαίων μέσα από δομημένα Learning Modules. Εξερεύνησε έννοιες, εξασκήσου με Labs και Projects και χτίσε κατανόηση βήμα προς βήμα.",
+      "Πέρασε από τα θεμέλια του blockchain στον σχεδιασμό έξυπνων συμβολαίων μέσα από δομημένα Learning Modules — εξερεύνησε έννοιες, εξασκήσου με Labs και Projects και χτίσε κατανόηση βήμα προς βήμα.",
+    exploreModulesCta: "Εξερεύνησε τις Μαθησιακές Ενότητες",
     modulesHeading: "Learning Modules",
     modulesIntro:
       "Ακολούθησε το πρόγραμμα με τη σειρά σε τρία εκπαιδευτικά στάδια — από τα θεμέλια έως τον σχεδιασμό.",
@@ -100,6 +129,10 @@ export const LEARN_LANDING_COPY = {
     progressionUnavailable:
       "Οι λεπτομέρειες της διαδρομής μάθησης δεν είναι προσωρινά διαθέσιμες. Μπορείς να περιηγηθείς στο πρόγραμμα παρακάτω.",
     continuePathComplete: "Η διαδρομή μάθησης ολοκληρώθηκε",
+    availableModulesCompleteTitle:
+      "Ολοκλήρωσες όλες τις διαθέσιμες Μαθησιακές Ενότητες!",
+    availableModulesCompleteBody:
+      "Η μαθησιακή σου διαδρομή συνεχίζεται σύντομα με νέες ενότητες.",
     continuePathModule: (pathLabel, moduleId) =>
       moduleId
         ? `${String(pathLabel)} · ${moduleId}`
@@ -128,11 +161,34 @@ export const LEARN_LANDING_COPY = {
     completed: "Ολοκληρωμένο",
     planned: "Σχεδιασμένο",
     chapterPlanned: "Διαδραστικό κεφάλαιο",
-    openModule: "Άνοιγμα module →",
+    openModule: "Άνοιγμα module",
     moduleLabel: (n) => `LM${String(n).padStart(2, "0")}`,
+    moduleSummaries: {
+      LM01:
+        "Κατανόησε πώς λειτουργεί το blockchain, τι μπορεί να εγγυηθεί και ποιοι είναι οι περιορισμοί του.",
+      LM02:
+        "Αξιολόγησε πότε δικαιολογείται η χρήση blockchain και πότε οι συμβατικές λύσεις είναι καταλληλότερες.",
+      LM03:
+        "Σύγκρινε πλατφόρμες blockchain και αξιολόγησε την καταλληλότητά τους για διαφορετικές απαιτήσεις.",
+      LM04:
+        "Κατανόησε πώς κλειδιά, πορτοφόλια και ψηφιακές υπογραφές αποδεικνύουν τον έλεγχο διευθύνσεων blockchain.",
+      LM05:
+        "Παρακολούθησε πώς εκτελούνται οι συναλλαγές και μεταβάλλουν την κοινή κατάσταση του blockchain.",
+      LM06:
+        "Σύγκρινε μηχανισμούς συναίνεσης και κατανόησε πώς οι συναλλαγές επικυρώνονται και εντάσσονται σε blocks.",
+      LM07:
+        "Κατανόησε πώς τα έξυπνα συμβόλαια εκτελούν κώδικα, διαχειρίζονται κατάσταση και αλληλεπιδρούν με συναλλαγές.",
+      LM08:
+        "Ανάπτυξε και χρησιμοποίησε έξυπνα συμβόλαια στο Besu Edu-Net και επαλήθευσε τον πηγαίο κώδικά τους.",
+      LM09: "Σχεδιασμός και κατασκευή συστημάτων έξυπνων συμβολαίων — σχεδιασμένο module.",
+      LM10: "Έννοιες tokens και tokenization — σχεδιασμένο module.",
+      LM11: "Κατασκευή και χρήση ERC-20 token — σχεδιασμένο module.",
+    },
+    heroImageAlt:
+      "Εικονογράφηση τριών σταδίων μαθησιακής διαδρομής Web3 — από τα θεμέλια στην κατασκευή και την επαλήθευση.",
     footerTitle: "Μάθε · Εξασκήσου · Απόδειξε",
     footerBody:
-      "Τα Learning Modules οργανώνουν το πρόγραμμα μάθησης. Τα Labs και τα Projects παρέχουν πρακτική εξάσκηση. Τα επαληθεύσιμα επιτεύγματα και η ταυτότητα βοηθούν να αποδείξεις τι έχεις μάθει — δεν εκδίδει κάθε module διαπιστευτήριο on-chain.",
+      "Τα Modules οργανώνουν τη μάθηση. Labs και Projects δίνουν πρακτική. Τα επαληθεύσιμα επιτεύγματα βοηθούν να αποδείξεις πρόοδο.",
   },
 };
 
