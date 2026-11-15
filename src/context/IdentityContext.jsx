@@ -15,6 +15,10 @@ import {
   clearAaDisconnectLocalStorage,
   hasPersistedWalletAaIdentity,
 } from "../utils/aaIdentity.js";
+import {
+  BLANK_WALLET_IDENTITY,
+  decideConnectedWalletIdentityTransition,
+} from "../utils/connectedWalletIdentityTransition.js";
 import { useSocialIdentity } from "./SocialIdentityContext.jsx";
 import {
   getSocialIdentityAaAddress,
@@ -30,14 +34,7 @@ import {
 } from "../utils/identityReadiness.js";
 import { IdentityContext } from "./identityContext.js";
 
-const BLANK_IDENTITY = {
-  owner: null,
-  smartAccount: null,
-  version: null,
-  tokenId: null,
-  hasIdentity: false,
-  alreadyMinted: false,
-};
+const BLANK_IDENTITY = BLANK_WALLET_IDENTITY;
 
 export function IdentityProvider({ children }) {
   const { socialIdentity, isOidcAuthenticated } = useSocialIdentity();
@@ -97,7 +94,12 @@ export function IdentityProvider({ children }) {
    */
   useLayoutEffect(() => {
     /** OIDC session present: never persist a guest EOA into `web3edu-aa-identity` (social AA is canonical). */
-    if (isOidcAuthenticated) {
+    const oidcGate = decideConnectedWalletIdentityTransition({
+      isOidcAuthenticated,
+      connectedEoa: null,
+      prevIdentity: null,
+    });
+    if (oidcGate.action === "skip_oidc") {
       setIdentityHydrated(true);
       return;
     }
@@ -105,54 +107,18 @@ export function IdentityProvider({ children }) {
     const connected = readConnectedEoaAddress();
     if (connected) {
       setIdentityState((prev) => {
-        const base = prev && typeof prev === "object" ? prev : BLANK_IDENTITY;
-
-        if (hasPersistedWalletAaIdentity(base)) {
-          let prevOwnerNorm = null;
-          if (base.owner) {
-            try {
-              prevOwnerNorm = ethers.getAddress(base.owner).toLowerCase();
-            } catch {
-              prevOwnerNorm = String(base.owner).toLowerCase();
-            }
-          }
-          if (prevOwnerNorm === connected.toLowerCase()) {
-            return base;
-          }
-          /** Different wallet connected — do not keep another wallet’s minted identity. */
-          const cleared = {
-            ...BLANK_IDENTITY,
-            owner: connected,
-          };
-          saveIdentityState(cleared);
-          return cleared;
+        const transition = decideConnectedWalletIdentityTransition({
+          isOidcAuthenticated: false,
+          connectedEoa: connected,
+          prevIdentity: prev,
+        });
+        if (transition.nextIdentity == null) {
+          return prev && typeof prev === "object" ? prev : BLANK_IDENTITY;
         }
-
-        let prevOwnerNorm = null;
-        if (base.owner) {
-          try {
-            prevOwnerNorm = ethers.getAddress(base.owner).toLowerCase();
-          } catch {
-            prevOwnerNorm = String(base.owner).toLowerCase();
-          }
+        if (transition.shouldPersist) {
+          saveIdentityState(transition.nextIdentity);
         }
-
-        if (prevOwnerNorm === connected.toLowerCase()) {
-          return base;
-        }
-
-        if (!prevOwnerNorm && !base.smartAccount) {
-          const merged = { ...base, owner: connected };
-          saveIdentityState(merged);
-          return merged;
-        }
-
-        const merged = {
-          ...BLANK_IDENTITY,
-          owner: connected,
-        };
-        saveIdentityState(merged);
-        return merged;
+        return transition.nextIdentity;
       });
     }
     setIdentityHydrated(true);

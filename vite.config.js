@@ -1,9 +1,10 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import viteCompression from "vite-plugin-compression";
 import { visualizer } from "rollup-plugin-visualizer";
 
 const shouldAnalyze = process.env.ANALYZE === "true";
+const DEFAULT_DEV_PROXY_TARGET = "http://localhost:8092";
 
 /**
  * Inject a preload for the public Hero LIGHT logo (static asset under public/).
@@ -52,7 +53,16 @@ const getPackageName = (id) => {
   return segments[0];
 };
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // loadEnv reads .env / .env.local / .env.[mode] / .env.[mode].local into a plain object.
+  // Prefix '' is required so non-VITE_ keys like DEV_PROXY_TARGET are included (Vite does not
+  // put those on process.env during config evaluation by default).
+  const env = loadEnv(mode, process.cwd(), "");
+  const configuredProxyTarget =
+    typeof env.DEV_PROXY_TARGET === "string" ? env.DEV_PROXY_TARGET.trim() : "";
+  const devProxyTarget = configuredProxyTarget || DEFAULT_DEV_PROXY_TARGET;
+
+  return {
   base: "/",
   plugins: [
     react(),
@@ -127,6 +137,7 @@ export default defineConfig({
 
   // Ensure Vite dev server ignores all files inside these folders
   server: {
+    // Matches Keycloak Valid redirect URI and .env.development.local (localhost:5173).
     port: 5173,
     strictPort: true,
     watch: {
@@ -137,8 +148,9 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "http://localhost:8092",
+        target: devProxyTarget,
         changeOrigin: true,
+        // false keeps HTTP :8092 working and still allows HTTPS production targets.
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, "")
       }
@@ -152,4 +164,5 @@ export default defineConfig({
       "@react-native-async-storage/async-storage": false
     }
   }
+  };
 });

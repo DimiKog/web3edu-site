@@ -43,24 +43,37 @@ function normalizeHex32(value) {
   }
 }
 
+/**
+ * Normalize a 32-byte owner private key and verify it is a valid secp256k1 scalar.
+ * Returns the canonical 0x-prefixed hex form, or null if malformed/truncated/out-of-range.
+ * Uses ethers.Wallet (rejects 0 and values ≥ curve order); SigningKey alone is insufficient.
+ */
+export function normalizeOwnerPrivateKey(privateKey) {
+  const normalized = normalizeHex32(privateKey);
+  if (!normalized || normalized.length !== 66) return null;
+  try {
+    const wallet = new ethers.Wallet(normalized);
+    return wallet.privateKey;
+  } catch {
+    return null;
+  }
+}
+
 function generatePrivateKey() {
-  // 32 bytes random → 0x-prefixed hex string
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return ethers.hexlify(bytes);
+  // ethers ensures a valid secp256k1 scalar (not merely 32 random bytes).
+  return ethers.Wallet.createRandom().privateKey;
 }
 
 export function loadOwnerPrivateKey() {
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem(OWNER_PRIVATE_KEY_STORAGE_KEY);
-  const normalized = normalizeHex32(raw);
-  return normalized && normalized.length === 66 ? normalized : null;
+  return normalizeOwnerPrivateKey(raw);
 }
 
 export function saveOwnerPrivateKey(privateKey) {
   if (typeof window === "undefined") return;
-  const normalized = normalizeHex32(privateKey);
-  if (!normalized || normalized.length !== 66) {
+  const normalized = normalizeOwnerPrivateKey(privateKey);
+  if (!normalized) {
     throw new Error("Invalid owner private key");
   }
   window.localStorage.setItem(OWNER_PRIVATE_KEY_STORAGE_KEY, normalized);
