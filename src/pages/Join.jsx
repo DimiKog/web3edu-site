@@ -1,11 +1,18 @@
 import { ConnectButton, useConnectModal } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
-import { useCallback, useEffect, useState } from "react";
+import { useAccount, useConfig } from "wagmi";
+import { getAccount } from "wagmi/actions";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PageShell from "../components/PageShell.jsx";
 import { useLocation, useNavigate } from "react-router-dom";
 import { loadIdentityState } from "../utils/aaIdentity.js";
 import { useIdentity } from "../context/useIdentity.js";
-import { tryProvisionMintedWalletIdentityFromOwner } from "../utils/provisionWalletIdentityFromOwner.js";
+import { runJoinWalletContinueFlow } from "../utils/provisionWalletIdentityFromOwner.js";
+import { shouldApplyWalletConnectIdentityMutation } from "../utils/walletConnectIdentityFreshness.js";
+import { normalizeEvmAddress } from "../utils/evmAddress.js";
+import {
+  getSocialIdentityAaAddress,
+  hasUsableSocialIdentityPayload,
+} from "../utils/socialIdentityPayload.js";
 import { useAuth } from "react-oidc-context";
 import { useSocialIdentity } from "../context/SocialIdentityContext.jsx";
 import { saveReturnUrl } from "../auth/oidcConfig.js";
@@ -20,10 +27,17 @@ function readHasPersistedAaIdentity() {
 
 export default function Join() {
     const { address, isConnected } = useAccount();
+    const wagmiConfig = useConfig();
     const { openConnectModal } = useConnectModal();
     const { clearIdentity, setIdentity, isIdentityReady } = useIdentity();
     const auth = useAuth();
-    const { socialIdentityLoading, socialIdentityError, resolveNow } = useSocialIdentity();
+    const {
+        socialIdentity,
+        socialIdentityLoading,
+        socialIdentityError,
+        resolveNow,
+        isOidcAuthenticated,
+    } = useSocialIdentity();
     const navigate = useNavigate();
     const location = useLocation();
     const lang = useLang();
@@ -33,6 +47,34 @@ export default function Join() {
     const [loadingNetwork, setLoadingNetwork] = useState(false);
     const [checkingSBT, setCheckingSBT] = useState(false);
     const [hasPersistedAa, setHasPersistedAa] = useState(readHasPersistedAaIdentity);
+
+    const continueOpSeqRef = useRef(0);
+    const continueAbortRef = useRef(null);
+    const hasActiveSocialAa = Boolean(
+        isOidcAuthenticated &&
+            hasUsableSocialIdentityPayload(socialIdentity) &&
+            normalizeEvmAddress(getSocialIdentityAaAddress(socialIdentity))
+    );
+    const continueLiveRef = useRef({
+        isOidcAuthenticated: false,
+        hasActiveSocialAa: false,
+    });
+    continueLiveRef.current = {
+        isOidcAuthenticated: Boolean(isOidcAuthenticated),
+        hasActiveSocialAa,
+    };
+
+    useEffect(() => {
+        continueOpSeqRef.current += 1;
+        if (continueAbortRef.current) {
+            try {
+                continueAbortRef.current.abort();
+            } catch {
+                /* ignore */
+            }
+            continueAbortRef.current = null;
+        }
+    }, [isOidcAuthenticated, hasActiveSocialAa, address]);
 
     const checkNetwork = useCallback(async () => {
         if (!window.ethereum) return;
@@ -74,20 +116,55 @@ export default function Join() {
     }, [isIdentityReady, location.pathname, navigate, isConnected, auth?.isAuthenticated]);
 
     const handleLegacyContinue = async () => {
-        if (!address) {
+        const liveConnected = normalizeEvmAddress(getAccount(wagmiConfig).address);
+        const requestOwner = liveConnected || normalizeEvmAddress(address);
+        if (!requestOwner) {
             alert(t.alerts.noWallet);
             return;
         }
         setViewerMode(VIEWER_MODES.wallet);
         setCheckingSBT(true);
+
+        if (continueAbortRef.current) {
+            try {
+                continueAbortRef.current.abort();
+            } catch {
+                /* ignore */
+            }
+        }
+        const controller =
+            typeof AbortController !== "undefined" ? new AbortController() : null;
+        continueAbortRef.current = controller;
+        const mySeq = ++continueOpSeqRef.current;
+        const requestOidcAuthenticated = Boolean(isOidcAuthenticated);
+
+        const isOperationFresh = () => {
+            const liveOwner = normalizeEvmAddress(getAccount(wagmiConfig).address);
+            const live = continueLiveRef.current;
+            return shouldApplyWalletConnectIdentityMutation({
+                operationId: mySeq,
+                currentOperationId: continueOpSeqRef.current,
+                requestOwner,
+                liveOwner,
+                requestOidcAuthenticated,
+                liveOidcAuthenticated: live.isOidcAuthenticated,
+                liveHasActiveSocialAa: live.hasActiveSocialAa,
+            });
+        };
+
         try {
-            const status = await tryProvisionMintedWalletIdentityFromOwner(address, setIdentity);
-            if (status === "minted") {
-                navigate(routes.dashboard, { replace: true });
+            const { status } = await runJoinWalletContinueFlow({
+                ownerRaw: requestOwner,
+                setIdentity,
+                navigateDashboard: () => navigate(routes.dashboard, { replace: true }),
+                navigateMint: () => navigate(routes.mint, { replace: true }),
+                isOperationFresh,
+                signal: controller?.signal,
+            });
+            if (status === "stale" || status === "aborted") {
                 return;
             }
-            if (status === "not_minted") {
-                navigate(routes.mint, { replace: true });
+            if (status === "minted" || status === "not_minted") {
                 return;
             }
             alert(t.alerts.noIdentity);

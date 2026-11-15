@@ -29,3 +29,6 @@ dist-ssr
 
 # Claude Code worktrees
 .claude/
+
+# Generated security reports (CI uploads as artifacts)
+security-reports/
