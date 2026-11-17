@@ -255,6 +255,9 @@ export default function Lm03Page({ lang = "en" }) {
                 if (row.id === "lm03-platform-comparison") {
                   return <Lm03ConceptPanel lang={embedLang} panel="canvas" />;
                 }
+                if (row.id === "lm03-platform-fit-challenge") {
+                  return <Lm03ConceptPanel lang={embedLang} panel="fit-challenge" />;
+                }
                 if (row.id === "lm03-foodtrace-revisited") {
                   return <Lm03ConceptPanel lang={embedLang} panel="foodtrace" />;
                 }

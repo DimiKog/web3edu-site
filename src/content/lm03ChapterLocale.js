@@ -111,6 +111,45 @@ export const LM03_CHAPTER_COPY = {
       coaching:
         "A misfit or “insufficient information” answer can still be good architecture reasoning. Rejecting a platform is valid even when blockchain itself is justified.",
     },
+    fitChallenge: {
+      practiceBadge: "Practice · 0 XP · not saved",
+      intro:
+        "A short formative check — not a second Platform Comparison Canvas, and not the LM03 Assessment.",
+      scenarioTitle: "Scenario",
+      scenarioBody:
+        "Three universities are considering a shared blockchain network for academic credentials.",
+      requirementsTitle: "Requirements",
+      requirements: [
+        "Only approved universities may issue credentials.",
+        "Students must be able to verify credentials.",
+        "Credential details must remain private.",
+      ],
+      candidateTitle: "Candidate architecture",
+      candidateBody:
+        "A permissioned blockchain operated by the three participating universities.",
+      questionTitle: "Does this candidate architecture satisfy the requirements?",
+      verdictLabel: "Your verdict",
+      answerOptions: [
+        { id: "fit", label: "FIT" },
+        { id: "misfit", label: "MISFIT" },
+        { id: "needMoreInfo", label: "NEED MORE INFO" },
+      ],
+      selectedHint: "Selected",
+      submitLabel: "Submit answer",
+      feedbackHeading: "Feedback",
+      feedbackStatusAligned: "Insufficient evidence",
+      feedbackStatusReconsider: "Worth another look",
+      reasoningFeedback: {
+        fit: "Not enough evidence yet. A permissioned network may support controlled issuance, but we still need to establish how students verify credentials and how private information is protected.",
+        misfit:
+          "Rejection is premature. A permissioned blockchain could satisfy the requirements, but the proposed architecture lacks enough detail to determine whether it does.",
+        needMoreInfo:
+          "Correct. The proposed network is a plausible candidate, but we need additional information about credential verification, privacy mechanisms, and governance before confirming architectural fit.",
+      },
+      distinctionNote:
+        "NEED MORE INFO does not mean the architecture is unsuitable. It means the available evidence is insufficient to establish architectural fit.",
+      resetLabel: "Try again",
+    },
     foodTrace: {
       bridge:
         "In LM02 you may have judged that blockchain could be justified for FoodTrace. LM03 asks what participation, governance and deployment characteristics that problem needs — and whether a candidate platform fits.",
@@ -124,6 +163,8 @@ export const LM03_CHAPTER_COPY = {
         "What kind of platform characteristics follow?",
       ],
       validOutcomesTitle: "Valid reasoning outcomes",
+      validOutcomesIntro:
+        "These are possible reasoning outcomes, not answers to select.",
       validOutcomes: [
         "Characteristics are clear enough to compare a candidate",
         "Not enough information yet",
@@ -240,6 +281,45 @@ export const LM03_CHAPTER_COPY = {
       coaching:
         "Η ακαταλληλότητα ή οι «ανεπαρκείς πληροφορίες» μπορούν να είναι καλός αρχιτεκτονικός συλλογισμός. Η απόρριψη πλατφόρμας είναι έγκυρη ακόμη και όταν το ίδιο το blockchain δικαιολογείται.",
     },
+    fitChallenge: {
+      practiceBadge: "Εξάσκηση · 0 XP · δεν αποθηκεύεται",
+      intro:
+        "Ένας σύντομος διαμορφωτικός έλεγχος — όχι δεύτερος Καμβάς Σύγκρισης Πλατφόρμας και όχι η Αξιολόγηση LM03.",
+      scenarioTitle: "Σενάριο",
+      scenarioBody:
+        "Τρία πανεπιστήμια εξετάζουν ένα κοινό δίκτυο blockchain για ακαδημαϊκά διαπιστευτήρια.",
+      requirementsTitle: "Απαιτήσεις",
+      requirements: [
+        "Μόνο εγκεκριμένα πανεπιστήμια μπορούν να εκδίδουν διαπιστευτήρια.",
+        "Οι φοιτητές πρέπει να μπορούν να επαληθεύουν τα διαπιστευτήρια.",
+        "Οι λεπτομέρειες των διαπιστευτηρίων πρέπει να παραμένουν ιδιωτικές.",
+      ],
+      candidateTitle: "Υποψήφια αρχιτεκτονική",
+      candidateBody:
+        "Ένα permissioned blockchain που λειτουργεί από τα τρία συμμετέχοντα πανεπιστήμια.",
+      questionTitle: "Ικανοποιεί αυτή η υποψήφια αρχιτεκτονική τις απαιτήσεις;",
+      verdictLabel: "Η κρίση σου",
+      answerOptions: [
+        { id: "fit", label: "ΚΑΤΑΛΛΗΛΗ" },
+        { id: "misfit", label: "ΑΚΑΤΑΛΛΗΛΗ" },
+        { id: "needMoreInfo", label: "ΧΡΕΙΑΖΟΝΤΑΙ ΠΕΡΙΣΣΟΤΕΡΕΣ ΠΛΗΡΟΦΟΡΙΕΣ" },
+      ],
+      selectedHint: "Επιλεγμένο",
+      submitLabel: "Υποβολή απάντησης",
+      feedbackHeading: "Ανατροφοδότηση",
+      feedbackStatusAligned: "Ανεπαρκή στοιχεία",
+      feedbackStatusReconsider: "Αξίζει δεύτερη ματιά",
+      reasoningFeedback: {
+        fit: "Δεν υπάρχουν ακόμη αρκετά στοιχεία. Ένα permissioned δίκτυο μπορεί να υποστηρίζει ελεγχόμενη έκδοση, αλλά πρέπει ακόμη να διευκρινιστεί πώς οι φοιτητές επαληθεύουν τα διαπιστευτήρια και πώς προστατεύονται οι ιδιωτικές πληροφορίες.",
+        misfit:
+          "Η απόρριψη είναι πρόωρη. Ένα permissioned blockchain θα μπορούσε να ικανοποιήσει τις απαιτήσεις, αλλά η προτεινόμενη αρχιτεκτονική δεν έχει αρκετή λεπτομέρεια για να κριθεί αν το κάνει.",
+        needMoreInfo:
+          "Σωστά. Το προτεινόμενο δίκτυο είναι εύλογος υποψήφιος, αλλά χρειαζόμαστε πρόσθετες πληροφορίες για την επαλήθευση διαπιστευτηρίων, τους μηχανισμούς ιδιωτικότητας και τη διακυβέρνηση πριν επιβεβαιώσουμε αρχιτεκτονική καταλληλότητα.",
+      },
+      distinctionNote:
+        "Το «ΧΡΕΙΑΖΟΝΤΑΙ ΠΕΡΙΣΣΟΤΕΡΕΣ ΠΛΗΡΟΦΟΡΙΕΣ» δεν σημαίνει ότι η αρχιτεκτονική είναι ακατάλληλη. Σημαίνει ότι τα διαθέσιμα στοιχεία δεν επαρκούν για να τεκμηριωθεί αρχιτεκτονική καταλληλότητα.",
+      resetLabel: "Δοκίμασε ξανά",
+    },
     foodTrace: {
       bridge:
         "Στο LM02 μπορεί να έκρινες ότι το blockchain θα μπορούσε να δικαιολογείται για το FoodTrace. Το LM03 ρωτά ποια χαρακτηριστικά συμμετοχής, διακυβέρνησης και ανάπτυξης χρειάζεται το πρόβλημα — και αν μια υποψήφια πλατφόρμα ταιριάζει.",
@@ -253,6 +333,8 @@ export const LM03_CHAPTER_COPY = {
         "Ποια χαρακτηριστικά πλατφόρμας προκύπτουν;",
       ],
       validOutcomesTitle: "Έγκυρα αποτελέσματα συλλογισμού",
+      validOutcomesIntro:
+        "Αυτά είναι πιθανά συμπεράσματα της αξιολόγησης, όχι επιλογές απάντησης.",
       validOutcomes: [
         "Τα χαρακτηριστικά είναι αρκετά καθαρά για σύγκριση υποψηφίου",
         "Δεν υπάρχουν ακόμη αρκετές πληροφορίες",

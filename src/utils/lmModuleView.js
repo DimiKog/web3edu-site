@@ -271,6 +271,11 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
       statusKind = "external";
       statusLabel = copy.resourceExternal;
     }
+    // Locale resource not shipped yet (explicit null href) — no active link.
+    if (!href) {
+      statusKind = "coming_soon";
+      statusLabel = copy.comingSoon;
+    }
   }
 
   if (isSimulator) {
@@ -313,8 +318,9 @@ export function getLmActivityRowPresentation(activity, moduleEntry, lang = "en",
   } else if (isDisclosure) {
     ctaLabel = copy.expandConcept;
   } else if (activity.linkKind === "external") {
-    ctaLabel =
-      activity.visualType === "demo"
+    ctaLabel = !href
+      ? copy.comingSoon
+      : activity.visualType === "demo"
         ? copy.openDemo
         : activity.visualType === "visualLesson"
           ? copy.openVisualLesson

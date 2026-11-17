@@ -14,7 +14,7 @@ export const LM03_ASSESSMENT_COPY = {
     introBody:
       "This assessment includes seven questions about architectural platform reasoning from LM03. Most questions have one best answer; three ask you to select all answers that apply. If you do not pass on your first attempt, you can review the feedback and try again.",
     responseModeHint:
-      "This assessment verifies platform-fit reasoning. It does not replace the chapter Learning Path, Platform Comparison Canvas practice, or FoodTrace application step.",
+      "This assessment verifies platform-fit reasoning. It does not replace the chapter Learning Path, Platform Comparison Canvas practice, Platform Fit Challenge, or FoodTrace application step.",
     /** Compact meta-strip chips (presentation chrome — not grading authority). */
     metaItems: [
       "7 questions",
@@ -154,7 +154,7 @@ export const LM03_ASSESSMENT_COPY = {
     introBody:
       "Αυτή η αξιολόγηση περιλαμβάνει επτά ερωτήσεις για τον αρχιτεκτονικό συλλογισμό πλατφόρμας του LM03. Οι περισσότερες έχουν μία καλύτερη απάντηση· τρεις ζητούν να επιλέξεις όλες τις σωστές. Αν δεν περάσεις στην πρώτη προσπάθεια, μπορείς να δεις το feedback και να ξαναδοκιμάσεις.",
     responseModeHint:
-      "Αυτή η αξιολόγηση επαληθεύει τον συλλογισμό καταλληλότητας πλατφόρμας. Δεν αντικαθιστά τη Learning Path του κεφαλαίου, την εξάσκηση Platform Comparison Canvas ή το βήμα εφαρμογής FoodTrace.",
+      "Αυτή η αξιολόγηση επαληθεύει τον συλλογισμό καταλληλότητας πλατφόρμας. Δεν αντικαθιστά τη Learning Path του κεφαλαίου, την εξάσκηση Platform Comparison Canvas, την Πρόκληση Καταλληλότητας Πλατφόρμας ή το βήμα εφαρμογής FoodTrace.",
     metaItems: [
       "7 ερωτήσεις",
       "Μονή + πολλαπλή επιλογή",
