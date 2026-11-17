@@ -1,0 +1,1 @@
+import{n as t}from"./resolvedIdentityContext-VhT_XmlF.js";const n="web3edu-aa-owner-private-key";function i(){try{const e=localStorage.getItem(n);if(!e)return null;const r=t(e);return r?JSON.stringify({privateKey:r}):null}catch{return null}}export{i as e};
