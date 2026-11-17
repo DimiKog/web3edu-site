@@ -30,6 +30,12 @@ export const LM02_EXTENDED_READING_PDF_URL_EN =
 /** LM02 Greek deeper-reading PDF (v1.0). Presentation only — not completion evidence. */
 export const LM02_EXTENDED_READING_PDF_URL_GR =
   "/learning-modules/readings/lm02/LM02-Pote-Exei-Noima-to-Blockchain-GR-v1.0.pdf";
+/** LM03 presentation PDF (EN). Presentation only — not completion evidence. */
+export const LM03_PRESENTATION_PDF_URL_EN =
+  "/learning-modules/presentations/lm03/Web3Edu-EN-Learning-Module3.pdf";
+/** LM03 presentation PDF (GR). Reserved path — wire when the Greek Visual Lesson ships. */
+export const LM03_PRESENTATION_PDF_URL_GR =
+  "/learning-modules/presentations/lm03/Web3Edu-GR-Learning-Module3.pdf";
 
 /** Approved LM01 production visuals (public/ paths). */
 export const LM01_VISUALS = {
@@ -70,6 +76,8 @@ export const LM03_VISUALS = {
   hero: "/learning-modules/visuals/lm03/lm03-hero.png",
   /** Learn landing ModuleCard only — internal chapter pages keep `hero`. */
   card: "/learning-modules/visuals/lm03/lm03-card.png",
+  /** Learning Path Visual Lesson thumbnail — reuse approved card art. */
+  visualLesson: "/learning-modules/visuals/lm03/lm03-card.png",
   architecturalDimensions:
     "/learning-modules/visuals/lm03/lm03-architectural-dimensions.png",
   requirementsToCharacteristics:
@@ -612,6 +620,7 @@ export const LM_PRESENTATION_REGISTRY = {
       },
       activityByType: {
         // Shared type fallbacks; step-specific concept art is in activityById.
+        visualLesson: LM03_VISUALS.visualLesson,
         concept: LM03_VISUALS.architecturalDimensions,
         observation: LM01_VISUALS.demo,
         book: LM01_VISUALS.book,
@@ -619,6 +628,7 @@ export const LM_PRESENTATION_REGISTRY = {
         assessment: LM01_VISUALS.assessment,
       },
       activityById: {
+        "lm03-slides": LM03_VISUALS.visualLesson,
         "lm03-separate-dimensions": LM03_VISUALS.architecturalDimensions,
         "lm03-requirements-to-characteristics":
           LM03_VISUALS.requirementsToCharacteristics,
@@ -645,7 +655,34 @@ export const LM_PRESENTATION_REGISTRY = {
         "Να αναγνωρίζεις ότι η απόρριψη μιας πλατφόρμας blockchain είναι έγκυρο αρχιτεκτονικό αποτέλεσμα ακόμη και όταν το ίδιο το blockchain δικαιολογείται.",
       ],
     },
+    /**
+     * Visible LM03 order: Visual Lesson → dimensions → reading → requirements →
+     * Platform Comparison Canvas → Platform Fit Challenge → FoodTrace → Assessment.
+     * Slides and practice steps are presentation-only (not completion evidence).
+     */
     activities: [
+      {
+        id: "lm03-slides",
+        visualType: "visualLesson",
+        requirementHint: "core",
+        showRequirementStatus: true,
+        languages: ["both"],
+        title: {
+          en: "Visual Lesson",
+          gr: "Παρουσίαση",
+        },
+        description: {
+          en: "Start here: the primary illustrated Visual Lesson on platform participation, governance, deployment, and fit reasoning.",
+          gr: "Ξεκίνα από εδώ: η βασική εικονογραφημένη παρουσίαση για συμμετοχή, διακυβέρνηση, ανάπτυξη και συλλογισμό καταλληλότητας πλατφόρμας.",
+        },
+        linkKind: "external",
+        href: {
+          en: LM03_PRESENTATION_PDF_URL_EN,
+          // Explicit null: GR UI shows artwork without an EN PDF redirect.
+          gr: null,
+        },
+        presentationOnly: true,
+      },
       {
         id: "lm03-separate-dimensions",
         visualType: "concept",
@@ -731,6 +768,24 @@ export const LM_PRESENTATION_REGISTRY = {
         description: {
           en: "Practice only (0 XP) — reason from scenario requirements to characteristics, compare a candidate platform, and choose Fit / Misfit / Insufficient information. Nothing is saved.",
           gr: "Μόνο εξάσκηση (0 XP) — συλλογίσου από τις απαιτήσεις του σεναρίου στα χαρακτηριστικά, σύγκρινε μια υποψήφια πλατφόρμα και επίλεξε Κατάλληλη / Ακατάλληλη / Ανεπαρκείς πληροφορίες. Τίποτα δεν αποθηκεύεται.",
+        },
+        linkKind: "none",
+        href: null,
+        presentationOnly: true,
+      },
+      {
+        id: "lm03-platform-fit-challenge",
+        visualType: "observation",
+        requirementHint: "optional",
+        expandable: true,
+        languages: ["both"],
+        title: {
+          en: "Platform Fit Challenge",
+          gr: "Πρόκληση Καταλληλότητας Πλατφόρμας",
+        },
+        description: {
+          en: "Practice only (0 XP) — evaluate a candidate architecture against explicit requirements. Choose Fit / Misfit / Need more info. Nothing is saved.",
+          gr: "Μόνο εξάσκηση (0 XP) — αξιολόγησε μια υποψήφια αρχιτεκτονική με βάση ρητές απαιτήσεις. Επίλεξε Κατάλληλη / Ακατάλληλη / Χρειάζονται περισσότερες πληροφορίες. Τίποτα δεν αποθηκεύεται.",
         },
         linkKind: "none",
         href: null,
@@ -1986,5 +2041,11 @@ export function resolveLmActivityHref(activity, lang = "en") {
   if (!href) return null;
   if (typeof href === "string") return href;
   const locale = lang === "gr" ? "gr" : "en";
-  return href[locale] || href.en || null;
+  // Explicit locale key (including null) means that locale is intentional —
+  // do not fall back to English (avoids redirecting GR UI to an EN PDF).
+  if (Object.prototype.hasOwnProperty.call(href, locale)) {
+    const localized = href[locale];
+    return typeof localized === "string" && localized.trim() ? localized : null;
+  }
+  return typeof href.en === "string" && href.en.trim() ? href.en : null;
 }

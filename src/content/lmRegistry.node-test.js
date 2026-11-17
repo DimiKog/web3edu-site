@@ -18,6 +18,9 @@ import {
   LM01_PRESENTATION_PDF_URL_GR,
   LM01_VISUALS,
   LM02_VISUALS,
+  LM03_PRESENTATION_PDF_URL_EN,
+  LM03_PRESENTATION_PDF_URL_GR,
+  LM03_VISUALS,
   LM04_VISUALS,
   LM05_VISUALS,
   LM08_VISUALS,
@@ -562,9 +565,39 @@ test("LM03 chapter is bilingual with locked transition and live assessment wirin
   assert.equal(mod.learnerMeta.assessmentXp, 150);
   assert.equal(mod.learningOutcomes.en.length, 7);
   assert.equal(mod.learningOutcomes.gr.length, 7);
+  assert.equal(mod.activities[0].id, "lm03-slides");
   assert.ok(mod.activities.some((a) => a.id === "lm03-separate-dimensions"));
   assert.ok(mod.activities.some((a) => a.id === "lm03-platform-comparison"));
+  assert.ok(mod.activities.some((a) => a.id === "lm03-platform-fit-challenge"));
   assert.ok(mod.activities.some((a) => a.id === "lm03-foodtrace-revisited"));
+  const slides = mod.activities.find((a) => a.id === "lm03-slides");
+  assert.equal(slides.visualType, "visualLesson");
+  assert.equal(slides.requirementHint, "core");
+  assert.equal(slides.presentationOnly, true);
+  assert.equal(slides.evidenceId, undefined);
+  assert.equal(slides.linkKind, "external");
+  assert.deepEqual(slides.href, {
+    en: LM03_PRESENTATION_PDF_URL_EN,
+    gr: null,
+  });
+  assert.equal(resolveLmActivityHref(slides, "en"), LM03_PRESENTATION_PDF_URL_EN);
+  assert.equal(resolveLmActivityHref(slides, "gr"), null);
+  assert.equal(
+    existsSync(join(publicRoot, LM03_PRESENTATION_PDF_URL_EN.slice(1))),
+    true
+  );
+  assert.equal(
+    existsSync(join(publicRoot, LM03_PRESENTATION_PDF_URL_GR.slice(1))),
+    false
+  );
+  assert.equal(mod.visuals.activityByType.visualLesson, LM03_VISUALS.visualLesson);
+  const fitChallenge = mod.activities.find(
+    (a) => a.id === "lm03-platform-fit-challenge"
+  );
+  assert.equal(fitChallenge.requirementHint, "optional");
+  assert.equal(fitChallenge.expandable, true);
+  assert.equal(fitChallenge.presentationOnly, true);
+  assert.equal(fitChallenge.evidenceId, undefined);
   const assessment = mod.activities.find((a) => a.id === "lm03-assessment");
   assert.equal(assessment?.linkKind, "internal");
   assert.deepEqual(assessment?.href, {
@@ -577,8 +610,43 @@ test("LM03 chapter is bilingual with locked transition and live assessment wirin
     getLmVisibleActivities("LM03", "en").filter((a) => a.visualType === "book").length,
     1
   );
+  assert.deepEqual(
+    getLmVisibleActivities("LM03", "en").map((a) => a.id),
+    [
+      "lm03-slides",
+      "lm03-separate-dimensions",
+      "lm03-chapter1-reading-en-ref",
+      "lm03-requirements-to-characteristics",
+      "lm03-platform-comparison",
+      "lm03-platform-fit-challenge",
+      "lm03-foodtrace-revisited",
+      "lm03-assessment",
+    ]
+  );
   assert.ok(
     getLmVisibleActivities("LM03", "en").some((a) => a.id === "lm03-assessment")
+  );
+});
+
+test("resolveLmActivityHref honors explicit null locale without EN fallback", () => {
+  assert.equal(
+    resolveLmActivityHref(
+      { linkKind: "external", href: { en: "/en.pdf", gr: null } },
+      "gr"
+    ),
+    null
+  );
+  assert.equal(
+    resolveLmActivityHref(
+      { linkKind: "external", href: { en: "/en.pdf", gr: null } },
+      "en"
+    ),
+    "/en.pdf"
+  );
+  // Omitting the locale key still falls back to EN (legacy bilingual string maps).
+  assert.equal(
+    resolveLmActivityHref({ linkKind: "external", href: { en: "/en.pdf" } }, "gr"),
+    "/en.pdf"
   );
 });
 

@@ -300,7 +300,7 @@ export const LM_MODULE_PAGE_CHROME = {
   LM03: {
     en: {
       learningPathIntro:
-        "Distinguish architectural dimensions, deepen with recommended reading, translate requirements into platform characteristics, practice a lightweight comparison, then revisit FoodTrace. Complete the LM03 Assessment to verify platform-fit reasoning.",
+        "Start with the Visual Lesson, distinguish architectural dimensions, deepen with recommended reading, translate requirements into platform characteristics, practice comparison and a short fit challenge, then revisit FoodTrace. Complete the LM03 Assessment to verify platform-fit reasoning.",
       sidebarProgress: "Your progress in LM03",
       assessmentTitle: "LM03 Assessment",
       nextRequiredBody:
@@ -315,14 +315,15 @@ export const LM_MODULE_PAGE_CHROME = {
       signInRequired: "Sign in with your Web3Edu identity to load your LM03 progress.",
       loading: "Loading LM03…",
       moduleTypeLabel: "Foundational",
-      activityMixValue: "Concepts, reading, comparison practice, FoodTrace application, assessment",
+      activityMixValue:
+        "Visual lesson, concepts, reading, comparison practice, fit challenge, FoodTrace application, assessment",
       typeLabels: {
         observation: "GUIDED ACTIVITY",
       },
     },
     gr: {
       learningPathIntro:
-        "Διάκρινε τις αρχιτεκτονικές διαστάσεις, εμβάθυνε με την προτεινόμενη ανάγνωση, μετάφρασε απαιτήσεις σε χαρακτηριστικά πλατφόρμας, εξασκήσου σε μια ελαφριά σύγκριση και ξαναδές το FoodTrace. Ολοκλήρωσε την Αξιολόγηση LM03 για να επαληθεύσεις τον συλλογισμό καταλληλότητας πλατφόρμας.",
+        "Ξεκίνα από την Παρουσίαση, διάκρινε τις αρχιτεκτονικές διαστάσεις, εμβάθυνε με την προτεινόμενη ανάγνωση, μετάφρασε απαιτήσεις σε χαρακτηριστικά πλατφόρμας, εξασκήσου σε σύγκριση και μια σύντομη πρόκληση καταλληλότητας και ξαναδές το FoodTrace. Ολοκλήρωσε την Αξιολόγηση LM03 για να επαληθεύσεις τον συλλογισμό καταλληλότητας πλατφόρμας.",
       sidebarProgress: "Η πρόοδός σου στο LM03",
       sidebarAbout: "Σχετικά με το LM03",
       assessmentTitle: "Αξιολόγηση LM03",
@@ -339,7 +340,8 @@ export const LM_MODULE_PAGE_CHROME = {
         "Συνδέσου με την ταυτότητα Web3Edu για να φορτωθεί η πρόοδός σου στο LM03.",
       loading: "Φόρτωση LM03…",
       moduleTypeLabel: "Θεμελιώδες",
-      activityMixValue: "Έννοιες, ανάγνωση, εξάσκηση σύγκρισης, εφαρμογή FoodTrace, αξιολόγηση",
+      activityMixValue:
+        "Παρουσίαση, έννοιες, ανάγνωση, εξάσκηση σύγκρισης, πρόκληση καταλληλότητας, εφαρμογή FoodTrace, αξιολόγηση",
       typeLabels: {
         observation: "ΚΑΘΟΔΗΓΟΥΜΕΝΗ",
       },

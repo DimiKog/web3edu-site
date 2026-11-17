@@ -1,17 +1,56 @@
 import { useState } from "react";
-import { ArrowRight, RotateCcw } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  CircleCheck,
+  CircleHelp,
+  CircleMinus,
+  Info,
+  RotateCcw,
+} from "lucide-react";
 import { getLm03ChapterCopy } from "../../content/lm03ChapterLocale.js";
 import {
   lm03CanvasFeedbackTone,
   resolveLm03CanvasReasoningFeedback,
 } from "../../utils/lm03CanvasReasoningView.js";
+import {
+  lm03FitChallengeFeedbackTone,
+  resolveLm03FitChallengeFeedback,
+} from "../../utils/lm03FitChallengeView.js";
+
+const FIT_CHALLENGE_OPTION_META = {
+  fit: {
+    Icon: CircleCheck,
+    marker: "≈",
+    idle:
+      "border-slate-200/90 bg-white text-slate-800 hover:border-emerald-300/70 hover:bg-emerald-50/40 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-100 dark:hover:border-emerald-400/35 dark:hover:bg-emerald-500/10",
+    active:
+      "border-emerald-400/80 bg-emerald-50 text-emerald-950 shadow-sm ring-2 ring-emerald-400/35 dark:border-emerald-400/50 dark:bg-emerald-500/15 dark:text-emerald-50 dark:ring-emerald-400/30",
+  },
+  misfit: {
+    Icon: CircleMinus,
+    marker: "≠",
+    idle:
+      "border-slate-200/90 bg-white text-slate-800 hover:border-amber-300/70 hover:bg-amber-50/40 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-100 dark:hover:border-amber-400/35 dark:hover:bg-amber-500/10",
+    active:
+      "border-amber-400/80 bg-amber-50 text-amber-950 shadow-sm ring-2 ring-amber-400/35 dark:border-amber-400/45 dark:bg-amber-500/15 dark:text-amber-50 dark:ring-amber-400/25",
+  },
+  needMoreInfo: {
+    Icon: CircleHelp,
+    marker: "?",
+    idle:
+      "border-slate-200/90 bg-white text-slate-800 hover:border-cyan-300/70 hover:bg-cyan-50/40 dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-100 dark:hover:border-cyan-400/35 dark:hover:bg-cyan-500/10",
+    active:
+      "border-cyan-400/80 bg-cyan-50 text-cyan-950 shadow-sm ring-2 ring-cyan-400/40 dark:border-cyan-400/50 dark:bg-cyan-500/15 dark:text-cyan-50 dark:ring-cyan-400/30",
+  },
+};
 
 /**
  * LM03 concept + practice panels for Learning Path disclosure rows.
  * Presentation only — expand/collapse and practice answers never write evidence or progress.
  * @param {{
  *   lang?: "en"|"gr",
- *   panel: "dimensions"|"requirements"|"canvas"|"foodtrace",
+ *   panel: "dimensions"|"requirements"|"canvas"|"fit-challenge"|"foodtrace",
  * }} props
  */
 export default function Lm03ConceptPanel({ lang = "en", panel }) {
@@ -22,6 +61,9 @@ export default function Lm03ConceptPanel({ lang = "en", panel }) {
   }
   if (panel === "canvas") {
     return <PlatformComparisonCanvas copy={copy.canvas} />;
+  }
+  if (panel === "fit-challenge") {
+    return <PlatformFitChallenge copy={copy.fitChallenge} />;
   }
   if (panel === "foodtrace") {
     return <FoodTraceContent copy={copy.foodTrace} />;
@@ -298,6 +340,207 @@ function PlatformComparisonCanvas({ copy }) {
   );
 }
 
+function PlatformFitChallenge({ copy }) {
+  const answers = Array.isArray(copy.answerOptions) ? copy.answerOptions : [];
+  const [selected, setSelected] = useState("");
+  const [feedbackVisible, setFeedbackVisible] = useState(false);
+
+  const selectAnswer = (id) => {
+    setSelected(id);
+    setFeedbackVisible(false);
+  };
+
+  const submitAnswer = () => {
+    if (!selected) return;
+    setFeedbackVisible(true);
+  };
+
+  const reset = () => {
+    setSelected("");
+    setFeedbackVisible(false);
+  };
+
+  const feedbackText = feedbackVisible
+    ? resolveLm03FitChallengeFeedback(copy.reasoningFeedback, selected)
+    : null;
+  const feedbackTone = feedbackText ? lm03FitChallengeFeedbackTone(selected) : null;
+  const selectedOption = answers.find((option) => option.id === selected);
+  const feedbackStatusLabel =
+    feedbackTone === "aligned"
+      ? copy.feedbackStatusAligned
+      : copy.feedbackStatusReconsider;
+
+  return (
+    <div className="space-y-4" data-lm03-panel="fit-challenge">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-3">
+        <span className="inline-flex w-fit shrink-0 rounded-full bg-slate-200/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-700 dark:bg-white/10 dark:text-slate-200">
+          {copy.practiceBadge}
+        </span>
+        <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">{copy.intro}</p>
+      </div>
+
+      <section className="rounded-2xl border border-slate-200/80 bg-white/95 p-3.5 dark:border-white/10 dark:bg-white/[0.04] sm:p-4">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {copy.scenarioTitle}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-800 dark:text-slate-100">
+          {copy.scenarioBody}
+        </p>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200/80 bg-white/95 p-3.5 dark:border-white/10 dark:bg-white/[0.04] sm:p-4">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {copy.requirementsTitle}
+        </p>
+        <ol className="mt-2.5 list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-700 dark:text-slate-200">
+          {(copy.requirements || []).map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="rounded-2xl border border-indigo-200/70 bg-indigo-50/50 p-3.5 dark:border-indigo-400/25 dark:bg-indigo-950/25 sm:p-4">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-200">
+          {copy.candidateTitle}
+        </p>
+        <p className="mt-2 text-sm font-medium leading-6 text-slate-800 dark:text-slate-100">
+          {copy.candidateBody}
+        </p>
+      </section>
+
+      <section className="rounded-2xl border border-slate-200/80 bg-white/95 p-3.5 dark:border-white/10 dark:bg-white/[0.04] sm:p-4">
+        <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {copy.verdictLabel}
+        </p>
+        <p className="mt-2 text-sm font-semibold leading-6 text-slate-900 dark:text-white">
+          {copy.questionTitle}
+        </p>
+        <div
+          className="mt-3 grid gap-2.5 sm:grid-cols-3"
+          role="radiogroup"
+          aria-label={copy.questionTitle}
+        >
+          {answers.map((option) => {
+            const active = selected === option.id;
+            const meta = FIT_CHALLENGE_OPTION_META[option.id] || FIT_CHALLENGE_OPTION_META.needMoreInfo;
+            const OptionIcon = meta.Icon;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() => selectAnswer(option.id)}
+                className={`relative flex min-h-[4.25rem] flex-col items-center justify-center gap-1.5 rounded-2xl border px-3 py-3 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-indigo-300/60 dark:focus-visible:ring-offset-slate-950 ${
+                  active ? meta.active : meta.idle
+                }`}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  <OptionIcon className="h-4 w-4 shrink-0 opacity-90" aria-hidden="true" />
+                  <span className="text-[11px] font-black tracking-wide" aria-hidden="true">
+                    {meta.marker}
+                  </span>
+                </span>
+                <span className="text-[11px] font-extrabold uppercase leading-snug tracking-wide sm:text-xs">
+                  {option.label}
+                </span>
+                {active ? (
+                  <span className="absolute right-2 top-2 inline-flex items-center gap-0.5 rounded-full bg-white/80 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-slate-700 dark:bg-slate-950/50 dark:text-slate-100">
+                    <Check className="h-2.5 w-2.5" aria-hidden="true" />
+                    {copy.selectedHint}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={submitAnswer}
+            disabled={!selected}
+            data-lm03-fit-challenge-submit
+            className="inline-flex min-h-10 items-center rounded-xl border border-slate-300 bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition enabled:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/15 dark:bg-white/90 dark:text-slate-900 dark:enabled:hover:bg-white dark:focus-visible:ring-offset-slate-950"
+          >
+            {copy.submitLabel}
+          </button>
+          {!feedbackText ? (
+            <button
+              type="button"
+              onClick={reset}
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[0.04] dark:focus-visible:ring-offset-slate-950"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              {copy.resetLabel}
+            </button>
+          ) : null}
+        </div>
+      </section>
+
+      {feedbackText ? (
+        <section
+          role="status"
+          aria-live="polite"
+          data-lm03-fit-challenge-feedback={selected}
+          data-lm03-fit-challenge-feedback-tone={feedbackTone}
+          className={`rounded-2xl border p-3.5 sm:p-4 ${
+            feedbackTone === "aligned"
+              ? "border-cyan-300/80 bg-cyan-50/80 dark:border-cyan-400/35 dark:bg-cyan-950/30"
+              : "border-amber-300/70 bg-amber-50/70 dark:border-amber-400/30 dark:bg-amber-950/25"
+          }`}
+        >
+          <div className="flex flex-wrap items-start gap-2.5">
+            <span
+              className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                feedbackTone === "aligned"
+                  ? "bg-cyan-500/15 text-cyan-800 dark:bg-cyan-400/20 dark:text-cyan-100"
+                  : "bg-amber-500/15 text-amber-900 dark:bg-amber-400/20 dark:text-amber-100"
+              }`}
+              aria-hidden="true"
+            >
+              <Info className="h-4 w-4" />
+            </span>
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                {copy.feedbackHeading}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-sm font-bold text-slate-900 dark:text-white">
+                  {feedbackStatusLabel}
+                </p>
+                {selectedOption ? (
+                  <span className="inline-flex max-w-full rounded-full border border-slate-200/80 bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-700 dark:border-white/10 dark:bg-white/[0.06] dark:text-slate-200">
+                    {selectedOption.label}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-3 text-sm font-medium leading-6 text-slate-800 dark:text-slate-100">
+            {feedbackText}
+          </p>
+          <p className="mt-3 border-t border-slate-200/70 pt-3 text-xs leading-5 text-slate-600 dark:border-white/10 dark:text-slate-300">
+            {copy.distinctionNote}
+          </p>
+
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={reset}
+              className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-slate-300/80 bg-white/90 px-3.5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/15 dark:bg-white/[0.06] dark:text-slate-100 dark:hover:bg-white/[0.1] dark:focus-visible:ring-offset-slate-950"
+            >
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              {copy.resetLabel}
+            </button>
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
 function FoodTraceContent({ copy }) {
   return (
     <div className="space-y-3" data-lm03-panel="foodtrace">
@@ -326,17 +569,28 @@ function FoodTraceContent({ copy }) {
         <p className="text-xs font-bold text-slate-900 dark:text-white">
           {copy.validOutcomesTitle}
         </p>
-        <ul className="mt-2 grid gap-1.5 sm:grid-cols-3">
+        <p className="mt-1.5 text-[11px] leading-4 text-slate-500 dark:text-slate-400">
+          {copy.validOutcomesIntro}
+        </p>
+        <ul className="mt-2.5 grid gap-2 sm:grid-cols-3">
           {(copy.validOutcomes || []).map((outcome) => (
             <li
               key={outcome}
-              className="rounded-xl border border-slate-200/80 bg-white px-2.5 py-2 text-center text-[11px] font-bold leading-4 text-slate-800 dark:border-white/10 dark:bg-white/[0.05] dark:text-slate-100"
+              className="flex items-start gap-2 rounded-xl border border-slate-200/70 bg-slate-100/70 px-2.5 py-2.5 text-left dark:border-white/[0.08] dark:bg-white/[0.035]"
             >
-              {outcome}
+              <span
+                className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-200/80 text-slate-600 dark:bg-white/10 dark:text-slate-300"
+                aria-hidden="true"
+              >
+                <Info className="h-3 w-3" />
+              </span>
+              <span className="text-[11px] font-medium leading-4 text-slate-700 dark:text-slate-200">
+                {outcome}
+              </span>
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[11px] leading-4 text-slate-500 dark:text-slate-400">
+        <p className="mt-2.5 text-[11px] leading-4 text-slate-500 dark:text-slate-400">
           {copy.noForceNote}
         </p>
       </div>
